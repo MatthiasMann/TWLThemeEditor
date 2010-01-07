@@ -29,16 +29,15 @@
  */
 package de.matthiasmann.twlthemeeditor;
 
-import de.matthiasmann.twl.CallbackWithReason;
-import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.GUI;
-import de.matthiasmann.twl.ListBox;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
+import de.matthiasmann.twl.TableRowSelectionManager;
+import de.matthiasmann.twl.TreeTable;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
+import de.matthiasmann.twl.model.TableSingleSelectionModel;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
-import de.matthiasmann.twl.renderer.lwjgl.PNGDecoder;
 import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
@@ -48,7 +47,6 @@ import de.matthiasmann.twlthemeeditor.gui.PreviewWidget;
 import de.matthiasmann.twlthemeeditor.gui.PropertyPanel;
 import java.beans.IntrospectionException;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,21 +74,12 @@ public class Main {
 
         ctx.setPropertyOrder("x", "y", "width", "height", "center");
         
-        for(Textures t : tf.findTextures()) {
+        for(Textures t : tf.getTextures()) {
             System.out.println(t);
             
-            URL textureURL = new URL(url, t.getFile());
-            InputStream textureStream = textureURL.openStream();
-            try {
-                PNGDecoder decoder = new PNGDecoder(textureStream);
-                t.setTextureDimensions(new Dimension(decoder.getWidth(), decoder.getHeight()));
-            } finally {
-                textureStream.close();
-            }
-
-            env.registerFile(t.getFile(), textureURL);
+            env.registerFile(t.getFile(), t.getTextureURL());
             
-            for(Image i : t.getImages()) {
+            for(Image i : t.getChildren(Image.class)) {
                 System.out.println("  " + i);
                 images.addElement(i);
             }
@@ -110,17 +99,22 @@ public class Main {
             SplitPane root = new SplitPane();
             GUI gui = new GUI(root, renderer);
 
-            final ListBox lb = new ListBox(images);
-            lb.setTheme("/listbox");
-            
+            final TreeTable treeTable = new TreeTable(tf);
+            final TableSingleSelectionModel selectionModel = new TableSingleSelectionModel();
+            treeTable.setSelectionManager(new TableRowSelectionManager(selectionModel));
+
+            ScrollPane treeTableScrollPane = new ScrollPane(treeTable);
+            treeTableScrollPane.setTheme("/elementTree");
+            treeTableScrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
+
             final ScrollPane scrollPane = new ScrollPane();
-            scrollPane.setTheme("/scrollpane");
+            scrollPane.setTheme("/propertyEditor");
             scrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
 
             SplitPane spTools = new SplitPane();
             spTools.setTheme("/splitpane");
             spTools.setDirection(SplitPane.Direction.VERTICAL);
-            spTools.add(lb);
+            spTools.add(treeTableScrollPane);
             spTools.add(scrollPane);
 
             final PreviewWidget previewWidget = new PreviewWidget(env);
@@ -140,16 +134,17 @@ public class Main {
             root.add(spTools);
             root.add(sp2);//previewWidget);
 
-            lb.addCallback(new CallbackWithReason<ListBox.CallbackReason>() {
-                public void callback(ListBox.CallbackReason reason) {
-                    Object obj = images.getEntry(lb.getSelected());
-                    if(obj != null) {
-                        try {
-                            PropertyPanel propertyPanel = new PropertyPanel(ctx, obj);
-                            propertyPanel.setTheme("/propertypanel");
-                            scrollPane.setContent(propertyPanel);
-                        } catch (IntrospectionException ex) {
-                            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            selectionModel.addSelectionChangeListener(new Runnable() {
+                public void run() {
+                    if(selectionModel.hasSelection()) {
+                        Object obj = treeTable.getNodeFromRow(selectionModel.getFirstSelected());
+                        if(obj != null) {
+                            try {
+                                PropertyPanel propertyPanel = new PropertyPanel(ctx, obj);
+                                scrollPane.setContent(propertyPanel);
+                            } catch (IntrospectionException ex) {
+                                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
                     }
                 }

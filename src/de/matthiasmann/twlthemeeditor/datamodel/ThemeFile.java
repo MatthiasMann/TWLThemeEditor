@@ -29,6 +29,8 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twl.model.AbstractTreeTableModel;
+import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.XMLWriter;
@@ -39,6 +41,7 @@ import java.io.StringReader;
 import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -51,7 +54,7 @@ import org.xml.sax.SAXException;
  *
  * @author Matthias Mann
  */
-public class ThemeFile {
+public class ThemeFile extends AbstractTreeTableModel {
 
     private final Document document;
 
@@ -66,6 +69,7 @@ public class ThemeFile {
                 }
             });
             document = saxb.build(url);
+            findTextures(url);
         } catch(IOException ex) {
             throw ex;
         } catch(Exception ex) {
@@ -86,20 +90,44 @@ public class ThemeFile {
     public void removeCallbacks(Runnable cb) {
         callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
     }
-    
-    public Textures[] findTextures() {
+
+    public List<Textures> getTextures() {
         ArrayList<Textures> result = new ArrayList<Textures>();
+        for(int i=0,n=getNumChildren() ; i<n ; i++) {
+            TreeTableNode child = getChild(i);
+            if(child instanceof Textures) {
+                result.add((Textures)child);
+            }
+        }
+        return result;
+    }
+
+    private static final String COLUMN_HEADER[] = {"Name", "Type"};
+
+    public String getColumnHeaderText(int column) {
+        return COLUMN_HEADER[column];
+    }
+
+    public int getNumColumns() {
+        return COLUMN_HEADER.length;
+    }
+
+    private void findTextures(URL baseUrl) throws IOException {
         for(Object node : getRoot().getChildren()) {
             if(node instanceof Element) {
                 Element element = (Element)node;
                 String tagName = element.getName();
+                NodeWrapper entry = null;
                 
                 if("textures".equals(tagName)) {
-                    result.add(new Textures(this, element));
+                    entry = new Textures(this, element, baseUrl);
+                }
+                
+                if(entry != null) {
+                    insertChild(entry, getNumChildren());
                 }
             }
         }
-        return result.toArray(new Textures[result.size()]);
     }
 
     public VirtualFile createVirtualFile() {

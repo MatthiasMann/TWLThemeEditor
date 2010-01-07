@@ -29,6 +29,10 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twl.model.AbstractTreeTableNode;
+import de.matthiasmann.twl.model.TreeTableNode;
+import java.util.ArrayList;
+import java.util.List;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -36,18 +40,42 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public abstract class NodeWrapper {
+public abstract class NodeWrapper extends AbstractTreeTableNode {
 
-    protected final ThemeFile themeFile;
-    protected final Element root;
+    protected final Element node;
 
-    protected NodeWrapper(ThemeFile themeFile, Element root) {
-        this.themeFile = themeFile;
-        this.root = root;
+    protected NodeWrapper(TreeTableNode parent, Element node) {
+        super(parent);
+        this.node = node;
+
+        for(Object o : node.getChildren()) {
+            if(o instanceof Element) {
+                TreeTableNode ttn = wrap((Element)o);
+                if(ttn != null) {
+                    insertChild(ttn, getNumChildren());
+                }
+            }
+        }
+        setLeaf(getNumChildren() == 0);
+    }
+
+    public <T extends NodeWrapper> List<T> getChildren(Class<T> clazz) {
+        ArrayList<T> result = new ArrayList<T>();
+        for(int i=0,n=getNumChildren() ; i<n ; i++) {
+            TreeTableNode child = getChild(i);
+            if(clazz.isInstance(child)) {
+                result.add(clazz.cast(child));
+            }
+        }
+        return result;
+    }
+    
+    protected ThemeFile getThemeFile() {
+        return (ThemeFile)getTreeTableModel();
     }
 
     protected String getAttribute(String name) {
-        Attribute attr = root.getAttribute(name);
+        Attribute attr = node.getAttribute(name);
         return (attr != null) ? attr.getValue() : null;
     }
 
@@ -71,11 +99,11 @@ public abstract class NodeWrapper {
         String oldValue = getAttribute(name);
         if(!equals(value, oldValue)) {
             if(value == null) {
-                root.removeAttribute(name);
+                node.removeAttribute(name);
             } else {
-                root.setAttribute(name, value);
+                node.setAttribute(name, value);
             }
-            themeFile.fireCallbacks();
+            getThemeFile().fireCallbacks();
         }
     }
 
@@ -89,6 +117,10 @@ public abstract class NodeWrapper {
         } else {
             setAttribute(name, value ? "true" : "false");
         }
+    }
+
+    protected NodeWrapper wrap(Element element) {
+        return null;
     }
 
     private static boolean equals(Object a, Object b) {

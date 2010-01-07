@@ -33,6 +33,7 @@ import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.Rect;
+import de.matthiasmann.twl.model.AbstractTreeTableNode;
 import org.jdom.Element;
 
 /**
@@ -41,8 +42,8 @@ import org.jdom.Element;
  */
 public abstract class Image extends NodeWrapper {
 
-    Image(ThemeFile themeFile, Element root) {
-        super(themeFile, root);
+    Image(AbstractTreeTableNode parent, Element root) {
+        super(parent, root);
     }
 
     public String getName() {
@@ -149,6 +150,17 @@ public abstract class Image extends NodeWrapper {
         return getName();
     }
 
+    public Object getData(int column) {
+        switch (column) {
+            case 0:
+                return getName();
+            case 1:
+                return getClass().getSimpleName();
+            default:
+                return "";
+        }
+    }
+
     public String debugGetProps() {
         StringBuilder sb = new StringBuilder();
         sb.append('[').append(getClass().getSimpleName());
@@ -170,7 +182,7 @@ public abstract class Image extends NodeWrapper {
         private final Textures textures;
 
         Texture(Textures textures, Element root) {
-            super(textures.themeFile, root);
+            super(textures, root);
             this.textures = textures;
         }
 
@@ -200,8 +212,8 @@ public abstract class Image extends NodeWrapper {
     }
 
     public static class Alias extends Image {
-        Alias(ThemeFile themeFile, Element root) {
-            super(themeFile, root);
+        Alias(Textures textures, Element root) {
+            super(textures, root);
         }
 
         public ImageReference getRef() {
