@@ -33,8 +33,6 @@ import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.Rect;
-import de.matthiasmann.twl.model.AbstractTreeTableNode;
-import de.matthiasmann.twl.model.TreeTableNode;
 import org.jdom.Element;
 
 /**
