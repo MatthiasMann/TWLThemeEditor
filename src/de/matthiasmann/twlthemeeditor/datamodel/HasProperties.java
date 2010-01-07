@@ -29,46 +29,12 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.model.TreeTableNode;
-import java.io.IOException;
-import org.jdom.Element;
-
 /**
  *
- * @author Matthias Mann
+ * @author Matthias mann
  */
-public class Include extends ThemeTreeNode {
+public interface HasProperties {
 
-    private final ThemeFile includedThemeFile;
-    private final NodeWrapper node;
-
-    public Include(TreeTableNode parent, Element node, final ThemeFile themeFile) throws IOException {
-        super(parent);
-
-        this.node = new NodeWrapper(themeFile, node);
-        this.includedThemeFile = new ThemeFile(themeFile.getEnv(), themeFile.getURL(getFileName()));
-
-        includedThemeFile.addChildren(this);
-        includedThemeFile.registerAs(getFileName());
-        includedThemeFile.addCallback(new Runnable() {
-            public void run() {
-                themeFile.fireCallbacks();
-            }
-        });
-    }
-
-    public Object getData(int column) {
-        switch (column) {
-            case 0:
-                return getFileName();
-            case 1:
-                return "Include";
-            default:
-                return "";
-        }
-    }
-
-    public String getFileName() {
-        return node.getAttribute("filename");
-    }
+    public Object getProperties();
+    
 }

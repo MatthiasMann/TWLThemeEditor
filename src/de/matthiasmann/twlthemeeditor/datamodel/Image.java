@@ -34,199 +34,203 @@ import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.model.AbstractTreeTableNode;
+import de.matthiasmann.twl.model.TreeTableNode;
 import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public abstract class Image extends NodeWrapper {
+public abstract class Image extends ThemeTreeNode implements HasProperties {
 
-    Image(AbstractTreeTableNode parent, Element root) {
-        super(parent, root);
+    protected ImageProperties properties;
+
+    protected Image(Textures parent) {
+        super(parent);
     }
 
-    public String getName() {
-        return getAttribute("name");
+    public ImageProperties getProperties() {
+        return properties;
     }
 
-    public boolean isCentered() {
-        return parseBoolFromAttribute("center", false);
-    }
+    public class ImageProperties extends NodeWrapper {
+        protected final Textures textures;
 
-    public void setCentered(boolean centered) {
-        setAttribute("center", centered, false);
-    }
-
-    @Optional
-    public Border getBorder() {
-        return Utils.parseBorder(getAttribute("border"));
-    }
-
-    public void setBorder(Border border) {
-        setAttribute("border", Utils.toString(border));
-    }
-
-    @Optional
-    public Border getInset() {
-        return Utils.parseBorder(getAttribute("inset"));
-    }
-
-    public void setInset(Border inset) {
-        setAttribute("inset", Utils.toString(inset));
-    }
-
-    @Optional
-    @MinValueI(0)
-    public Integer getSizeOverwriteH() {
-        String value = getAttribute("sizeOverwriteH");
-        return (value == null) ? null : Integer.valueOf(value);
-    }
-
-    public void setSizeOverwriteH(Integer sizeOverwriteH) {
-        setAttribute("sizeOverwriteH", toStringOrNull(sizeOverwriteH));
-    }
-
-    @Optional
-    @MinValueI(0)
-    public Integer getSizeOverwriteV() {
-        String value = getAttribute("sizeOverwriteV");
-        return (value == null) ? null : Integer.valueOf(value);
-    }
-
-    public void setSizeOverwriteV(Integer sizeOverwriteV) {
-        setAttribute("sizeOverwriteV", toStringOrNull(sizeOverwriteV));
-    }
-
-    public boolean isRepeatX() {
-        return parseBoolFromAttribute("repeatX", false);
-    }
-
-    public void setRepeatX(boolean repeatX) {
-        setAttribute("repeatX", repeatX, false);
-    }
-
-    public boolean isRepeatY() {
-        return parseBoolFromAttribute("repeatY", false);
-    }
-
-    public void setRepeatY(boolean repeatY) {
-        setAttribute("repeatY", repeatY, false);
-    }
-
-    @Optional
-    public Color getTint() {
-        String value = getAttribute("tint");
-        return (value == null) ? null : Color.parserColor(value);
-    }
-
-    public void setTint(Color tint) {
-        setAttribute("tint", toStringOrNull(tint));
-    }
-
-    public Condition getCondition() {
-        String cond = getAttribute("if");
-        if(cond != null) {
-            return new Condition(Condition.Type.IF, cond);
+        protected ImageProperties(Textures textures, Element node) {
+            super(textures.getThemeFile(), node);
+            this.textures = textures;
         }
-        cond = getAttribute("unless");
-        if(cond != null) {
-            return new Condition(Condition.Type.UNLESS, cond);
-        }
-        return Condition.NONE;
-    }
 
-    public void setCondition(Condition condition) {
-        setAttribute("if", (condition.getType() == Condition.Type.IF) ? condition.getCondition() : null);
-        setAttribute("unless", (condition.getType() == Condition.Type.UNLESS) ? condition.getCondition() : null);
+        public String getName() {
+            return getAttribute("name");
+        }
+
+        public boolean isCentered() {
+            return parseBoolFromAttribute("center", false);
+        }
+
+        public void setCentered(boolean centered) {
+            setAttribute("center", centered, false);
+        }
+
+        @Optional
+        public Border getBorder() {
+            return Utils.parseBorder(getAttribute("border"));
+        }
+
+        public void setBorder(Border border) {
+            setAttribute("border", Utils.toString(border));
+        }
+
+        @Optional
+        public Border getInset() {
+            return Utils.parseBorder(getAttribute("inset"));
+        }
+
+        public void setInset(Border inset) {
+            setAttribute("inset", Utils.toString(inset));
+        }
+
+        @Optional
+        @MinValueI(0)
+        public Integer getSizeOverwriteH() {
+            String value = getAttribute("sizeOverwriteH");
+            return (value == null) ? null : Integer.valueOf(value);
+        }
+
+        public void setSizeOverwriteH(Integer sizeOverwriteH) {
+            setAttribute("sizeOverwriteH", Utils.toStringOrNull(sizeOverwriteH));
+        }
+
+        @Optional
+        @MinValueI(0)
+        public Integer getSizeOverwriteV() {
+            String value = getAttribute("sizeOverwriteV");
+            return (value == null) ? null : Integer.valueOf(value);
+        }
+
+        public void setSizeOverwriteV(Integer sizeOverwriteV) {
+            setAttribute("sizeOverwriteV", Utils.toStringOrNull(sizeOverwriteV));
+        }
+
+        public boolean isRepeatX() {
+            return parseBoolFromAttribute("repeatX", false);
+        }
+
+        public void setRepeatX(boolean repeatX) {
+            setAttribute("repeatX", repeatX, false);
+        }
+
+        public boolean isRepeatY() {
+            return parseBoolFromAttribute("repeatY", false);
+        }
+
+        public void setRepeatY(boolean repeatY) {
+            setAttribute("repeatY", repeatY, false);
+        }
+
+        @Optional
+        public Color getTint() {
+            String value = getAttribute("tint");
+            return (value == null) ? null : Color.parserColor(value);
+        }
+
+        public void setTint(Color tint) {
+            setAttribute("tint", Utils.toStringOrNull(tint));
+        }
+
+        public Condition getCondition() {
+            String cond = getAttribute("if");
+            if(cond != null) {
+                return new Condition(Condition.Type.IF, cond);
+            }
+            cond = getAttribute("unless");
+            if(cond != null) {
+                return new Condition(Condition.Type.UNLESS, cond);
+            }
+            return Condition.NONE;
+        }
+
+        public void setCondition(Condition condition) {
+            setAttribute("if", (condition.getType() == Condition.Type.IF) ? condition.getCondition() : null);
+            setAttribute("unless", (condition.getType() == Condition.Type.UNLESS) ? condition.getCondition() : null);
+        }
     }
 
     public ImageReference makeReference() {
-        return new ImageReference(getName());
+        return new ImageReference(properties.getName());
+    }
+
+    public String getName() {
+        return properties.getName();
     }
 
     @Override
     public String toString() {
-        return getName();
+        return properties.getName();
     }
 
     public Object getData(int column) {
         switch (column) {
             case 0:
-                return getName();
+                return properties.getName();
             case 1:
                 return getClass().getSimpleName();
             default:
                 return "";
         }
     }
-
-    public String debugGetProps() {
-        StringBuilder sb = new StringBuilder();
-        sb.append('[').append(getClass().getSimpleName());
-        sb.append(" name=\"").append(getName()).append('\"');
-        sb.append(" centered=").append(isCentered());
-        sb.append(" border=").append(getBorder());
-        sb.append(" inset=").append(getInset());
-        appendChildProps(sb);
-        return sb.append(']').toString();
-    }
-
-    static String toStringOrNull(Object o) {
-        return (o == null) ? null : o.toString();
-    }
     
-    protected abstract void appendChildProps(StringBuilder sb);
-
-    public static class Texture extends Image implements HasTextureDimensions {
-        private final Textures textures;
-
+    public static class Texture extends Image {
         Texture(Textures textures, Element root) {
-            super(textures, root);
-            this.textures = textures;
+            super(textures);
+            this.properties = new TextureProperties(textures, root);
         }
 
-        public Rect getRect() {
-            return new Rect(
-                    parseIntFromAttribute("x"),
-                    parseIntFromAttribute("y"),
-                    parseIntFromAttribute("width"),
-                    parseIntFromAttribute("height"));
-        }
+        public class TextureProperties extends ImageProperties implements HasTextureDimensions {
+            public TextureProperties(Textures textures, Element node) {
+                super(textures, node);
+            }
 
-        public void setRect(Rect rect) {
-            setAttribute("x", rect.getX());
-            setAttribute("y", rect.getY());
-            setAttribute("width", rect.getWidth());
-            setAttribute("height", rect.getHeight());
-        }
+            public Rect getRect() {
+                return new Rect(
+                        parseIntFromAttribute("x"),
+                        parseIntFromAttribute("y"),
+                        parseIntFromAttribute("width"),
+                        parseIntFromAttribute("height"));
+            }
 
-        public Dimension getTextureDimensions() {
-            return textures.getTextureDimensions();
-        }
+            public void setRect(Rect rect) {
+                setAttribute("x", rect.getX());
+                setAttribute("y", rect.getY());
+                setAttribute("width", rect.getWidth());
+                setAttribute("height", rect.getHeight());
+            }
 
-        @Override
-        protected void appendChildProps(StringBuilder sb) {
-            sb.append(" rect=").append(getRect());
+            public Dimension getTextureDimensions() {
+                return textures.getTextureDimensions();
+            }
         }
     }
 
     public static class Alias extends Image {
-        Alias(Textures textures, Element root) {
-            super(textures, root);
+        public Alias(Textures parent, Element node) {
+            super(parent);
+            this.properties = new AliasProperties(parent, node);
         }
 
-        public ImageReference getRef() {
-            return new ImageReference(getAttribute("ref"));
-        }
+        public class AliasProperties extends ImageProperties {
+            public AliasProperties(Textures textures, Element node) {
+                super(textures, node);
+            }
 
-        public void setRef(ImageReference ref) {
-            setAttribute("ref", ref.getName());
-        }
-        
-        @Override
-        protected void appendChildProps(StringBuilder sb) {
-            sb.append(" ref=").append(getRef());
+            public ImageReference getRef() {
+                return new ImageReference(getAttribute("ref"));
+            }
+
+            public void setRef(ImageReference ref) {
+                setAttribute("ref", ref.getName());
+            }
         }
     }
 

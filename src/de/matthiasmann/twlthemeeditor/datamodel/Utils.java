@@ -30,8 +30,13 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.Border;
+import de.matthiasmann.twl.model.TreeTableNode;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jdom.Element;
 
 /**
  *
@@ -87,5 +92,40 @@ final class Utils {
             return border.getBorderLeft()+","+border.getBorderTop();
         }
         return border.getBorderTop()+","+border.getBorderLeft()+","+border.getBorderBottom()+","+border.getBorderRight();
+    }
+
+    public static void addChildren(ThemeFile themeFile, ModifyableTreeTableNode parent, Element node, DomWrapper wrapper) throws IOException {
+        for(Object o : node.getChildren()) {
+            if(o instanceof Element) {
+                TreeTableNode ttn = wrapper.wrap(themeFile, parent, (Element)o);
+                if(ttn != null) {
+                    parent.appendChild(ttn);
+                }
+            }
+        }
+        parent.setLeaf(parent.getNumChildren() == 0);
+    }
+
+    public static <T extends TreeTableNode> void getChildren(TreeTableNode node, Class<T> clazz, List<T> result) {
+        for(int i=0,n=node.getNumChildren() ; i<n ; i++) {
+            TreeTableNode child = node.getChild(i);
+            if(clazz.isInstance(child)) {
+                result.add(clazz.cast(child));
+            }
+        }
+    }
+
+    public static <T extends TreeTableNode> List<T> getChildren(TreeTableNode node, Class<T> clazz) {
+        ArrayList<T> result = new ArrayList<T>();
+        getChildren(node, clazz, result);
+        return result;
+    }
+
+    public static boolean equals(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
+    }
+    
+    public static String toStringOrNull(Object o) {
+        return (o == null) ? null : o.toString();
     }
 }

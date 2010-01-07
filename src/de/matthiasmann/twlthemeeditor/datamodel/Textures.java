@@ -32,7 +32,6 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.renderer.lwjgl.PNGDecoder;
-import de.matthiasmann.twlthemeeditor.TestEnv;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -42,15 +41,20 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Textures extends NodeWrapper {
+public class Textures extends ThemeTreeNode {
 
+    private final ThemeFile themeFile;
     private final URL textureURL;
     private final Dimension textureDimensions;
+    private final NodeWrapper node;
     
-    Textures(TreeTableNode parent, Element root, URL url, TestEnv env) throws IOException {
-        super(parent, root);
+    Textures(TreeTableNode parent, Element node, ThemeFile themeFile) throws IOException {
+        super(parent);
 
-        textureURL = new URL(url, getFile());
+        this.themeFile = themeFile;
+        this.node = new NodeWrapper(themeFile, node);
+        
+        textureURL = themeFile.getURL(getFile());
         InputStream textureStream = textureURL.openStream();
         try {
             PNGDecoder decoder = new PNGDecoder(textureStream);
@@ -59,15 +63,33 @@ public class Textures extends NodeWrapper {
             textureStream.close();
         }
 
-        env.registerFile(getFile(), textureURL);
+        themeFile.getEnv().registerFile(getFile(), textureURL);
+
+        Utils.addChildren(themeFile, this, node, new DomWrapper() {
+            public TreeTableNode wrap(ThemeFile themeFile, TreeTableNode parent, Element element) {
+                String tagName = element.getName();
+
+                if("texture".equals(tagName)) {
+                    return new Image.Texture(Textures.this, element);
+                }
+                if("alias".equals(tagName)) {
+                    return new Image.Alias(Textures.this, element);
+                }
+                return null;
+            }
+        });
+    }
+
+    public ThemeFile getThemeFile() {
+        return themeFile;
     }
 
     public String getFile() {
-        return getAttribute("file");
+        return node.getAttribute("file");
     }
 
     public String getFormat() {
-        return getAttribute("format");
+        return node.getAttribute("format");
     }
 
     public URL getTextureURL() {
@@ -93,19 +115,4 @@ public class Textures extends NodeWrapper {
     public Dimension getTextureDimensions() {
         return textureDimensions;
     }
-
-    @Override
-    protected NodeWrapper wrap(Element element) {
-        String tagName = element.getName();
-        Image image = null;
-
-        if("texture".equals(tagName)) {
-            return new Image.Texture(this, element);
-        }
-        if("alias".equals(tagName)) {
-            return new Image.Alias(this, element);
-        }
-        return null;
-    }
-
 }

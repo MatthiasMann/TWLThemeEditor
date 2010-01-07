@@ -29,7 +29,6 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.model.AbstractTreeTableModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.TestEnv;
@@ -40,9 +39,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -55,13 +53,18 @@ import org.xml.sax.SAXException;
  *
  * @author Matthias Mann
  */
-public class ThemeFile extends AbstractTreeTableModel {
+public class ThemeFile {
 
+    private final TestEnv env;
+    private final URL url;
     private final Document document;
 
     private Runnable[] callbacks;
 
     public ThemeFile(TestEnv env, URL url) throws IOException {
+        this.env = env;
+        this.url = url;
+        
         try {
             SAXBuilder saxb = new SAXBuilder(false);
             saxb.setEntityResolver(new EntityResolver() {
@@ -70,7 +73,6 @@ public class ThemeFile extends AbstractTreeTableModel {
                 }
             });
             document = saxb.build(url);
-            findTextures(env, url);
         } catch(IOException ex) {
             throw ex;
         } catch(Exception ex) {
@@ -92,72 +94,36 @@ public class ThemeFile extends AbstractTreeTableModel {
         callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
     }
 
-    public List<Textures> getTextures() {
-        ArrayList<Textures> result = new ArrayList<Textures>();
-        for(int i=0,n=getNumChildren() ; i<n ; i++) {
-            TreeTableNode child = getChild(i);
-            if(child instanceof Textures) {
-                result.add((Textures)child);
-            }
-        }
-        return result;
+    public TestEnv getEnv() {
+        return env;
     }
 
-    private static final String COLUMN_HEADER[] = {"Name", "Type"};
-
-    public String getColumnHeaderText(int column) {
-        return COLUMN_HEADER[column];
+    public URL getURL(String file) throws MalformedURLException {
+        return new URL(url, file);
     }
 
-    public int getNumColumns() {
-        return COLUMN_HEADER.length;
-    }
-
-    private void findTextures(TestEnv env, URL baseUrl) throws IOException {
-        for(Object node : getRoot().getChildren()) {
-            if(node instanceof Element) {
-                Element element = (Element)node;
+    protected void addChildren(ModifyableTreeTableNode parent) throws IOException {
+        Utils.addChildren(this, parent, document.getRootElement(), new DomWrapper() {
+            public TreeTableNode wrap(ThemeFile themeFile, TreeTableNode parent, Element element) throws IOException {
                 String tagName = element.getName();
-                NodeWrapper entry = null;
-                
+
                 if("textures".equals(tagName)) {
-                    entry = new Textures(this, element, baseUrl, env);
-                } else if("include".equals(tagName)) {
-                    entry = new Include(this, element, baseUrl, env);
+                    return new Textures(parent, element, ThemeFile.this);
                 }
-                
-                if(entry != null) {
-                    insertChild(entry, getNumChildren());
+                if("include".equals(tagName)) {
+                    return new Include(parent, element, ThemeFile.this);
                 }
+                return null;
             }
-        }
+        });
     }
 
-    public VirtualFile createVirtualFile() {
-        return new VirtualXMLFile(document);
-    }
-    
-    private Element getRoot() {
-        return document.getRootElement();
+    public void registerAs(String filename) {
+        env.registerFile(filename, new VirtualXMLFile(document));
     }
 
     void fireCallbacks() {
         CallbackSupport.fireCallbacks(callbacks);
-    }
-
-    @Override
-    protected void fireNodesAdded(TreeTableNode parent, int idx, int count) {
-        super.fireNodesAdded(parent, idx, count);
-    }
-
-    @Override
-    protected void fireNodesChanged(TreeTableNode parent, int idx, int count) {
-        super.fireNodesChanged(parent, idx, count);
-    }
-
-    @Override
-    protected void fireNodesRemoved(TreeTableNode parent, int idx, int count) {
-        super.fireNodesRemoved(parent, idx, count);
     }
 
 }

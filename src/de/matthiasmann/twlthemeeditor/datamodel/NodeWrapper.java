@@ -29,10 +29,6 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.model.AbstractTreeTableNode;
-import de.matthiasmann.twl.model.TreeTableNode;
-import java.util.ArrayList;
-import java.util.List;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -40,38 +36,18 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public abstract class NodeWrapper extends AbstractTreeTableNode {
+public class NodeWrapper {
 
+    protected final ThemeFile themeFile;
     protected final Element node;
 
-    protected NodeWrapper(TreeTableNode parent, Element node) {
-        super(parent);
+    protected NodeWrapper(ThemeFile themeFile, Element node) {
+        this.themeFile = themeFile;
         this.node = node;
-
-        for(Object o : node.getChildren()) {
-            if(o instanceof Element) {
-                TreeTableNode ttn = wrap((Element)o);
-                if(ttn != null) {
-                    insertChild(ttn, getNumChildren());
-                }
-            }
-        }
-        setLeaf(getNumChildren() == 0);
     }
 
-    public <T extends NodeWrapper> List<T> getChildren(Class<T> clazz) {
-        ArrayList<T> result = new ArrayList<T>();
-        for(int i=0,n=getNumChildren() ; i<n ; i++) {
-            TreeTableNode child = getChild(i);
-            if(clazz.isInstance(child)) {
-                result.add(clazz.cast(child));
-            }
-        }
-        return result;
-    }
-    
     protected ThemeFile getThemeFile() {
-        return (ThemeFile)getTreeTableModel();
+        return themeFile;
     }
 
     protected String getAttribute(String name) {
@@ -97,7 +73,7 @@ public abstract class NodeWrapper extends AbstractTreeTableNode {
 
     protected void setAttribute(String name, String value) {
         String oldValue = getAttribute(name);
-        if(!equals(value, oldValue)) {
+        if(!Utils.equals(value, oldValue)) {
             if(value == null) {
                 node.removeAttribute(name);
             } else {
@@ -119,11 +95,4 @@ public abstract class NodeWrapper extends AbstractTreeTableNode {
         }
     }
 
-    protected NodeWrapper wrap(Element element) {
-        return null;
-    }
-
-    private static boolean equals(Object a, Object b) {
-        return (a == b) || (a != null && a.equals(b));
-    }
 }

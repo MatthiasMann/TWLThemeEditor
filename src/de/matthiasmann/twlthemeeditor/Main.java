@@ -39,9 +39,11 @@ import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.model.TableSingleSelectionModel;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
+import de.matthiasmann.twlthemeeditor.datamodel.HasProperties;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.gui.Context;
 import de.matthiasmann.twlthemeeditor.gui.PreviewWidget;
 import de.matthiasmann.twlthemeeditor.gui.PropertyPanel;
@@ -66,15 +68,16 @@ public class Main {
     public static void main(String[] args) throws Exception {
         final TestEnv env = new TestEnv();
 
-        URL url = Main.class.getResource("simple.xml");
+        URL url = Main.class.getResource("gui.xml");
         ThemeFile tf = new ThemeFile(env, url);
+        ThemeTreeModel ttm = new ThemeTreeModel(tf);
 
         final SimpleChangableListModel<Image> images = new SimpleChangableListModel<Image>();
         final Context ctx = new Context(images);
 
         ctx.setPropertyOrder("x", "y", "width", "height", "center");
         
-        for(Textures t : tf.getTextures()) {
+        for(Textures t : ttm.getTextures()) {
             System.out.println(t);
             
             for(Image i : t.getChildren(Image.class)) {
@@ -83,7 +86,7 @@ public class Main {
             }
         }
 
-        env.registerFile("/theme.xml", tf.createVirtualFile());
+        tf.registerAs("/theme.xml");
         env.registerFile("/font.fnt", new URL(url, "font.fnt"));
         env.registerFile("/font_00.png", new URL(url, "font_00.png"));
         
@@ -97,7 +100,7 @@ public class Main {
             SplitPane root = new SplitPane();
             GUI gui = new GUI(root, renderer);
 
-            final TreeTable treeTable = new TreeTable(tf);
+            final TreeTable treeTable = new TreeTable(ttm);
             final TableSingleSelectionModel selectionModel = new TableSingleSelectionModel();
             treeTable.setSelectionManager(new TableRowSelectionManager(selectionModel));
 
@@ -136,9 +139,9 @@ public class Main {
                 public void run() {
                     if(selectionModel.hasSelection()) {
                         Object obj = treeTable.getNodeFromRow(selectionModel.getFirstSelected());
-                        if(obj != null) {
+                        if(obj instanceof HasProperties) {
                             try {
-                                PropertyPanel propertyPanel = new PropertyPanel(ctx, obj);
+                                PropertyPanel propertyPanel = new PropertyPanel(ctx, ((HasProperties)obj).getProperties());
                                 scrollPane.setContent(propertyPanel);
                             } catch (IntrospectionException ex) {
                                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
