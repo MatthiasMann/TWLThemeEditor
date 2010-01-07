@@ -66,6 +66,11 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
+        try {
+            System.setProperty("org.lwjgl.input.Mouse.allowNegativeMouseCoords", "true");
+        } catch (Throwable unused) {
+        }
+        
         final TestEnv env = new TestEnv();
 
         URL url = Main.class.getResource("gui.xml");

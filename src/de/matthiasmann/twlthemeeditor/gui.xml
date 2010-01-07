@@ -4,6 +4,186 @@
 <themes>
     <include filename="simple.xml"/>
 
+    <textures file="gui.png" format="RGBA">
+        <texture name="panel.background" x="0" y="19" width="1" height="1"/>
+        <texture name="panel.separator" x="6" y="19" width="1" height="2"/>
+        
+        <texture name="-area1L"  x="0" y="0" width="5" height="18"/>
+        <texture name="-area1F"  x="4" y="0" width="1" height="18"/>
+        <texture name="-area1CR" x="4" y="0" width="3" height="18"/>
+        <texture name="-area1CL" x="6" y="0" width="3" height="18"/>
+        <texture name="-area1R"  x="8" y="0" width="5" height="18"/>
+
+        <texture name="-area2L"  x="14" y="0" width="5" height="18"/>
+        <texture name="-area2F"  x="18" y="0" width="1" height="18"/>
+        <texture name="-area2CR" x="18" y="0" width="3" height="18"/>
+        <texture name="-area2CL" x="20" y="0" width="3" height="18"/>
+        <texture name="-area2R"  x="22" y="0" width="5" height="18"/>
+
+        <texture name="-area3L"  x="28" y="0" width="5" height="18"/>
+        <texture name="-area3F"  x="32" y="0" width="1" height="18"/>
+        <texture name="-area3CR" x="32" y="0" width="3" height="18"/>
+        <texture name="-area3CL" x="34" y="0" width="3" height="18"/>
+        <texture name="-area3R"  x="36" y="0" width="5" height="18"/>
+
+        <texture name="-area4L"  x="42" y="0" width="5" height="18"/>
+        <texture name="-area4F"  x="46" y="0" width="1" height="18"/>
+        <texture name="-area4CR" x="46" y="0" width="3" height="18"/>
+        <texture name="-area4CL" x="48" y="0" width="3" height="18"/>
+        <texture name="-area4R"  x="50" y="0" width="5" height="18"/>
+
+        <texture name="-area5L"  x="56" y="0" width="5" height="18"/>
+        <texture name="-area5F"  x="60" y="0" width="1" height="18"/>
+        <texture name="-area5CR" x="60" y="0" width="3" height="18"/>
+        <texture name="-area5CL" x="62" y="0" width="3" height="18"/>
+        <texture name="-area5R"  x="64" y="0" width="5" height="18"/>
+
+        <texture name="-area6L"  x="70" y="0" width="5" height="18"/>
+        <texture name="-area6F"  x="74" y="0" width="1" height="18"/>
+        <texture name="-area6CR" x="74" y="0" width="3" height="18"/>
+        <texture name="-area6CL" x="76" y="0" width="3" height="18"/>
+        <texture name="-area6R"  x="78" y="0" width="5" height="18"/>
+
+        <grid name="area1L" weightsX="0,1" weightsY="1">
+            <alias ref="-area1L"/>
+            <alias ref="-area1F"/>
+        </grid>
+        <grid name="area1C" weightsX="0,1" weightsY="1">
+            <alias ref="-area1CL"/>
+            <alias ref="-area1F"/>
+        </grid>
+        <grid name="area1R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area1CL"/>
+            <alias ref="-area1F"/>
+            <alias ref="-area1R"/>
+        </grid>
+        <grid name="area1" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area1L"/>
+            <alias ref="-area1F"/>
+            <alias ref="-area1R"/>
+        </grid>
+
+        <grid name="area2L" weightsX="0,1" weightsY="1">
+            <alias ref="-area2L"/>
+            <alias ref="-area2F"/>
+        </grid>
+        <grid name="area2C" weightsX="0,1" weightsY="1">
+            <alias ref="-area2CL"/>
+            <alias ref="-area2F"/>
+        </grid>
+        <grid name="area2R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area2CL"/>
+            <alias ref="-area2F"/>
+            <alias ref="-area2R"/>
+        </grid>
+        <grid name="area2" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area2L"/>
+            <alias ref="-area2F"/>
+            <alias ref="-area2R"/>
+        </grid>
+
+        <grid name="area3L" weightsX="0,1" weightsY="1">
+            <alias ref="-area3L"/>
+            <alias ref="-area3F"/>
+        </grid>
+        <grid name="area3C" weightsX="0,1" weightsY="1">
+            <alias ref="-area3CL"/>
+            <alias ref="-area3F"/>
+        </grid>
+        <grid name="area3R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area3CL"/>
+            <alias ref="-area3F"/>
+            <alias ref="-area3R"/>
+        </grid>
+        <grid name="area3" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area3L"/>
+            <alias ref="-area3F"/>
+            <alias ref="-area3R"/>
+        </grid>
+
+        <grid name="area4L" weightsX="0,1" weightsY="1">
+            <alias ref="-area4L"/>
+            <alias ref="-area4F"/>
+        </grid>
+        <grid name="area4C" weightsX="0,1" weightsY="1">
+            <alias ref="-area4CL"/>
+            <alias ref="-area4F"/>
+        </grid>
+        <grid name="area4R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area4CL"/>
+            <alias ref="-area4F"/>
+            <alias ref="-area4R"/>
+        </grid>
+        <grid name="area4" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area4L"/>
+            <alias ref="-area4F"/>
+            <alias ref="-area4R"/>
+        </grid>
+
+        <grid name="area5L" weightsX="0,1" weightsY="1">
+            <alias ref="-area5L"/>
+            <alias ref="-area5F"/>
+        </grid>
+        <grid name="area5C" weightsX="0,1" weightsY="1">
+            <alias ref="-area5CL"/>
+            <alias ref="-area5F"/>
+        </grid>
+        <grid name="area5R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area5CL"/>
+            <alias ref="-area5F"/>
+            <alias ref="-area5R"/>
+        </grid>
+        <grid name="area5" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area5L"/>
+            <alias ref="-area5F"/>
+            <alias ref="-area5R"/>
+        </grid>
+        
+        <grid name="area6L" weightsX="0,1" weightsY="1">
+            <alias ref="-area6L"/>
+            <alias ref="-area6F"/>
+        </grid>
+        <grid name="area6C" weightsX="0,1" weightsY="1">
+            <alias ref="-area6CL"/>
+            <alias ref="-area6F"/>
+        </grid>
+        <grid name="area6R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area6CL"/>
+            <alias ref="-area6F"/>
+            <alias ref="-area6R"/>
+        </grid>
+        <grid name="area6" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area6L"/>
+            <alias ref="-area6F"/>
+            <alias ref="-area6R"/>
+        </grid>
+
+        <select name="buttonL.background">
+            <alias ref="area6L" if="selected + armed"/>
+            <alias ref="area5L" if="selected + hover"/>
+            <alias ref="area4L" if="selected"/>
+            <alias ref="area3L" if="armed"/>
+            <alias ref="area2L" if="hover"/>
+            <alias ref="area1L"/>
+        </select>
+        <select name="buttonC.background">
+            <alias ref="area6C" if="selected + armed"/>
+            <alias ref="area5C" if="selected + hover"/>
+            <alias ref="area4C" if="selected"/>
+            <alias ref="area3C" if="armed"/>
+            <alias ref="area2C" if="hover"/>
+            <alias ref="area1C"/>
+        </select>
+        <select name="buttonR.background">
+            <alias ref="area6R" if="selected + armed"/>
+            <alias ref="area5R" if="selected + hover"/>
+            <alias ref="area4R" if="selected"/>
+            <alias ref="area3R" if="armed"/>
+            <alias ref="area2R" if="hover"/>
+            <alias ref="area1R"/>
+        </select>
+    </textures>
+
     <theme name="elementTree" ref="scrollpane">
         <param name="background"><image>-borderC</image></param>
         <param name="border"><border>background.border</border></param>
@@ -11,10 +191,16 @@
     </theme>
 
     <theme name="propertyEditor" ref="scrollpane">
-        <param name="background"><image>-borderB</image></param>
+        <param name=""><image>panel.*</image></param>
         <param name="border"><border>background.border</border></param>
 
         <theme name="propertypanel" ref="dialoglayout">
+            <param name="border"><border>5</border></param>
+            <theme name="separator" ref="-defaults">
+                <param name="background"><image>panel.separator</image></param>
+                <param name="border"><border>background.border</border></param>
+                <param name="maxWidth"><int>32767</int></param>
+            </theme>
             <theme name="active" ref="checkbox"/>
             <theme name="boolean" ref="checkbox"/>
             <theme name="colorselector" ref="colorselector">
@@ -28,15 +214,21 @@
                 </theme>
             </theme>
             <theme name="condition-none" ref="togglebutton">
+                <param name=""><image>buttonL.*</image></param>
                 <param name="text"><string>None</string></param>
             </theme>
             <theme name="condition-if" ref="togglebutton">
+                <param name=""><image>buttonC.*</image></param>
                 <param name="text"><string>If</string></param>
             </theme>
             <theme name="condition-unless" ref="togglebutton">
+                <param name=""><image>buttonR.*</image></param>
                 <param name="text"><string>Unless</string></param>
             </theme>
             <theme name="" ref="*"/>
+            <param name="namedGaps"><map>
+                <param name="radiobutton"><gap>0</gap></param>
+            </map></param>
         </theme>
     </theme>
 
