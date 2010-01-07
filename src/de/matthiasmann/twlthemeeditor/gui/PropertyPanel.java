@@ -48,25 +48,11 @@ public class PropertyPanel extends DialogLayout {
     protected static final int NUM_COLUMNS = 2;
 
     protected final Context ctx;
-    protected final Group horzActive;
-    protected final Group horzColumns[];
-    protected final Group horzComplete;
 
     public PropertyPanel(Context ctx, Object obj) throws IntrospectionException {
         this.ctx = ctx;
         
-        horzComplete = createParallelGroup();
-        horzActive = createParallelGroup();
-        horzColumns = new Group[NUM_COLUMNS];
-
-        for(int i=0 ; i<NUM_COLUMNS ; i++) {
-            horzColumns[i] = createParallelGroup();
-        }
-
-        horzComplete.addGroup(createSequentialGroup(horzColumns));
-        
-        setHorizontalGroup(createParallelGroup()
-                .addGroup(createSequentialGroup().addGroup(horzActive).addGroup(horzComplete)));
+        setHorizontalGroup(createParallelGroup());
         setVerticalGroup(createSequentialGroup());
 
         BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());
@@ -95,25 +81,18 @@ public class PropertyPanel extends DialogLayout {
 
         PropertyEditorFactory factory = ctx.getFactory(type);
         if(factory != null) {
-            Group vert = createParallelGroup();
             ToggleButton btnActive = null;
 
             if(optional) {
                 btnActive = new ToggleButton();
                 btnActive.setTheme("active");
-                horzActive.addWidget(btnActive);
-                vert.addGroup(createSequentialGroup().addWidget(btnActive).addGap());
             }
 
-            factory.create(this, vert, new PropertyAccessor(obj, pd, btnActive));
+            Widget content = factory.create(new PropertyAccessor(obj, pd, btnActive));
 
-            getVerticalGroup().addGroup(vert);
-
-            Widget separator = new Widget();
-            separator.setTheme("separator");
-            getHorizontalGroup().addWidget(separator);
-            getVerticalGroup().addWidget(separator);
-            
+            CollapsiblePanel panel = new CollapsiblePanel(pd.getDisplayName(), content, btnActive);
+            getVerticalGroup().addWidget(panel);
+            getHorizontalGroup().addWidget(panel);            
         } else {
             System.out.println("No factory for property " + pd.getName() + " type " + type);
         }

@@ -29,7 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.Widget;
 
 /**
  *
@@ -37,6 +37,6 @@ import de.matthiasmann.twl.DialogLayout;
  */
 public interface PropertyEditorFactory<T> {
 
-    public void create(PropertyPanel panel, DialogLayout.Group vert, PropertyAccessor<T> pa);
+    public Widget create(PropertyAccessor<T> pa);
     
 }

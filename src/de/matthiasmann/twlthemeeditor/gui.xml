@@ -7,7 +7,7 @@
     <textures file="gui.png" format="RGBA">
         <texture name="panel.background" x="0" y="19" width="1" height="1"/>
         <texture name="panel.separator" x="6" y="19" width="1" height="2"/>
-        
+
         <texture name="-area1L"  x="0" y="0" width="5" height="18"/>
         <texture name="-area1F"  x="4" y="0" width="1" height="18"/>
         <texture name="-area1CR" x="4" y="0" width="3" height="18"/>
@@ -57,7 +57,7 @@
             <alias ref="-area1F"/>
             <alias ref="-area1R"/>
         </grid>
-        <grid name="area1" weightsX="0,1,0" weightsY="1">
+        <grid name="area1X" weightsX="0,1,0" weightsY="1">
             <alias ref="-area1L"/>
             <alias ref="-area1F"/>
             <alias ref="-area1R"/>
@@ -76,7 +76,7 @@
             <alias ref="-area2F"/>
             <alias ref="-area2R"/>
         </grid>
-        <grid name="area2" weightsX="0,1,0" weightsY="1">
+        <grid name="area2X" weightsX="0,1,0" weightsY="1">
             <alias ref="-area2L"/>
             <alias ref="-area2F"/>
             <alias ref="-area2R"/>
@@ -95,7 +95,7 @@
             <alias ref="-area3F"/>
             <alias ref="-area3R"/>
         </grid>
-        <grid name="area3" weightsX="0,1,0" weightsY="1">
+        <grid name="area3X" weightsX="0,1,0" weightsY="1">
             <alias ref="-area3L"/>
             <alias ref="-area3F"/>
             <alias ref="-area3R"/>
@@ -114,7 +114,7 @@
             <alias ref="-area4F"/>
             <alias ref="-area4R"/>
         </grid>
-        <grid name="area4" weightsX="0,1,0" weightsY="1">
+        <grid name="area4X" weightsX="0,1,0" weightsY="1">
             <alias ref="-area4L"/>
             <alias ref="-area4F"/>
             <alias ref="-area4R"/>
@@ -133,7 +133,7 @@
             <alias ref="-area5F"/>
             <alias ref="-area5R"/>
         </grid>
-        <grid name="area5" weightsX="0,1,0" weightsY="1">
+        <grid name="area5X" weightsX="0,1,0" weightsY="1">
             <alias ref="-area5L"/>
             <alias ref="-area5F"/>
             <alias ref="-area5R"/>
@@ -152,13 +152,13 @@
             <alias ref="-area6F"/>
             <alias ref="-area6R"/>
         </grid>
-        <grid name="area6" weightsX="0,1,0" weightsY="1">
+        <grid name="area6X" weightsX="0,1,0" weightsY="1">
             <alias ref="-area6L"/>
             <alias ref="-area6F"/>
             <alias ref="-area6R"/>
         </grid>
 
-        <select name="buttonL.background">
+        <select name="radiobuttonL.background">
             <alias ref="area6L" if="selected + armed"/>
             <alias ref="area5L" if="selected + hover"/>
             <alias ref="area4L" if="selected"/>
@@ -166,7 +166,7 @@
             <alias ref="area2L" if="hover"/>
             <alias ref="area1L"/>
         </select>
-        <select name="buttonC.background">
+        <select name="radiobuttonC.background" inset="0,-1,0,0">
             <alias ref="area6C" if="selected + armed"/>
             <alias ref="area5C" if="selected + hover"/>
             <alias ref="area4C" if="selected"/>
@@ -174,7 +174,7 @@
             <alias ref="area2C" if="hover"/>
             <alias ref="area1C"/>
         </select>
-        <select name="buttonR.background">
+        <select name="radiobuttonR.background" inset="0,-1,0,0">
             <alias ref="area6R" if="selected + armed"/>
             <alias ref="area5R" if="selected + hover"/>
             <alias ref="area4R" if="selected"/>
@@ -182,7 +182,45 @@
             <alias ref="area2R" if="hover"/>
             <alias ref="area1R"/>
         </select>
+        <select name="radiobuttonX.background">
+            <alias ref="area6X" if="selected + armed"/>
+            <alias ref="area5X" if="selected + hover"/>
+            <alias ref="area4X" if="selected"/>
+            <alias ref="area3X" if="armed"/>
+            <alias ref="area2X" if="hover"/>
+            <alias ref="area1X"/>
+        </select>
+
+        <select name="radiobutton.background" border="4,1">
+            <alias ref="radiobuttonX.background" if="radiobuttonFirst + radiobuttonLast"/>
+            <alias ref="radiobuttonL.background" if="radiobuttonFirst"/>
+            <alias ref="radiobuttonR.background" if="radiobuttonLast"/>
+            <alias ref="radiobuttonC.background"/>
+        </select>
+
+        <grid name="collapsiblepanel.background" weightsX="1" weightsY="1,0" border="0,0,5,0">
+            <alias ref="none"/>
+            <alias ref="panel.separator"/>
+        </grid>
+
+        <select name="collapsiblepanel.arrow.background" center="true">
+            <texture x="25" y="18" width="8" height="8" if="expanded"/>
+            <texture x="16" y="18" width="8" height="8"/>
+        </select>
     </textures>
+
+    <fontDef name="button-font" filename="font.fnt" color="white">
+        <fontParam if="disabled" color="#ccc"/>
+        <fontParam if="selected" color="black"/>
+    </fontDef>
+
+    <theme name="radiobutton" ref="-defaults" allowWildcard="true">
+        <param name=""><image>radiobutton.*</image></param>
+        <param name="border"><border>background.border</border></param>
+        <param name="textAlignment"><enum type="alignment">center</enum></param>
+        <param name="font"><font>button-font</font></param>
+        <param name="minWidth"><int>20</int></param>
+    </theme>
 
     <theme name="elementTree" ref="scrollpane">
         <param name="background"><image>-borderC</image></param>
@@ -196,39 +234,51 @@
 
         <theme name="propertypanel" ref="dialoglayout">
             <param name="border"><border>5</border></param>
-            <theme name="separator" ref="-defaults">
-                <param name="background"><image>panel.separator</image></param>
+
+            <theme name="collapsiblepanel" ref="dialoglayout">
+                <param name=""><image>collapsiblepanel.*</image></param>
                 <param name="border"><border>background.border</border></param>
-                <param name="maxWidth"><int>32767</int></param>
-            </theme>
-            <theme name="active" ref="checkbox"/>
-            <theme name="boolean" ref="checkbox"/>
-            <theme name="colorselector" ref="colorselector">
-                <theme name="colorarea1d" merge="true">
-                    <param name="background"><image>-borderC</image></param>
-                    <param name="border"><border>2</border></param>
+                <theme name="arrow" ref="-defaults">
+                    <param name=""><image>collapsiblepanel.arrow.*</image></param>
                 </theme>
-                <theme name="colorarea2d" merge="true">
-                    <param name="background"><image>-borderC</image></param>
-                    <param name="border"><border>2</border></param>
+                <theme name="title" ref="label"/>
+                <theme name="active" ref="checkbox"/>
+
+                <theme name="contentcontainer" ref="-defaults">
+                    <theme name="" ref="*"/>
+                    <theme name="boolean" ref="checkbox"/>
+                    <theme name="colorselector" ref="colorselector">
+                        <theme name="colorarea1d" merge="true">
+                            <param name="background"><image>-borderC</image></param>
+                            <param name="border"><border>2</border></param>
+                        </theme>
+                        <theme name="colorarea2d" merge="true">
+                            <param name="background"><image>-borderC</image></param>
+                            <param name="border"><border>2</border></param>
+                        </theme>
+                    </theme>
+
+                    <theme name="conditioneditor" ref="dialoglayout">
+                        <theme name="condition-none" ref="radiobutton">
+                            <param name="text"><string>None</string></param>
+                        </theme>
+                        <theme name="condition-if" ref="radiobutton">
+                            <param name="text"><string>If</string></param>
+                        </theme>
+                        <theme name="condition-unless" ref="radiobutton">
+                            <param name="text"><string>Unless</string></param>
+                        </theme>
+                        <theme name="" ref="*"/>
+                        <param name="namedGaps"><map>
+                            <param name="radiobutton"><gap>1</gap></param>
+                        </map></param>
+                    </theme>
+
+                    <theme name="recteditor" ref="dialoglayout">
+                        <theme name="" ref="*"/>
+                    </theme>
                 </theme>
             </theme>
-            <theme name="condition-none" ref="togglebutton">
-                <param name=""><image>buttonL.*</image></param>
-                <param name="text"><string>None</string></param>
-            </theme>
-            <theme name="condition-if" ref="togglebutton">
-                <param name=""><image>buttonC.*</image></param>
-                <param name="text"><string>If</string></param>
-            </theme>
-            <theme name="condition-unless" ref="togglebutton">
-                <param name=""><image>buttonR.*</image></param>
-                <param name="text"><string>Unless</string></param>
-            </theme>
-            <theme name="" ref="*"/>
-            <param name="namedGaps"><map>
-                <param name="radiobutton"><gap>0</gap></param>
-            </map></param>
         </theme>
     </theme>
 

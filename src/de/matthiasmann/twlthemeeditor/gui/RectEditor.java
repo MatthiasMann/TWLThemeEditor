@@ -34,6 +34,7 @@ import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ValueAdjusterInt;
+import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractIntegerModel;
 import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twlthemeeditor.datamodel.HasTextureDimensions;
@@ -44,7 +45,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.HasTextureDimensions;
  */
 public class RectEditor implements PropertyEditorFactory<Rect> {
 
-    public void create(PropertyPanel panel, Group vert, final PropertyAccessor<Rect> pa) {
+    public Widget create(final PropertyAccessor<Rect> pa) {
         RectModifier rm = new RectModifier(pa, ((HasTextureDimensions)pa.getObject()).getTextureDimensions());
 
         Label labelX = new Label("X");
@@ -62,13 +63,7 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
         labelW.setLabelFor(adjusterW);
         labelH.setLabelFor(adjusterH);
 
-        vert.addGroup(panel.createSequentialGroup(
-                panel.createParallelGroup(labelX, adjusterX),
-                panel.createParallelGroup(labelY, adjusterY),
-                panel.createParallelGroup(labelW, adjusterW),
-                panel.createParallelGroup(labelH, adjusterH)));
-        panel.horzColumns[0].addWidgets(labelX, labelY, labelW, labelH);
-        panel.horzColumns[1].addWidgets(adjusterX, adjusterY, adjusterW, adjusterH);
+        return new SimpleLayout("recteditor", labelX, labelY, labelW, labelH);
     }
 
     static abstract class MyIntegerModel extends AbstractIntegerModel {

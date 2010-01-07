@@ -29,9 +29,11 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.ToggleButton;
+import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.utils.StateExpression;
@@ -44,7 +46,7 @@ import java.text.ParseException;
  */
 public class ConditionEditor implements PropertyEditorFactory<Condition> {
 
-    public void create(PropertyPanel panel, Group vert, final PropertyAccessor<Condition> pa) {
+    public Widget create(PropertyAccessor<Condition> pa) {
         final ConditionModifier cm = new ConditionModifier(pa);
 
         ToggleButton btnNone = new ToggleButton(cm.new TypeBooleanModel(Condition.Type.NONE));
@@ -56,19 +58,17 @@ public class ConditionEditor implements PropertyEditorFactory<Condition> {
         ToggleButton btnUnless = new ToggleButton(cm.new TypeBooleanModel(Condition.Type.UNLESS));
         btnUnless.setTheme("condition-unless");
 
-        Group horzType = panel.createSequentialGroup()
-                .addWidget(btnNone)
-                .addGap("radiobutton")
-                .addWidget(btnIf)
-                .addGap("radiobutton")
-                .addWidget(btnUnless)
-                .addGap();
+        DialogLayout panel = new DialogLayout();
+        panel.setTheme("conditioneditor");
+        Group horzType = panel.createSequentialGroup().addWidgetsWithGap("radiobutton", btnNone, btnIf, btnUnless).addGap();
 
-        panel.horzComplete.addGroup(horzType).addWidget(cm.ef);
-
-        vert.addGroup(panel.createSequentialGroup()
+        panel.setHorizontalGroup(panel.createParallelGroup()
+                .addGroup(horzType)
+                .addWidget(cm.ef));
+        panel.setVerticalGroup(panel.createSequentialGroup()
                 .addGroup(panel.createParallelGroup(btnNone, btnIf, btnUnless))
                 .addWidget(cm.ef));
+        return panel;
     }
 
     static class ConditionModifier extends HasCallback implements EditField.Callback {

@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.gui;
 import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.ValueAdjusterInt;
+import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
 import de.matthiasmann.twlthemeeditor.datamodel.MinValueI;
 
@@ -41,10 +42,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.MinValueI;
  */
 public class IntegerEditor implements PropertyEditorFactory<Integer> {
 
-    public IntegerEditor() {
-    }
-
-    public void create(PropertyPanel panel, Group vert, final PropertyAccessor<Integer> pa) {
+    public Widget create(final PropertyAccessor<Integer> pa) {
         Integer value = pa.getValue(0);
         MinValueI minValueI = pa.getAnnotation(MinValueI.class);
 
@@ -58,15 +56,10 @@ public class IntegerEditor implements PropertyEditorFactory<Integer> {
             }
         });
 
-        final ValueAdjusterInt va = new ValueAdjusterInt(model);
-        final Label label = new Label(pa.getDisplayName());
-        label.setLabelFor(va);
+        ValueAdjusterInt va = new ValueAdjusterInt(model);
+        pa.setWidgetsToEnable(va);
 
-        pa.setWidgetsToEnable(va, label);
-
-        panel.horzColumns[0].addWidget(label);
-        panel.horzColumns[1].addWidget(va);
-        vert.addWidget(label).addWidget(va);
+        return va;
     }
 
 }

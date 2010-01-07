@@ -33,6 +33,7 @@ import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.ColorSelector;
 import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.Label;
+import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.ColorSpaceHSL;
 
 /**
@@ -41,7 +42,7 @@ import de.matthiasmann.twl.model.ColorSpaceHSL;
  */
 public class ColorEditor implements PropertyEditorFactory<Color> {
 
-    public void create(PropertyPanel panel, Group vert, final PropertyAccessor<Color> pa) {
+    public Widget create(final PropertyAccessor<Color> pa) {
         final ColorSelector cs = new ColorSelector(new ColorSpaceHSL());
         cs.setColor(pa.getValue(Color.WHITE));
         cs.addCallback(new Runnable() {
@@ -50,13 +51,9 @@ public class ColorEditor implements PropertyEditorFactory<Color> {
             }
         });
 
-        final Label label = new Label(pa.getDisplayName());
-        label.setLabelFor(cs);
+        pa.setWidgetsToEnable(cs);
 
-        pa.setWidgetsToEnable(cs, label);
-            
-        panel.horzComplete.addWidget(label).addWidget(cs);
-        vert.addGroup(panel.createSequentialGroup(label, cs));
+        return cs;
     }
 
 }

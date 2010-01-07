@@ -97,28 +97,6 @@
         </select>
         <alias name="togglebutton.overlay" ref="-selection"/>
 
-        <grid name="radiobutton.background" weightsX="0,1" weightsY="1" border="1,14,1,1">
-            <select center="true">
-                <composed if="selected + disabled" tint="#8fff">
-                    <alias ref="-iconP"/>
-                    <alias ref="-iconN" center="true"/>
-                </composed>
-                <alias ref="-iconO" if="disabled" tint="#8fff"/>
-                <composed if="selected + armed">
-                    <alias ref="-iconP"/>
-                    <alias ref="-iconN" center="true"/>
-                </composed>
-                <alias ref="-iconP" if="armed"/>
-                <composed if="selected">
-                    <alias ref="-iconO"/>
-                    <alias ref="-iconN" center="true"/>
-                </composed>
-                <alias ref="-iconO"/>
-            </select>
-            <alias ref="none"/>
-        </grid>
-        <alias name="radiobutton.overlay" ref="--selection" if="keyboardFocus" inset="1,14,1,1"/>
-
         <select name="valueadjuster.display.background">
             <alias ref="-borderB" if="disabled" tint="#8fff"/>
             <alias ref="-borderE" if="armed | pressed"/>
@@ -387,11 +365,6 @@
         <param name="border"><border>background.border</border></param>
     </theme>
 
-    <theme name="radiobutton" ref="button" allowWildcard="true">
-        <param name=""><image>radiobutton.*</image></param>
-        <param name="border"><border>background.border</border></param>
-    </theme>
-
     <theme name="checkbox" ref="-defaults" allowWildcard="true">
         <param name=""><image>checkbox.*</image></param>
         <param name="minWidth"><int>13</int></param>
@@ -410,6 +383,11 @@
         <theme name="renderer" ref="label"/>
         <param name="mouseCursor"><cursor>cursor.text</cursor></param>
         <param name="autocompletion-height"><int>150</int></param>
+    </theme>
+    <theme name="editfield-errorinfowindow" ref="-defaults">
+        <param name="background"><image>-borderG</image></param>
+        <param name="border"><border>background.border</border></param>
+        <theme name="label" ref="label"/>
     </theme>
 
     <theme name="tooltipwindow" ref="-defaults">

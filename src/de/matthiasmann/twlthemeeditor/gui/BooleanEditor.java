@@ -29,9 +29,11 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.ToggleButton;
+import de.matthiasmann.twl.Widget;
 
 /**
  *
@@ -39,8 +41,8 @@ import de.matthiasmann.twl.ToggleButton;
  */
 public class BooleanEditor implements PropertyEditorFactory<Boolean> {
 
-    public void create(PropertyPanel panel, Group vert, final PropertyAccessor<Boolean> pa) {
-        final ToggleButton btn = new ToggleButton();
+    public Widget create(final PropertyAccessor<Boolean> pa) {
+        final ToggleButton btn = new ToggleButton(pa.getDisplayName());
         btn.setTheme("boolean");
         btn.setActive(pa.getValue(Boolean.FALSE));
         btn.addCallback(new Runnable() {
@@ -49,12 +51,7 @@ public class BooleanEditor implements PropertyEditorFactory<Boolean> {
             }
         });
 
-        Label label = new Label(pa.getDisplayName());
-        label.setLabelFor(btn);
-
-        panel.horzColumns[0].addWidget(label);
-        panel.horzColumns[1].addWidget(btn);
-        vert.addWidget(label).addWidget(btn);
+        return btn;
     }
 
 }

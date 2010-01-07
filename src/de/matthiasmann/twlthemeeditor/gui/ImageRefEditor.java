@@ -33,6 +33,7 @@ import de.matthiasmann.twl.ComboBox;
 import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.ToggleButton;
+import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
 import java.beans.PropertyDescriptor;
 import java.util.logging.Level;
@@ -50,18 +51,9 @@ public class ImageRefEditor implements PropertyEditorFactory<ImageReference> {
         this.ctx = ctx;
     }
 
-    public void create(PropertyPanel panel, Group vert, final PropertyAccessor<ImageReference> pa) {
+    public Widget create(final PropertyAccessor<ImageReference> pa) {
         final ComboBox cb = new ComboBox(ctx.getImages());
-
-        Label label = new Label(pa.getDisplayName());
-        label.setLabelFor(cb);
-
-        panel.horzColumns[0].addWidget(label);
-        panel.horzColumns[1].addWidget(cb);
-        vert.addWidget(label).addWidget(cb);
-
         cb.setSelected(ctx.findImage(pa.getValue(null)));
-
         cb.addCallback(new Runnable() {
             public void run() {
                 int selected = cb.getSelected();
@@ -70,6 +62,8 @@ public class ImageRefEditor implements PropertyEditorFactory<ImageReference> {
                 }
             }
         });
+
+        return cb;
     }
 
 }
