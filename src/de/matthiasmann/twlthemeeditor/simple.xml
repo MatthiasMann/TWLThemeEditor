@@ -199,7 +199,7 @@
         </composed>
 
         <select name="editfield.background">
-            <alias ref="-borderE" if="readonly"/>
+            <alias ref="-borderE" if="readonly | disabled"/>
             <alias ref="-borderC"/>
         </select>
         <texture name="-editfield.cursor" x="24" y="10" width="1" height="1"/>
@@ -880,14 +880,11 @@
 
 
 
-
-    <theme name="previewwidget" ref="-defaults">
-<!--        <param name="mouseCursor"><cursor>cursor.none</cursor></param> -->
-    </theme>
+    <!-- The following themes are for the preview window -->
 
     <theme name="previewwidgets" ref="dialoglayout">
         <param name="border"><border>10</border></param>
         <theme name="" ref="*"/>
     </theme>
-    
+
 </themes>

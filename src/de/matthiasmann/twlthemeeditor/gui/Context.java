@@ -33,6 +33,7 @@ import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.utils.TypeMapping;
+import de.matthiasmann.twlthemeeditor.datamodel.Condition;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ public class Context {
         factories.put(boolean.class, new BooleanEditor());
         factories.put(Color.class, new ColorEditor());
         factories.put(Rect.class, new RectEditor());
+        factories.put(Condition.class, new ConditionEditor());
         factories.put(ImageReference.class, new ImageRefEditor(this));
 
         this.propertyOrder = new ArrayList<String>();

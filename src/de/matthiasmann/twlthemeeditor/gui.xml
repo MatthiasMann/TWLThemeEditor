@@ -19,7 +19,20 @@
                 <param name="border"><border>2</border></param>
             </theme>
         </theme>
+        <theme name="condition-none" ref="togglebutton">
+            <param name="text"><string>None</string></param>
+        </theme>
+        <theme name="condition-if" ref="togglebutton">
+            <param name="text"><string>If</string></param>
+        </theme>
+        <theme name="condition-unless" ref="togglebutton">
+            <param name="text"><string>Unless</string></param>
+        </theme>
         <theme name="" ref="*"/>
+    </theme>
+
+    <theme name="previewwidget" ref="-defaults">
+<!--        <param name="mouseCursor"><cursor>cursor.none</cursor></param> -->
     </theme>
 
 </themes>
