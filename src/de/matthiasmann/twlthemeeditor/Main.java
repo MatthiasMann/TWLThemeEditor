@@ -64,20 +64,18 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
+        final TestEnv env = new TestEnv();
+
         URL url = Main.class.getResource("simple.xml");
-        ThemeFile tf = new ThemeFile(url);
+        ThemeFile tf = new ThemeFile(env, url);
 
         final SimpleChangableListModel<Image> images = new SimpleChangableListModel<Image>();
         final Context ctx = new Context(images);
-
-        final TestEnv env = new TestEnv();
 
         ctx.setPropertyOrder("x", "y", "width", "height", "center");
         
         for(Textures t : tf.getTextures()) {
             System.out.println(t);
-            
-            env.registerFile(t.getFile(), t.getTextureURL());
             
             for(Image i : t.getChildren(Image.class)) {
                 System.out.println("  " + i);

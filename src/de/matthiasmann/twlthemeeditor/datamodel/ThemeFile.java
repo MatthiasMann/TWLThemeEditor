@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 import de.matthiasmann.twl.model.AbstractTreeTableModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.CallbackSupport;
+import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.XMLWriter;
 import java.io.IOException;
@@ -60,7 +61,7 @@ public class ThemeFile extends AbstractTreeTableModel {
 
     private Runnable[] callbacks;
 
-    public ThemeFile(URL url) throws IOException {
+    public ThemeFile(TestEnv env, URL url) throws IOException {
         try {
             SAXBuilder saxb = new SAXBuilder(false);
             saxb.setEntityResolver(new EntityResolver() {
@@ -69,7 +70,7 @@ public class ThemeFile extends AbstractTreeTableModel {
                 }
             });
             document = saxb.build(url);
-            findTextures(url);
+            findTextures(env, url);
         } catch(IOException ex) {
             throw ex;
         } catch(Exception ex) {
@@ -112,7 +113,7 @@ public class ThemeFile extends AbstractTreeTableModel {
         return COLUMN_HEADER.length;
     }
 
-    private void findTextures(URL baseUrl) throws IOException {
+    private void findTextures(TestEnv env, URL baseUrl) throws IOException {
         for(Object node : getRoot().getChildren()) {
             if(node instanceof Element) {
                 Element element = (Element)node;
@@ -120,7 +121,9 @@ public class ThemeFile extends AbstractTreeTableModel {
                 NodeWrapper entry = null;
                 
                 if("textures".equals(tagName)) {
-                    entry = new Textures(this, element, baseUrl);
+                    entry = new Textures(this, element, baseUrl, env);
+                } else if("include".equals(tagName)) {
+                    entry = new Include(this, element, baseUrl, env);
                 }
                 
                 if(entry != null) {
@@ -141,4 +144,20 @@ public class ThemeFile extends AbstractTreeTableModel {
     void fireCallbacks() {
         CallbackSupport.fireCallbacks(callbacks);
     }
+
+    @Override
+    protected void fireNodesAdded(TreeTableNode parent, int idx, int count) {
+        super.fireNodesAdded(parent, idx, count);
+    }
+
+    @Override
+    protected void fireNodesChanged(TreeTableNode parent, int idx, int count) {
+        super.fireNodesChanged(parent, idx, count);
+    }
+
+    @Override
+    protected void fireNodesRemoved(TreeTableNode parent, int idx, int count) {
+        super.fireNodesRemoved(parent, idx, count);
+    }
+
 }

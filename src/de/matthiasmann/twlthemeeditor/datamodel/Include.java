@@ -29,12 +29,10 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.Dimension;
+import de.matthiasmann.twl.model.AbstractTreeTableModel;
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twl.renderer.lwjgl.PNGDecoder;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import org.jdom.Element;
 
@@ -42,70 +40,30 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Textures extends NodeWrapper {
+public class Include extends NodeWrapper {
 
-    private final URL textureURL;
-    private final Dimension textureDimensions;
-    
-    Textures(TreeTableNode parent, Element root, URL url, TestEnv env) throws IOException {
-        super(parent, root);
+    private final ThemeFile themeFile;
 
-        textureURL = new URL(url, getFile());
-        InputStream textureStream = textureURL.openStream();
-        try {
-            PNGDecoder decoder = new PNGDecoder(textureStream);
-            textureDimensions = new Dimension(decoder.getWidth(), decoder.getHeight());
-        } finally {
-            textureStream.close();
-        }
+    public Include(TreeTableNode parent, Element node, URL baseUrl, TestEnv env) throws IOException {
+        super(parent, node);
 
-        env.registerFile(getFile(), textureURL);
-    }
-
-    public String getFile() {
-        return getAttribute("file");
-    }
-
-    public String getFormat() {
-        return getAttribute("format");
-    }
-
-    public URL getTextureURL() {
-        return textureURL;
-    }
-
-    @Override
-    public String toString() {
-        return "[Textures file=\""+getFile()+"\"]";
+        themeFile = new ThemeFile(env, new URL(baseUrl, getFileName()));
+        env.registerFile(getFileName(), themeFile.createVirtualFile());
+        insertChild(themeFile, getNumChildren());
     }
 
     public Object getData(int column) {
         switch (column) {
             case 0:
-                return getFile();
+                return getFileName();
             case 1:
-                return "PNG";
+                return "Include";
             default:
                 return "";
         }
     }
 
-    public Dimension getTextureDimensions() {
-        return textureDimensions;
+    public String getFileName() {
+        return getAttribute("filename");
     }
-
-    @Override
-    protected NodeWrapper wrap(Element element) {
-        String tagName = element.getName();
-        Image image = null;
-
-        if("texture".equals(tagName)) {
-            return new Image.Texture(this, element);
-        }
-        if("alias".equals(tagName)) {
-            return new Image.Alias(this, element);
-        }
-        return null;
-    }
-
 }
