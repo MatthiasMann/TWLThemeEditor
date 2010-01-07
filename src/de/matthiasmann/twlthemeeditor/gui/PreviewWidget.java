@@ -104,8 +104,10 @@ public class PreviewWidget extends Widget {
                 testGUI = new GUI(createRootPane(), render);
             }
             if(theme == null || reloadTheme) {
+                reloadTheme = false;
                 CacheContext oldCacheContext = render.getActiveCacheContext();
-                render.setActiveCacheContext(render.createNewCacheContext());
+                CacheContext newCacheContext = render.createNewCacheContext();
+                render.setActiveCacheContext(newCacheContext);
                 try {
                     ThemeManager newTheme = ThemeManager.createThemeManager(testEnv.getURL("/theme.xml"), render);
                     testGUI.applyTheme(newTheme);
@@ -116,13 +118,14 @@ public class PreviewWidget extends Widget {
                     }
                     theme = newTheme;
                     testGUI.destroy();
-                    reloadTheme = false;
+
+                    if(frame != null) {
+                        frame.adjustSize();
+                    }
                 } catch (IOException ex) {
                     Logger.getLogger(PreviewWidget.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-                if(frame != null) {
-                    frame.adjustSize();
+                    render.setActiveCacheContext(oldCacheContext);
+                    newCacheContext.destroy();
                 }
             }
             
@@ -134,6 +137,7 @@ public class PreviewWidget extends Widget {
             testGUI.invokeRunables();
             testGUI.validateLayout();
             testGUI.draw();
+            testGUI.setCursor();
         } finally {
             GL11.glPopAttrib();
         }
