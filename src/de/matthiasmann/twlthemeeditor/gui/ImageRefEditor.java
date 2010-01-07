@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  *
  * @author Matthias Mann
  */
-public class ImageRefEditor implements PropertyEditorFactory {
+public class ImageRefEditor implements PropertyEditorFactory<ImageReference> {
 
     private final Context ctx;
 
@@ -50,32 +50,23 @@ public class ImageRefEditor implements PropertyEditorFactory {
         this.ctx = ctx;
     }
 
-    public void create(PropertyPanel panel, Group vert, final Object obj, final PropertyDescriptor pd, ToggleButton btnActive) {
+    public void create(PropertyPanel panel, Group vert, final PropertyAccessor<ImageReference> pa) {
         final ComboBox cb = new ComboBox(ctx.getImages());
 
-        Label label = new Label(pd.getDisplayName());
+        Label label = new Label(pa.getDisplayName());
         label.setLabelFor(cb);
 
         panel.horzColumns[0].addWidget(label);
         panel.horzColumns[1].addWidget(cb);
         vert.addWidget(label).addWidget(cb);
 
-        try {
-            ImageReference ref = (ImageReference) pd.getReadMethod().invoke(obj);
-            cb.setSelected(ctx.findImage(ref));
-        } catch (Exception ex) {
-            Logger.getLogger(ImageRefEditor.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        cb.setSelected(ctx.findImage(pa.getValue(null)));
 
         cb.addCallback(new Runnable() {
             public void run() {
                 int selected = cb.getSelected();
                 if(selected >= 0) {
-                    try {
-                        pd.getWriteMethod().invoke(obj, ctx.getImages().getEntry(selected).makeReference());
-                    } catch (Exception ex) {
-                        Logger.getLogger(ImageRefEditor.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    pa.setValue(ctx.getImages().getEntry(selected).makeReference());
                 }
             }
         });

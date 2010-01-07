@@ -30,15 +30,13 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.DialogLayout;
-import de.matthiasmann.twl.ToggleButton;
-import java.beans.PropertyDescriptor;
 
 /**
  *
  * @author Matthias Mann
  */
-public interface PropertyEditorFactory {
+public interface PropertyEditorFactory<T> {
 
-    public void create(PropertyPanel panel, DialogLayout.Group vert, Object obj, PropertyDescriptor pd, ToggleButton btnActive);
+    public void create(PropertyPanel panel, DialogLayout.Group vert, PropertyAccessor<T> pa);
     
 }

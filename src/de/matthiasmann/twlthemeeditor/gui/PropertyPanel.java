@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.ToggleButton;
+import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twlthemeeditor.datamodel.Optional;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -64,9 +65,8 @@ public class PropertyPanel extends DialogLayout {
 
         horzComplete.addGroup(createSequentialGroup(horzColumns));
         
-        setHorizontalGroup(createSequentialGroup()
-                .addGroup(horzActive)
-                .addGroup(horzComplete));
+        setHorizontalGroup(createParallelGroup()
+                .addGroup(createSequentialGroup().addGroup(horzActive).addGroup(horzComplete)));
         setVerticalGroup(createSequentialGroup());
 
         BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());
@@ -105,9 +105,15 @@ public class PropertyPanel extends DialogLayout {
                 vert.addGroup(createSequentialGroup().addWidget(btnActive).addGap());
             }
 
-            factory.create(this, vert, obj, pd, btnActive);
+            factory.create(this, vert, new PropertyAccessor(obj, pd, btnActive));
 
             getVerticalGroup().addGroup(vert);
+
+            Widget separator = new Widget();
+            separator.setTheme("separator");
+            getHorizontalGroup().addWidget(separator);
+            getVerticalGroup().addWidget(separator);
+            
         } else {
             System.out.println("No factory for property " + pd.getName() + " type " + type);
         }

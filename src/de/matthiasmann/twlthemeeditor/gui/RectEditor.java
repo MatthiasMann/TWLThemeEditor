@@ -33,23 +33,19 @@ import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Rect;
-import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.model.AbstractIntegerModel;
 import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twlthemeeditor.datamodel.HasTextureDimensions;
-import java.beans.PropertyDescriptor;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Matthias Mann
  */
-public class RectEditor implements PropertyEditorFactory {
+public class RectEditor implements PropertyEditorFactory<Rect> {
 
-    public void create(PropertyPanel panel, Group vert, Object obj, PropertyDescriptor pd, ToggleButton btnActive) {
-        RectModifier rm = new RectModifier(obj, pd, ((HasTextureDimensions)obj).getTextureDimensions());
+    public void create(PropertyPanel panel, Group vert, final PropertyAccessor<Rect> pa) {
+        RectModifier rm = new RectModifier(pa, ((HasTextureDimensions)pa.getObject()).getTextureDimensions());
 
         Label labelX = new Label("X");
         Label labelY = new Label("Y");
@@ -80,10 +76,11 @@ public class RectEditor implements PropertyEditorFactory {
             super.doCallback();
         }
     }
-    
+
+    private static final Rect NULL_RECT = new Rect(0, 0, 1, 1);
+
     static class RectModifier extends HasCallback {
-        private final Object obj;
-        private final PropertyDescriptor pd;
+        private final PropertyAccessor<Rect> pa;
         private final Dimension dim;
         private Rect rect;
 
@@ -91,16 +88,11 @@ public class RectEditor implements PropertyEditorFactory {
         final MyIntegerModel modelY;
         final MyIntegerModel modelWidth;
         final MyIntegerModel modelHeight;
-        
-        public RectModifier(Object obj, PropertyDescriptor pd, Dimension textureDim) {
-            this.obj = obj;
-            this.pd = pd;
+
+        public RectModifier(PropertyAccessor<Rect> pa, Dimension textureDim) {
+            this.pa = pa;
             this.dim = textureDim;
-            try {
-                this.rect = (Rect) pd.getReadMethod().invoke(obj);
-            } catch (Exception ex) {
-                Logger.getLogger(RectEditor.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            this.rect = pa.getValue(NULL_RECT);
 
             this.modelX = new MyIntegerModel() {
                 public int getMaxValue() {
@@ -167,11 +159,8 @@ public class RectEditor implements PropertyEditorFactory {
 
         void setRect(int x, int y, int width, int height) {
             rect = new Rect(x, y, width, height);
-            try {
-                pd.getWriteMethod().invoke(obj, rect);
-            } catch (Exception ex) {
-                Logger.getLogger(RectEditor.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            pa.setValue(rect);
+            
             doCallback();
             modelX.fireCallback();
             modelY.fireCallback();

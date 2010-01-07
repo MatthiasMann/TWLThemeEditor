@@ -36,19 +36,16 @@ import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.utils.StateExpression;
 import de.matthiasmann.twlthemeeditor.datamodel.Condition;
-import java.beans.PropertyDescriptor;
 import java.text.ParseException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ConditionEditor implements PropertyEditorFactory {
+public class ConditionEditor implements PropertyEditorFactory<Condition> {
 
-    public void create(PropertyPanel panel, Group vert, Object obj, PropertyDescriptor pd, ToggleButton btnActive) {
-        final ConditionModifier cm = new ConditionModifier(obj, pd);
+    public void create(PropertyPanel panel, Group vert, final PropertyAccessor<Condition> pa) {
+        final ConditionModifier cm = new ConditionModifier(pa);
 
         ToggleButton btnNone = new ToggleButton(cm.new TypeBooleanModel(Condition.Type.NONE));
         btnNone.setTheme("condition-none");
@@ -59,8 +56,15 @@ public class ConditionEditor implements PropertyEditorFactory {
         ToggleButton btnUnless = new ToggleButton(cm.new TypeBooleanModel(Condition.Type.UNLESS));
         btnUnless.setTheme("condition-unless");
 
-        panel.horzComplete.addGroup(panel.createSequentialGroup(btnNone, btnIf, btnUnless).addGap())
-                .addWidget(cm.ef);
+        Group horzType = panel.createSequentialGroup()
+                .addWidget(btnNone)
+                .addGap("radiobutton")
+                .addWidget(btnIf)
+                .addGap("radiobutton")
+                .addWidget(btnUnless)
+                .addGap();
+
+        panel.horzComplete.addGroup(horzType).addWidget(cm.ef);
 
         vert.addGroup(panel.createSequentialGroup()
                 .addGroup(panel.createParallelGroup(btnNone, btnIf, btnUnless))
@@ -68,22 +72,14 @@ public class ConditionEditor implements PropertyEditorFactory {
     }
 
     static class ConditionModifier extends HasCallback implements EditField.Callback {
-        final Object obj;
-        final PropertyDescriptor pd;
+        final PropertyAccessor<Condition> pa;
         final EditField ef;
         Condition.Type conditionType;
 
-        public ConditionModifier(Object obj, PropertyDescriptor pd) {
-            this.obj = obj;
-            this.pd = pd;
+        protected ConditionModifier(PropertyAccessor<Condition> pa) {
+            this.pa = pa;
 
-            Condition condition;
-            try {
-                condition = (Condition) pd.getReadMethod().invoke(obj);
-            } catch (Exception ex) {
-                Logger.getLogger(ConditionEditor.class.getName()).log(Level.SEVERE, null, ex);
-                condition = Condition.NONE;
-            }
+            Condition condition = pa.getValue(Condition.NONE);
 
             conditionType = condition.getType();
 
@@ -109,12 +105,7 @@ public class ConditionEditor implements PropertyEditorFactory {
             }
 
             ef.setErrorMessage(null);
-            
-            try {
-                pd.getWriteMethod().invoke(obj, new Condition(conditionType, condition));
-            } catch (Exception ex) {
-                Logger.getLogger(ConditionEditor.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            pa.setValue(new Condition(conditionType, condition));
         }
 
         private void setEnable() {

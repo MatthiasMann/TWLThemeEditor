@@ -31,59 +31,38 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.Label;
-import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
 import de.matthiasmann.twlthemeeditor.datamodel.MinValueI;
-import java.beans.PropertyDescriptor;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Matthias Mann
  */
-public class IntegerEditor implements PropertyEditorFactory {
+public class IntegerEditor implements PropertyEditorFactory<Integer> {
 
     public IntegerEditor() {
     }
 
-    public void create(PropertyPanel panel, Group vert, final Object obj, final PropertyDescriptor pd, final ToggleButton btnActive) {
-        Integer value = null;
-        try {
-            value = (Integer)pd.getReadMethod().invoke(obj);
-        } catch (Exception ex) {
-            Logger.getLogger(IntegerEditor.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        if(btnActive != null) {
-            btnActive.setActive(value != null);
-        }
-
-        MinValueI minValueI = pd.getReadMethod().getAnnotation(MinValueI.class);
+    public void create(PropertyPanel panel, Group vert, final PropertyAccessor<Integer> pa) {
+        Integer value = pa.getValue(0);
+        MinValueI minValueI = pa.getAnnotation(MinValueI.class);
 
         final SimpleIntegerModel model = new SimpleIntegerModel(
                 (minValueI != null) ? minValueI.value() : Short.MIN_VALUE,
                 Short.MAX_VALUE, (value == null) ? 0 : value.intValue());
 
-        Runnable updateProperty = new Runnable() {
+        model.addCallback(new Runnable() {
             public void run() {
-                try {
-                    boolean isActive = (btnActive == null) || btnActive.isActive();
-                    pd.getWriteMethod().invoke(obj, isActive ? model.getValue() : null);
-                } catch (Exception ex) {
-                    Logger.getLogger(IntegerEditor.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                pa.setValue(model.getValue());
             }
-        };
-
-        model.addCallback(updateProperty);
+        });
 
         final ValueAdjusterInt va = new ValueAdjusterInt(model);
-        final Label label = new Label(pd.getDisplayName());
+        final Label label = new Label(pa.getDisplayName());
         label.setLabelFor(va);
 
-        ActiveSynchronizer.sync(btnActive, updateProperty, va, label);
+        pa.setWidgetsToEnable(va, label);
 
         panel.horzColumns[0].addWidget(label);
         panel.horzColumns[1].addWidget(va);
