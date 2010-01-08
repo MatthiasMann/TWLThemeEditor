@@ -80,7 +80,7 @@ public class Main {
         final SimpleChangableListModel<Image> images = new SimpleChangableListModel<Image>();
         final Context ctx = new Context(images);
 
-        ctx.setPropertyOrder("x", "y", "width", "height", "center");
+        ctx.setPropertyOrder("rect", "ref", "condition", "centered", "tint", "splitX", "splitY", "weightsX", "weightsY");
         
         for(Textures t : ttm.getTextures()) {
             System.out.println(t);
