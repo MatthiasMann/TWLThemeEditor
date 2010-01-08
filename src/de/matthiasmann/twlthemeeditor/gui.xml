@@ -80,6 +80,20 @@
                         <theme name="" ref="*"/>
                     </theme>
 
+                    <theme name="spliteditor" ref="dialoglayout">
+                        <theme name="removebutton" ref="button">
+                            <param name=""><image>removebutton.*</image></param>
+                            <param name="tooltip"><string>Removes this split position</string></param>
+                        </theme>
+                        <theme name="addbutton" ref="button">
+                            <param name=""><image>addbutton.*</image></param>
+                            <param name="tooltip"><string>Adds a new split position</string></param>
+                        </theme>
+                        <param name="namedGaps"><map>
+                            <param name="adjuster"><gap>0</gap></param>
+                        </map></param>
+                        <theme name="" ref="*"/>
+                    </theme>
                 </theme>
             </theme>
         </theme>

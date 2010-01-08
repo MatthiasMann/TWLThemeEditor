@@ -98,55 +98,6 @@
         <alias name="-icon.leftbutton" ref="-iconE" inset="3,4,4,6"/>
         <alias name="-icon.rightbutton" ref="-iconF" inset="3,4,4,6"/>
 
-        <select name="scrollbar.thumb.background">
-            <alias ref="-borderB" if="disabled" tint="#8fff"/>
-            <alias ref="-borderE" if="armed | pressed"/>
-            <alias ref="-borderB"/>
-        </select>
-        <texture name="scrollbar.background" x="12" y="24" width="16" height="16" tiled="true"/>
-
-        <select name="vscrollbar.upbutton.background">
-            <composed if="armed">
-                <alias ref="-borderD"/>
-                <alias ref="-icon.upbutton" inset="1,1,-1,-1"/>
-            </composed>
-            <composed>
-                <alias ref="-borderA"/>
-                <alias ref="-icon.upbutton"/>
-            </composed>
-        </select>
-        <select name="vscrollbar.downbutton.background">
-            <composed if="armed">
-                <alias ref="-borderD"/>
-                <alias ref="-icon.downbutton" inset="1,1,-1,-1"/>
-            </composed>
-            <composed>
-                <alias ref="-borderA"/>
-                <alias ref="-icon.downbutton"/>
-            </composed>
-        </select>
-
-        <select name="hscrollbar.leftbutton.background">
-            <composed if="armed">
-                <alias ref="-borderD"/>
-                <alias ref="-icon.leftbutton" inset="1,1,-1,-1"/>
-            </composed>
-            <composed>
-                <alias ref="-borderA"/>
-                <alias ref="-icon.leftbutton"/>
-            </composed>
-        </select>
-        <select name="hscrollbar.rightbutton.background">
-            <composed if="armed">
-                <alias ref="-borderD"/>
-                <alias ref="-icon.rightbutton" inset="1,1,-1,-1"/>
-            </composed>
-            <composed>
-                <alias ref="-borderA"/>
-                <alias ref="-icon.rightbutton"/>
-            </composed>
-        </select>
-
         <composed name="splitpane.splitter.background" sizeOverwriteH="9" sizeOverwriteV="9" border="0">
             <alias ref="button.background"/>
             <alias ref="-iconM" center="true" inset="0,-1,0,1"/>
@@ -255,24 +206,6 @@
         <param name="border"><border>background.border</border></param>
         <param name="fadeInTime"><int>0</int></param>
         <theme name="label" ref="label"/>
-    </theme>
-
-    <theme name="hscrollbar" ref="-defaults" allowWildcard="true">
-        <param name="background"><image>scrollbar.background</image></param>
-        <theme name="leftbutton" ref="-defaults">
-            <param name=""><image>hscrollbar.leftbutton.*</image></param>
-            <param name="minWidth"><int>16</int></param>
-        </theme>
-        <theme name="rightbutton" ref="-defaults">
-            <param name=""><image>hscrollbar.rightbutton.*</image></param>
-            <param name="minWidth"><int>16</int></param>
-        </theme>
-        <theme name="thumb" ref="-defaults">
-            <param name=""><image>scrollbar.thumb.*</image></param>
-        </theme>
-        <param name="scaleThumb"><bool>true</bool></param>
-        <param name="minWidth"><int>48</int></param>
-        <param name="minHeight"><int>16</int></param>
     </theme>
 
     <fontDef name="listbox-display" filename="font.fnt" color="black">
