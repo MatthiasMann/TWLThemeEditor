@@ -204,8 +204,14 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
                 if("alias".equals(tagName)) {
                     return new Alias(textures, parent, element);
                 }
+                if("select".equals(tagName)) {
+                    return new Select(textures, parent, element);
+                }
                 if("grid".equals(tagName)) {
                     return new Grid(textures, parent, element);
+                }
+                if("vsplit".equals(tagName) && element.getAttribute("splity") != null) {
+                    return new VSplitSimple(textures, parent, element);
                 }
                 return null;
             }
@@ -269,6 +275,27 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         }
     }
 
+    public static class VSplitSimple extends Texture {
+        VSplitSimple(Textures textures, TreeTableNode parent, Element node) {
+            super(textures, parent, node);
+        }
+
+        public class VSplitSimpleProperties extends TextureProperties {
+            public VSplitSimpleProperties(Textures textures, Element node) {
+                super(textures, node);
+            }
+
+            public Split getSplitY() {
+                String value = getAttribute("splity");
+                return (value != null) ? new Split(value) : null;
+            }
+
+            public void setSplitY(Split splitY) {
+                setAttribute("splity", splitY.toString());
+            }
+        }
+    }
+
     public static class Alias extends Image {
         public Alias(Textures textures, TreeTableNode parent, Element node) {
             super(textures, parent, node);
@@ -290,6 +317,18 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         }
     }
 
+    public static class Select extends WithSubimages {
+        public Select(Textures textures, TreeTableNode parent, Element element) throws IOException {
+            super(textures, parent, element);
+            properties = new ImageProperties(textures, element);
+        }
+
+        @Override
+        protected int getRequiredChildren() {
+            return Math.max(1, properties.node.getChildren().size());
+        }
+    }
+    
     public static class Grid extends WithSubimages {
         public Grid(Textures textures, ModifyableTreeTableNode parent, Element element) throws IOException {
             super(textures, parent, element);
