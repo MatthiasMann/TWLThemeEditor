@@ -44,6 +44,12 @@
         <texture name="-area6CL" x="76" y="0" width="3" height="18"/>
         <texture name="-area6R"  x="78" y="0" width="5" height="18"/>
 
+        <texture name="-outlineL"  x="126" y="0" width="3" height="18"/>
+        <texture name="-outlineF"  x="129" y="0" width="1" height="18"/>
+        <texture name="-outlineCR" x="130" y="0" width="1" height="18"/>
+        <texture name="-outlineCL" x="130" y="0" width="1" height="18"/>
+        <texture name="-outlineR"  x="132" y="0" width="3" height="18"/>
+
         <grid name="area1L" weightsX="0,1" weightsY="1">
             <alias ref="-area1L"/>
             <alias ref="-area1F"/>
@@ -158,6 +164,32 @@
             <alias ref="-area6R"/>
         </grid>
 
+        <grid name="outlineL" weightsX="0,1,0" weightsY="1">
+            <alias ref="-outlineL"/>
+            <alias ref="-outlineF"/>
+            <alias ref="-outlineCR"/>
+        </grid>
+        <grid name="outlineC" weightsX="0,1,0" weightsY="1">
+            <alias ref="-outlineCL"/>
+            <alias ref="-outlineF"/>
+            <alias ref="-outlineCR"/>
+        </grid>
+        <grid name="outlineR" weightsX="0,1,0" weightsY="1">
+            <alias ref="-outlineCL"/>
+            <alias ref="-outlineF"/>
+            <alias ref="-outlineR"/>
+        </grid>
+        <grid name="outlineX" weightsX="0,1,0" weightsY="1">
+            <alias ref="-outlineL"/>
+            <alias ref="-outlineF"/>
+            <alias ref="-outlineR"/>
+        </grid>
+
+        <alias name="-selectionL" ref="outlineL" tint="#cc0" if="keyboardFocus"/>
+        <alias name="-selectionC" ref="outlineC" tint="#cc0" if="keyboardFocus"/>
+        <alias name="-selectionR" ref="outlineR" tint="#cc0" if="keyboardFocus"/>
+        <alias name="-selectionX" ref="outlineX" tint="#cc0" if="keyboardFocus"/>
+
         <select name="radiobuttonL.background">
             <alias ref="area6L" if="selected + armed"/>
             <alias ref="area5L" if="selected + hover"/>
@@ -166,7 +198,7 @@
             <alias ref="area2L" if="hover"/>
             <alias ref="area1L"/>
         </select>
-        <select name="radiobuttonC.background" inset="0,-1,0,0">
+        <select name="radiobuttonC.background">
             <alias ref="area6C" if="selected + armed"/>
             <alias ref="area5C" if="selected + hover"/>
             <alias ref="area4C" if="selected"/>
@@ -174,7 +206,7 @@
             <alias ref="area2C" if="hover"/>
             <alias ref="area1C"/>
         </select>
-        <select name="radiobuttonR.background" inset="0,-1,0,0">
+        <select name="radiobuttonR.background">
             <alias ref="area6R" if="selected + armed"/>
             <alias ref="area5R" if="selected + hover"/>
             <alias ref="area4R" if="selected"/>
@@ -197,6 +229,28 @@
             <alias ref="radiobuttonR.background" if="radiobuttonLast"/>
             <alias ref="radiobuttonC.background"/>
         </select>
+        <select name="radiobutton.overlay">
+            <alias ref="-selectionX" if="radiobuttonFirst + radiobuttonLast"/>
+            <alias ref="-selectionL" if="radiobuttonFirst"/>
+            <alias ref="-selectionR" if="radiobuttonLast"/>
+            <alias ref="-selectionC"/>
+        </select>
+
+        <alias name="togglebutton.background" ref="radiobuttonX.background" border="4,1"/>
+        <alias name="togglebutton.overlay" ref="-selectionX"/>
+
+        <texture name="-icon.combobox" x="10" y="19" width="6" height="7" center="true"/>
+        <select name="combobox.background">
+            <alias ref="area3X" if="armed"/>
+            <alias ref="area2X" if="hover"/>
+            <alias ref="area1X"/>
+        </select>
+        <select name="combobox.button.background">
+            <alias ref="-icon.combobox" inset="1,1,-1,-1" if="armed"/>
+            <alias ref="-icon.combobox"/>
+        </select>
+        <alias name="combobox.display.background" ref="none"/>
+        <alias name="combobox.overlay" ref="-selectionX"/>
 
         <grid name="collapsiblepanel.background" weightsX="1" weightsY="1,0" border="0,0,5,0">
             <alias ref="none"/>
@@ -204,8 +258,8 @@
         </grid>
 
         <select name="collapsiblepanel.arrow.background" center="true">
-            <texture x="25" y="18" width="8" height="8" if="expanded"/>
-            <texture x="16" y="18" width="8" height="8"/>
+            <texture x="26" y="19" width="8" height="8" if="expanded"/>
+            <texture x="17" y="19" width="8" height="8"/>
         </select>
     </textures>
 
@@ -220,6 +274,29 @@
         <param name="textAlignment"><enum type="alignment">center</enum></param>
         <param name="font"><font>button-font</font></param>
         <param name="minWidth"><int>20</int></param>
+    </theme>
+
+    <theme name="togglebutton" ref="radiobutton" allowWildcard="true">
+        <param name=""><image>togglebutton.*</image></param>
+        <param name="border"><border>background.border</border></param>
+    </theme>
+
+    <theme name="combobox" ref="-defaults" allowWildcard="true">
+        <param name=""><image>combobox.*</image></param>
+        <theme name="display" ref="label">
+            <param name=""><image>combobox.display.*</image></param>
+            <param name="border"><border>3,1</border></param>
+            <param name="minWidth"><int>50</int></param>
+            <param name="textAlignment"><enum type="alignment">left</enum></param>
+            <param name="font"><fontDef filename="font.fnt" color="white">
+                <fontParam if="hasOpenPopups" color="#aaa"/>
+            </fontDef></param>
+        </theme>
+        <theme name="button" ref="-defaults">
+            <param name=""><image>combobox.button.*</image></param>
+            <param name="minWidth"><int>18</int></param>
+        </theme>
+        <param name="minHeight"><int>18</int></param>
     </theme>
 
     <theme name="elementTree" ref="scrollpane">
@@ -246,7 +323,7 @@
 
                 <theme name="contentcontainer" ref="-defaults">
                     <theme name="" ref="*"/>
-                    <theme name="boolean" ref="checkbox"/>
+                    <theme name="boolean" ref="togglebutton"/>
                     <theme name="colorselector" ref="colorselector">
                         <theme name="colorarea1d" merge="true">
                             <param name="background"><image>-borderC</image></param>
@@ -270,7 +347,7 @@
                         </theme>
                         <theme name="" ref="*"/>
                         <param name="namedGaps"><map>
-                            <param name="radiobutton"><gap>1</gap></param>
+                            <param name="radiobutton"><gap>0</gap></param>
                         </map></param>
                     </theme>
 

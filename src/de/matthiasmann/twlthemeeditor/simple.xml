@@ -79,30 +79,18 @@
                 <alias ref="-selV"/>
             </grid>
         </composed>
-        <alias name="-selection" ref="--selection" inset="2" if="keyboardFocus"/>
 
         <select name="button.background" border="6,3">
             <alias ref="-borderB" if="disabled" tint="#8fff"/>
             <alias ref="-borderE" if="armed"/>
             <alias ref="-borderB"/>
         </select>
-        <alias name="button.overlay" ref="-selection"/>
-
-        <select name="togglebutton.background" border="6,3">
-            <alias ref="-borderC" if="disabled + selected" tint="#8fff"/>
-            <alias ref="-borderB" if="disabled" tint="#8fff"/>
-            <alias ref="-borderE" if="armed"/>
-            <alias ref="-borderC" if="selected"/>
-            <alias ref="-borderB"/>
-        </select>
-        <alias name="togglebutton.overlay" ref="-selection"/>
 
         <select name="valueadjuster.display.background">
             <alias ref="-borderB" if="disabled" tint="#8fff"/>
             <alias ref="-borderE" if="armed | pressed"/>
             <alias ref="-borderB"/>
         </select>
-        <alias name="valueadjuster.display.overlay" ref="-selection"/>
 
         <alias name="-frame.closeIcon" ref="-iconB" inset="2,3,3,3"/>
         <select name="frame.closebutton.background">
@@ -188,20 +176,7 @@
         <alias name="editfield.selection" ref="-gradC"/>
 
         <alias name="listbox.display.background" ref="-gradC" if="selected"/>
-        <alias name="listbox.display.overlay" ref="-selection"/>
 
-        <alias name="-icon.combobox" ref="-iconA" center="true"/>
-        <select name="combobox.button.background" inset="2,0,2,2">
-            <composed if="armed">
-                <alias ref="-borderD"/>
-                <alias ref="-icon.combobox" inset="1,1,-1,-1"/>
-            </composed>
-            <composed>
-                <alias ref="-borderA"/>
-                <alias ref="-icon.combobox"/>
-            </composed>
-        </select>
-        <alias name="combobox.display.background" ref="-gradC" inset="2,2,2,0" if="comboboxKeyboardFocus"/>
 
         <alias name="-icon.checkbox" ref="-iconG" center="true"/>
         <select name="checkbox.background">
@@ -216,7 +191,6 @@
                 <alias ref="-borderE" if="armed"/>
                 <alias ref="-borderC"/>
             </select>
-        <alias name="checkbox.overlay" ref="-selection"/>
 
         <alias name="popupmenu.button.background" ref="-gradC" if="hover | armed"/>
         <texture name="popupmenu.separator" x="14" y="41" width="1" height="2" inset="2"/>
@@ -294,36 +268,6 @@
         <cursor name="cursor.resizecolumn" x="30" y="36" width="21" height="15" hotSpotX="10" hotSpotY="7"/>
         <cursor name="cursor.resizerow" x="84" y="4" width="15" height="21" hotSpotX="7" hotSpotY="10"/>
         <cursor name="cursor.none" x="84" y="4" width="1" height="1" hotSpotX="0" hotSpotY="0"/>
-
-        <alias name="blockgame0" ref="none"/>
-        <composed name="blockgame1">
-            <alias ref="-borderB" sizeOverwriteH="15" sizeOverwriteV="15"/>
-            <texture x="25" y="5" width="1" height="1" inset="2" tint="red"/>
-        </composed>
-        <composed name="blockgame2">
-            <alias ref="-borderB" sizeOverwriteH="15" sizeOverwriteV="15"/>
-            <texture x="25" y="5" width="1" height="1" inset="2" tint="yellow"/>
-        </composed>
-        <composed name="blockgame3">
-            <alias ref="-borderB" sizeOverwriteH="15" sizeOverwriteV="15"/>
-            <texture x="25" y="5" width="1" height="1" inset="2" tint="orange"/>
-        </composed>
-        <composed name="blockgame4">
-            <alias ref="-borderB" sizeOverwriteH="15" sizeOverwriteV="15"/>
-            <texture x="25" y="5" width="1" height="1" inset="2" tint="blue"/>
-        </composed>
-        <composed name="blockgame5">
-            <alias ref="-borderB" sizeOverwriteH="15" sizeOverwriteV="15"/>
-            <texture x="25" y="5" width="1" height="1" inset="2" tint="teal"/>
-        </composed>
-        <composed name="blockgame6">
-            <alias ref="-borderB" sizeOverwriteH="15" sizeOverwriteV="15"/>
-            <texture x="25" y="5" width="1" height="1" inset="2" tint="purple"/>
-        </composed>
-        <composed name="blockgame7">
-            <alias ref="-borderB" sizeOverwriteH="15" sizeOverwriteV="15"/>
-            <texture x="25" y="5" width="1" height="1" inset="2" tint="lime"/>
-        </composed>
     </textures>
 
     <fontDef name="normal" filename="font.fnt" color="black">
@@ -358,11 +302,6 @@
         <param name=""><image>button.*</image></param>
         <param name="border"><border>background.border</border></param>
         <param name="textAlignment"><enum type="alignment">center</enum></param>
-    </theme>
-
-    <theme name="togglebutton" ref="button" allowWildcard="true">
-        <param name=""><image>togglebutton.*</image></param>
-        <param name="border"><border>background.border</border></param>
     </theme>
 
     <theme name="checkbox" ref="-defaults" allowWildcard="true">
@@ -454,20 +393,6 @@
         </theme>
     </theme>
 
-    <theme name="combobox" ref="-defaults" allowWildcard="true">
-        <param name="background"><image>-borderC</image></param>
-        <theme name="display" ref="label">
-            <param name=""><image>combobox.display.*</image></param>
-            <param name="border"><border>3</border></param>
-            <param name="minWidth"><int>50</int></param>
-            <param name="textAlignment"><enum type="alignment">left</enum></param>
-            <param name="font"><font>combobox</font></param>
-        </theme>
-        <theme name="button" ref="-defaults">
-            <param name=""><image>combobox.button.*</image></param>
-            <param name="minWidth"><int>18</int></param>
-        </theme>
-    </theme>
 
     <theme name="comboboxPopup" ref="-defaults">
         <param name="background"><image>-borderH</image></param>
@@ -639,6 +564,7 @@
         <theme name="listbox" ref="listbox"/>
     </theme>
 
+    <!--
     <theme name="fileselector" ref="dialoglayout" allowWildcard="true">
         <theme name="label" ref="label"/>
         <theme name="currentFolder" ref="treecombobox">
@@ -732,6 +658,7 @@
             </theme>
         </theme>
     </theme>
+    -->
 
     <theme name="graph" ref="-defaults" allowWildcard="true">
         <param name="background"><image>-borderC</image></param>
@@ -863,6 +790,9 @@
     <theme name="previewwidgets" ref="dialoglayout">
         <param name="border"><border>10</border></param>
         <theme name="" ref="*"/>
+        <param name="namedGaps"><map>
+            <param name="radiobutton"><gap>0</gap></param>
+        </map></param>
     </theme>
 
 </themes>

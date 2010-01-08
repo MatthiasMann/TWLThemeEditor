@@ -30,10 +30,16 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.Button;
+import de.matthiasmann.twl.ComboBox;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Scrollbar;
 import de.matthiasmann.twl.ToggleButton;
+import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.IntegerModel;
+import de.matthiasmann.twl.model.OptionBooleanModel;
+import de.matthiasmann.twl.model.SimpleChangableListModel;
+import de.matthiasmann.twl.model.SimpleIntegerModel;
 
 /**
  *
@@ -47,13 +53,30 @@ public class PreviewWidgets extends DialogLayout {
         ToggleButton toggleButton = new ToggleButton("ToggleButton");
         ToggleButton checkBox = new ToggleButton("CheckBox");
         checkBox.setTheme("checkbox");
+        ComboBox comboBox = new ComboBox(new SimpleChangableListModel("Test", "Hello World", "End"));
         Scrollbar scrollbarH = new Scrollbar(Scrollbar.Orientation.HORIZONTAL);
         Scrollbar scrollbarV = new Scrollbar(Scrollbar.Orientation.VERTICAL);
 
-        Group horzWidgets = createSequentialGroup()
-                .addGroup(createParallelGroup(label, button, toggleButton, checkBox))
+        ToggleButton[] radioButtons = new ToggleButton[4];
+        IntegerModel model = new SimpleIntegerModel(0, radioButtons.length-1, 0);
+        for(int i=0 ; i<radioButtons.length ; i++) {
+            radioButtons[i] = new ToggleButton(new OptionBooleanModel(model, i));
+            radioButtons[i].setText("Opt " + (i+1));
+            radioButtons[i].setTheme("radiobutton");
+        }
+
+        Widget[] widgets = new Widget[] {
+            label, button, toggleButton, checkBox,comboBox
+        };
+        Group horzWidgets = createParallelGroup();
+        for(Widget w : widgets) {
+            horzWidgets.addGroup(createSequentialGroup().addWidget(w).addGap());
+        }
+        horzWidgets.addGroup(createSequentialGroup().addWidgetsWithGap("radiobutton", radioButtons));
+
+        Group vertWidgets = createSequentialGroup(widgets)
+                .addGroup(createParallelGroup(radioButtons))
                 .addGap();
-        Group vertWidgets = createSequentialGroup(label, button, toggleButton, checkBox).addGap();
 
         setHorizontalGroup(createSequentialGroup()
                 .addGroup(createParallelGroup().addGroup(horzWidgets).addWidget(scrollbarH))

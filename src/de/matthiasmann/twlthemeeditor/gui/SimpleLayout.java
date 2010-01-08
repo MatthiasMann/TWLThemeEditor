@@ -31,7 +31,7 @@ public class SimpleLayout extends DialogLayout {
 
                     horzLabel.addWidget(label);
                     horzControls.addWidget(control);
-                    vert.addGroup(createSequentialGroup().addWidget(label).addWidget(control));
+                    vert.addGroup(createParallelGroup().addWidget(label).addWidget(control));
                 } else {
                     horzAll.addWidget(w);
                     vert.addWidget(w);
