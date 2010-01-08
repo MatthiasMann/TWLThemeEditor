@@ -36,6 +36,7 @@ import de.matthiasmann.twl.utils.TypeMapping;
 import de.matthiasmann.twlthemeeditor.datamodel.Condition;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
+import de.matthiasmann.twlthemeeditor.datamodel.Split;
 import de.matthiasmann.twlthemeeditor.datamodel.Weights;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,6 +65,7 @@ public class Context {
         factories.put(Condition.class, new ConditionEditor());
         factories.put(ImageReference.class, new ImageRefEditor(this));
         factories.put(Weights.class, new WeightsEditorFactory());
+        factories.put(Split.class, new SplitEditorFactory());
 
         this.propertyOrder = new ArrayList<String>();
     }
