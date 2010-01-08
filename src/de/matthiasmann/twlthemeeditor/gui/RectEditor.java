@@ -48,22 +48,17 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
     public Widget create(final PropertyAccessor<Rect> pa) {
         RectModifier rm = new RectModifier(pa, ((HasTextureDimensions)pa.getObject()).getTextureDimensions());
 
-        Label labelX = new Label("X");
-        Label labelY = new Label("Y");
-        Label labelW = new Label("Width");
-        Label labelH = new Label("Height");
-
         ValueAdjusterInt adjusterX = new ValueAdjusterInt(rm.modelX);
         ValueAdjusterInt adjusterY = new ValueAdjusterInt(rm.modelY);
         ValueAdjusterInt adjusterW = new ValueAdjusterInt(rm.modelWidth);
         ValueAdjusterInt adjusterH = new ValueAdjusterInt(rm.modelHeight);
 
-        labelX.setLabelFor(adjusterX);
-        labelY.setLabelFor(adjusterY);
-        labelW.setLabelFor(adjusterW);
-        labelH.setLabelFor(adjusterH);
+        adjusterX.setDisplayPrefix("X: ");
+        adjusterY.setDisplayPrefix("Y: ");
+        adjusterW.setDisplayPrefix("W: ");
+        adjusterH.setDisplayPrefix("H: ");
 
-        return new SimpleLayout("recteditor", labelX, labelY, labelW, labelH);
+        return new SimpleLayout("recteditor", adjusterX, adjusterY, adjusterW, adjusterH);
     }
 
     static abstract class MyIntegerModel extends AbstractIntegerModel {

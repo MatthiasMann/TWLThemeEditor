@@ -694,6 +694,7 @@
         </theme>
         <theme name="valueEdit" ref="editfield"/>
         <param name="width"><int>100</int></param>
+        <param name="maxWidth"><int>32767</int></param>
     </theme>
 
     <theme name="progressbar" ref="-defaults" allowWildcard="true">
