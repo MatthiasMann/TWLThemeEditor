@@ -303,12 +303,12 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
 
         @Override
         protected int getRequiredChildren() {
-            int[] weightsX = getProperties().getWeightsX();
-            int[] weightsY = getProperties().getWeightsY();
+            Weights weightsX = getProperties().getWeightsX();
+            Weights weightsY = getProperties().getWeightsY();
             if(weightsX == null || weightsY == null) {
                 return 0;
             }
-            return weightsX.length * weightsY.length;
+            return weightsX.getNumWeights() * weightsY.getNumWeights();
         }
 
         public class GridProperties extends ImageProperties {
@@ -316,22 +316,22 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
                 super(textures, node);
             }
 
-            public int[] getWeightsX() {
+            public Weights getWeightsX() {
                 String value = getAttribute("weightsX");
-                return (value != null) ? Utils.parseInts(value) : null;
+                return (value != null) ? new Weights(value) : null;
             }
 
-            public void setWeightsX(int[] weightsX) {
-                setAttribute("weightsX", Utils.toString(weightsX));
+            public void setWeightsX(Weights weightsX) {
+                setAttribute("weightsX", weightsX.toString());
             }
 
-            public int[] getWeightsY() {
+            public Weights getWeightsY() {
                 String value = getAttribute("weightsY");
-                return (value != null) ? Utils.parseInts(value) : null;
+                return (value != null) ? new Weights(value) : null;
             }
 
-            public void setWeightsY(int[] weightsY) {
-                setAttribute("weightsY", Utils.toString(weightsY));
+            public void setWeightsY(Weights weightsY) {
+                setAttribute("weightsY", weightsY.toString());
             }
         }
     }

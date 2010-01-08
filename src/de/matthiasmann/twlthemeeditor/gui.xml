@@ -354,6 +354,19 @@
                     <theme name="recteditor" ref="dialoglayout">
                         <theme name="" ref="*"/>
                     </theme>
+
+                    <theme name="weightseditor" ref="dialoglayout">
+                        <theme name="removebutton" ref="button">
+                            <param name="text"><string>X</string></param>
+                            <param name="tooltip"><string>Removes this weight</string></param>
+                        </theme>
+                        <theme name="addbutton" ref="button">
+                            <param name="text"><string>+</string></param>
+                            <param name="tooltip"><string>Adds a new weight</string></param>
+                        </theme>
+                        <theme name="" ref="*"/>
+                    </theme>
+
                 </theme>
             </theme>
         </theme>
