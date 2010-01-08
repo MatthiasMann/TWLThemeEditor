@@ -35,6 +35,7 @@ import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.XMLWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
@@ -48,17 +49,19 @@ import org.jdom.output.XMLOutputter;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ThemeFile {
+public class ThemeFile implements VirtualFile {
 
     private final TestEnv env;
     private final URL url;
     private final Document document;
 
+    private ModifyableTreeTableNode node;
     private Runnable[] callbacks;
 
     public ThemeFile(TestEnv env, URL url) throws IOException {
@@ -103,6 +106,7 @@ public class ThemeFile {
     }
 
     protected void addChildren(ModifyableTreeTableNode parent) throws IOException {
+        this.node = parent;
         Utils.addChildren(this, parent, document.getRootElement(), new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, TreeTableNode parent, Element element) throws IOException {
                 String tagName = element.getName();
@@ -119,11 +123,25 @@ public class ThemeFile {
     }
 
     public void registerAs(String filename) {
-        env.registerFile(filename, new VirtualXMLFile(document));
+        env.registerFile(filename, this);
     }
 
     void fireCallbacks() {
         CallbackSupport.fireCallbacks(callbacks);
+    }
+
+    public Object getContent(Class<?> type) throws IOException {
+        if(type == XmlPullParser.class) {
+            DomXPPParser xpp = new DomXPPParser();
+            Element rootElement = document.getRootElement();
+            Utils.addChildren(xpp, rootElement.getName(), node, rootElement.getAttributes());
+            return xpp;
+        }
+        return null;
+    }
+
+    public InputStream openStream() throws IOException {
+        throw new IOException("Call getContent().");
     }
 
 }

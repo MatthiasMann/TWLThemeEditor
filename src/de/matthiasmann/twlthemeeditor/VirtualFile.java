@@ -38,6 +38,7 @@ import java.io.InputStream;
  */
 public interface VirtualFile {
 
+    public Object getContent(Class<?> type) throws IOException;
     public InputStream openStream() throws IOException;
 
 }

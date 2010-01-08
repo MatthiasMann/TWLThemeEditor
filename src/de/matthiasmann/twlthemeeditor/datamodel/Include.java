@@ -71,4 +71,8 @@ public class Include extends ThemeTreeNode {
     public String getFileName() {
         return node.getAttribute("filename");
     }
+
+    public void addChildren(DomXPPParser xpp) {
+        xpp.addElement(node.node);
+    }
 }

@@ -29,14 +29,32 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import java.util.List;
+import de.matthiasmann.twl.model.TreeTableNode;
+import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public interface HasChildren<T> {
+public class Unknown extends ThemeTreeNode {
 
-    public List<T> getChildren();
+    private final Element element;
 
+    public Unknown(TreeTableNode parent, Element element) {
+        super(parent);
+        this.element = element;
+    }
+
+    public Object getData(int column) {
+        switch (column) {
+            case 0:
+                return "<"+element.getName()+">";
+            default:
+                return "Unknown";
+        }
+    }
+
+    public void addChildren(DomXPPParser xpp) {
+        xpp.addElement(element);
+    }
 }

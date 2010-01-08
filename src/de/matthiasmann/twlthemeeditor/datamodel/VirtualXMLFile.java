@@ -49,6 +49,10 @@ public class VirtualXMLFile implements VirtualFile {
         this.document = document;
     }
 
+    public Object getContent(Class<?> type) throws IOException {
+        return null;
+    }
+
     public InputStream openStream() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         new XMLOutputter().output(document, baos);

@@ -29,15 +29,13 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.Dimension;
-import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractIntegerModel;
 import de.matthiasmann.twl.model.HasCallback;
-import de.matthiasmann.twlthemeeditor.datamodel.HasTextureDimensions;
+import de.matthiasmann.twlthemeeditor.datamodel.RectWithTextureDimension;
 
 /**
  *
@@ -46,17 +44,24 @@ import de.matthiasmann.twlthemeeditor.datamodel.HasTextureDimensions;
 public class RectEditor implements PropertyEditorFactory<Rect> {
 
     public Widget create(final PropertyAccessor<Rect> pa) {
-        RectModifier rm = new RectModifier(pa, ((HasTextureDimensions)pa.getObject()).getTextureDimensions());
+        RectModifier rm = new RectModifier(pa);
 
         ValueAdjusterInt adjusterX = new ValueAdjusterInt(rm.modelX);
         ValueAdjusterInt adjusterY = new ValueAdjusterInt(rm.modelY);
         ValueAdjusterInt adjusterW = new ValueAdjusterInt(rm.modelWidth);
         ValueAdjusterInt adjusterH = new ValueAdjusterInt(rm.modelHeight);
 
+        adjusterX.setTooltipContent("X position");
+        adjusterY.setTooltipContent("Y position");
+        adjusterW.setTooltipContent("Width");
+        adjusterH.setTooltipContent("Height");
+        
+        /*
         adjusterX.setDisplayPrefix("X: ");
         adjusterY.setDisplayPrefix("Y: ");
         adjusterW.setDisplayPrefix("W: ");
         adjusterH.setDisplayPrefix("H: ");
+         */
 
         return new SimpleLayout("recteditor", adjusterX, adjusterY, adjusterW, adjusterH);
     }
@@ -79,10 +84,15 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
         final MyIntegerModel modelWidth;
         final MyIntegerModel modelHeight;
 
-        public RectModifier(PropertyAccessor<Rect> pa, Dimension textureDim) {
+        public RectModifier(PropertyAccessor<Rect> pa) {
             this.pa = pa;
-            this.dim = textureDim;
             this.rect = pa.getValue(NULL_RECT);
+
+            if(rect instanceof RectWithTextureDimension) {
+                this.dim = ((RectWithTextureDimension)rect).getTextureDimension();
+            } else {
+                this.dim = new Dimension(256, 256);
+            }
 
             this.modelX = new MyIntegerModel() {
                 public int getMaxValue() {

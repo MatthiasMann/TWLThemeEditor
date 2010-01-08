@@ -30,13 +30,23 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.Dimension;
+import de.matthiasmann.twl.Rect;
 
 /**
  *
  * @author Matthias Mann
  */
-public interface HasTextureDimensions {
+public class RectWithTextureDimension extends Rect {
 
-    public Dimension getTextureDimensions();
-    
+    private final Dimension textureDimension;
+
+    public RectWithTextureDimension(int x, int y, int w, int h, Dimension textureDimension) {
+        super(x, y, w, h);
+        this.textureDimension = textureDimension;
+    }
+
+    public Dimension getTextureDimension() {
+        return textureDimension;
+    }
+
 }

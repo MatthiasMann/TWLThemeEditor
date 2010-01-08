@@ -59,6 +59,9 @@ public class TestEnv extends URLStreamHandler {
 
     public void registerFile(String name, final URL url) {
         registerFile(name, new VirtualFile() {
+            public Object getContent(Class<?> type) throws IOException {
+                return url.getContent(new Class[]{type});
+            }
             public InputStream openStream() throws IOException {
                 return url.openStream();
             }
@@ -75,6 +78,14 @@ public class TestEnv extends URLStreamHandler {
                 if(file == null) {
                     throw new FileNotFoundException(fileName);
                 }
+            }
+
+            @Override
+            public Object getContent(Class[] classes) throws IOException {
+                if(file != null && classes.length > 0) {
+                    return file.getContent(classes[0]);
+                }
+                return null;
             }
 
             @Override

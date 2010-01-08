@@ -62,4 +62,9 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements Modifyable
     public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz) {
         return Utils.getChildren(this, clazz);
     }
+
+    public void addChildren(DomXPPParser xpp) {
+        Utils.addChildren(xpp, this);
+    }
+
 }

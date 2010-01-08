@@ -33,9 +33,11 @@ import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.model.TreeTableNode;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jdom.Attribute;
 import org.jdom.Element;
 
 /**
@@ -95,12 +97,17 @@ final class Utils {
     }
 
     public static void addChildren(ThemeFile themeFile, ModifyableTreeTableNode parent, Element node, DomWrapper wrapper) throws IOException {
-        for(Object o : node.getChildren()) {
-            if(o instanceof Element) {
-                TreeTableNode ttn = wrapper.wrap(themeFile, parent, (Element)o);
-                if(ttn != null) {
-                    parent.appendChild(ttn);
+        for(Object child : node.getChildren()) {
+            if(child instanceof Element) {
+                Element element = (Element)child;
+                TreeTableNode ttn = wrapper.wrap(themeFile, parent, element);
+                if(ttn == null) {
+                    ttn = new Unknown(parent, element);
                 }
+                if(ttn instanceof ModifyableTreeTableNode) {
+                    ((ModifyableTreeTableNode)ttn).setLeaf(ttn.getNumChildren() == 0);
+                }
+                parent.appendChild(ttn);
             }
         }
         parent.setLeaf(parent.getNumChildren() == 0);
@@ -121,6 +128,21 @@ final class Utils {
         return result;
     }
 
+    public static void addChildren(DomXPPParser xpp, ModifyableTreeTableNode node) {
+        for(int i=0,n=node.getNumChildren() ; i<n ; i++) {
+            TreeTableNode child = node.getChild(i);
+            if(child instanceof ModifyableTreeTableNode) {
+                ((ModifyableTreeTableNode)child).addChildren(xpp);
+            }
+        }
+    }
+
+    public static void addChildren(DomXPPParser xpp, String tagName, ModifyableTreeTableNode node, Collection<Attribute> attributes) {
+        xpp.addStartTag(tagName, attributes);
+        addChildren(xpp, node);
+        xpp.addEndTag(tagName);
+    }
+    
     public static boolean equals(Object a, Object b) {
         return (a == b) || (a != null && a.equals(b));
     }

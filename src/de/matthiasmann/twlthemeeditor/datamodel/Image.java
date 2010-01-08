@@ -31,8 +31,8 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.Color;
-import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.Rect;
+import de.matthiasmann.twl.model.TreeTableNode;
 import org.jdom.Element;
 
 /**
@@ -42,13 +42,19 @@ import org.jdom.Element;
 public abstract class Image extends ThemeTreeNode implements HasProperties {
 
     protected ImageProperties properties;
+    protected final Element element;
 
-    protected Image(Textures parent) {
+    protected Image(TreeTableNode parent, Element element) {
         super(parent);
+        this.element = element;
     }
 
     public ImageProperties getProperties() {
         return properties;
+    }
+
+    public void addChildren(DomXPPParser xpp) {
+        xpp.addElement(element);
     }
 
     public class ImageProperties extends NodeWrapper {
@@ -180,22 +186,23 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
     }
     
     public static class Texture extends Image {
-        Texture(Textures textures, Element root) {
-            super(textures);
-            this.properties = new TextureProperties(textures, root);
+        Texture(Textures textures, Element node) {
+            super(textures, node);
+            this.properties = new TextureProperties(textures, node);
         }
 
-        public class TextureProperties extends ImageProperties implements HasTextureDimensions {
+        public class TextureProperties extends ImageProperties {
             public TextureProperties(Textures textures, Element node) {
                 super(textures, node);
             }
 
             public Rect getRect() {
-                return new Rect(
+                return new RectWithTextureDimension(
                         parseIntFromAttribute("x"),
                         parseIntFromAttribute("y"),
                         parseIntFromAttribute("width"),
-                        parseIntFromAttribute("height"));
+                        parseIntFromAttribute("height"),
+                        textures.getTextureDimensions());
             }
 
             public void setRect(Rect rect) {
@@ -204,16 +211,12 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
                 setAttribute("width", rect.getWidth());
                 setAttribute("height", rect.getHeight());
             }
-
-            public Dimension getTextureDimensions() {
-                return textures.getTextureDimensions();
-            }
         }
     }
 
     public static class Alias extends Image {
         public Alias(Textures parent, Element node) {
-            super(parent);
+            super(parent, node);
             this.properties = new AliasProperties(parent, node);
         }
 
