@@ -108,7 +108,7 @@ public class ThemeFile implements VirtualFile {
     protected void addChildren(ModifyableTreeTableNode parent) throws IOException {
         this.node = parent;
         Utils.addChildren(this, parent, document.getRootElement(), new DomWrapper() {
-            public TreeTableNode wrap(ThemeFile themeFile, TreeTableNode parent, Element element) throws IOException {
+            public TreeTableNode wrap(ThemeFile themeFile, ModifyableTreeTableNode parent, Element element) throws IOException {
                 String tagName = element.getName();
 
                 if("textures".equals(tagName)) {

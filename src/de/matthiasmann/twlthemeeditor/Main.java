@@ -96,7 +96,7 @@ public class Main {
         env.registerFile("/font_00.png", new URL(url, "font_00.png"));
         
         try {
-            Display.setDisplayMode(new DisplayMode(800, 600));
+            Display.setDisplayMode(new DisplayMode(1000, 800));
             Display.create();
             Display.setTitle("TWL Theme Editor");
             Display.setVSyncEnabled(true);

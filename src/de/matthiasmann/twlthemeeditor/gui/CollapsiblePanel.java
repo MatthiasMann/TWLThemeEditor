@@ -91,13 +91,13 @@ public class CollapsiblePanel extends DialogLayout {
     }
 
     private static final int STEP = 2;
-    private static final int MAX_SPEED = 30;
+    private static final int MAX_SPEED = 25;
     private static final int DELAY = 20;
     
     class ContentContainer extends Widget implements Runnable {
         private final Widget content;
         private Timer timer;
-        private int prefInnerHeight;
+        private int prefInnerHeight = -1;
         private int speed;
 
         public ContentContainer(Widget content) {
@@ -124,6 +124,9 @@ public class CollapsiblePanel extends DialogLayout {
 
         @Override
         public int getPreferredInnerHeight() {
+            if(prefInnerHeight < 0) {
+                prefInnerHeight = computPrefferedInnerHeight();
+            }
             return prefInnerHeight;
         }
 

@@ -33,6 +33,7 @@ import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.model.TreeTableNode;
+import java.io.IOException;
 import org.jdom.Element;
 
 /**
@@ -41,11 +42,13 @@ import org.jdom.Element;
  */
 public abstract class Image extends ThemeTreeNode implements HasProperties {
 
+    protected final Textures textures;
     protected ImageProperties properties;
     protected final Element element;
 
-    protected Image(TreeTableNode parent, Element element) {
+    protected Image(Textures textures, TreeTableNode parent, Element element) {
         super(parent);
+        this.textures = textures;
         this.element = element;
     }
 
@@ -176,18 +179,70 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
 
     public Object getData(int column) {
         switch (column) {
-            case 0:
-                return properties.getName();
+            case 0: {
+                String name = properties.getName();
+                if(name == null) {
+                    name = "Unnamed #" + (1+getParent().getChildIndex(this));
+                }
+                return name;
+            }
             case 1:
                 return getClass().getSimpleName();
             default:
                 return "";
         }
     }
-    
+
+    public static void addChildImages(final Textures textures, ModifyableTreeTableNode parent, Element node) throws IOException {
+        Utils.addChildren(textures.getThemeFile(), parent, node, new DomWrapper() {
+            public TreeTableNode wrap(ThemeFile themeFile, ModifyableTreeTableNode parent, Element element) throws IOException {
+                String tagName = element.getName();
+
+                if("texture".equals(tagName)) {
+                    return new Texture(textures, parent, element);
+                }
+                if("alias".equals(tagName)) {
+                    return new Alias(textures, parent, element);
+                }
+                if("grid".equals(tagName)) {
+                    return new Grid(textures, parent, element);
+                }
+                return null;
+            }
+        });
+    }
+
+    static abstract class WithSubimages extends Image {
+        protected WithSubimages(Textures textures, TreeTableNode parent, Element element) throws IOException {
+            super(textures, parent, element);
+            addChildImages(textures, this, element);
+        }
+        protected abstract int getRequiredChildren();
+
+        private static final Element ALIAS_REF_NONE = new Element("alias").setAttribute("ref", "none");
+
+        @Override
+        public void addChildren(DomXPPParser xpp) {
+            xpp.addStartTag(properties.node.getName(), properties.node.getAttributes());
+            int generated = 0;
+            int required = getRequiredChildren();
+            for(int i=0,n=getNumChildren() ; i<n && generated<required ; i++) {
+                TreeTableNode child = getChild(i);
+                if(child instanceof ModifyableTreeTableNode) {
+                    ((ModifyableTreeTableNode)child).addChildren(xpp);
+                    generated++;
+                }
+            }
+            for(; generated < required ; generated++) {
+                xpp.addElement(ALIAS_REF_NONE);
+            }
+            xpp.addEndTag(properties.node.getName());
+        }
+    }
+
     public static class Texture extends Image {
-        Texture(Textures textures, Element node) {
-            super(textures, node);
+        Texture(Textures textures, TreeTableNode parent, Element node) {
+            super(textures, parent, node);
             this.properties = new TextureProperties(textures, node);
         }
 
@@ -215,9 +270,9 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
     }
 
     public static class Alias extends Image {
-        public Alias(Textures parent, Element node) {
-            super(parent, node);
-            this.properties = new AliasProperties(parent, node);
+        public Alias(Textures textures, TreeTableNode parent, Element node) {
+            super(textures, parent, node);
+            this.properties = new AliasProperties(textures, node);
         }
 
         public class AliasProperties extends ImageProperties {
@@ -235,4 +290,49 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         }
     }
 
+    public static class Grid extends WithSubimages {
+        public Grid(Textures textures, ModifyableTreeTableNode parent, Element element) throws IOException {
+            super(textures, parent, element);
+            this.properties = new GridProperties(textures, element);
+        }
+
+        @Override
+        public GridProperties getProperties() {
+            return (GridProperties)properties;
+        }
+
+        @Override
+        protected int getRequiredChildren() {
+            int[] weightsX = getProperties().getWeightsX();
+            int[] weightsY = getProperties().getWeightsY();
+            if(weightsX == null || weightsY == null) {
+                return 0;
+            }
+            return weightsX.length * weightsY.length;
+        }
+
+        public class GridProperties extends ImageProperties {
+            public GridProperties(Textures textures, Element node) {
+                super(textures, node);
+            }
+
+            public int[] getWeightsX() {
+                String value = getAttribute("weightsX");
+                return (value != null) ? Utils.parseInts(value) : null;
+            }
+
+            public void setWeightsX(int[] weightsX) {
+                setAttribute("weightsX", Utils.toString(weightsX));
+            }
+
+            public int[] getWeightsY() {
+                String value = getAttribute("weightsY");
+                return (value != null) ? Utils.parseInts(value) : null;
+            }
+
+            public void setWeightsY(int[] weightsY) {
+                setAttribute("weightsY", Utils.toString(weightsY));
+            }
+        }
+    }
 }

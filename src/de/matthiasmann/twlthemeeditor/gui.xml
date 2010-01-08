@@ -258,7 +258,7 @@
         </grid>
 
         <select name="collapsiblepanel.arrow.background" center="true">
-            <texture x="26" y="19" width="8" height="8" if="expanded"/>
+            <texture x="26" y="19" width="8" height="8" unless="expanded"/>
             <texture x="17" y="19" width="8" height="8"/>
         </select>
     </textures>

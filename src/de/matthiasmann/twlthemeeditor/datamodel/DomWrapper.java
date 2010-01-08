@@ -39,6 +39,6 @@ import org.jdom.Element;
  */
 public interface DomWrapper {
 
-    public TreeTableNode wrap(ThemeFile themeFile, TreeTableNode parent, Element element) throws IOException;
+    public TreeTableNode wrap(ThemeFile themeFile, ModifyableTreeTableNode parent, Element element) throws IOException;
 
 }

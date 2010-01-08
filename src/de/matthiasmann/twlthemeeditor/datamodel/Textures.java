@@ -65,19 +65,7 @@ public class Textures extends ThemeTreeNode {
 
         themeFile.getEnv().registerFile(getFile(), textureURL);
 
-        Utils.addChildren(themeFile, this, node, new DomWrapper() {
-            public TreeTableNode wrap(ThemeFile themeFile, TreeTableNode parent, Element element) {
-                String tagName = element.getName();
-
-                if("texture".equals(tagName)) {
-                    return new Image.Texture(Textures.this, element);
-                }
-                if("alias".equals(tagName)) {
-                    return new Image.Alias(Textures.this, element);
-                }
-                return null;
-            }
-        });
+        Image.addChildImages(this, this, node);
     }
 
     public ThemeFile getThemeFile() {
@@ -117,6 +105,6 @@ public class Textures extends ThemeTreeNode {
     }
 
     public void addChildren(DomXPPParser xpp) {
-        Utils.addChildren(xpp, "textures", this, node.node.getAttributes());
+        Utils.addChildren(xpp, node, this);
     }
 }

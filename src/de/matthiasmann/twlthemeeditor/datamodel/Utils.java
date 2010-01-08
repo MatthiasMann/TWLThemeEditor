@@ -35,8 +35,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -46,18 +44,33 @@ import org.jdom.Element;
  */
 final class Utils {
 
-    private static final Pattern intListPattern = Pattern.compile("^(\\d+)(?:,(\\d+))*$");
-
     public static int[] parseInts(String value) {
-        Matcher m = intListPattern.matcher(value);
-        if(m.matches()) {
-            int[] result = new int[m.groupCount()-1];
-            for(int i=1 ; i<m.groupCount() ; i++) {
-                result[i-1] = Integer.parseInt(m.group(i));
-            }
-            return result;
+        int count = 1;
+        for(int pos=-1 ; (pos=value.indexOf(',', pos+1)) >= 0 ;) {
+            count++;
         }
-        return null;
+        int[] result = new int[count];
+        for(int i=0,pos=0 ; i<count ; i++) {
+            int end = value.indexOf(',', pos);
+            if(end < 0) {
+                end = value.length();
+            }
+            String part = value.substring(pos, end);
+            result[i] = Integer.parseInt(part);
+            pos = end+1;
+        }
+        return result;
+    }
+
+    public static String toString(int[] ints) {
+        if(ints.length == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for(int i : ints) {
+            sb.append(',').append(i);
+        }
+        return sb.substring(1);
     }
     
     public static Border parseBorder(String value) {
@@ -141,6 +154,10 @@ final class Utils {
         xpp.addStartTag(tagName, attributes);
         addChildren(xpp, node);
         xpp.addEndTag(tagName);
+    }
+
+    public static void addChildren(DomXPPParser xpp, NodeWrapper wrapper, ModifyableTreeTableNode node) {
+        addChildren(xpp, wrapper.node.getName(), node, wrapper.node.getAttributes());
     }
     
     public static boolean equals(Object a, Object b) {
