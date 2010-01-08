@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE themes PUBLIC "-//www.matthiasmann.de//TWL-Theme//EN" "http://hg.l33tlabs.org/twl/raw-file/tip/src/de/matthiasmann/twl/theme/theme.dtd">
+
+<themes>
+    <textures file="gui.png" format="RGBA">
+        <texture name="panel.background" x="0" y="19" width="1" height="1"/>
+        <texture name="panel.separator" x="6" y="19" width="1" height="2"/>
+
+        <texture name="-area1L" x="0" y="0" width="4" height="18"/>
+        <texture name="-area1F" x="3" y="0" width="1" height="18"/>
+        <texture name="-area1M" x="4" y="0" width="1" height="18"/>
+        <texture name="-area1R" x="5" y="0" width="4" height="18"/>
+
+        <texture name="-area2L" x="10" y="0" width="4" height="18"/>
+        <texture name="-area2F" x="13" y="0" width="1" height="18"/>
+        <texture name="-area2M" x="14" y="0" width="1" height="18"/>
+        <texture name="-area2R" x="15" y="0" width="4" height="18"/>
+
+        <texture name="-area3L" x="20" y="0" width="4" height="18"/>
+        <texture name="-area3F" x="23" y="0" width="1" height="18"/>
+        <texture name="-area3M" x="24" y="0" width="1" height="18"/>
+        <texture name="-area3R" x="25" y="0" width="4" height="18"/>
+
+        <texture name="-area4L" x="30" y="0" width="4" height="18"/>
+        <texture name="-area4F" x="33" y="0" width="1" height="18"/>
+        <texture name="-area4M" x="34" y="0" width="1" height="18"/>
+        <texture name="-area4R" x="35" y="0" width="4" height="18"/>
+
+        <texture name="-area5L" x="40" y="0" width="4" height="18"/>
+        <texture name="-area5F" x="43" y="0" width="1" height="18"/>
+        <texture name="-area5M" x="44" y="0" width="1" height="18"/>
+        <texture name="-area5R" x="45" y="0" width="4" height="18"/>
+
+        <texture name="-area6L" x="50" y="0" width="4" height="18"/>
+        <texture name="-area6F" x="53" y="0" width="1" height="18"/>
+        <texture name="-area6M" x="54" y="0" width="1" height="18"/>
+        <texture name="-area6R" x="55" y="0" width="4" height="18"/>
+
+        <texture name="-area7L" x="60" y="0" width="4" height="18"/>
+        <texture name="-area7F" x="63" y="0" width="1" height="18"/>
+        <texture name="-area7M" x="64" y="0" width="1" height="18"/>
+        <texture name="-area7R" x="65" y="0" width="4" height="18"/>
+
+        <texture name="-area8L" x="70" y="0" width="4" height="18"/>
+        <texture name="-area8F" x="73" y="0" width="1" height="18"/>
+        <texture name="-area8M" x="74" y="0" width="1" height="18"/>
+        <texture name="-area8R" x="75" y="0" width="4" height="18"/>
+
+        <texture name="-area9L" x="80" y="0" width="4" height="18"/>
+        <texture name="-area9F" x="83" y="0" width="1" height="18"/>
+        <texture name="-area9M" x="84" y="0" width="1" height="18"/>
+        <texture name="-area9R" x="85" y="0" width="4" height="18"/>
+
+        <texture name="-outlineL" x="90" y="0" width="4" height="18"/>
+        <texture name="-outlineF" x="93" y="0" width="1" height="18"/>
+        <texture name="-outlineM" x="94" y="0" width="1" height="18"/>
+        <texture name="-outlineR" x="95" y="0" width="4" height="18"/>
+
+        <grid name="area1L" weightsX="0,1" weightsY="1">
+            <alias ref="-area1L"/>
+            <alias ref="-area1F"/>
+        </grid>
+        <grid name="area1C" weightsX="0,1" weightsY="1">
+            <alias ref="-area1M"/>
+            <alias ref="-area1F"/>
+        </grid>
+        <grid name="area1R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area1M"/>
+            <alias ref="-area1F"/>
+            <alias ref="-area1R"/>
+        </grid>
+        <grid name="area1X" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area1L"/>
+            <alias ref="-area1F"/>
+            <alias ref="-area1R"/>
+        </grid>
+
+        <grid name="area2L" weightsX="0,1" weightsY="1">
+            <alias ref="-area2L"/>
+            <alias ref="-area2F"/>
+        </grid>
+        <grid name="area2C" weightsX="0,1" weightsY="1">
+            <alias ref="-area2M"/>
+            <alias ref="-area2F"/>
+        </grid>
+        <grid name="area2R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area2M"/>
+            <alias ref="-area2F"/>
+            <alias ref="-area2R"/>
+        </grid>
+        <grid name="area2X" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area2L"/>
+            <alias ref="-area2F"/>
+            <alias ref="-area2R"/>
+        </grid>
+
+        <grid name="area3L" weightsX="0,1" weightsY="1">
+            <alias ref="-area3L"/>
+            <alias ref="-area3F"/>
+        </grid>
+        <grid name="area3C" weightsX="0,1" weightsY="1">
+            <alias ref="-area3M"/>
+            <alias ref="-area3F"/>
+        </grid>
+        <grid name="area3R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area3M"/>
+            <alias ref="-area3F"/>
+            <alias ref="-area3R"/>
+        </grid>
+        <grid name="area3X" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area3L"/>
+            <alias ref="-area3F"/>
+            <alias ref="-area3R"/>
+        </grid>
+
+        <grid name="area4L" weightsX="0,1" weightsY="1">
+            <alias ref="-area4L"/>
+            <alias ref="-area4F"/>
+        </grid>
+        <grid name="area4C" weightsX="0,1" weightsY="1">
+            <alias ref="-area4M"/>
+            <alias ref="-area4F"/>
+        </grid>
+        <grid name="area4R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area4M"/>
+            <alias ref="-area4F"/>
+            <alias ref="-area4R"/>
+        </grid>
+        <grid name="area4X" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area4L"/>
+            <alias ref="-area4F"/>
+            <alias ref="-area4R"/>
+        </grid>
+
+        <grid name="area5L" weightsX="0,1" weightsY="1">
+            <alias ref="-area5L"/>
+            <alias ref="-area5F"/>
+        </grid>
+        <grid name="area5C" weightsX="0,1" weightsY="1">
+            <alias ref="-area5M"/>
+            <alias ref="-area5F"/>
+        </grid>
+        <grid name="area5R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area5M"/>
+            <alias ref="-area5F"/>
+            <alias ref="-area5R"/>
+        </grid>
+        <grid name="area5X" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area5L"/>
+            <alias ref="-area5F"/>
+            <alias ref="-area5R"/>
+        </grid>
+        
+        <grid name="area6L" weightsX="0,1" weightsY="1">
+            <alias ref="-area6L"/>
+            <alias ref="-area6F"/>
+        </grid>
+        <grid name="area6C" weightsX="0,1" weightsY="1">
+            <alias ref="-area6M"/>
+            <alias ref="-area6F"/>
+        </grid>
+        <grid name="area6R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area6M"/>
+            <alias ref="-area6F"/>
+            <alias ref="-area6R"/>
+        </grid>
+        <grid name="area6X" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area6L"/>
+            <alias ref="-area6F"/>
+            <alias ref="-area6R"/>
+        </grid>
+
+        <grid name="area7L" weightsX="0,1" weightsY="1">
+            <alias ref="-area7L"/>
+            <alias ref="-area7F"/>
+        </grid>
+        <grid name="area7C" weightsX="0,1" weightsY="1">
+            <alias ref="-area7M"/>
+            <alias ref="-area7F"/>
+        </grid>
+        <grid name="area7R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area7M"/>
+            <alias ref="-area7F"/>
+            <alias ref="-area7R"/>
+        </grid>
+        <grid name="area7X" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area7L"/>
+            <alias ref="-area7F"/>
+            <alias ref="-area7R"/>
+        </grid>
+
+        <grid name="area8L" weightsX="0,1" weightsY="1">
+            <alias ref="-area8L"/>
+            <alias ref="-area8F"/>
+        </grid>
+        <grid name="area8C" weightsX="0,1" weightsY="1">
+            <alias ref="-area8M"/>
+            <alias ref="-area8F"/>
+        </grid>
+        <grid name="area8R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area8M"/>
+            <alias ref="-area8F"/>
+            <alias ref="-area8R"/>
+        </grid>
+        <grid name="area8X" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area8L"/>
+            <alias ref="-area8F"/>
+            <alias ref="-area8R"/>
+        </grid>
+        
+        <grid name="area9L" weightsX="0,1" weightsY="1">
+            <alias ref="-area9L"/>
+            <alias ref="-area9F"/>
+        </grid>
+        <grid name="area9C" weightsX="0,1" weightsY="1">
+            <alias ref="-area9M"/>
+            <alias ref="-area9F"/>
+        </grid>
+        <grid name="area9R" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area9M"/>
+            <alias ref="-area9F"/>
+            <alias ref="-area9R"/>
+        </grid>
+        <grid name="area9X" weightsX="0,1,0" weightsY="1">
+            <alias ref="-area9L"/>
+            <alias ref="-area9F"/>
+            <alias ref="-area9R"/>
+        </grid>
+
+        <grid name="outlineL" weightsX="0,1,0" weightsY="1">
+            <alias ref="-outlineL"/>
+            <alias ref="-outlineF"/>
+            <alias ref="-outlineM"/>
+        </grid>
+        <grid name="outlineC" weightsX="0,1,0" weightsY="1">
+            <alias ref="-outlineM"/>
+            <alias ref="-outlineF"/>
+            <alias ref="-outlineM"/>
+        </grid>
+        <grid name="outlineR" weightsX="0,1,0" weightsY="1">
+            <alias ref="-outlineM"/>
+            <alias ref="-outlineF"/>
+            <alias ref="-outlineR"/>
+        </grid>
+        <grid name="outlineX" weightsX="0,1,0" weightsY="1">
+            <alias ref="-outlineL"/>
+            <alias ref="-outlineF"/>
+            <alias ref="-outlineR"/>
+        </grid>
+
+        <alias name="-selectionL" ref="outlineL" tint="#cc0" if="keyboardFocus"/>
+        <alias name="-selectionC" ref="outlineC" tint="#cc0" if="keyboardFocus"/>
+        <alias name="-selectionR" ref="outlineR" tint="#cc0" if="keyboardFocus"/>
+        <alias name="-selectionX" ref="outlineX" tint="#cc0" if="keyboardFocus"/>
+
+        <select name="radiobuttonL.background">
+            <alias ref="area6L" if="selected + armed"/>
+            <alias ref="area5L" if="selected + hover"/>
+            <alias ref="area4L" if="selected"/>
+            <alias ref="area3L" if="armed"/>
+            <alias ref="area2L" if="hover"/>
+            <alias ref="area1L"/>
+        </select>
+        <select name="radiobuttonC.background">
+            <alias ref="area6C" if="selected + armed"/>
+            <alias ref="area5C" if="selected + hover"/>
+            <alias ref="area4C" if="selected"/>
+            <alias ref="area3C" if="armed"/>
+            <alias ref="area2C" if="hover"/>
+            <alias ref="area1C"/>
+        </select>
+        <select name="radiobuttonR.background">
+            <alias ref="area6R" if="selected + armed"/>
+            <alias ref="area5R" if="selected + hover"/>
+            <alias ref="area4R" if="selected"/>
+            <alias ref="area3R" if="armed"/>
+            <alias ref="area2R" if="hover"/>
+            <alias ref="area1R"/>
+        </select>
+        <select name="radiobuttonX.background">
+            <alias ref="area6X" if="selected + armed"/>
+            <alias ref="area5X" if="selected + hover"/>
+            <alias ref="area4X" if="selected"/>
+            <alias ref="area3X" if="armed"/>
+            <alias ref="area2X" if="hover"/>
+            <alias ref="area1X"/>
+        </select>
+
+        <select name="radiobutton.background" border="4,1">
+            <alias ref="radiobuttonX.background" if="radiobuttonFirst + radiobuttonLast"/>
+            <alias ref="radiobuttonL.background" if="radiobuttonFirst"/>
+            <alias ref="radiobuttonR.background" if="radiobuttonLast"/>
+            <alias ref="radiobuttonC.background"/>
+        </select>
+        <select name="radiobutton.overlay">
+            <alias ref="-selectionX" if="radiobuttonFirst + radiobuttonLast"/>
+            <alias ref="-selectionL" if="radiobuttonFirst"/>
+            <alias ref="-selectionR" if="radiobuttonLast"/>
+            <alias ref="-selectionC"/>
+        </select>
+
+        <alias name="togglebutton.background" ref="radiobuttonX.background" border="4,1"/>
+        <alias name="togglebutton.overlay" ref="-selectionX"/>
+
+        <select name="button.background" border="4,1">
+            <alias ref="area9X" if="armed"/>
+            <alias ref="area8X" if="hover"/>
+            <alias ref="area7X"/>
+        </select>
+        <alias name="button.overlay" ref="-selectionX"/>
+
+        <texture name="-icon.combobox" x="10" y="19" width="6" height="7" center="true"/>
+        <select name="combobox.background">
+            <alias ref="area3X" if="armed"/>
+            <alias ref="area2X" if="hover"/>
+            <alias ref="area1X"/>
+        </select>
+        <select name="combobox.button.background">
+            <alias ref="-icon.combobox" inset="1,1,-1,-1" if="armed"/>
+            <alias ref="-icon.combobox"/>
+        </select>
+        <alias name="combobox.display.background" ref="none"/>
+        <alias name="combobox.overlay" ref="-selectionX"/>
+
+        <texture name="-icon-add" x="48" y="19" width="12" height="12" center="true"/>
+        <texture name="-icon-remove" x="61" y="19" width="12" height="12" center="true"/>
+
+        <select name="addbutton.overlay">
+            <alias ref="-icon-add" inset="1,1,-1,-1" if="armed"/>
+            <alias ref="-icon-add"/>
+        </select>
+        
+        <select name="removebutton.overlay">
+            <alias ref="-icon-remove" inset="1,1,-1,-1" if="armed"/>
+            <alias ref="-icon-remove"/>
+        </select>
+
+        <grid name="collapsiblepanel.background" weightsX="1" weightsY="1,0" border="0,0,5,0">
+            <alias ref="none"/>
+            <alias ref="panel.separator"/>
+        </grid>
+
+        <select name="collapsiblepanel.arrow.background" center="true">
+            <texture x="26" y="19" width="8" height="8" unless="expanded"/>
+            <texture x="17" y="19" width="8" height="8"/>
+        </select>
+    </textures>
+
+    <fontDef name="button-font" filename="font.fnt" color="white">
+        <fontParam if="disabled" color="#ccc"/>
+        <fontParam if="selected" color="black"/>
+    </fontDef>
+
+    <fontDef name="normal" filename="font.fnt" color="black">
+        <fontParam if="error" color="red"/>
+        <fontParam if="disabled" color="gray"/>
+        <fontParam if="textSelection" color="white"/>
+    </fontDef>
+    <fontDef name="combobox" filename="font.fnt" color="black">
+        <fontParam if="comboboxKeyboardFocus" color="white"/>
+    </fontDef>
+
+    <inputMapDef name="-defaultInputMap">
+        <action name="selectAll">ctrl A</action>
+        <action name="cut">ctrl X</action>
+        <action name="copy">ctrl C</action>
+        <action name="paste">ctrl V</action>
+    </inputMapDef>
+
+    <theme name="-defaults">
+        <param name="background"><image>none</image></param>
+        <param name="overlay"><image>none</image></param>
+        <param name="font"><font>normal</font></param>
+        <param name="textAlignment"><enum type="alignment">left</enum></param>
+        <param name="minWidth"><int>0</int></param>
+        <param name="minHeight"><int>0</int></param>
+        <param name="maxWidth"><int>0</int></param>
+        <param name="maxHeight"><int>0</int></param>
+        <param name="inputMap"><inputMap>-defaultInputMap</inputMap></param>
+    </theme>
+
+    <theme name="label" ref="-defaults" allowWildcard="true">
+    </theme>
+
+    <theme name="button" ref="-defaults" allowWildcard="true">
+        <param name=""><image>button.*</image></param>
+        <param name="border"><border>background.border</border></param>
+        <param name="textAlignment"><enum type="alignment">center</enum></param>
+        <param name="font"><font>button-font</font></param>
+        <param name="minWidth"><int>20</int></param>
+    </theme>
+
+    <theme name="radiobutton" ref="button" allowWildcard="true">
+        <param name=""><image>radiobutton.*</image></param>
+        <param name="border"><border>background.border</border></param>
+    </theme>
+
+    <theme name="togglebutton" ref="button" allowWildcard="true">
+        <param name=""><image>togglebutton.*</image></param>
+        <param name="border"><border>background.border</border></param>
+    </theme>
+
+    <theme name="combobox" ref="-defaults" allowWildcard="true">
+        <param name=""><image>combobox.*</image></param>
+        <theme name="display" ref="label">
+            <param name=""><image>combobox.display.*</image></param>
+            <param name="border"><border>3,1</border></param>
+            <param name="minWidth"><int>50</int></param>
+            <param name="textAlignment"><enum type="alignment">left</enum></param>
+            <param name="font"><fontDef filename="font.fnt" color="white">
+                <fontParam if="hasOpenPopups" color="#aaa"/>
+            </fontDef></param>
+        </theme>
+        <theme name="button" ref="-defaults">
+            <param name=""><image>combobox.button.*</image></param>
+            <param name="minWidth"><int>18</int></param>
+        </theme>
+        <param name="minHeight"><int>18</int></param>
+    </theme>
+
+</themes>
