@@ -469,6 +469,12 @@
         <alias name="valueadjuster.edit.background" ref="valueadjuster.display.background"/>
         <alias name="valueadjuster.edit.overlay" ref="none"/>
 
+        <vsplit name="vscrollbar.background" x="0" y="104" width="13" height="16" splity="7,9"/>
+        <select name="vscrollbar.thumb.background">
+            <vsplit x="42" y="104" width="13" height="24" splity="10,14" if="pressed"/>
+            <vsplit x="28" y="104" width="13" height="24" splity="10,14" if="hover + !disabled"/>
+            <vsplit x="14" y="104" width="13" height="24" splity="10,14"/>
+        </select>
 
         <texture name="-icon-add" x="48" y="19" width="12" height="12" center="true"/>
         <texture name="-icon-remove" x="61" y="19" width="12" height="12" center="true"/>
@@ -565,7 +571,7 @@
         <param name="maxWidth"><int>32767</int></param>
         <param name="columns"><int>5</int></param>
         <theme name="renderer" ref="label"/>
-        <!-- <param name="mouseCursor"><cursor>cursor.text</cursor></param> -->
+        <param name="mouseCursor"><cursor>cursor.text</cursor></param>
         <param name="autocompletion-height"><int>150</int></param>
     </theme>
 
@@ -612,6 +618,19 @@
         </theme>
         <param name="width"><int>100</int></param>
         <param name="maxWidth"><int>32767</int></param>
+    </theme>
+
+    <theme name="vscrollbar" ref="-defaults" allowWildcard="true">
+        <param name="background"><image>vscrollbar.background</image></param>
+        <theme name="upbutton" ref="-defaults"/>
+        <theme name="downbutton" ref="-defaults"/>
+        <theme name="thumb" ref="-defaults">
+            <param name=""><image>vscrollbar.thumb.*</image></param>
+            <param name="minHeight"><int>32</int></param>
+        </theme>
+        <param name="scaleThumb"><bool>true</bool></param>
+        <param name="minWidth"><int>13</int></param>
+        <param name="minHeight"><int>48</int></param>
     </theme>
 
 </themes>
