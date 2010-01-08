@@ -70,7 +70,9 @@ public class CollapsiblePanel extends DialogLayout {
         setHorizontalGroup(createParallelGroup().addGroup(horzTitle).addWidget(container));
         setVerticalGroup(createSequentialGroup().addGroup(vertTitle).addWidget(container));
 
-        toggleExpand();
+        if(enabled == null || enabled.isActive()) {
+            toggleExpand();
+        }
     }
 
     void toggleExpand() {

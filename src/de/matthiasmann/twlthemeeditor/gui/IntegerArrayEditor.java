@@ -84,10 +84,15 @@ public abstract class IntegerArrayEditor extends DialogLayout {
 
         for (int i = 0; i < array.length; i++) {
             adjusters[i] = new ValueAdjusterInt(new ArrayElementModel(i));
+            adjusters[i].getAnimationState().setAnimationState("adjusterNotFirst", i > 0);
+            adjusters[i].getAnimationState().setAnimationState("adjusterNotLast", i < array.length - 1);
             removeButtons[i] = new RemoveButton(i);
 
             horzAdjusters.addWidget(adjusters[i]);
             horzRemoveButtons.addWidget(removeButtons[i]);
+            if(i > 0) {
+                vertControlls.addGap("adjuster");
+            }
             vertControlls.addGroup(createParallelGroup().addWidget(adjusters[i]).addWidget(removeButtons[i]));
         }
 
@@ -97,7 +102,8 @@ public abstract class IntegerArrayEditor extends DialogLayout {
         setVerticalGroup(createSequentialGroup()
                 .addGroup(vertControlls)
                 .addWidget(addButton));
-        
+
+        updateButtonEnabled();
         invalidateLayoutTree();
     }
 
@@ -130,14 +136,17 @@ public abstract class IntegerArrayEditor extends DialogLayout {
         updatePropertyCheck();
     }
 
-    protected void updatePropertyCheck() {
+    protected void updateButtonEnabled() {
         if(removeButtons != null) {
             for(RemoveButton b : removeButtons) {
                 b.updateButtonEnabled();
             }
         }
         addButton.updateButtonEnabled();
-        
+    }
+
+    protected void updatePropertyCheck() {
+        updateButtonEnabled();
         if(isValid(array)) {
             errorInfoWindow.closeInfo();
             updateProperty();

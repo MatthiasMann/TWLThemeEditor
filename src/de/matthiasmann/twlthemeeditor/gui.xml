@@ -2,6 +2,7 @@
 <!DOCTYPE themes PUBLIC "-//www.matthiasmann.de//TWL-Theme//EN" "http://hg.l33tlabs.org/twl/raw-file/tip/src/de/matthiasmann/twl/theme/theme.dtd">
 
 <themes>
+    <include filename="cursors.xml"/>
     <include filename="gui_base.xml"/>
     <include filename="simple.xml"/>
 
@@ -58,6 +59,9 @@
                     </theme>
 
                     <theme name="recteditor" ref="dialoglayout">
+                        <param name="namedGaps"><map>
+                            <param name="adjuster"><gap>0</gap></param>
+                        </map></param>
                         <theme name="" ref="*"/>
                     </theme>
 
@@ -70,6 +74,9 @@
                             <param name=""><image>addbutton.*</image></param>
                             <param name="tooltip"><string>Adds a new weight</string></param>
                         </theme>
+                        <param name="namedGaps"><map>
+                            <param name="adjuster"><gap>0</gap></param>
+                        </map></param>
                         <theme name="" ref="*"/>
                     </theme>
 

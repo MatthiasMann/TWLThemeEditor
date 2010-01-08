@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ValueAdjusterInt;
@@ -63,7 +64,11 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
         adjusterH.setDisplayPrefix("H: ");
          */
 
-        return new SimpleLayout("recteditor", adjusterX, adjusterY, adjusterW, adjusterH);
+        DialogLayout panel = new DialogLayout();
+        panel.setTheme("recteditor");
+        panel.setHorizontalGroup(panel.createParallelGroup(adjusterX, adjusterY, adjusterW, adjusterH));
+        panel.setVerticalGroup(panel.createSequentialGroup().addWidgetsWithGap("adjuster", adjusterX, adjusterY, adjusterW, adjusterH));
+        return panel;
     }
 
     static abstract class MyIntegerModel extends AbstractIntegerModel {

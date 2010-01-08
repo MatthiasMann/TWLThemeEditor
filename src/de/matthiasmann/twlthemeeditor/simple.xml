@@ -80,12 +80,6 @@
             </grid>
         </composed>
 
-        <select name="valueadjuster.display.background">
-            <alias ref="-borderB" if="disabled" tint="#8fff"/>
-            <alias ref="-borderE" if="armed | pressed"/>
-            <alias ref="-borderB"/>
-        </select>
-
         <alias name="-frame.closeIcon" ref="-iconB" inset="2,3,3,3"/>
         <select name="frame.closebutton.background">
             <composed if="armed">
@@ -104,7 +98,11 @@
         <alias name="-icon.leftbutton" ref="-iconE" inset="3,4,4,6"/>
         <alias name="-icon.rightbutton" ref="-iconF" inset="3,4,4,6"/>
 
-        <alias name="scrollbar.thumb.background" ref="valueadjuster.display.background"/>
+        <select name="scrollbar.thumb.background">
+            <alias ref="-borderB" if="disabled" tint="#8fff"/>
+            <alias ref="-borderE" if="armed | pressed"/>
+            <alias ref="-borderB"/>
+        </select>
         <texture name="scrollbar.background" x="12" y="24" width="16" height="16" tiled="true"/>
 
         <select name="vscrollbar.upbutton.background">
@@ -157,17 +155,6 @@
             <alias ref="button.background"/>
             <alias ref="-iconQ" center="true" inset="-1,0,1,0"/>
         </composed>
-
-        <select name="editfield.background">
-            <alias ref="-borderE" if="readonly | disabled"/>
-            <alias ref="-borderC"/>
-        </select>
-        <texture name="-editfield.cursor" x="24" y="10" width="1" height="1"/>
-        <animation name="editfield.cursor" timeSource="keyboardFocus">
-            <frame ref="-editfield.cursor" duration="500"/>
-            <frame ref="none" duration="500"/>
-        </animation>
-        <alias name="editfield.selection" ref="-gradC"/>
 
         <alias name="listbox.display.background" ref="-gradC" if="selected"/>
 
@@ -249,19 +236,6 @@
         </composed>
 
         <alias name="colorselector.cursor" ref="-selH"/>
-        
-        <cursor name="arrow.top-left" x="36" y="10" width="15" height="15" hotSpotX="7" hotSpotY="7"/>
-        <cursor name="arrow.top-right" x="52" y="10" width="15" height="15" hotSpotX="7" hotSpotY="7"/>
-        <cursor name="arrow.left" x="30" y="26" width="21" height="9" hotSpotX="10" hotSpotY="4"/>
-        <cursor name="arrow.top" x="52" y="26" width="9" height="21" hotSpotX="4" hotSpotY="10"/>
-        <cursor name="arrow.bottom-left" ref="arrow.top-right"/>
-        <cursor name="arrow.bottom-right" ref="arrow.top-left"/>
-        <cursor name="arrow.bottom" ref="arrow.top"/>
-        <cursor name="arrow.right" ref="arrow.left"/>
-        <cursor name="cursor.text" x="62" y="26" width="7" height="17" hotSpotX="3" hotSpotY="8"/>
-        <cursor name="cursor.resizecolumn" x="30" y="36" width="21" height="15" hotSpotX="10" hotSpotY="7"/>
-        <cursor name="cursor.resizerow" x="84" y="4" width="15" height="21" hotSpotX="7" hotSpotY="10"/>
-        <cursor name="cursor.none" x="84" y="4" width="1" height="1" hotSpotX="0" hotSpotY="0"/>
     </textures>
 
     <theme name="checkbox" ref="-defaults" allowWildcard="true">
@@ -270,22 +244,12 @@
         <param name="minHeight"><int>13</int></param>
     </theme>
 
-    <theme name="editfield" ref="label" allowWildcard="true">
-        <param name=""><image>editfield.*</image></param>
-        <param name="border"><border>background.border</border></param>
-        <param name="passwordChar"><int>0x25CF</int></param>
-        <param name="maxWidth"><int>32767</int></param>
-        <param name="columns"><int>5</int></param>
-        <theme name="renderer" ref="label"/>
-        <param name="mouseCursor"><cursor>cursor.text</cursor></param>
-        <param name="autocompletion-height"><int>150</int></param>
-    </theme>
     <theme name="editfield-errorinfowindow" ref="-defaults">
         <param name="background"><image>-borderG</image></param>
         <param name="border"><border>background.border</border></param>
         <theme name="label" ref="label"/>
     </theme>
-
+    
     <theme name="tooltipwindow" ref="-defaults">
         <param name="background"><image>-borderG</image></param>
         <param name="border"><border>background.border</border></param>
@@ -631,27 +595,6 @@
             </map></param>
         </map></param>
         <theme name="grapharea" ref="-defaults"/>
-    </theme>
-
-    <theme name="valueadjuster" ref="-defaults" allowWildcard="true">
-        <param name="background"><image>none</image></param>
-        <theme name="decButton" ref="button">
-            <param name="text"><string>-</string></param>
-            <param name="border"><border>0</border></param>
-            <param name="minWidth"><int>16</int></param>
-        </theme>
-        <theme name="incButton" ref="button">
-            <param name="text"><string>+</string></param>
-            <param name="border"><border>0</border></param>
-            <param name="minWidth"><int>16</int></param>
-        </theme>
-        <theme name="valueDisplay" ref="button">
-            <param name=""><image>valueadjuster.display.*</image></param>
-            <param name="textAlignment"><enum type="alignment">center</enum></param>
-        </theme>
-        <theme name="valueEdit" ref="editfield"/>
-        <param name="width"><int>100</int></param>
-        <param name="maxWidth"><int>32767</int></param>
     </theme>
 
     <theme name="progressbar" ref="-defaults" allowWildcard="true">

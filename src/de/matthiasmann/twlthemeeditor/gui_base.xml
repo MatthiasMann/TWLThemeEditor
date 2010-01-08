@@ -255,47 +255,47 @@
 
         <select name="radiobuttonL.background">
             <alias ref="area6L" if="selected + armed"/>
-            <alias ref="area5L" if="selected + hover"/>
+            <alias ref="area5L" if="selected + hover + !disabled"/>
             <alias ref="area4L" if="selected"/>
             <alias ref="area3L" if="armed"/>
-            <alias ref="area2L" if="hover"/>
+            <alias ref="area2L" if="hover + !disabled"/>
             <alias ref="area1L"/>
         </select>
         <select name="radiobuttonC.background">
             <alias ref="area6C" if="selected + armed"/>
-            <alias ref="area5C" if="selected + hover"/>
+            <alias ref="area5C" if="selected + hover + !disabled"/>
             <alias ref="area4C" if="selected"/>
             <alias ref="area3C" if="armed"/>
-            <alias ref="area2C" if="hover"/>
+            <alias ref="area2C" if="hover + !disabled"/>
             <alias ref="area1C"/>
         </select>
         <select name="radiobuttonR.background">
             <alias ref="area6R" if="selected + armed"/>
-            <alias ref="area5R" if="selected + hover"/>
+            <alias ref="area5R" if="selected + hover + !disabled"/>
             <alias ref="area4R" if="selected"/>
             <alias ref="area3R" if="armed"/>
-            <alias ref="area2R" if="hover"/>
+            <alias ref="area2R" if="hover + !disabled"/>
             <alias ref="area1R"/>
         </select>
         <select name="radiobuttonX.background">
             <alias ref="area6X" if="selected + armed"/>
-            <alias ref="area5X" if="selected + hover"/>
+            <alias ref="area5X" if="selected + hover + !disabled"/>
             <alias ref="area4X" if="selected"/>
             <alias ref="area3X" if="armed"/>
-            <alias ref="area2X" if="hover"/>
+            <alias ref="area2X" if="hover + !disabled"/>
             <alias ref="area1X"/>
         </select>
 
         <select name="radiobutton.background" border="4,1">
-            <alias ref="radiobuttonX.background" if="radiobuttonFirst + radiobuttonLast"/>
-            <alias ref="radiobuttonL.background" if="radiobuttonFirst"/>
-            <alias ref="radiobuttonR.background" if="radiobuttonLast"/>
+            <alias ref="radiobuttonX.background" if="!radiobuttonNotFirst + !radiobuttonNotLast"/>
+            <alias ref="radiobuttonL.background" if="!radiobuttonNotFirst"/>
+            <alias ref="radiobuttonR.background" if="!radiobuttonNotLast"/>
             <alias ref="radiobuttonC.background"/>
         </select>
         <select name="radiobutton.overlay">
-            <alias ref="-selectionX" if="radiobuttonFirst + radiobuttonLast"/>
-            <alias ref="-selectionL" if="radiobuttonFirst"/>
-            <alias ref="-selectionR" if="radiobuttonLast"/>
+            <alias ref="-selectionX" if="!radiobuttonNotFirst + !radiobuttonNotLast"/>
+            <alias ref="-selectionL" if="!radiobuttonNotFirst"/>
+            <alias ref="-selectionR" if="!radiobuttonNotLast"/>
             <alias ref="-selectionC"/>
         </select>
 
@@ -304,10 +304,19 @@
 
         <select name="button.background" border="4,1">
             <alias ref="area9X" if="armed"/>
-            <alias ref="area8X" if="hover"/>
+            <alias ref="area8X" if="hover + !disabled"/>
             <alias ref="area7X"/>
         </select>
         <alias name="button.overlay" ref="-selectionX"/>
+
+        <select name="editfield.background" border="4,1">
+            <alias ref="area8X" if="hover"/>
+            <alias ref="area7X"/>
+        </select>
+        <alias name="editfield.overlay" ref="none"/>
+        <texture name="editfield.cursor" x="66" y="66" width="1" height="1" sizeOverwriteH="2" inset="0,-1,0,1" tint="#cc0"/>
+        <texture name="editfield.selection" x="66" y="66" width="1" height="1" tint="#444"/>
+
 
         <texture name="-icon.combobox" x="10" y="19" width="6" height="7" center="true"/>
         <select name="combobox.background">
@@ -322,18 +331,148 @@
         <alias name="combobox.display.background" ref="none"/>
         <alias name="combobox.overlay" ref="-selectionX"/>
 
+
+        <texture name="-adjuster1TL" x="0" y="28" width="12" height="17"/>
+        <texture name="-adjuster1TM" x="8" y="28" width="4" height="17"/>
+        <texture name="-adjuster1TR" x="8" y="28" width="12" height="17"/>
+        <texture name="-adjuster1ML" x="0" y="45" width="12" height="17"/>
+        <texture name="-adjuster1MM" x="8" y="45" width="4" height="17"/>
+        <texture name="-adjuster1MR" x="8" y="45" width="12" height="17"/>
+        <texture name="-adjuster1BL" x="0" y="62" width="12" height="18"/>
+        <texture name="-adjuster1BM" x="8" y="62" width="4" height="18"/>
+        <texture name="-adjuster1BR" x="8" y="62" width="12" height="18"/>
+        <texture name="-adjuster1XL" x="0" y="81" width="12" height="18"/>
+        <texture name="-adjuster1XM" x="8" y="81" width="4" height="18"/>
+        <texture name="-adjuster1XR" x="8" y="81" width="12" height="18"/>
+
+        <texture name="-adjuster2TL" x="21" y="28" width="12" height="17"/>
+        <texture name="-adjuster2TM" x="29" y="28" width="4" height="17"/>
+        <texture name="-adjuster2TR" x="29" y="28" width="12" height="17"/>
+        <texture name="-adjuster2ML" x="21" y="45" width="12" height="17"/>
+        <texture name="-adjuster2MM" x="29" y="45" width="4" height="17"/>
+        <texture name="-adjuster2MR" x="29" y="45" width="12" height="17"/>
+        <texture name="-adjuster2BL" x="21" y="62" width="12" height="18"/>
+        <texture name="-adjuster2BM" x="29" y="62" width="4" height="18"/>
+        <texture name="-adjuster2BR" x="29" y="62" width="12" height="18"/>
+        <texture name="-adjuster2XL" x="21" y="81" width="12" height="18"/>
+        <texture name="-adjuster2XM" x="29" y="81" width="4" height="18"/>
+        <texture name="-adjuster2XR" x="29" y="81" width="12" height="18"/>
+
+        <texture name="-adjuster3TL" x="42" y="32" width="12" height="17"/>
+        <texture name="-adjuster3TM" x="50" y="32" width="4" height="17"/>
+        <texture name="-adjuster3TR" x="50" y="32" width="12" height="17"/>
+        <texture name="-adjuster3ML" x="42" y="49" width="12" height="17"/>
+        <texture name="-adjuster3MM" x="50" y="49" width="4" height="17"/>
+        <texture name="-adjuster3MR" x="50" y="49" width="12" height="17"/>
+        <texture name="-adjuster3BL" x="42" y="66" width="12" height="18"/>
+        <texture name="-adjuster3BM" x="50" y="66" width="4" height="18"/>
+        <texture name="-adjuster3BR" x="50" y="66" width="12" height="18"/>
+        <texture name="-adjuster3XL" x="42" y="85" width="12" height="18"/>
+        <texture name="-adjuster3XM" x="50" y="85" width="4" height="18"/>
+        <texture name="-adjuster3XR" x="50" y="85" width="12" height="18"/>
+
+        <texture name="-adjusterSelTL" x="63" y="32" width="8" height="17"/>
+        <texture name="-adjusterSelTM" x="72" y="32" width="1" height="17"/>
+        <texture name="-adjusterSelTR" x="74" y="32" width="8" height="17"/>
+        <texture name="-adjusterSelML" x="63" y="49" width="8" height="17"/>
+        <texture name="-adjusterSelMM" x="72" y="49" width="1" height="17"/>
+        <texture name="-adjusterSelMR" x="74" y="49" width="8" height="17"/>
+        <texture name="-adjusterSelBL" x="63" y="66" width="8" height="18"/>
+        <texture name="-adjusterSelBM" x="72" y="66" width="1" height="18"/>
+        <texture name="-adjusterSelBR" x="74" y="66" width="8" height="18"/>
+        <texture name="-adjusterSelXL" x="63" y="85" width="8" height="18"/>
+        <texture name="-adjusterSelXM" x="72" y="85" width="1" height="18"/>
+        <texture name="-adjusterSelXR" x="74" y="85" width="8" height="18"/>
+
+        <select name="valueadjuster.display.background">
+            <alias ref="-adjuster2XM" if="hover + !disabled + !adjusterNotFirst + !adjusterNotLast"/>
+            <alias ref="-adjuster2TM" if="hover + !disabled + !adjusterNotFirst"/>
+            <alias ref="-adjuster2BM" if="hover + !disabled + !adjusterNotLast"/>
+            <alias ref="-adjuster2MM" if="hover"/>
+            <alias ref="-adjuster1XM" if="!adjusterNotFirst + !adjusterNotLast"/>
+            <alias ref="-adjuster1TM" if="!adjusterNotFirst"/>
+            <alias ref="-adjuster1BM" if="!adjusterNotLast"/>
+            <alias ref="-adjuster1MM"/>
+        </select>
+        <alias name="valueadjuster.display.overlay" ref="none"/>
+        <select name="valueadjuster.dec.background">
+            <alias ref="-adjuster3XL" if="armed + !adjusterNotFirst + !adjusterNotLast"/>
+            <alias ref="-adjuster3TL" if="armed + !adjusterNotFirst"/>
+            <alias ref="-adjuster3BL" if="armed + !adjusterNotLast"/>
+            <alias ref="-adjuster3ML" if="armed"/>
+            <alias ref="-adjuster2XL" if="hover + !disabled + !adjusterNotFirst + !adjusterNotLast"/>
+            <alias ref="-adjuster2TL" if="hover + !disabled + !adjusterNotFirst"/>
+            <alias ref="-adjuster2BL" if="hover + !disabled + !adjusterNotLast"/>
+            <alias ref="-adjuster2ML" if="hover"/>
+            <alias ref="-adjuster1XL" if="!adjusterNotFirst + !adjusterNotLast"/>
+            <alias ref="-adjuster1TL" if="!adjusterNotFirst"/>
+            <alias ref="-adjuster1BL" if="!adjusterNotLast"/>
+            <alias ref="-adjuster1ML"/>
+        </select>
+        <alias name="valueadjuster.dec.overlay" ref="none"/>
+        <select name="valueadjuster.inc.background" inset="0,0,0,-1">
+            <alias ref="-adjuster3XR" if="armed + !adjusterNotFirst + !adjusterNotLast"/>
+            <alias ref="-adjuster3TR" if="armed + !adjusterNotFirst"/>
+            <alias ref="-adjuster3BR" if="armed + !adjusterNotLast"/>
+            <alias ref="-adjuster3MR" if="armed"/>
+            <alias ref="-adjuster2XR" if="hover + !disabled + !adjusterNotFirst + !adjusterNotLast"/>
+            <alias ref="-adjuster2TR" if="hover + !disabled + !adjusterNotFirst"/>
+            <alias ref="-adjuster2BR" if="hover + !disabled + !adjusterNotLast"/>
+            <alias ref="-adjuster2MR" if="hover"/>
+            <alias ref="-adjuster1XR" if="!adjusterNotFirst + !adjusterNotLast"/>
+            <alias ref="-adjuster1TR" if="!adjusterNotFirst"/>
+            <alias ref="-adjuster1BR" if="!adjusterNotLast"/>
+            <alias ref="-adjuster1MR"/>
+        </select>
+        <alias name="valueadjuster.inc.overlay" ref="none"/>
+        <alias name="valueadjuster.background" ref="none"/>
+        <select name="valueadjuster.overlay">
+            <grid if="keyboardFocus + !adjusterNotFirst + !adjusterNotFirst" weightsX="0,1,0" weightsY="1">
+                <alias ref="-adjusterSelXL" tint="#cc0"/>
+                <alias ref="-adjusterSelXM" tint="#cc0"/>
+                <alias ref="-adjusterSelXR" tint="#cc0"/>
+            </grid>
+            <grid if="keyboardFocus + !adjusterNotFirst" weightsX="0,1,0" weightsY="1">
+                <alias ref="-adjusterSelTL" tint="#cc0"/>
+                <alias ref="-adjusterSelTM" tint="#cc0"/>
+                <alias ref="-adjusterSelTR" tint="#cc0"/>
+            </grid>
+            <grid if="keyboardFocus + !adjusterNotLast" weightsX="0,1,0" weightsY="1">
+                <alias ref="-adjusterSelBL" tint="#cc0"/>
+                <alias ref="-adjusterSelBM" tint="#cc0"/>
+                <alias ref="-adjusterSelBR" tint="#cc0"/>
+            </grid>
+            <grid if="keyboardFocus" weightsX="0,1,0" weightsY="1">
+                <alias ref="-adjusterSelML" tint="#cc0"/>
+                <alias ref="-adjusterSelMM" tint="#cc0"/>
+                <alias ref="-adjusterSelMR" tint="#cc0"/>
+            </grid>
+        </select>
+        <alias name="valueadjuster.edit.background" ref="valueadjuster.display.background"/>
+        <alias name="valueadjuster.edit.overlay" ref="none"/>
+
+
         <texture name="-icon-add" x="48" y="19" width="12" height="12" center="true"/>
         <texture name="-icon-remove" x="61" y="19" width="12" height="12" center="true"/>
 
-        <select name="addbutton.overlay">
-            <alias ref="-icon-add" inset="1,1,-1,-1" if="armed"/>
-            <alias ref="-icon-add"/>
-        </select>
-        
-        <select name="removebutton.overlay">
-            <alias ref="-icon-remove" inset="1,1,-1,-1" if="armed"/>
-            <alias ref="-icon-remove"/>
-        </select>
+        <composed name="addbutton.overlay">
+            <select>
+                <alias ref="-icon-add" if="disabled" tint="#6fff"/>
+                <alias ref="-icon-add" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-add"/>
+            </select>
+            <alias ref="button.overlay"/>
+        </composed>
+
+
+        <composed name="removebutton.overlay">
+            <select>
+                <alias ref="-icon-remove" if="disabled" tint="#6fff"/>
+                <alias ref="-icon-remove" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-remove"/>
+            </select>
+            <alias ref="button.overlay"/>
+        </composed>
 
         <grid name="collapsiblepanel.background" weightsX="1" weightsY="1,0" border="0,0,5,0">
             <alias ref="none"/>
@@ -400,6 +539,17 @@
         <param name="border"><border>background.border</border></param>
     </theme>
 
+    <theme name="editfield" ref="label" allowWildcard="true">
+        <param name=""><image>editfield.*</image></param>
+        <param name="border"><border>background.border</border></param>
+        <param name="passwordChar"><int>0x25CF</int></param>
+        <param name="maxWidth"><int>32767</int></param>
+        <param name="columns"><int>5</int></param>
+        <theme name="renderer" ref="label"/>
+        <!-- <param name="mouseCursor"><cursor>cursor.text</cursor></param> -->
+        <param name="autocompletion-height"><int>150</int></param>
+    </theme>
+
     <theme name="combobox" ref="-defaults" allowWildcard="true">
         <param name=""><image>combobox.*</image></param>
         <theme name="display" ref="label">
@@ -416,6 +566,32 @@
             <param name="minWidth"><int>18</int></param>
         </theme>
         <param name="minHeight"><int>18</int></param>
+    </theme>
+
+    <theme name="valueadjuster" ref="-defaults" allowWildcard="true">
+        <param name=""><image>valueadjuster.*</image></param>
+        <theme name="decButton" ref="button">
+            <param name=""><image>valueadjuster.dec.*</image></param>
+            <param name="text"><string>-</string></param>
+            <param name="border"><border>0</border></param>
+            <param name="minWidth"><int>12</int></param>
+        </theme>
+        <theme name="incButton" ref="button">
+            <param name=""><image>valueadjuster.inc.*</image></param>
+            <param name="text"><string>+</string></param>
+            <param name="border"><border>0</border></param>
+            <param name="minWidth"><int>12</int></param>
+        </theme>
+        <theme name="valueDisplay" ref="button">
+            <param name=""><image>valueadjuster.display.*</image></param>
+            <param name="textAlignment"><enum type="alignment">center</enum></param>
+        </theme>
+        <theme name="valueEdit" ref="editfield">
+            <param name=""><image>valueadjuster.edit.*</image></param>
+            <param name="overlay"><image>none</image></param>
+        </theme>
+        <param name="width"><int>100</int></param>
+        <param name="maxWidth"><int>32767</int></param>
     </theme>
 
 </themes>
