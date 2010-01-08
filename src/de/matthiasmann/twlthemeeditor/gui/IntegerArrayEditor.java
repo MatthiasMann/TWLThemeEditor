@@ -96,6 +96,7 @@ public abstract class IntegerArrayEditor extends DialogLayout {
             vertControlls.addGroup(createParallelGroup().addWidget(adjusters[i]).addWidget(removeButtons[i]));
         }
 
+        setVerticalGroup(null);
         setHorizontalGroup(createParallelGroup()
                 .addGroup(createSequentialGroup().addGroup(horzAdjusters).addGroup(horzRemoveButtons))
                 .addGroup(createSequentialGroup().addWidget(addButton).addGap()));
