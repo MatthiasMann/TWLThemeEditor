@@ -33,28 +33,12 @@ package de.matthiasmann.twlthemeeditor.datamodel;
  *
  * @author Matthias Mann
  */
-public class Split {
+public abstract class SplitWithLimit extends Split {
 
-    private final int[] splits;
-
-    public Split(int ... splits) {
-        this.splits = splits;
+    public SplitWithLimit(String splits) {
+        super(splits);
     }
 
-    public Split(String splits) {
-        this.splits = Utils.parseInts(splits);
-    }
-
-    public int[] getSplits() {
-        return splits.clone();
-    }
-
-    public int getNumSplits() {
-        return splits.length;
-    }
-
-    @Override
-    public String toString() {
-        return Utils.toString(splits);
-    }
+    public abstract int getLimit();
+    
 }
