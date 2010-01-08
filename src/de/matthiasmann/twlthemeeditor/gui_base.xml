@@ -385,43 +385,61 @@
         <texture name="-adjusterSelXR" x="74" y="85" width="8" height="18"/>
 
         <select name="valueadjuster.display.background">
-            <alias ref="-adjuster2XM" if="hover + !disabled + !adjusterNotFirst + !adjusterNotLast"/>
-            <alias ref="-adjuster2TM" if="hover + !disabled + !adjusterNotFirst"/>
-            <alias ref="-adjuster2BM" if="hover + !disabled + !adjusterNotLast"/>
+            <select if="!adjusterNotFirst + !adjusterNotLast">
+                <alias ref="-adjuster2XM" if="hover + !disabled"/>
+                <alias ref="-adjuster1XM"/>
+            </select>
+            <select if="!adjusterNotFirst">
+                <alias ref="-adjuster2TM" if="hover + !disabled"/>
+                <alias ref="-adjuster1TM"/>
+            </select>
+            <select if="!adjusterNotLast">
+                <alias ref="-adjuster2BM" if="hover + !disabled"/>
+                <alias ref="-adjuster1BM"/>
+            </select>
             <alias ref="-adjuster2MM" if="hover"/>
-            <alias ref="-adjuster1XM" if="!adjusterNotFirst + !adjusterNotLast"/>
-            <alias ref="-adjuster1TM" if="!adjusterNotFirst"/>
-            <alias ref="-adjuster1BM" if="!adjusterNotLast"/>
             <alias ref="-adjuster1MM"/>
         </select>
         <alias name="valueadjuster.display.overlay" ref="none"/>
         <select name="valueadjuster.dec.background">
-            <alias ref="-adjuster3XL" if="armed + !adjusterNotFirst + !adjusterNotLast"/>
-            <alias ref="-adjuster3TL" if="armed + !adjusterNotFirst"/>
-            <alias ref="-adjuster3BL" if="armed + !adjusterNotLast"/>
+            <select if="!adjusterNotFirst + !adjusterNotLast">
+                <alias ref="-adjuster3XL" if="armed"/>
+                <alias ref="-adjuster2XL" if="hover + !disabled"/>
+                <alias ref="-adjuster1XL"/>
+            </select>
+            <select if="!adjusterNotFirst">
+                <alias ref="-adjuster3TL" if="armed"/>
+                <alias ref="-adjuster2TL" if="hover + !disabled"/>
+                <alias ref="-adjuster1TL"/>
+            </select>
+            <select if="!adjusterNotLast">
+                <alias ref="-adjuster3BL" if="armed"/>
+                <alias ref="-adjuster2BL" if="hover + !disabled"/>
+                <alias ref="-adjuster1BL"/>
+            </select>
             <alias ref="-adjuster3ML" if="armed"/>
-            <alias ref="-adjuster2XL" if="hover + !disabled + !adjusterNotFirst + !adjusterNotLast"/>
-            <alias ref="-adjuster2TL" if="hover + !disabled + !adjusterNotFirst"/>
-            <alias ref="-adjuster2BL" if="hover + !disabled + !adjusterNotLast"/>
             <alias ref="-adjuster2ML" if="hover"/>
-            <alias ref="-adjuster1XL" if="!adjusterNotFirst + !adjusterNotLast"/>
-            <alias ref="-adjuster1TL" if="!adjusterNotFirst"/>
-            <alias ref="-adjuster1BL" if="!adjusterNotLast"/>
             <alias ref="-adjuster1ML"/>
         </select>
         <alias name="valueadjuster.dec.overlay" ref="none"/>
         <select name="valueadjuster.inc.background" inset="0,0,0,-1">
-            <alias ref="-adjuster3XR" if="armed + !adjusterNotFirst + !adjusterNotLast"/>
-            <alias ref="-adjuster3TR" if="armed + !adjusterNotFirst"/>
-            <alias ref="-adjuster3BR" if="armed + !adjusterNotLast"/>
+            <select if="!adjusterNotFirst + !adjusterNotLast">
+                <alias ref="-adjuster3XR" if="armed"/>
+                <alias ref="-adjuster2XR" if="hover + !disabled"/>
+                <alias ref="-adjuster1XR"/>
+            </select>
+            <select if="!adjusterNotFirst">
+                <alias ref="-adjuster3TR" if="armed"/>
+                <alias ref="-adjuster2TR" if="hover + !disabled"/>
+                <alias ref="-adjuster1TR"/>
+            </select>
+            <select if="!adjusterNotLast">
+                <alias ref="-adjuster3BR" if="armed"/>
+                <alias ref="-adjuster2BR" if="hover + !disabled"/>
+                <alias ref="-adjuster1BR"/>
+            </select>
             <alias ref="-adjuster3MR" if="armed"/>
-            <alias ref="-adjuster2XR" if="hover + !disabled + !adjusterNotFirst + !adjusterNotLast"/>
-            <alias ref="-adjuster2TR" if="hover + !disabled + !adjusterNotFirst"/>
-            <alias ref="-adjuster2BR" if="hover + !disabled + !adjusterNotLast"/>
             <alias ref="-adjuster2MR" if="hover"/>
-            <alias ref="-adjuster1XR" if="!adjusterNotFirst + !adjusterNotLast"/>
-            <alias ref="-adjuster1TR" if="!adjusterNotFirst"/>
-            <alias ref="-adjuster1BR" if="!adjusterNotLast"/>
             <alias ref="-adjuster1MR"/>
         </select>
         <alias name="valueadjuster.inc.overlay" ref="none"/>
@@ -490,11 +508,12 @@
         <fontParam if="selected" color="black"/>
     </fontDef>
 
-    <fontDef name="normal" filename="font.fnt" color="black">
+    <fontDef name="normal" filename="font.fnt" color="black" default="true">
         <fontParam if="error" color="red"/>
-        <fontParam if="disabled" color="gray"/>
+        <fontParam if="disabled" color="#444"/>
         <fontParam if="textSelection" color="white"/>
     </fontDef>
+
     <fontDef name="combobox" filename="font.fnt" color="black">
         <fontParam if="comboboxKeyboardFocus" color="white"/>
     </fontDef>
@@ -585,6 +604,7 @@
         <theme name="valueDisplay" ref="button">
             <param name=""><image>valueadjuster.display.*</image></param>
             <param name="textAlignment"><enum type="alignment">center</enum></param>
+            <param name="font"><font>normal</font></param>
         </theme>
         <theme name="valueEdit" ref="editfield">
             <param name=""><image>valueadjuster.edit.*</image></param>
