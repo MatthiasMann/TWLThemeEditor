@@ -60,7 +60,7 @@ public class NodeWrapper {
     public List<Attribute> getAttributes() {
         return (List<Attribute>)node.getAttributes();
     }
-
+    
     protected int parseIntFromAttribute(String name) throws NumberFormatException {
         String value = getAttribute(name);
         if(value == null) {
