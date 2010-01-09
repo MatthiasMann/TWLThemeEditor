@@ -42,7 +42,7 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-final class Utils {
+public final class Utils {
 
     public static int[] parseInts(String value) {
         int count = 1;

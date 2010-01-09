@@ -47,7 +47,6 @@
         <texture name="-selH" x="26" y="10" width="8" height="1" repeatX="true" tiled="true"/>
         <texture name="-selV" x="26" y="10" width="1" height="8" repeatY="true" tiled="true"/>
 
-        <texture name="white" x="24" y="4" width="1" height="1"/>
         <alias name="black" ref="white" tint="#000"/>
 
         <alias name="frame.resizeIcon" ref="-iconC"/>

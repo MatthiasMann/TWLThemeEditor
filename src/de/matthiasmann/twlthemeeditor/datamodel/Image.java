@@ -172,6 +172,10 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         return properties.getName();
     }
 
+    public Textures getTextures() {
+        return textures;
+    }
+
     @Override
     public String toString() {
         return properties.getName();

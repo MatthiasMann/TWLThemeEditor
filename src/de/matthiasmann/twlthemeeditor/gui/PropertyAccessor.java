@@ -81,6 +81,12 @@ public class PropertyAccessor<T> {
         return (btnActive == null) || btnActive.isActive();
     }
 
+    public void addActiveCallback(Runnable cb) {
+        if(btnActive != null) {
+            btnActive.addCallback(cb);
+        }
+    }
+    
     public T getValue(T defaultValue) {
         return (value != null) ? value : defaultValue;
     }

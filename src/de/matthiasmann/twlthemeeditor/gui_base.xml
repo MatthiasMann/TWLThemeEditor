@@ -3,6 +3,8 @@
 
 <themes>
     <textures file="gui.png" format="RGBA">
+        <texture name="white" x="66" y="66" width="1" height="1"/>
+
         <texture name="panel.background" x="0" y="19" width="1" height="1"/>
         <texture name="panel.separator" x="6" y="19" width="1" height="2"/>
 
@@ -314,8 +316,8 @@
             <alias ref="area7X"/>
         </select>
         <alias name="editfield.overlay" ref="none"/>
-        <texture name="editfield.cursor" x="66" y="66" width="1" height="1" sizeOverwriteH="2" inset="0,-1,0,1" tint="#cc0"/>
-        <texture name="editfield.selection" x="66" y="66" width="1" height="1" tint="#444"/>
+        <alias name="editfield.cursor" ref="white" sizeOverwriteH="2" inset="0,-1,0,1" tint="#cc0"/>
+        <alias name="editfield.selection" ref="white" tint="#444"/>
 
 
         <texture name="-icon.combobox" x="10" y="19" width="6" height="7" center="true"/>
@@ -626,6 +628,10 @@
             <texture x="26" y="19" width="8" height="8" unless="expanded"/>
             <texture x="17" y="19" width="8" height="8"/>
         </select>
+
+        <texture name="checkerboard" x="56" y="106" width="8" height="8" tiled="true"/>
+
+        <alias name="textureviewer.background" ref="checkerboard" border="64" inset="64"/>
     </textures>
 
     <fontDef name="button-font" filename="font.fnt" color="white">

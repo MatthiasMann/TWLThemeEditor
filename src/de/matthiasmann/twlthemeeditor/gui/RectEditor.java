@@ -44,8 +44,14 @@ import de.matthiasmann.twlthemeeditor.datamodel.RectWithTextureDimension;
  */
 public class RectEditor implements PropertyEditorFactory<Rect> {
 
+    private final Context ctx;
+
+    public RectEditor(Context ctx) {
+        this.ctx = ctx;
+    }
+
     public Widget create(final PropertyAccessor<Rect> pa) {
-        RectModifier rm = new RectModifier(pa);
+        RectModifier rm = new RectModifier(ctx, pa);
 
         ValueAdjusterInt adjusterX = new ValueAdjusterInt(rm.modelX);
         ValueAdjusterInt adjusterY = new ValueAdjusterInt(rm.modelY);
@@ -78,6 +84,7 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
     private static final Rect NULL_RECT = new Rect(0, 0, 1, 1);
 
     static class RectModifier extends HasCallback {
+        private final Context ctx;
         private final PropertyAccessor<Rect> pa;
         private final Dimension dim;
         private Rect rect;
@@ -87,7 +94,8 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
         final MyIntegerModel modelWidth;
         final MyIntegerModel modelHeight;
 
-        public RectModifier(PropertyAccessor<Rect> pa) {
+        public RectModifier(Context ctx, PropertyAccessor<Rect> pa) {
+            this.ctx = ctx;
             this.pa = pa;
             this.rect = pa.getValue(NULL_RECT);
 
@@ -158,6 +166,8 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
                     setRect(rect.getX(), rect.getY(), rect.getWidth(), height);
                 }
             };
+
+            updateTextureViewerPane();
         }
 
         void setRect(int x, int y, int width, int height) {
@@ -169,6 +179,16 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
             modelY.fireCallback();
             modelWidth.fireCallback();
             modelHeight.fireCallback();
+
+            updateTextureViewerPane();
+        }
+
+        void updateTextureViewerPane() {
+            TextureViewerPane tvp = ctx.getTextureViewerPane();
+            if(tvp != null) {
+                // rect is mutable, make a copy
+                tvp.setRect(new Rect(rect));
+            }
         }
     }
 }

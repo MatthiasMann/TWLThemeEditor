@@ -29,12 +29,12 @@
  */
 package de.matthiasmann.twlthemeeditor;
 
+import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
 import de.matthiasmann.twl.TableRowSelectionManager;
 import de.matthiasmann.twl.TreeTable;
-import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.model.TableSingleSelectionModel;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
@@ -47,6 +47,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.gui.Context;
 import de.matthiasmann.twlthemeeditor.gui.PreviewWidget;
 import de.matthiasmann.twlthemeeditor.gui.PropertyPanel;
+import de.matthiasmann.twlthemeeditor.gui.TextureViewerPane;
 import java.beans.IntrospectionException;
 import java.io.FileOutputStream;
 import java.net.URL;
@@ -132,21 +133,33 @@ public class Main {
                 }
             });
 
+            TextureViewerPane tvp = new TextureViewerPane();
+            tvp.setTheme("/textureviewerpane");
+
             SplitPane sp2 = new SplitPane();
             sp2.setDirection(SplitPane.Direction.VERTICAL);
-            sp2.add(new Widget());
+            sp2.add(tvp);
             sp2.add(previewWidget);
             
             root.add(spTools);
             root.add(sp2);//previewWidget);
 
+            ctx.setTextureViewerPane(tvp);
+            
             selectionModel.addSelectionChangeListener(new Runnable() {
                 public void run() {
                     if(selectionModel.hasSelection()) {
                         Object obj = treeTable.getNodeFromRow(selectionModel.getFirstSelected());
+                        TextureViewerPane tvp = ctx.getTextureViewerPane();
+                        if(tvp != null && (obj instanceof Image)) {
+                            tvp.setUrl(((Image)obj).getTextures().getTextureURL());
+                            tvp.setRect(null);
+                            tvp.setTintColor(Color.WHITE);
+                        }
                         if(obj instanceof HasProperties) {
                             try {
-                                PropertyPanel propertyPanel = new PropertyPanel(ctx, ((HasProperties)obj).getProperties());
+                                PropertyPanel propertyPanel = new PropertyPanel(
+                                        ctx, ((HasProperties)obj).getProperties());
                                 scrollPane.setContent(propertyPanel);
                             } catch (IntrospectionException ex) {
                                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);

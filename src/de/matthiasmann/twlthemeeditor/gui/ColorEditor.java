@@ -42,16 +42,36 @@ import de.matthiasmann.twl.model.ColorSpaceHSL;
  */
 public class ColorEditor implements PropertyEditorFactory<Color> {
 
+    private final Context ctx;
+
+    public ColorEditor(Context ctx) {
+        this.ctx = ctx;
+    }
+
     public Widget create(final PropertyAccessor<Color> pa) {
         final ColorSelector cs = new ColorSelector(new ColorSpaceHSL());
         cs.setColor(pa.getValue(Color.WHITE));
         cs.addCallback(new Runnable() {
             public void run() {
-                pa.setValue(cs.getColor());
+                Color color = cs.getColor();
+                pa.setValue(color);
+
+                TextureViewerPane tvp = ctx.getTextureViewerPane();
+                if(tvp != null) {
+                    tvp.setTintColor(color);
+                }
             }
         });
 
         pa.setWidgetsToEnable(cs);
+        pa.addActiveCallback(new Runnable() {
+            public void run() {
+                TextureViewerPane tvp = ctx.getTextureViewerPane();
+                if(tvp != null) {
+                    tvp.setTintColor(pa.isActive() ? cs.getColor() : Color.WHITE);
+                }
+            }
+        });
 
         return cs;
     }

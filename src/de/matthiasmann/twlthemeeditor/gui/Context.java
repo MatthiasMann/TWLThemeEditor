@@ -53,6 +53,8 @@ public class Context {
     private final TypeMapping<PropertyEditorFactory<?>> factories;
     private final ArrayList<String> propertyOrder;
 
+    private TextureViewerPane textureViewerPane;
+
     public Context(ListModel<Image> images) {
         this.images = images;
         
@@ -60,8 +62,8 @@ public class Context {
         factories.put(Integer.class, new IntegerEditor());
         factories.put(int.class, new IntegerEditor());
         factories.put(boolean.class, new BooleanEditor());
-        factories.put(Color.class, new ColorEditor());
-        factories.put(Rect.class, new RectEditor());
+        factories.put(Color.class, new ColorEditor(this));
+        factories.put(Rect.class, new RectEditor(this));
         factories.put(Condition.class, new ConditionEditor());
         factories.put(ImageReference.class, new ImageRefEditor(this));
         factories.put(Weights.class, new WeightsEditorFactory());
@@ -95,4 +97,13 @@ public class Context {
         propertyOrder.clear();
         propertyOrder.addAll(Arrays.asList(order));
     }
+
+    public TextureViewerPane getTextureViewerPane() {
+        return textureViewerPane;
+    }
+
+    public void setTextureViewerPane(TextureViewerPane textureViewerPane) {
+        this.textureViewerPane = textureViewerPane;
+    }
+    
 }
