@@ -625,6 +625,8 @@
         </theme>
         <param name="width"><int>100</int></param>
         <param name="maxWidth"><int>32767</int></param>
+        <param name="useMouseWheel"><bool>false</bool></param>
+        <param name="displayPrefix"><string></string></param>
     </theme>
 
     <theme name="vscrollbar" ref="-defaults" allowWildcard="true">
