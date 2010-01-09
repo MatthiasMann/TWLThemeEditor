@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.model.ListModel;
@@ -70,6 +71,7 @@ public class Context {
         factories.put(Weights.class, new WeightsEditorFactory());
         factories.put(Split.class, new SplitEditorFactory());
         factories.put(HotSpot.class, new HotSpotEditorFactory());
+        factories.put(Border.class, new BorderEditorFactory());
 
         this.propertyOrder = new ArrayList<String>();
     }
