@@ -75,6 +75,7 @@ public class PropertyPanel extends DialogLayout {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected void addProperty(Object obj, PropertyDescriptor pd) {
         boolean optional = pd.getReadMethod().isAnnotationPresent(Optional.class);
         Class<?> type = pd.getPropertyType();

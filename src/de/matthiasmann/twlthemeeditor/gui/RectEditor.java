@@ -57,12 +57,10 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
         adjusterW.setTooltipContent("Width");
         adjusterH.setTooltipContent("Height");
         
-        /*
         adjusterX.setDisplayPrefix("X: ");
         adjusterY.setDisplayPrefix("Y: ");
         adjusterW.setDisplayPrefix("W: ");
         adjusterH.setDisplayPrefix("H: ");
-         */
 
         DialogLayout panel = new DialogLayout();
         panel.setTheme("recteditor");

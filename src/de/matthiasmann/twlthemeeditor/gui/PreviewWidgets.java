@@ -53,7 +53,8 @@ public class PreviewWidgets extends DialogLayout {
         ToggleButton toggleButton = new ToggleButton("ToggleButton");
         ToggleButton checkBox = new ToggleButton("CheckBox");
         checkBox.setTheme("checkbox");
-        ComboBox comboBox = new ComboBox(new SimpleChangableListModel("Test", "Hello World", "End"));
+        ComboBox<String> comboBox = new ComboBox<String>(
+                new SimpleChangableListModel<String>("Test", "Hello World", "End"));
         Scrollbar scrollbarH = new Scrollbar(Scrollbar.Orientation.HORIZONTAL);
         Scrollbar scrollbarV = new Scrollbar(Scrollbar.Orientation.VERTICAL);
 

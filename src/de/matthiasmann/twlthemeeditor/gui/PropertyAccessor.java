@@ -49,6 +49,7 @@ public class PropertyAccessor<T> {
     private T value;
     private Widget[] widgetsToEnable;
 
+    @SuppressWarnings("unchecked")
     public PropertyAccessor(Object obj, PropertyDescriptor pd, ToggleButton btnActive) {
         this.obj = obj;
         this.pd = pd;

@@ -30,14 +30,9 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.ComboBox;
-import de.matthiasmann.twl.DialogLayout.Group;
-import de.matthiasmann.twl.Label;
-import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
-import java.beans.PropertyDescriptor;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -52,7 +47,7 @@ public class ImageRefEditor implements PropertyEditorFactory<ImageReference> {
     }
 
     public Widget create(final PropertyAccessor<ImageReference> pa) {
-        final ComboBox cb = new ComboBox(ctx.getImages());
+        final ComboBox<Image> cb = new ComboBox<Image>(ctx.getImages());
         cb.setSelected(ctx.findImage(pa.getValue(null)));
         cb.addCallback(new Runnable() {
             public void run() {
