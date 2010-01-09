@@ -64,7 +64,7 @@ public class Context {
         factories.put(int.class, new IntegerEditor());
         factories.put(boolean.class, new BooleanEditor());
         factories.put(Color.class, new ColorEditor(this));
-        factories.put(Rect.class, new RectEditor(this));
+        factories.put(Rect.class, new RectEditorFactory(this));
         factories.put(Condition.class, new ConditionEditor());
         factories.put(ImageReference.class, new ImageRefEditor(this));
         factories.put(Weights.class, new WeightsEditorFactory());

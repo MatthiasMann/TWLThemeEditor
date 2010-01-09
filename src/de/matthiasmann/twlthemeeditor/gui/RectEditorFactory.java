@@ -36,43 +36,21 @@ import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractIntegerModel;
-import de.matthiasmann.twl.model.HasCallback;
 
 /**
  *
  * @author Matthias Mann
  */
-public class RectEditor implements PropertyEditorFactory<Rect> {
+public class RectEditorFactory implements PropertyEditorFactory<Rect> {
 
     private final Context ctx;
 
-    public RectEditor(Context ctx) {
+    public RectEditorFactory(Context ctx) {
         this.ctx = ctx;
     }
 
     public Widget create(final PropertyAccessor<Rect> pa) {
-        RectModifier rm = new RectModifier(ctx, pa);
-
-        ValueAdjusterInt adjusterX = new ValueAdjusterInt(rm.modelX);
-        ValueAdjusterInt adjusterY = new ValueAdjusterInt(rm.modelY);
-        ValueAdjusterInt adjusterW = new ValueAdjusterInt(rm.modelWidth);
-        ValueAdjusterInt adjusterH = new ValueAdjusterInt(rm.modelHeight);
-
-        adjusterX.setTooltipContent("X position");
-        adjusterY.setTooltipContent("Y position");
-        adjusterW.setTooltipContent("Width");
-        adjusterH.setTooltipContent("Height");
-        
-        adjusterX.setDisplayPrefix("X: ");
-        adjusterY.setDisplayPrefix("Y: ");
-        adjusterW.setDisplayPrefix("W: ");
-        adjusterH.setDisplayPrefix("H: ");
-
-        DialogLayout panel = new DialogLayout();
-        panel.setTheme("recteditor");
-        panel.setHorizontalGroup(panel.createParallelGroup(adjusterX, adjusterY, adjusterW, adjusterH));
-        panel.setVerticalGroup(panel.createSequentialGroup().addWidgetsWithGap("adjuster", adjusterX, adjusterY, adjusterW, adjusterH));
-        return panel;
+        return new RectEditor(ctx, pa);
     }
 
     static abstract class MyIntegerModel extends AbstractIntegerModel {
@@ -83,7 +61,7 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
 
     private static final Rect NULL_RECT = new Rect(0, 0, 1, 1);
 
-    static class RectModifier extends HasCallback {
+    static class RectEditor extends DialogLayout {
         private final Context ctx;
         private final PropertyAccessor<Rect> pa;
         private final Dimension dim;
@@ -94,7 +72,7 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
         final MyIntegerModel modelWidth;
         final MyIntegerModel modelHeight;
 
-        public RectModifier(Context ctx, PropertyAccessor<Rect> pa) {
+        public RectEditor(Context ctx, PropertyAccessor<Rect> pa) {
             this.ctx = ctx;
             this.pa = pa;
             this.rect = pa.getValue(NULL_RECT);
@@ -143,7 +121,8 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
                     return rect.getWidth();
                 }
                 public void setValue(int width) {
-                    setRect(rect.getX(), rect.getY(), width, rect.getHeight());
+                    int x = Math.min(dim.getX() - width, rect.getX());
+                    setRect(x, rect.getY(), width, rect.getHeight());
                 }
             };
 
@@ -158,10 +137,29 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
                     return rect.getHeight();
                 }
                 public void setValue(int height) {
-                    setRect(rect.getX(), rect.getY(), rect.getWidth(), height);
+                    int y = Math.min(dim.getY() - height, rect.getY());
+                    setRect(rect.getX(), y, rect.getWidth(), height);
                 }
             };
 
+            ValueAdjusterInt adjusterX = new ValueAdjusterInt(modelX);
+            ValueAdjusterInt adjusterY = new ValueAdjusterInt(modelY);
+            ValueAdjusterInt adjusterW = new ValueAdjusterInt(modelWidth);
+            ValueAdjusterInt adjusterH = new ValueAdjusterInt(modelHeight);
+
+            adjusterX.setTooltipContent("X position");
+            adjusterY.setTooltipContent("Y position");
+            adjusterW.setTooltipContent("Width");
+            adjusterH.setTooltipContent("Height");
+
+            adjusterX.setDisplayPrefix("X: ");
+            adjusterY.setDisplayPrefix("Y: ");
+            adjusterW.setDisplayPrefix("W: ");
+            adjusterH.setDisplayPrefix("H: ");
+
+            setHorizontalGroup(createParallelGroup(adjusterX, adjusterY, adjusterW, adjusterH));
+            setVerticalGroup(createSequentialGroup().addWidgetsWithGap("adjuster", adjusterX, adjusterY, adjusterW, adjusterH));
+            
             updateTextureViewerPane();
         }
 
@@ -169,7 +167,6 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
             rect = new Rect(x, y, width, height);
             pa.setValue(rect);
             
-            doCallback();
             modelX.fireCallback();
             modelY.fireCallback();
             modelWidth.fireCallback();
