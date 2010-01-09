@@ -3,3 +3,7 @@
 \.chg\..*$
 \.rej$
 \.conflict\~$
+^src/de/matthiasmann/twlthemeeditor/Eforen\.png$
+^src/de/matthiasmann/twlthemeeditor/EforenArrows\.png$
+^src/de/matthiasmann/twlthemeeditor/Eforen\.xml$
+^test\.xml$

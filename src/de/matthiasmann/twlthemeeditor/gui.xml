@@ -9,7 +9,11 @@
     <theme name="elementTree" ref="scrollpane">
         <param name="background"><image>-borderC</image></param>
         <param name="border"><border>background.border</border></param>
-        <theme name="treetable" ref="table"/>
+        <theme name="treetable" ref="table">
+            <param name="columnWidths"><map>
+                <param name="1"><int>80</int></param>
+            </map></param>
+        </theme>
     </theme>
 
     <theme name="propertyEditor" ref="scrollpane">
@@ -84,6 +88,10 @@
                     </theme>
 
                     <theme name="hotspoteditor" ref="dialoglayout">
+                        <theme name="" ref="*"/>
+                    </theme>
+
+                    <theme name="bordereditor" ref="dialoglayout">
                         <theme name="" ref="*"/>
                     </theme>
                 </theme>

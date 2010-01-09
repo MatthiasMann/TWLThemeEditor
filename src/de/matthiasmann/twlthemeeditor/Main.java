@@ -142,7 +142,8 @@ public class Main {
             sp2.add(previewWidget);
             
             root.add(spTools);
-            root.add(sp2);//previewWidget);
+            root.add(sp2);
+            root.setSplitPosition(300);
 
             ctx.setTextureViewerPane(tvp);
             
