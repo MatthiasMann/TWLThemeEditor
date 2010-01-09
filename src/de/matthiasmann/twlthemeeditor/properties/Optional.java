@@ -27,7 +27,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.properties;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -38,8 +38,8 @@ import java.lang.annotation.Target;
  *
  * @author Matthias Mann
  */
-@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface MinValueI {
-    public int value();
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Optional {
+
 }

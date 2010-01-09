@@ -29,10 +29,9 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.ColorSelector;
-import de.matthiasmann.twl.DialogLayout.Group;
-import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.ColorSpaceHSL;
 

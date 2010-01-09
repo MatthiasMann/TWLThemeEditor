@@ -27,10 +27,10 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
+package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.utils.ClassUtils;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
@@ -47,7 +47,7 @@ public class PropertyAccessor<T> {
 
     private final Object obj;
     private final PropertyDescriptor pd;
-    private final ToggleButton btnActive;
+    private final BooleanModel activeModel;
 
     private T value;
     private Widget[] widgetsToEnable;
@@ -55,10 +55,10 @@ public class PropertyAccessor<T> {
     private boolean triedLimitMethod;
 
     @SuppressWarnings("unchecked")
-    public PropertyAccessor(Object obj, PropertyDescriptor pd, ToggleButton btnActive) {
+    public PropertyAccessor(Object obj, PropertyDescriptor pd, BooleanModel activeModel) {
         this.obj = obj;
         this.pd = pd;
-        this.btnActive = btnActive;
+        this.activeModel = activeModel;
 
         try {
             value = (T) pd.getReadMethod().invoke(obj);
@@ -66,9 +66,9 @@ public class PropertyAccessor<T> {
             Logger.getLogger(PropertyAccessor.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        if(btnActive != null) {
-            btnActive.setActive(value != null);
-            btnActive.addCallback(new Runnable() {
+        if(activeModel != null) {
+            activeModel.setValue(value != null);
+            activeModel.addCallback(new Runnable() {
                 public void run() {
                     setProperty();
                     syncWithActive();
@@ -83,12 +83,12 @@ public class PropertyAccessor<T> {
     }
 
     public boolean isActive() {
-        return (btnActive == null) || btnActive.isActive();
+        return (activeModel == null) || activeModel.getValue();
     }
 
     public void addActiveCallback(Runnable cb) {
-        if(btnActive != null) {
-            btnActive.addCallback(cb);
+        if(activeModel != null) {
+            activeModel.addCallback(cb);
         }
     }
     

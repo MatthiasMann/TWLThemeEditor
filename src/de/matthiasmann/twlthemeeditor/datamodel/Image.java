@@ -29,6 +29,8 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twlthemeeditor.properties.MinValueI;
+import de.matthiasmann.twlthemeeditor.properties.Optional;
 import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.Dimension;

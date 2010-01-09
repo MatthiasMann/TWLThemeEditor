@@ -29,10 +29,13 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twlthemeeditor.datamodel.Optional;
+import de.matthiasmann.twl.model.BooleanModel;
+import de.matthiasmann.twl.model.SimpleBooleanModel;
+import de.matthiasmann.twlthemeeditor.properties.Optional;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -83,13 +86,15 @@ public class PropertyPanel extends DialogLayout {
         PropertyEditorFactory factory = ctx.getFactory(type);
         if(factory != null) {
             ToggleButton btnActive = null;
+            BooleanModel activeModel = null;
 
             if(optional) {
-                btnActive = new ToggleButton();
+                activeModel = new SimpleBooleanModel();
+                btnActive = new ToggleButton(activeModel);
                 btnActive.setTheme("active");
             }
 
-            Widget content = factory.create(new PropertyAccessor(obj, pd, btnActive));
+            Widget content = factory.create(new PropertyAccessor(obj, pd, activeModel));
 
             CollapsiblePanel panel = new CollapsiblePanel(pd.getDisplayName(), content, btnActive);
             getVerticalGroup().addWidget(panel);

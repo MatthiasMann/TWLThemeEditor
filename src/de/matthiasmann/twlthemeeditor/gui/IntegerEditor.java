@@ -29,12 +29,11 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twl.DialogLayout.Group;
-import de.matthiasmann.twl.Label;
+import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
-import de.matthiasmann.twlthemeeditor.datamodel.MinValueI;
+import de.matthiasmann.twlthemeeditor.properties.MinValueI;
 
 /**
  *
