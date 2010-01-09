@@ -58,6 +58,7 @@ public class DomXPPParser implements XmlPullParser {
         events.add(Boolean.TRUE);   // this causes teh START_DOCUMENT event
     }
 
+    @SuppressWarnings("unchecked")
     public void addElement(Element e) {
         events.add(new StartTag(e.getName(), e.getAttributes()));
         for(Object child : e.getContent()) {

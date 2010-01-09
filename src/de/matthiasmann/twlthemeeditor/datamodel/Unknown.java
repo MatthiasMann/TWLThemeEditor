@@ -54,7 +54,7 @@ public class Unknown extends ThemeTreeNode {
         }
     }
 
-    public void addChildren(DomXPPParser xpp) {
+    public void addToXPP(DomXPPParser xpp) {
         xpp.addElement(element);
     }
 }

@@ -141,23 +141,23 @@ final class Utils {
         return result;
     }
 
-    public static void addChildren(DomXPPParser xpp, ModifyableTreeTableNode node) {
+    public static void addToXPP(DomXPPParser xpp, ModifyableTreeTableNode node) {
         for(int i=0,n=node.getNumChildren() ; i<n ; i++) {
             TreeTableNode child = node.getChild(i);
             if(child instanceof ModifyableTreeTableNode) {
-                ((ModifyableTreeTableNode)child).addChildren(xpp);
+                ((ModifyableTreeTableNode)child).addToXPP(xpp);
             }
         }
     }
 
-    public static void addChildren(DomXPPParser xpp, String tagName, ModifyableTreeTableNode node, Collection<Attribute> attributes) {
+    public static void addToXPP(DomXPPParser xpp, String tagName, ModifyableTreeTableNode node, Collection<Attribute> attributes) {
         xpp.addStartTag(tagName, attributes);
-        addChildren(xpp, node);
+        addToXPP(xpp, node);
         xpp.addEndTag(tagName);
     }
 
-    public static void addChildren(DomXPPParser xpp, NodeWrapper wrapper, ModifyableTreeTableNode node) {
-        addChildren(xpp, wrapper.node.getName(), node, wrapper.node.getAttributes());
+    public static void addToXPP(DomXPPParser xpp, NodeWrapper wrapper, ModifyableTreeTableNode node) {
+        addToXPP(xpp, wrapper.node.getName(), node, wrapper.getAttributes());
     }
     
     public static boolean equals(Object a, Object b) {

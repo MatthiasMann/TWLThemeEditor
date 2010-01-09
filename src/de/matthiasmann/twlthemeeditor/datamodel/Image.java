@@ -56,7 +56,7 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         return properties;
     }
 
-    public void addChildren(DomXPPParser xpp) {
+    public void addToXPP(DomXPPParser xpp) {
         xpp.addElement(element);
     }
 
@@ -237,14 +237,14 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         private static final Element ALIAS_REF_NONE = new Element("alias").setAttribute("ref", "none");
 
         @Override
-        public void addChildren(DomXPPParser xpp) {
-            xpp.addStartTag(properties.node.getName(), properties.node.getAttributes());
+        public void addToXPP(DomXPPParser xpp) {
+            xpp.addStartTag(properties.node.getName(), properties.getAttributes());
             int generated = 0;
             int required = getRequiredChildren();
             for(int i=0,n=getNumChildren() ; i<n && generated<required ; i++) {
                 TreeTableNode child = getChild(i);
                 if(child instanceof ModifyableTreeTableNode) {
-                    ((ModifyableTreeTableNode)child).addChildren(xpp);
+                    ((ModifyableTreeTableNode)child).addToXPP(xpp);
                     generated++;
                 }
             }

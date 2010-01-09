@@ -44,5 +44,5 @@ public interface ModifyableTreeTableNode extends TreeTableNode {
 
     public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz);
 
-    public void addChildren(DomXPPParser xpp);
+    public void addToXPP(DomXPPParser xpp);
 }

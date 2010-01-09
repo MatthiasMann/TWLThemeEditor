@@ -104,7 +104,7 @@ public class Textures extends ThemeTreeNode {
         return textureDimensions;
     }
 
-    public void addChildren(DomXPPParser xpp) {
-        Utils.addChildren(xpp, node, this);
+    public void addToXPP(DomXPPParser xpp) {
+        Utils.addToXPP(xpp, node, this);
     }
 }

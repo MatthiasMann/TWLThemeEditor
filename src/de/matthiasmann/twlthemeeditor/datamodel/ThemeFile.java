@@ -130,11 +130,12 @@ public class ThemeFile implements VirtualFile {
         CallbackSupport.fireCallbacks(callbacks);
     }
 
+    @SuppressWarnings("unchecked")
     public Object getContent(Class<?> type) throws IOException {
         if(type == XmlPullParser.class) {
             DomXPPParser xpp = new DomXPPParser();
             Element rootElement = document.getRootElement();
-            Utils.addChildren(xpp, rootElement.getName(), node, rootElement.getAttributes());
+            Utils.addToXPP(xpp, rootElement.getName(), node, rootElement.getAttributes());
             return xpp;
         }
         return null;

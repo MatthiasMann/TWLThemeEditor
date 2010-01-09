@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import java.util.List;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -53,6 +54,11 @@ public class NodeWrapper {
     protected String getAttribute(String name) {
         Attribute attr = node.getAttribute(name);
         return (attr != null) ? attr.getValue() : null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Attribute> getAttributes() {
+        return (List<Attribute>)node.getAttributes();
     }
 
     protected int parseIntFromAttribute(String name) throws NumberFormatException {
