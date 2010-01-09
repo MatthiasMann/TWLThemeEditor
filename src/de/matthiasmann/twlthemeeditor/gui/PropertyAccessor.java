@@ -31,8 +31,11 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.utils.ClassUtils;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,6 +51,8 @@ public class PropertyAccessor<T> {
 
     private T value;
     private Widget[] widgetsToEnable;
+    private Method getLimitMethod;
+    private boolean triedLimitMethod;
 
     @SuppressWarnings("unchecked")
     public PropertyAccessor(Object obj, PropertyDescriptor pd, ToggleButton btnActive) {
@@ -108,6 +113,51 @@ public class PropertyAccessor<T> {
         return pd.getReadMethod().getAnnotation(annotationClass);
     }
 
+    public<LT> LT getLimit(Class<LT> type, LT defaultLimit) {
+        if(type.isPrimitive()) {
+            throw new IllegalArgumentException("type is a primitive, call with wrapper type");
+        }
+        if(getLimitMethod == null && !triedLimitMethod) {
+            getLimitMethod = initLimitMethod(type);
+            triedLimitMethod = true;
+        }
+        if(getLimitMethod != null) {
+            try {
+                return type.cast(getLimitMethod.invoke(obj));
+            } catch (Exception ex) {
+                Logger.getLogger(PropertyAccessor.class.getName()).log(Level.SEVERE,
+                        "can't invoke limit method: " + getLimitMethod, ex);
+            }
+        }
+        return defaultLimit;
+    }
+
+    private Method initLimitMethod(Class<?> type) {
+        String methodName = pd.getReadMethod().getName().concat("Limit");
+        Class<?> clazz = obj.getClass();
+        try {
+            Method method = clazz.getMethod(methodName);
+            if(!Modifier.isPublic(method.getModifiers())) {
+                Logger.getLogger(PropertyAccessor.class.getName()).log(Level.SEVERE,
+                        "can't access non public limit method: " + methodName +
+                        " on class " + clazz.getName());
+                return null;
+            }
+            Class<?> returnType = ClassUtils.mapPrimitiveToWrapper(method.getReturnType());
+            if(!type.isAssignableFrom(returnType)) {
+                Logger.getLogger(PropertyAccessor.class.getName()).log(Level.SEVERE,
+                        "return type of limit method " + methodName + " on class " +
+                        clazz.getName() + " is incompatible: got " + returnType + " need " + type);
+                return null;
+            }
+            return method;
+        } catch (Exception ex) {
+            Logger.getLogger(PropertyAccessor.class.getName()).log(Level.SEVERE,
+                    "can't get limit method: " + methodName + " on class " + clazz.getName(), ex);
+            return null;
+        }
+    }
+    
     void setProperty() {
         try {
             pd.getWriteMethod().invoke(obj, isActive() ? value : null);

@@ -778,4 +778,16 @@
         <param name="minHeight"><int>13</int></param>
     </theme>
 
+    <theme name="dialoglayout" ref="-defaults" allowWildcard="true">
+        <param name="defaultGap"><dimension>5,5</dimension></param>
+        <param name="smallGap"><dimension>8,8</dimension></param>
+        <param name="mediumGap"><dimension>10,10</dimension></param>
+        <param name="largeGap"><dimension>15,15</dimension></param>
+        <param name="namedGaps"><map>
+            <param name="radiobutton"><gap>0</gap></param>
+            <param name="adjuster"><gap>0</gap></param>
+            <param name="vbutton"><gap>0</gap></param>
+        </map></param>
+    </theme>
+
 </themes>

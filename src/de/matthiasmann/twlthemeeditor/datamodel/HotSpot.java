@@ -29,24 +29,25 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.Dimension;
-import de.matthiasmann.twl.Rect;
-
 /**
  *
  * @author Matthias Mann
  */
-public class RectWithTextureDimension extends Rect {
+public class HotSpot {
 
-    private final Dimension textureDimension;
+    private final int x;
+    private final int y;
 
-    public RectWithTextureDimension(int x, int y, int w, int h, Dimension textureDimension) {
-        super(x, y, w, h);
-        this.textureDimension = textureDimension;
+    public HotSpot(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 
-    public Dimension getTextureDimension() {
-        return textureDimension;
+    public int getX() {
+        return x;
     }
 
+    public int getY() {
+        return y;
+    }
 }

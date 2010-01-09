@@ -263,14 +263,6 @@
         </theme>
     </theme>
 
-    <theme name="dialoglayout" ref="-defaults" allowWildcard="true">
-        <param name="defaultGap"><dimension>5,5</dimension></param>
-        <param name="smallGap"><dimension>8,8</dimension></param>
-        <param name="mediumGap"><dimension>10,10</dimension></param>
-        <param name="largeGap"><dimension>15,15</dimension></param>
-        <param name="namedGaps"><map></map></param>
-    </theme>
-
     <theme name="textarea" ref="-defaults" allowWildcard="true">
         <param name="background"><image>-borderC</image></param>
         <param name="border"><border>background.border</border></param>
@@ -605,10 +597,6 @@
     <theme name="previewwidgets" ref="dialoglayout">
         <param name="border"><border>10</border></param>
         <theme name="" ref="*"/>
-        <param name="namedGaps"><map>
-            <param name="radiobutton"><gap>0</gap></param>
-            <param name="vbutton"><gap>0</gap></param>
-        </map></param>
     </theme>
 
 </themes>

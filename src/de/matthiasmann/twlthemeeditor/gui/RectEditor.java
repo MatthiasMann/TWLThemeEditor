@@ -36,7 +36,6 @@ import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractIntegerModel;
 import de.matthiasmann.twl.model.HasCallback;
-import de.matthiasmann.twlthemeeditor.datamodel.RectWithTextureDimension;
 
 /**
  *
@@ -98,12 +97,7 @@ public class RectEditor implements PropertyEditorFactory<Rect> {
             this.ctx = ctx;
             this.pa = pa;
             this.rect = pa.getValue(NULL_RECT);
-
-            if(rect instanceof RectWithTextureDimension) {
-                this.dim = ((RectWithTextureDimension)rect).getTextureDimension();
-            } else {
-                this.dim = new Dimension(256, 256);
-            }
+            this.dim = pa.getLimit(Dimension.class, Dimension.ZERO);
 
             this.modelX = new MyIntegerModel() {
                 public int getMaxValue() {

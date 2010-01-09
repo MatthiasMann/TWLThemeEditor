@@ -31,7 +31,6 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twlthemeeditor.datamodel.Split;
-import de.matthiasmann.twlthemeeditor.datamodel.SplitWithLimit;
 
 /**
  *
@@ -45,28 +44,19 @@ public class SplitEditorFactory implements PropertyEditorFactory<Split>{
 
     static class SplitEditor extends IntegerArrayEditor {
         private final PropertyAccessor<Split> pa;
-        private int maxValue = Short.MAX_VALUE;
 
         public SplitEditor(PropertyAccessor<Split> pa) {
             this.pa = pa;
             init(pa.getValue(new Split(0)).getSplits());
         }
 
-        protected void updateMaxValue() {
-            Split limit = pa.getValue(null);
-            if(limit instanceof SplitWithLimit) {
-                maxValue = ((SplitWithLimit)limit).getLimit();
-            }
-        }
-
         @Override
         protected int getMaxValue(int idx) {
-            return maxValue;
+            return pa.getLimit(Integer.class, 0);
         }
 
         @Override
         protected boolean isValid(int[] array) {
-            updateMaxValue();
             if(array.length < 1) {
                 errorMessage = "Need atleast 1 split entry";
                 return false;
@@ -79,7 +69,7 @@ public class SplitEditorFactory implements PropertyEditorFactory<Split>{
                 }
                 last = pos;
             }
-            if(last > maxValue) {
+            if(last > getMaxValue(0)) {
                 errorMessage = "split values outside range";
                 return false;
             }

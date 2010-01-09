@@ -53,15 +53,9 @@
                             <param name="text"><string>Unless</string></param>
                         </theme>
                         <theme name="" ref="*"/>
-                        <param name="namedGaps"><map>
-                            <param name="radiobutton"><gap>0</gap></param>
-                        </map></param>
                     </theme>
 
                     <theme name="recteditor" ref="dialoglayout">
-                        <param name="namedGaps"><map>
-                            <param name="adjuster"><gap>0</gap></param>
-                        </map></param>
                         <theme name="" ref="*"/>
                     </theme>
 
@@ -74,9 +68,6 @@
                             <param name=""><image>addbutton.*</image></param>
                             <param name="tooltip"><string>Add a new weight</string></param>
                         </theme>
-                        <param name="namedGaps"><map>
-                            <param name="adjuster"><gap>0</gap></param>
-                        </map></param>
                         <theme name="" ref="*"/>
                     </theme>
 
@@ -89,9 +80,10 @@
                             <param name=""><image>addbutton.*</image></param>
                             <param name="tooltip"><string>Add a new split position</string></param>
                         </theme>
-                        <param name="namedGaps"><map>
-                            <param name="adjuster"><gap>0</gap></param>
-                        </map></param>
+                        <theme name="" ref="*"/>
+                    </theme>
+
+                    <theme name="hotspoteditor" ref="dialoglayout">
                         <theme name="" ref="*"/>
                     </theme>
                 </theme>

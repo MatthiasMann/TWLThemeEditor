@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.Color;
+import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.model.TreeTableNode;
 import java.io.IOException;
@@ -43,7 +44,7 @@ import org.jdom.Element;
 public abstract class Image extends ThemeTreeNode implements HasProperties {
 
     protected final Textures textures;
-    protected ImageProperties properties;
+    protected BaseProperties properties;
     protected final Element element;
 
     protected Image(Textures textures, TreeTableNode parent, Element element) {
@@ -52,7 +53,7 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         this.element = element;
     }
 
-    public ImageProperties getProperties() {
+    public BaseProperties getProperties() {
         return properties;
     }
 
@@ -60,16 +61,22 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         xpp.addElement(element);
     }
 
-    public class ImageProperties extends NodeWrapper {
+    public class BaseProperties extends NodeWrapper {
         protected final Textures textures;
 
-        protected ImageProperties(Textures textures, Element node) {
+        protected BaseProperties(Textures textures, Element node) {
             super(textures.getThemeFile(), node);
             this.textures = textures;
         }
 
         public String getName() {
             return getAttribute("name");
+        }
+    }
+
+    public class ImageProperties extends BaseProperties {
+        public ImageProperties(Textures textures, Element node) {
+            super(textures, node);
         }
 
         public boolean isCentered() {
@@ -226,6 +233,9 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
                 if("hvsplit".equals(tagName) && element.getAttribute("splitx") != null && element.getAttribute("splity") != null) {
                     return new HVSplitSimple(textures, parent, element);
                 }
+                if("cursor".equals(tagName)) {
+                    return new Cursor(textures, parent, element);
+                }
                 return null;
             }
         });
@@ -271,12 +281,47 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
             }
 
             public Rect getRect() {
-                return new RectWithTextureDimension(
+                return new Rect(
                         parseIntFromAttribute("x"),
                         parseIntFromAttribute("y"),
                         parseIntFromAttribute("width"),
-                        parseIntFromAttribute("height"),
-                        textures.getTextureDimensions());
+                        parseIntFromAttribute("height"));
+            }
+
+            public Dimension getRectLimit() {
+                return textures.getTextureDimensions();
+            }
+
+            public void setRect(Rect rect) {
+                setAttribute("x", rect.getX());
+                setAttribute("y", rect.getY());
+                setAttribute("width", rect.getWidth());
+                setAttribute("height", rect.getHeight());
+            }
+        }
+    }
+
+    public static class Cursor extends Image {
+        Cursor(Textures textures, TreeTableNode parent, Element node) {
+            super(textures, parent, node);
+            this.properties = new CursorProperties(textures, node);
+        }
+
+        public class CursorProperties extends BaseProperties {
+            public CursorProperties(Textures textures, Element node) {
+                super(textures, node);
+            }
+
+            public Rect getRect() {
+                return new Rect(
+                        parseIntFromAttribute("x"),
+                        parseIntFromAttribute("y"),
+                        parseIntFromAttribute("width"),
+                        parseIntFromAttribute("height"));
+            }
+
+            public Dimension getRectLimit() {
+                return textures.getTextureDimensions();
             }
 
             public void setRect(Rect rect) {
@@ -286,26 +331,19 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
                 setAttribute("height", rect.getHeight());
             }
 
-            class SplitX extends SplitWithLimit {
-                public SplitX(String splits) {
-                    super(splits);
-                }
-
-                @Override
-                public int getLimit() {
-                    return getRect().getWidth();
-                }
+            public HotSpot getHotSpot() {
+                return new HotSpot(
+                        parseIntFromAttribute("hotSpotX"),
+                        parseIntFromAttribute("hotSpotY"));
             }
 
-            class SplitY extends SplitWithLimit {
-                public SplitY(String splits) {
-                    super(splits);
-                }
+            public Dimension getHotSpotLimit() {
+                return getRect().getSize();
+            }
 
-                @Override
-                public int getLimit() {
-                    return getRect().getHeight();
-                }
+            public void setHotSpot(HotSpot hotspot) {
+                setAttribute("hotSpotX", hotspot.getX());
+                setAttribute("hotSpotY", hotspot.getY());
             }
         }
     }
@@ -323,7 +361,11 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
 
             public Split getSplitX() {
                 String value = getAttribute("splitx");
-                return (value != null) ? new SplitX(value) : null;
+                return (value != null) ? new Split(value) : null;
+            }
+
+            public int getSplitXLimit() {
+                return getRect().getWidth();
             }
 
             public void setSplitX(Split splitX) {
@@ -345,7 +387,11 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
 
             public Split getSplitY() {
                 String value = getAttribute("splity");
-                return (value != null) ? new SplitY(value) : null;
+                return (value != null) ? new Split(value) : null;
+            }
+
+            public int getSplitYLimit() {
+                return getRect().getHeight();
             }
 
             public void setSplitY(Split splitY) {
@@ -367,7 +413,11 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
 
             public Split getSplitX() {
                 String value = getAttribute("splitx");
-                return (value != null) ? new SplitX(value) : null;
+                return (value != null) ? new Split(value) : null;
+            }
+
+            public int getSplitXLimit() {
+                return getRect().getWidth();
             }
 
             public void setSplitX(Split splitX) {
@@ -376,7 +426,11 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
 
             public Split getSplitY() {
                 String value = getAttribute("splity");
-                return (value != null) ? new SplitY(value) : null;
+                return (value != null) ? new Split(value) : null;
+            }
+
+            public int getSplitYLimit() {
+                return getRect().getHeight();
             }
 
             public void setSplitY(Split splitY) {

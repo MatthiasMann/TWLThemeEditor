@@ -34,6 +34,7 @@ import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.utils.TypeMapping;
 import de.matthiasmann.twlthemeeditor.datamodel.Condition;
+import de.matthiasmann.twlthemeeditor.datamodel.HotSpot;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
 import de.matthiasmann.twlthemeeditor.datamodel.Split;
@@ -68,6 +69,7 @@ public class Context {
         factories.put(ImageReference.class, new ImageRefEditor(this));
         factories.put(Weights.class, new WeightsEditorFactory());
         factories.put(Split.class, new SplitEditorFactory());
+        factories.put(HotSpot.class, new HotSpotEditorFactory());
 
         this.propertyOrder = new ArrayList<String>();
     }
