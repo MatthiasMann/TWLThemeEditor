@@ -194,10 +194,10 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         switch (column) {
             case 0: {
                 String name = properties.getName();
-                if(name == null) {
-                    name = "Unnamed #" + (1+getParent().getChildIndex(this));
+                if(name != null) {
+                    return name;
                 }
-                return name;
+                return "Unnamed #" + (1+getParent().getChildIndex(this));
             }
             case 1:
                 return getClass().getSimpleName();
@@ -236,17 +236,23 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
                     return new HVSplitSimple(textures, parent, element);
                 }
                 if("cursor".equals(tagName)) {
-                    return new Cursor(textures, parent, element);
+                    if(element.getAttribute("ref") != null) {
+                        return new CursorRef(textures, parent, element);
+                    } else {
+                        return new Cursor(textures, parent, element);
+                    }
+                }
+                if("animation".equals(tagName)) {
+                    return new Animation(textures, parent, element);
                 }
                 return null;
             }
         });
     }
 
-    static abstract class WithSubimages extends Image {
-        protected WithSubimages(Textures textures, TreeTableNode parent, Element element) throws IOException {
+    static abstract class WithSubImages extends Image {
+        protected WithSubImages(Textures textures, TreeTableNode parent, Element element) throws IOException {
             super(textures, parent, element);
-            addChildImages(textures, this, element);
         }
         protected abstract int getRequiredChildren();
 
@@ -346,6 +352,27 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
             public void setHotSpot(HotSpot hotspot) {
                 setAttribute("hotSpotX", hotspot.getX());
                 setAttribute("hotSpotY", hotspot.getY());
+            }
+        }
+    }
+
+    public static class CursorRef extends Image {
+        CursorRef(Textures textures, TreeTableNode parent, Element node) {
+            super(textures, parent, node);
+            this.properties = new CursorRefProperties(textures, node);
+        }
+
+        public class CursorRefProperties extends BaseProperties {
+            public CursorRefProperties(Textures textures, Element node) {
+                super(textures, node);
+            }
+
+            public CursorReference getRef() {
+                return new CursorReference(getAttribute("ref"));
+            }
+
+            public void setRef(CursorReference ref) {
+                setAttribute("ref", ref.getName());
             }
         }
     }
@@ -462,10 +489,11 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         }
     }
 
-    public static class Select extends WithSubimages {
+    public static class Select extends WithSubImages {
         public Select(Textures textures, TreeTableNode parent, Element element) throws IOException {
             super(textures, parent, element);
             properties = new ImageProperties(textures, element);
+            addChildImages(textures, this, element);
         }
 
         @Override
@@ -474,10 +502,11 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         }
     }
 
-    public static class Composed extends WithSubimages {
+    public static class Composed extends WithSubImages {
         public Composed(Textures textures, TreeTableNode parent, Element element) throws IOException {
             super(textures, parent, element);
             properties = new ImageProperties(textures, element);
+            addChildImages(textures, this, element);
         }
 
         @Override
@@ -486,10 +515,11 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         }
     }
     
-    public static class Grid extends WithSubimages {
+    public static class Grid extends WithSubImages {
         public Grid(Textures textures, ModifyableTreeTableNode parent, Element element) throws IOException {
             super(textures, parent, element);
             this.properties = new GridProperties(textures, element);
+            addChildImages(textures, this, element);
         }
 
         @Override
@@ -528,6 +558,95 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
 
             public void setWeightsY(Weights weightsY) {
                 setAttribute("weightsY", weightsY.toString());
+            }
+        }
+    }
+
+    public static void addChildAnimations(final Textures textures, ModifyableTreeTableNode parent, Element node) throws IOException {
+        Utils.addChildren(textures.getThemeFile(), parent, node, new DomWrapper() {
+            public TreeTableNode wrap(ThemeFile themeFile, ModifyableTreeTableNode parent, Element element) throws IOException {
+                String tagName = element.getName();
+
+                if("repeat".equals(tagName)) {
+                    return new Repeat(textures, parent, element);
+                }
+                if("frame".equals(tagName)) {
+                    return new Frame(textures, parent, element);
+                }
+                return null;
+            }
+        });
+    }
+
+    public static class Frame extends Alias {
+        Frame(Textures textures, TreeTableNode parent, Element node) {
+            super(textures, parent, node);
+            this.properties = new FrameProperties(textures, node);
+        }
+
+        public class FrameProperties extends AliasProperties {
+            FrameProperties(Textures textures, Element node) {
+                super(textures, node);
+            }
+
+            @MinValueI(0)
+            public int getDuration() {
+                return parseIntFromAttribute("duration");
+            }
+
+            public void setDuration(int duration) {
+                setAttribute("duration", duration);
+            }
+        }
+    }
+
+    public static class Repeat extends WithSubImages {
+        Repeat(Textures textures, TreeTableNode parent, Element element) throws IOException {
+            super(textures, parent, element);
+            this.properties = new RepeatProperties(textures, element);
+            addChildAnimations(textures, this, element);
+        }
+
+        @Override
+        protected int getRequiredChildren() {
+            return Math.max(1, getNumChildren());
+        }
+
+        public class RepeatProperties extends ImageProperties {
+            RepeatProperties(Textures textures, Element node) {
+                super(textures, node);
+            }
+            
+            @Optional
+            @MinValueI(0)
+            public Integer getRepeatCunt() {
+                String value = getAttribute("count");
+                return (value != null) ? Integer.valueOf(value) : null;
+            }
+
+            public void setRepeatCount(Integer repeatCount) {
+                setAttribute("count", (repeatCount != null) ? repeatCount.toString() : null);
+            }
+        }
+    }
+
+    public static class Animation extends Repeat {
+        Animation(Textures textures, TreeTableNode parent, Element element) throws IOException {
+            super(textures, parent, element);
+            this.properties = new AnimationProperties(textures, element);
+        }
+
+        public class AnimationProperties extends RepeatProperties {
+            AnimationProperties(Textures textures, Element node) {
+                super(textures, node);
+            }
+
+            public String getTimeSource() {
+                return getAttribute("timeSource");
+            }
+
+            public void setTimeSource(String timeSource) {
+                setAttribute("timeSource", timeSource);
             }
         }
     }
