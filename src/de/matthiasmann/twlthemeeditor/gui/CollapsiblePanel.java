@@ -50,7 +50,7 @@ public class CollapsiblePanel extends DialogLayout {
 
     private boolean expanded;
 
-    public CollapsiblePanel(String title, Widget content, ToggleButton enabled) {
+    public CollapsiblePanel(String title, Widget content, final ToggleButton enabled) {
         this.arrow = new Arrow();
         this.container = new ContentContainer(content);
 
@@ -72,6 +72,16 @@ public class CollapsiblePanel extends DialogLayout {
 
         if(enabled == null || enabled.isActive()) {
             toggleExpand();
+        }
+
+        if(enabled != null) {
+            enabled.addCallback(new Runnable() {
+                public void run() {
+                    if(enabled.isActive() && !expanded) {
+                        toggleExpand();
+                    }
+                }
+            });
         }
     }
 
