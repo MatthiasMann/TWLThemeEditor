@@ -106,6 +106,7 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         }
 
         @Optional
+        @MinValueI(0)
         public Border getBorder() {
             return Utils.parseBorder(getAttribute("border"));
         }
@@ -219,12 +220,16 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
                 return "Unnamed #" + (1+getParent().getChildIndex(this));
             }
             case 1:
-                return getClass().getSimpleName();
+                return getType();
             default:
                 return "";
         }
     }
 
+    protected String getType() {
+        return element.getName();
+    }
+    
     public static void addChildImages(final Textures textures, ModifyableTreeTableNode parent, Element node) throws IOException {
         Utils.addChildren(textures.getThemeFile(), parent, node, new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ModifyableTreeTableNode parent, Element element) throws IOException {
