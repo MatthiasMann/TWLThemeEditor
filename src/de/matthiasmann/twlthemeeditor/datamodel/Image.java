@@ -68,6 +68,13 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         return properties;
     }
 
+    public <T> T getProperties(Class<T> type) {
+        if(type.isInstance(properties)) {
+            return type.cast(properties);
+        }
+        return null;
+    }
+
     public void addToXPP(DomXPPParser xpp) {
         xpp.addElement(element);
     }
@@ -205,6 +212,9 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
                 String name = properties.getName();
                 if(name != null) {
                     return name;
+                }
+                if(getParent() instanceof NameGenerator) {
+                    return ((NameGenerator)getParent()).generateName(this);
                 }
                 return "Unnamed #" + (1+getParent().getChildIndex(this));
             }

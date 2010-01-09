@@ -27,46 +27,14 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel.images;
-
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Condition;
-import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.NameGenerator;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
-import java.io.IOException;
-import org.jdom.Element;
+package de.matthiasmann.twlthemeeditor.datamodel;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Select extends WithSubImages implements NameGenerator {
+public interface NameGenerator {
 
-    public Select(Textures textures, TreeTableNode parent, Element element) throws IOException {
-        super(textures, parent, element);
-        properties = new ImageProperties(textures, element);
-        addChildImages(textures, this, element);
-    }
-
-    @Override
-    protected int getRequiredChildren() {
-        return Math.max(1, getNumChildren());
-    }
-
-    public String generateName(Image image) {
-        ImageProperties ip = image.getProperties(ImageProperties.class);
-        Condition condition = (ip != null) ? ip.getCondition() : Condition.NONE;
-
-        if(condition.getType() == Condition.Type.NONE) {
-            if(getChildIndex(image) == getNumChildren()-1) {
-                return "DEFAULT";
-            } else {
-                return "MISSING CONDITION !!";
-            }
-        }
-
-        return condition.getType().name() + "(" + condition.getCondition() + ")";
-    }
-
+    public String generateName(Image image);
+    
 }
