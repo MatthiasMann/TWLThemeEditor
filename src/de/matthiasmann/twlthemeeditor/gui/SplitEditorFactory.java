@@ -91,5 +91,10 @@ public class SplitEditorFactory implements PropertyEditorFactory<Split>{
             pa.setValue(new Split(array));
         }
 
+        @Override
+        protected int getNewValueForAppend(int[] array) {
+            return (array.length > 0) ? array[array.length-1] : 0;
+        }
+
     }
 }

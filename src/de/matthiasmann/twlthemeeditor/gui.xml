@@ -66,13 +66,13 @@
                     </theme>
 
                     <theme name="weightseditor" ref="dialoglayout">
-                        <theme name="removebutton" ref="button">
+                        <theme name="removebutton" ref="vbutton">
                             <param name=""><image>removebutton.*</image></param>
-                            <param name="tooltip"><string>Removes this weight</string></param>
+                            <param name="tooltip"><string>Remove this weight</string></param>
                         </theme>
                         <theme name="addbutton" ref="button">
                             <param name=""><image>addbutton.*</image></param>
-                            <param name="tooltip"><string>Adds a new weight</string></param>
+                            <param name="tooltip"><string>Add a new weight</string></param>
                         </theme>
                         <param name="namedGaps"><map>
                             <param name="adjuster"><gap>0</gap></param>
@@ -81,13 +81,13 @@
                     </theme>
 
                     <theme name="spliteditor" ref="dialoglayout">
-                        <theme name="removebutton" ref="button">
+                        <theme name="removebutton" ref="vbutton">
                             <param name=""><image>removebutton.*</image></param>
-                            <param name="tooltip"><string>Removes this split position</string></param>
+                            <param name="tooltip"><string>Remove this split position</string></param>
                         </theme>
                         <theme name="addbutton" ref="button">
                             <param name=""><image>addbutton.*</image></param>
-                            <param name="tooltip"><string>Adds a new split position</string></param>
+                            <param name="tooltip"><string>Add a new split position</string></param>
                         </theme>
                         <param name="namedGaps"><map>
                             <param name="adjuster"><gap>0</gap></param>

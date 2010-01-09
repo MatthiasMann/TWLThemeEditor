@@ -70,10 +70,8 @@ public abstract class IntegerArrayEditor extends DialogLayout {
     }
 
     protected void buildControlls() {
-        if (adjusters != null) {
-            removeWidgets(adjusters);
-            removeWidgets(removeButtons);
-        }
+        setVerticalGroup(null); // stop layout
+        removeAllChildren();
 
         Group horzAdjusters = createParallelGroup();
         Group horzRemoveButtons = createParallelGroup();
@@ -87,6 +85,8 @@ public abstract class IntegerArrayEditor extends DialogLayout {
             adjusters[i].getAnimationState().setAnimationState("adjusterNotFirst", i > 0);
             adjusters[i].getAnimationState().setAnimationState("adjusterNotLast", i < array.length - 1);
             removeButtons[i] = new RemoveButton(i);
+            removeButtons[i].getAnimationState().setAnimationState("vbuttonNotFirst", i > 0);
+            removeButtons[i].getAnimationState().setAnimationState("vbuttonNotLast", i < array.length - 1);
 
             horzAdjusters.addWidget(adjusters[i]);
             horzRemoveButtons.addWidget(removeButtons[i]);
@@ -96,7 +96,6 @@ public abstract class IntegerArrayEditor extends DialogLayout {
             vertControlls.addGroup(createParallelGroup().addWidget(adjusters[i]).addWidget(removeButtons[i]));
         }
 
-        setVerticalGroup(null);
         setHorizontalGroup(createParallelGroup()
                 .addGroup(createSequentialGroup().addGroup(horzAdjusters).addGroup(horzRemoveButtons))
                 .addGroup(createSequentialGroup().addWidget(addButton).addGap()));
@@ -105,7 +104,6 @@ public abstract class IntegerArrayEditor extends DialogLayout {
                 .addWidget(addButton));
 
         updateButtonEnabled();
-        invalidateLayoutTree();
     }
 
     private void removeWidgets(Widget[] widgets) {
@@ -195,6 +193,8 @@ public abstract class IntegerArrayEditor extends DialogLayout {
 
     protected abstract void updateProperty();
 
+    protected abstract int getNewValueForAppend(int[] array);
+    
     abstract class ModifyArrayLength extends Button implements Runnable {
         public ModifyArrayLength() {
             addCallback(this);
@@ -217,7 +217,9 @@ public abstract class IntegerArrayEditor extends DialogLayout {
     class AddButton extends ModifyArrayLength {
         @Override
         protected int[] createNewArray() {
-            return Arrays.copyOf(array, array.length + 1);
+            int[] newArray = Arrays.copyOf(array, array.length + 1);
+            newArray[newArray.length-1] = getNewValueForAppend(array);
+            return newArray;
         }
     }
     

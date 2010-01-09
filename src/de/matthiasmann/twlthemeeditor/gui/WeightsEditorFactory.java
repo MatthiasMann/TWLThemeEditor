@@ -75,6 +75,11 @@ public class WeightsEditorFactory implements PropertyEditorFactory<Weights> {
                 return false;
             }
         }
+
+        @Override
+        protected int getNewValueForAppend(int[] array) {
+            return 1;
+        }
     }
 
 }

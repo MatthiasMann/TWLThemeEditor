@@ -66,6 +66,12 @@ public class PreviewWidgets extends DialogLayout {
             radioButtons[i].setTheme("radiobutton");
         }
 
+        Button[] vbuttons = new Button[4];
+        for(int i=0 ; i<vbuttons.length ; i++) {
+            vbuttons[i] = new Button();
+            vbuttons[i].setTheme("vbutton");
+        }
+
         Widget[] widgets = new Widget[] {
             label, button, toggleButton, checkBox,comboBox
         };
@@ -81,9 +87,13 @@ public class PreviewWidgets extends DialogLayout {
 
         setHorizontalGroup(createSequentialGroup()
                 .addGroup(createParallelGroup().addGroup(horzWidgets).addWidget(scrollbarH))
+                .addGroup(createParallelGroup(vbuttons))
                 .addWidget(scrollbarV));
         setVerticalGroup(createSequentialGroup()
-                .addGroup(createParallelGroup().addGroup(vertWidgets).addWidget(scrollbarV))
+                .addGroup(createParallelGroup()
+                    .addGroup(vertWidgets)
+                    .addWidget(scrollbarV)
+                    .addGroup(createSequentialGroup().addWidgetsWithGap("vbutton", vbuttons).addGap()))
                 .addWidget(scrollbarH));
     }
 

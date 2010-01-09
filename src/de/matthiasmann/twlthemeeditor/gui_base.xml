@@ -483,6 +483,118 @@
             <hsplit x="56" y="115" width="24" height="13" splitx="10,14"/>
         </select>
 
+
+        <texture name="-vbutton1TL" x="100" y="0" width="4" height="17"/>
+        <texture name="-vbutton1TM" x="103" y="0" width="1" height="17"/>
+        <texture name="-vbutton1TR" x="103" y="0" width="4" height="17"/>
+        <texture name="-vbutton1ML" x="100" y="17" width="4" height="17"/>
+        <texture name="-vbutton1MM" x="103" y="17" width="1" height="17"/>
+        <texture name="-vbutton1MR" x="103" y="17" width="4" height="17"/>
+        <texture name="-vbutton1BL" x="100" y="34" width="4" height="18"/>
+        <texture name="-vbutton1BM" x="103" y="34" width="1" height="18"/>
+        <texture name="-vbutton1BR" x="103" y="34" width="4" height="18"/>
+
+        <texture name="-vbutton2TL" x="108" y="0" width="4" height="17"/>
+        <texture name="-vbutton2TM" x="111" y="0" width="1" height="17"/>
+        <texture name="-vbutton2TR" x="111" y="0" width="4" height="17"/>
+        <texture name="-vbutton2ML" x="108" y="17" width="4" height="17"/>
+        <texture name="-vbutton2MM" x="111" y="17" width="1" height="17"/>
+        <texture name="-vbutton2MR" x="111" y="17" width="4" height="17"/>
+        <texture name="-vbutton2BL" x="108" y="34" width="4" height="18"/>
+        <texture name="-vbutton2BM" x="111" y="34" width="1" height="18"/>
+        <texture name="-vbutton2BR" x="111" y="34" width="4" height="18"/>
+
+        <texture name="-vbutton3TL" x="116" y="0" width="4" height="17"/>
+        <texture name="-vbutton3TM" x="119" y="0" width="1" height="17"/>
+        <texture name="-vbutton3TR" x="119" y="0" width="4" height="17"/>
+        <texture name="-vbutton3ML" x="116" y="17" width="4" height="17"/>
+        <texture name="-vbutton3MM" x="119" y="17" width="1" height="17"/>
+        <texture name="-vbutton3MR" x="119" y="17" width="4" height="17"/>
+        <texture name="-vbutton3BL" x="116" y="34" width="4" height="18"/>
+        <texture name="-vbutton3BM" x="119" y="34" width="1" height="18"/>
+        <texture name="-vbutton3BR" x="119" y="34" width="4" height="18"/>
+
+        <texture name="-vbuttonSelTL" x="124" y="0" width="4" height="17"/>
+        <texture name="-vbuttonSelTM" x="127" y="0" width="1" height="17"/>
+        <texture name="-vbuttonSelTR" x="127" y="0" width="4" height="17"/>
+        <texture name="-vbuttonSelML" x="124" y="17" width="4" height="17"/>
+        <texture name="-vbuttonSelMM" x="127" y="17" width="1" height="17"/>
+        <texture name="-vbuttonSelMR" x="127" y="17" width="4" height="17"/>
+        <texture name="-vbuttonSelBL" x="124" y="34" width="4" height="18"/>
+        <texture name="-vbuttonSelBM" x="127" y="34" width="1" height="18"/>
+        <texture name="-vbuttonSelBR" x="127" y="34" width="4" height="18"/>
+
+        <select name="vbutton.background">
+            <alias ref="button.background" if="!vbuttonNotFirst + !vbuttonNotLast"/>
+            <select if="!vbuttonNotFirst">
+                <grid if="armed" weightsX="0,1,0" weightsY="1">
+                    <alias ref="-vbutton3TL"/>
+                    <alias ref="-vbutton3TM"/>
+                    <alias ref="-vbutton3TR"/>
+                </grid>
+                <grid if="hover + !disabled" weightsX="0,1,0" weightsY="1">
+                    <alias ref="-vbutton2TL"/>
+                    <alias ref="-vbutton2TM"/>
+                    <alias ref="-vbutton2TR"/>
+                </grid>
+                <grid weightsX="0,1,0" weightsY="1">
+                    <alias ref="-vbutton1TL"/>
+                    <alias ref="-vbutton1TM"/>
+                    <alias ref="-vbutton1TR"/>
+                </grid>
+            </select>
+            <select if="!vbuttonNotLast">
+                <grid if="armed" weightsX="0,1,0" weightsY="1">
+                    <alias ref="-vbutton3BL"/>
+                    <alias ref="-vbutton3BM"/>
+                    <alias ref="-vbutton3BR"/>
+                </grid>
+                <grid if="hover + !disabled" weightsX="0,1,0" weightsY="1">
+                    <alias ref="-vbutton2BL"/>
+                    <alias ref="-vbutton2BM"/>
+                    <alias ref="-vbutton2BR"/>
+                </grid>
+                <grid weightsX="0,1,0" weightsY="1">
+                    <alias ref="-vbutton1BL"/>
+                    <alias ref="-vbutton1BM"/>
+                    <alias ref="-vbutton1BR"/>
+                </grid>
+            </select>
+            <grid if="armed" weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbutton3ML"/>
+                <alias ref="-vbutton3MM"/>
+                <alias ref="-vbutton3MR"/>
+            </grid>
+            <grid if="hover + !disabled" weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbutton2ML"/>
+                <alias ref="-vbutton2MM"/>
+                <alias ref="-vbutton2MR"/>
+            </grid>
+            <grid weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbutton1ML"/>
+                <alias ref="-vbutton1MM"/>
+                <alias ref="-vbutton1MR"/>
+            </grid>
+        </select>
+        <select name="vbutton.overlay">
+            <alias ref="button.overlay" if="keyboardFocus + !vbuttonNotFirst + !vbuttonNotLast"/>
+            <grid if="keyboardFocus + !vbuttonNotFirst" weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbuttonSelTL" tint="#cc0"/>
+                <alias ref="-vbuttonSelTM" tint="#cc0"/>
+                <alias ref="-vbuttonSelTR" tint="#cc0"/>
+            </grid>
+            <grid if="keyboardFocus + !vbuttonNotLast" weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbuttonSelBL" tint="#cc0"/>
+                <alias ref="-vbuttonSelBM" tint="#cc0"/>
+                <alias ref="-vbuttonSelBR" tint="#cc0"/>
+            </grid>
+            <grid if="keyboardFocus" weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbuttonSelML" tint="#cc0"/>
+                <alias ref="-vbuttonSelMM" tint="#cc0"/>
+                <alias ref="-vbuttonSelMR" tint="#cc0"/>
+            </grid>
+        </select>
+
         <texture name="-icon-add" x="48" y="19" width="12" height="12" center="true"/>
         <texture name="-icon-remove" x="61" y="19" width="12" height="12" center="true"/>
 
@@ -502,7 +614,7 @@
                 <alias ref="-icon-remove" if="armed" inset="1,1,-1,-1"/>
                 <alias ref="-icon-remove"/>
             </select>
-            <alias ref="button.overlay"/>
+            <alias ref="vbutton.overlay"/>
         </composed>
 
         <grid name="collapsiblepanel.background" weightsX="1" weightsY="1,0" border="0,0,5,0">
@@ -559,6 +671,11 @@
         <param name="textAlignment"><enum type="alignment">center</enum></param>
         <param name="font"><font>button-font</font></param>
         <param name="minWidth"><int>20</int></param>
+    </theme>
+
+    <theme name="vbutton" ref="button" allowWildcard="true">
+        <param name=""><image>vbutton.*</image></param>
+        <param name="border"><border>background.border</border></param>
     </theme>
 
     <theme name="radiobutton" ref="button" allowWildcard="true">

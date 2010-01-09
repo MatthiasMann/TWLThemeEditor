@@ -608,6 +608,7 @@
         <theme name="" ref="*"/>
         <param name="namedGaps"><map>
             <param name="radiobutton"><gap>0</gap></param>
+            <param name="vbutton"><gap>0</gap></param>
         </map></param>
     </theme>
 
