@@ -50,13 +50,13 @@ import java.util.List;
 public class Context {
 
     private final ListModel<Image> images;
-    private final TypeMapping<PropertyEditorFactory> factories;
+    private final TypeMapping<PropertyEditorFactory<?>> factories;
     private final ArrayList<String> propertyOrder;
 
     public Context(ListModel<Image> images) {
         this.images = images;
         
-        factories = new TypeMapping<PropertyEditorFactory>();
+        factories = new TypeMapping<PropertyEditorFactory<?>>();
         factories.put(Integer.class, new IntegerEditor());
         factories.put(int.class, new IntegerEditor());
         factories.put(boolean.class, new BooleanEditor());
@@ -74,7 +74,7 @@ public class Context {
         return images;
     }
 
-    public PropertyEditorFactory getFactory(Class<?> clazz) {
+    public PropertyEditorFactory<?> getFactory(Class<?> clazz) {
         return factories.get(clazz);
     }
 
