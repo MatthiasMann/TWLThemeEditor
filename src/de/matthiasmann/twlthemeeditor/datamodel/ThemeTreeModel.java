@@ -78,6 +78,14 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements Modifyable
         return result;
     }
 
+    public List<Image> getImages() {
+        ArrayList<Image> result = new ArrayList<Image>();
+        for(Textures t : getTextures()) {
+            result.addAll(t.getChildren(Image.class));
+        }
+        return result;
+    }
+
     private <E extends TreeTableNode> void processInclude(TreeTableNode node, Class<E> clazz, List<E> result) {
         Utils.getChildren(node, clazz, result);
         for(Include include : Utils.getChildren(node, Include.class)) {

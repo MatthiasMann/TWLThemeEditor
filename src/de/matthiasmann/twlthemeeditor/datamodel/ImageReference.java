@@ -29,6 +29,8 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twlthemeeditor.datamodel.Image.Kind;
+
 /**
  *
  * @author Matthias Mann
@@ -36,13 +38,21 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 public final class ImageReference {
 
     private final String name;
+    private final Image.Kind kind;
 
-    public ImageReference(String name) {
+    public static final ImageReference NONE_REF = new ImageReference("none", Image.Kind.IMAGE);
+
+    public ImageReference(String name, Kind kind) {
         this.name = name;
+        this.kind = kind;
     }
-
+    
     public String getName() {
         return name;
+    }
+
+    public Kind getKind() {
+        return kind;
     }
 
     @Override

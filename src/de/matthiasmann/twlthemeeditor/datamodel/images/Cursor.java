@@ -49,6 +49,11 @@ public class Cursor extends Image {
         this.properties = new CursorProperties(textures, node);
     }
 
+    @Override
+    public Kind getKind() {
+        return Kind.CURSOR;
+    }
+
     public class CursorProperties extends BaseProperties {
 
         public CursorProperties(Textures textures, Element node) {

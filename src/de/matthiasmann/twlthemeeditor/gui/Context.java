@@ -33,12 +33,14 @@ import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.model.ListModel;
+import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.utils.TypeMapping;
 import de.matthiasmann.twlthemeeditor.datamodel.Condition;
 import de.matthiasmann.twlthemeeditor.datamodel.HotSpot;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
 import de.matthiasmann.twlthemeeditor.datamodel.Split;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Weights;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,14 +53,14 @@ import java.util.List;
  */
 public class Context {
 
-    private final ListModel<Image> images;
+    private final ThemeTreeModel model;
     private final TypeMapping<PropertyEditorFactory<?>> factories;
     private final ArrayList<String> propertyOrder;
 
     private TextureViewerPane textureViewerPane;
 
-    public Context(ListModel<Image> images) {
-        this.images = images;
+    public Context(ThemeTreeModel model) {
+        this.model = model;
         
         factories = new TypeMapping<PropertyEditorFactory<?>>();
         factories.put(Integer.class, new IntegerEditor());
@@ -76,21 +78,36 @@ public class Context {
         this.propertyOrder = new ArrayList<String>();
     }
 
-    public ListModel<Image> getImages() {
-        return images;
+    public ListModel<String> getRefableImages(Image stopAt, Image.Kind kind) {
+        SimpleChangableListModel<String> result = new SimpleChangableListModel<String>();
+        if(kind == Image.Kind.IMAGE) {
+            result.addElement("none");
+        }
+        for(Image img : model.getImages()) {
+            if(img == stopAt) {
+                break;
+            }
+            if(img.getKind() == kind) {
+                result.addElement(img.getName());
+            }
+        }
+        return result;
+    }
+
+    public ListModel<String> getRefableCursors(Image stopAt) {
+        SimpleChangableListModel<String> result = new SimpleChangableListModel<String>();
+        result.addElement("none");
+        for(Image img : model.getImages()) {
+            if(img == stopAt) {
+                break;
+            }
+            result.addElement(img.getName());
+        }
+        return result;
     }
 
     public PropertyEditorFactory<?> getFactory(Class<?> clazz) {
         return factories.get(clazz);
-    }
-
-    public int findImage(ImageReference ref) {
-        for(int i=0,n=images.getNumEntries() ; i<n ; i++) {
-            if(ref.getName().equals(images.getEntry(i).getName())) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     public List<String> getPropertyOrder() {

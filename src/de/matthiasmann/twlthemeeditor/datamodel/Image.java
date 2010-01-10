@@ -54,6 +54,11 @@ import org.jdom.Element;
  */
 public abstract class Image extends ThemeTreeNode implements HasProperties {
 
+    public enum Kind {
+        IMAGE,
+        CURSOR
+    }
+
     protected final Textures textures;
     protected BaseProperties properties;
     protected final Element element;
@@ -64,6 +69,10 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         this.element = element;
     }
 
+    public Kind getKind() {
+        return Kind.IMAGE;
+    }
+    
     public BaseProperties getProperties() {
         return properties;
     }
@@ -188,10 +197,6 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
             setAttribute("if", (condition.getType() == Condition.Type.IF) ? condition.getCondition() : null);
             setAttribute("unless", (condition.getType() == Condition.Type.UNLESS) ? condition.getCondition() : null);
         }
-    }
-
-    public ImageReference makeReference() {
-        return new ImageReference(properties.getName());
     }
 
     public String getName() {

@@ -54,11 +54,17 @@ public class Alias extends Image {
         }
 
         public ImageReference getRef() {
-            return new ImageReference(getAttribute("ref"));
+            return new ImageReference(getAttribute("ref"), Kind.IMAGE);
+        }
+
+        public Alias getRefLimit() {
+            return Alias.this;
         }
 
         public void setRef(ImageReference ref) {
-            setAttribute("ref", ref.getName());
+            if(ref.getKind() == Kind.IMAGE) {
+                setAttribute("ref", ref.getName());
+            }
         }
     }
 }

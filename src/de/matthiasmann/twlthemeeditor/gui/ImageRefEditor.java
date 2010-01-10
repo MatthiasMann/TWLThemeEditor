@@ -32,8 +32,10 @@ package de.matthiasmann.twlthemeeditor.gui;
 import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 import de.matthiasmann.twl.ComboBox;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
+import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 
 /**
  *
@@ -48,13 +50,17 @@ public class ImageRefEditor implements PropertyEditorFactory<ImageReference> {
     }
 
     public Widget create(final PropertyAccessor<ImageReference> pa) {
-        final ComboBox<Image> cb = new ComboBox<Image>(ctx.getImages());
-        cb.setSelected(ctx.findImage(pa.getValue(null)));
+        Image limit = pa.getLimit(Image.class, null);
+        final ImageReference ref = pa.getValue(ImageReference.NONE_REF);
+        final Image.Kind kind = ref.getKind();
+        final ListModel<String> refableImages = ctx.getRefableImages(limit, kind);
+        final ComboBox<String> cb = new ComboBox<String>(refableImages);
+        cb.setSelected(Utils.find(refableImages, ref.getName()));
         cb.addCallback(new Runnable() {
             public void run() {
                 int selected = cb.getSelected();
                 if(selected >= 0) {
-                    pa.setValue(ctx.getImages().getEntry(selected).makeReference());
+                    pa.setValue(new ImageReference(refableImages.getEntry(selected), kind));
                 }
             }
         });

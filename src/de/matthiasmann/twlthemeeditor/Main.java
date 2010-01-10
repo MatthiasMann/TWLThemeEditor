@@ -73,18 +73,10 @@ public class Main {
 
         URL url = Main.class.getResource("gui.xml");
         ThemeTreeModel ttm = new ThemeTreeModel(env, url);
-
-        final SimpleChangableListModel<Image> images = new SimpleChangableListModel<Image>();
-        final Context ctx = new Context(images);
+        final Context ctx = new Context(ttm);
 
         ctx.setPropertyOrder("rect", "ref", "condition", "centered", "tint", "splitX", "splitY", "weightsX", "weightsY");
         
-        for(Textures t : ttm.getTextures()) {
-            for(Image i : t.getChildren(Image.class)) {
-                images.addElement(i);
-            }
-        }
-
         env.registerFile("/font.fnt", new URL(url, "font.fnt"));
         env.registerFile("/font_00.png", new URL(url, "font_00.png"));
         

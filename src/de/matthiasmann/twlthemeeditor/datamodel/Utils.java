@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.Border;
+import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -159,6 +160,15 @@ public final class Utils {
 
     public static void addToXPP(DomXPPParser xpp, NodeWrapper wrapper, ModifyableTreeTableNode node) {
         addToXPP(xpp, wrapper.node.getName(), node, wrapper.getAttributes());
+    }
+
+    public static<T> int find(ListModel<T> list, T entry) {
+        for(int i=0,n=list.getNumEntries() ; i<n ; i++) {
+            if(equals(list.getEntry(i), entry)) {
+                return  i;
+            }
+        }
+        return -1;
     }
     
     public static boolean equals(Object a, Object b) {
