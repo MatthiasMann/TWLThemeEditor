@@ -122,7 +122,7 @@ public class Main {
 
             ctx.setTextureViewerPane(tvp);
 
-            final Runnable updatePropertyEditors = new Runnable() {
+            final Runnable updatePropertyEditors = new DelayedAction(gui, new Runnable() {
                 public void run() {
                     Object obj = themeTreePane.getSelected();
                     if(obj != null) {
@@ -143,7 +143,8 @@ public class Main {
                         }
                     }
                 }
-            };
+            });
+            
             themeTreePane.addCallback(updatePropertyEditors);
 
             ttm.getRootThemeFile().addCallback(new CallbackWithReason<ThemeFile.CallbackReason>() {

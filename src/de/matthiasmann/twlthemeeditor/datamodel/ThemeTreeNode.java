@@ -42,10 +42,13 @@ public interface ThemeTreeNode extends TreeTableNode {
     public void addChildren() throws IOException;
     
     public void appendChild(TreeTableNode ttn);
-
+    
     public void setLeaf(boolean leaf);
 
     public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz);
 
     public void addToXPP(DomXPPParser xpp);
+    
+    public List<ThemeTreeOperation> getOperations();
+    
 }

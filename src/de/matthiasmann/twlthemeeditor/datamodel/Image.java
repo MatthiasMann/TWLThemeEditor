@@ -46,6 +46,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.images.Select;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Texture;
 import de.matthiasmann.twlthemeeditor.datamodel.images.VSplitSimple;
 import java.io.IOException;
+import java.util.List;
 import org.jdom.Element;
 
 /**
@@ -86,6 +87,10 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
 
     public void addToXPP(DomXPPParser xpp) {
         xpp.addElement(element);
+    }
+
+    public List<ThemeTreeOperation> getOperations() {
+        return AbstractThemeTreeNode.getDefaultOperations(element, this);
     }
 
     public class BaseProperties extends NodeWrapper {
@@ -236,6 +241,7 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
     }
 
     public void addChildren() throws IOException {
+        removeAllChildren();
         Utils.addChildren(textures.getThemeFile(), this, element, getImageDomWrapper(textures));
     }
     

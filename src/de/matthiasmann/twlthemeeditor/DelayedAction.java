@@ -27,64 +27,40 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor;
 
-import de.matthiasmann.twl.CallbackWithReason;
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile.CallbackReason;
-import java.io.IOException;
-import java.util.List;
-import org.jdom.Element;
+import de.matthiasmann.twl.GUI;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Include extends AbstractThemeTreeNode {
+public class DelayedAction implements Runnable {
 
-    private final ThemeFile includedThemeFile;
-    private final NodeWrapper node;
+    private final GUI gui;
+    private final Runnable delay;
 
-    public Include(TreeTableNode parent, Element node, final ThemeFile themeFile) throws IOException {
-        super(parent);
+    boolean triggered;
 
-        this.node = new NodeWrapper(themeFile, node);
-        this.includedThemeFile = new ThemeFile(themeFile.getEnv(), themeFile.getURL(getFileName()), this);
-
-        includedThemeFile.registerAs(getFileName());
-        includedThemeFile.addCallback(new CallbackWithReason<ThemeFile.CallbackReason>() {
-            public void callback(CallbackReason reason) {
-                themeFile.fireCallbacks(reason);
+    public DelayedAction(GUI gui, final Runnable action) {
+        this.gui = gui;
+        this.delay = new Runnable() {
+            public void run() {
+                synchronized(delay) {
+                    triggered = false;
+                }
+                action.run();
             }
-        });
+        };
     }
 
-    public Object getData(int column) {
-        switch (column) {
-            case 0:
-                return getFileName();
-            case 1:
-                return "Include";
-            default:
-                return "";
+    public void run() {
+        synchronized(delay) {
+            if(!triggered) {
+                triggered = true;
+                gui.invokeLater(this);
+            }
         }
-    }
-
-    public String getFileName() {
-        return node.getAttribute("filename");
-    }
-
-    public void addChildren() throws IOException {
-        removeAllChildren();
-        includedThemeFile.addChildren();
-    }
-
-    public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(node.node);
-    }
-
-    public List<ThemeTreeOperation> getOperations() {
-        return AbstractThemeTreeNode.getDefaultOperations(node.node, this);
     }
 
 }

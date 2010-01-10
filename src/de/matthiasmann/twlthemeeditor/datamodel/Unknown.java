@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.TreeTableNode;
 import java.io.IOException;
+import java.util.List;
 import org.jdom.Element;
 
 /**
@@ -60,5 +61,9 @@ public class Unknown extends AbstractThemeTreeNode {
 
     public void addToXPP(DomXPPParser xpp) {
         xpp.addElement(element);
+    }
+    
+    public List<ThemeTreeOperation> getOperations() {
+        return AbstractThemeTreeNode.getDefaultOperations(element, this);
     }
 }

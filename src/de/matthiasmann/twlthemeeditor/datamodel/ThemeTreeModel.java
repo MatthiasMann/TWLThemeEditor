@@ -32,9 +32,11 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 import de.matthiasmann.twl.model.AbstractTreeTableModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.TestEnv;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile.CallbackReason;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -94,6 +96,7 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
     }
 
     public void addChildren() throws IOException {
+        removeAllChildren();
         rootThemeFile.addChildren();
     }
     
@@ -103,6 +106,36 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
 
     public void addToXPP(DomXPPParser xpp) {
         Utils.addToXPP(xpp, this);
+    }
+
+    public List<ThemeTreeOperation> getOperations() {
+        return Collections.<ThemeTreeOperation>emptyList();
+    }
+
+    void fireCallbacks(CallbackReason reason) {
+        rootThemeFile.fireCallbacks(reason);
+    }
+
+    private void structureModified() {
+        fireCallbacks(CallbackReason.STRUCTURE_CHANGED);
+    }
+
+    @Override
+    protected void fireNodesAdded(TreeTableNode parent, int idx, int count) {
+        super.fireNodesAdded(parent, idx, count);
+        structureModified();
+    }
+
+
+    @Override
+    protected void fireNodesChanged(TreeTableNode parent, int idx, int count) {
+        super.fireNodesChanged(parent, idx, count);
+    }
+
+    @Override
+    protected void fireNodesRemoved(TreeTableNode parent, int idx, int count) {
+        super.fireNodesRemoved(parent, idx, count);
+        structureModified();
     }
 
 }

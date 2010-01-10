@@ -35,6 +35,7 @@ import de.matthiasmann.twl.renderer.lwjgl.PNGDecoder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.List;
 import org.jdom.Element;
 
 /**
@@ -103,10 +104,15 @@ public class Textures extends AbstractThemeTreeNode {
     }
 
     public void addChildren() throws IOException {
+        removeAllChildren();
         Utils.addChildren(themeFile, this, node.node, Image.getImageDomWrapper(this));
     }
 
     public void addToXPP(DomXPPParser xpp) {
         Utils.addToXPP(xpp, node, this);
+    }
+
+    public List<ThemeTreeOperation> getOperations() {
+        return AbstractThemeTreeNode.getDefaultOperations(node.node, this);
     }
 }

@@ -29,62 +29,36 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.CallbackWithReason;
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile.CallbackReason;
 import java.io.IOException;
-import java.util.List;
-import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Include extends AbstractThemeTreeNode {
+public abstract class ThemeTreeOperation {
 
-    private final ThemeFile includedThemeFile;
-    private final NodeWrapper node;
+    private final String groupName;
+    private final String actionName;
 
-    public Include(TreeTableNode parent, Element node, final ThemeFile themeFile) throws IOException {
-        super(parent);
-
-        this.node = new NodeWrapper(themeFile, node);
-        this.includedThemeFile = new ThemeFile(themeFile.getEnv(), themeFile.getURL(getFileName()), this);
-
-        includedThemeFile.registerAs(getFileName());
-        includedThemeFile.addCallback(new CallbackWithReason<ThemeFile.CallbackReason>() {
-            public void callback(CallbackReason reason) {
-                themeFile.fireCallbacks(reason);
-            }
-        });
+    protected ThemeTreeOperation(String groupName, String actionName) {
+        this.groupName = groupName;
+        this.actionName = actionName;
     }
 
-    public Object getData(int column) {
-        switch (column) {
-            case 0:
-                return getFileName();
-            case 1:
-                return "Include";
-            default:
-                return "";
-        }
+    /**
+     * Operations can be put into groups, then they will get only one button
+     * plus a popup menu
+     * 
+     * @return the Group name or null
+     */
+    public String getGroupName() {
+        return groupName;
     }
 
-    public String getFileName() {
-        return node.getAttribute("filename");
+    public String getActionName() {
+        return actionName;
     }
 
-    public void addChildren() throws IOException {
-        removeAllChildren();
-        includedThemeFile.addChildren();
-    }
-
-    public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(node.node);
-    }
-
-    public List<ThemeTreeOperation> getOperations() {
-        return AbstractThemeTreeNode.getDefaultOperations(node.node, this);
-    }
-
+    public abstract void execute() throws IOException;
+    
 }
