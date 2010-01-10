@@ -60,13 +60,18 @@ public class ThemeFile implements VirtualFile {
     private final TestEnv env;
     private final URL url;
     private final Document document;
-
-    private ModifyableTreeTableNode node;
+    private final ModifyableTreeTableNode treeNode;
+    
     private Runnable[] callbacks;
 
     public ThemeFile(TestEnv env, URL url) throws IOException {
+        this(env, url, null);
+    }
+
+    public ThemeFile(TestEnv env, URL url, ModifyableTreeTableNode node) throws IOException {
         this.env = env;
         this.url = url;
+        this.treeNode = node;
         
         try {
             SAXBuilder saxb = new SAXBuilder(false);
@@ -105,9 +110,8 @@ public class ThemeFile implements VirtualFile {
         return new URL(url, file);
     }
 
-    protected void addChildren(ModifyableTreeTableNode parent) throws IOException {
-        this.node = parent;
-        Utils.addChildren(this, parent, document.getRootElement(), new DomWrapper() {
+    protected void addChildren() throws IOException {
+        Utils.addChildren(this, treeNode, document.getRootElement(), new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ModifyableTreeTableNode parent, Element element) throws IOException {
                 String tagName = element.getName();
 
@@ -135,7 +139,7 @@ public class ThemeFile implements VirtualFile {
         if(type == XmlPullParser.class) {
             DomXPPParser xpp = new DomXPPParser();
             Element rootElement = document.getRootElement();
-            Utils.addToXPP(xpp, rootElement.getName(), node, rootElement.getAttributes());
+            Utils.addToXPP(xpp, rootElement.getName(), treeNode, rootElement.getAttributes());
             return xpp;
         }
         return null;

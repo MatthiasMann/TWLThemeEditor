@@ -118,12 +118,14 @@ public final class Utils {
                     ttn = new Unknown(parent, element);
                 }
                 if(ttn instanceof ModifyableTreeTableNode) {
-                    ((ModifyableTreeTableNode)ttn).setLeaf(ttn.getNumChildren() == 0);
+                    ModifyableTreeTableNode mttn = (ModifyableTreeTableNode)ttn;
+                    mttn.addChildren();
+                    mttn.setLeaf(ttn.getNumChildren() == 0);
                 }
+                System.out.println("Added " + ttn + " to " + parent);
                 parent.appendChild(ttn);
             }
         }
-        parent.setLeaf(parent.getNumChildren() == 0);
     }
 
     public static <T extends TreeTableNode> void getChildren(TreeTableNode node, Class<T> clazz, List<T> result) {

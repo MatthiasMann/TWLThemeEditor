@@ -64,8 +64,6 @@ public class Textures extends ThemeTreeNode {
         }
 
         themeFile.getEnv().registerFile(getFile(), textureURL);
-
-        Image.addChildImages(this, this, node);
     }
 
     public ThemeFile getThemeFile() {
@@ -102,6 +100,10 @@ public class Textures extends ThemeTreeNode {
 
     public Dimension getTextureDimensions() {
         return textureDimensions;
+    }
+
+    public void addChildren() throws IOException {
+        Utils.addChildren(themeFile, this, node.node, Image.getImageDomWrapper(this));
     }
 
     public void addToXPP(DomXPPParser xpp) {

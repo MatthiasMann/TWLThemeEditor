@@ -46,7 +46,6 @@ public class Select extends WithSubImages implements NameGenerator {
     public Select(Textures textures, TreeTableNode parent, Element element) throws IOException {
         super(textures, parent, element);
         properties = new ImageProperties(textures, element);
-        addChildImages(textures, this, element);
     }
 
     @Override

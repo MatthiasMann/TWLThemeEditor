@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.TreeTableNode;
+import java.io.IOException;
 import org.jdom.Element;
 
 /**
@@ -52,6 +53,9 @@ public class Unknown extends ThemeTreeNode {
             default:
                 return "Unknown";
         }
+    }
+
+    public void addChildren() throws IOException {
     }
 
     public void addToXPP(DomXPPParser xpp) {

@@ -31,7 +31,9 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.AbstractTreeTableModel;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.TestEnv;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,10 +45,10 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements Modifyable
 
     private final ThemeFile rootThemeFile;
 
-    public ThemeTreeModel(ThemeFile rootThemeFile) throws IOException {
-        this.rootThemeFile = rootThemeFile;
-
-        rootThemeFile.addChildren(this);
+    public ThemeTreeModel(TestEnv env, URL url) throws IOException {
+        rootThemeFile = new ThemeFile(env, url, this);
+        rootThemeFile.addChildren();
+        rootThemeFile.registerAs("/theme.xml");
     }
 
     private static final String COLUMN_HEADER[] = {"Name", "Type"};
@@ -81,6 +83,10 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements Modifyable
         for(Include include : Utils.getChildren(node, Include.class)) {
             processInclude(include, clazz, result);
         }
+    }
+
+    public void addChildren() throws IOException {
+        rootThemeFile.addChildren();
     }
     
     public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz) {

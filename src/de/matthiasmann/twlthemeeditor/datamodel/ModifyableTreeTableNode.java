@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.TreeTableNode;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -38,6 +39,8 @@ import java.util.List;
  */
 public interface ModifyableTreeTableNode extends TreeTableNode {
 
+    public void addChildren() throws IOException;
+    
     public void appendChild(TreeTableNode ttn);
 
     public void setLeaf(boolean leaf);

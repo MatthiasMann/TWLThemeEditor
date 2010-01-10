@@ -229,9 +229,13 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
     protected String getType() {
         return element.getName();
     }
+
+    public void addChildren() throws IOException {
+        Utils.addChildren(textures.getThemeFile(), this, element, getImageDomWrapper(textures));
+    }
     
-    public static void addChildImages(final Textures textures, ModifyableTreeTableNode parent, Element node) throws IOException {
-        Utils.addChildren(textures.getThemeFile(), parent, node, new DomWrapper() {
+    public static DomWrapper getImageDomWrapper(final Textures textures) {
+        return new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ModifyableTreeTableNode parent, Element element) throws IOException {
                 String tagName = element.getName();
 
@@ -271,7 +275,7 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
                 }
                 return null;
             }
-        });
+        };
     }
 
 }

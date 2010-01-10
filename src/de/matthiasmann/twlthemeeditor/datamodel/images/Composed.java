@@ -43,7 +43,6 @@ public class Composed extends WithSubImages {
     public Composed(Textures textures, TreeTableNode parent, Element element) throws IOException {
         super(textures, parent, element);
         properties = new ImageProperties(textures, element);
-        addChildImages(textures, this, element);
     }
 
     @Override

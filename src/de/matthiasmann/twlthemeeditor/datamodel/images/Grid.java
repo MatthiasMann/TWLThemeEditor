@@ -46,7 +46,6 @@ public class Grid extends WithSubImages implements NameGenerator {
     public Grid(Textures textures, ModifyableTreeTableNode parent, Element element) throws IOException {
         super(textures, parent, element);
         this.properties = new GridProperties(textures, element);
-        addChildImages(textures, this, element);
     }
 
     @Override

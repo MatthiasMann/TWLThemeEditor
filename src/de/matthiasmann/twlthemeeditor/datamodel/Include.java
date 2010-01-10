@@ -46,9 +46,8 @@ public class Include extends ThemeTreeNode {
         super(parent);
 
         this.node = new NodeWrapper(themeFile, node);
-        this.includedThemeFile = new ThemeFile(themeFile.getEnv(), themeFile.getURL(getFileName()));
+        this.includedThemeFile = new ThemeFile(themeFile.getEnv(), themeFile.getURL(getFileName()), this);
 
-        includedThemeFile.addChildren(this);
         includedThemeFile.registerAs(getFileName());
         includedThemeFile.addCallback(new Runnable() {
             public void run() {
@@ -70,6 +69,10 @@ public class Include extends ThemeTreeNode {
 
     public String getFileName() {
         return node.getAttribute("filename");
+    }
+
+    public void addChildren() throws IOException {
+        includedThemeFile.addChildren();
     }
 
     public void addToXPP(DomXPPParser xpp) {

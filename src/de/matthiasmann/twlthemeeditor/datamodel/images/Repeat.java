@@ -49,7 +49,6 @@ public class Repeat extends WithSubImages {
     Repeat(Textures textures, TreeTableNode parent, Element element) throws IOException {
         super(textures, parent, element);
         this.properties = new RepeatProperties(textures, element);
-        addChildAnimations();
     }
 
     @Override
@@ -57,7 +56,8 @@ public class Repeat extends WithSubImages {
         return Math.max(1, getNumChildren());
     }
 
-    public void addChildAnimations() throws IOException {
+    @Override
+    public void addChildren() throws IOException {
         Utils.addChildren(textures.getThemeFile(), this, element, new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ModifyableTreeTableNode parent, Element element) throws IOException {
                 String tagName = element.getName();

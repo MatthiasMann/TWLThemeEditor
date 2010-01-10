@@ -75,8 +75,7 @@ public class Main {
         final TestEnv env = new TestEnv();
 
         URL url = Main.class.getResource("gui.xml");
-        ThemeFile tf = new ThemeFile(env, url);
-        ThemeTreeModel ttm = new ThemeTreeModel(tf);
+        ThemeTreeModel ttm = new ThemeTreeModel(env, url);
 
         final SimpleChangableListModel<Image> images = new SimpleChangableListModel<Image>();
         final Context ctx = new Context(images);
@@ -92,7 +91,6 @@ public class Main {
             }
         }
 
-        tf.registerAs("/theme.xml");
         env.registerFile("/font.fnt", new URL(url, "font.fnt"));
         env.registerFile("/font_00.png", new URL(url, "font_00.png"));
         
@@ -127,7 +125,7 @@ public class Main {
             final PreviewPane previewPane = new PreviewPane(env);
             previewPane.setTheme("/previewpane");
 
-            tf.addCallback(new Runnable() {
+            ttm.getRootThemeFile().addCallback(new Runnable() {
                 public void run() {
                     previewPane.reloadTheme();
                 }
@@ -191,7 +189,7 @@ public class Main {
 
         FileOutputStream fos = new FileOutputStream("test.xml");
         try {
-            tf.writeTo(fos);
+            ttm.getRootThemeFile().writeTo(fos);
         } finally {
             fos.close();
         }
