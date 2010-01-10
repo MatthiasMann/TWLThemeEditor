@@ -37,10 +37,9 @@ import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.renderer.CacheContext;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
+import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
@@ -57,9 +56,15 @@ public class PreviewWidget extends Widget {
     private ThemeManager theme;
     private GUI testGUI;
     private boolean reloadTheme;
+    private boolean adjustSize;
     private ResizableFrame frame;
+    private Runnable[] callbacks;
 
-    public PreviewWidget(TestEnv testEnv) throws LWJGLException {
+    private LWJGLException initException;
+    private Throwable executeException;
+    private IOException themeLoadException;
+
+    public PreviewWidget(TestEnv testEnv) {
         this.testEnv = testEnv;
         setCanAcceptKeyboardFocus(true);
     }
@@ -67,7 +72,40 @@ public class PreviewWidget extends Widget {
     public void reloadTheme() {
         reloadTheme = true;
     }
-    
+
+    public Throwable getExecuteException() {
+        return executeException;
+    }
+
+    public LWJGLException getInitException() {
+        return initException;
+    }
+
+    public IOException getThemeLoadException() {
+        return themeLoadException;
+    }
+
+    public void clearThemeException() {
+        themeLoadException = null;
+        reloadTheme = true;
+    }
+
+    public void clearExecuteException() {
+        executeException = null;
+    }
+
+    public void addCallback(Runnable cb) {
+        callbacks = CallbackSupport.addCallbackToList(callbacks, cb, Runnable.class);
+    }
+
+    public void removeCallback(Runnable cb) {
+        callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
+    }
+
+    private void fireCallbacks() {
+        CallbackSupport.fireCallbacks(callbacks);
+    }
+
     protected Widget createRootPane() {
         DesktopArea area = new DesktopArea();
         area.setTheme("");
@@ -87,62 +125,103 @@ public class PreviewWidget extends Widget {
     
     @Override
     protected void paintWidget(GUI gui) {
-        GL11.glPushAttrib(GL11.GL_VIEWPORT_BIT);
-        GL11.glViewport(getInnerX(), Display.getDisplayMode().getHeight() -
-                (getInnerY() + getInnerHeight()), getInnerWidth(), getInnerHeight());
+        if(executeException == null && initException == null) {
+            IOException prevThemeLoadException = themeLoadException;
+            
+            GL11.glPushAttrib(GL11.GL_VIEWPORT_BIT);
+            GL11.glViewport(getInnerX(), Display.getDisplayMode().getHeight() -
+                    (getInnerY() + getInnerHeight()), getInnerWidth(), getInnerHeight());
+
+            // CRITICAL REGION: GL STATE IS MODIFIED - DON'T CALL ANY APP CODE
+            try {
+                executeTestEnv();
+            } catch (Throwable ex) {
+                // don't let anything escape !
+                executeException = ex;
+            } finally {
+                GL11.glPopAttrib();
+                // END OF CRITICAL REGION
+            }
+
+            if(initException != null ||
+                    executeException != null ||
+                    prevThemeLoadException != themeLoadException) {
+                // make sure to call this outside the push/pop attrib region
+                fireCallbacks();
+            }
+        }
+    }
+
+    private void executeTestEnv() {
+        if(render == null && !initRenderer()) {
+            return;
+        }
+
+        render.syncViewportSize();
+
+        if(testGUI == null) {
+            testGUI = new GUI(createRootPane(), render);
+        }
+
+        if((theme == null || reloadTheme) && !loadTheme()) {
+            return;
+        }
+
+        if(adjustSize && frame != null) {
+            frame.adjustSize();
+        }
+
+        testGUI.setSize();
+        testGUI.updateTime();
+        testGUI.updateTimers();
+        testGUI.handleKeyRepeat();
+        testGUI.handleTooltips();
+        testGUI.invokeRunables();
+        testGUI.validateLayout();
+        testGUI.draw();
+        testGUI.setCursor();
+    }
+
+    private boolean initRenderer() {
+        assert(render == null);
+        assert(initException == null);
 
         try {
-            if(render == null) {
-                try {
-                    render = new LWJGLRenderer();
-                    render.setUseSWMouseCursors(true);
-                } catch (LWJGLException ex) {
-                    Logger.getLogger(PreviewWidget.class.getName()).log(Level.SEVERE, null, ex);
-                    return;
-                }
-            }
-            render.syncViewportSize();
-            if(testGUI == null) {
-                testGUI = new GUI(createRootPane(), render);
-            }
-            if(theme == null || reloadTheme) {
-                reloadTheme = false;
-                CacheContext oldCacheContext = render.getActiveCacheContext();
-                CacheContext newCacheContext = render.createNewCacheContext();
-                render.setActiveCacheContext(newCacheContext);
-                try {
-                    ThemeManager newTheme = ThemeManager.createThemeManager(testEnv.getURL("/theme.xml"), render);
-                    testGUI.applyTheme(newTheme);
-
-                    oldCacheContext.destroy();
-                    if(theme != null) {
-                        theme.destroy();
-                    }
-                    theme = newTheme;
-                    testGUI.destroy();
-
-                    if(frame != null) {
-                        frame.adjustSize();
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(PreviewWidget.class.getName()).log(Level.SEVERE, null, ex);
-                    render.setActiveCacheContext(oldCacheContext);
-                    newCacheContext.destroy();
-                }
-            }
-            
-            testGUI.setSize();
-            testGUI.updateTime();
-            testGUI.updateTimers();
-            testGUI.handleKeyRepeat();
-            testGUI.handleTooltips();
-            testGUI.invokeRunables();
-            testGUI.validateLayout();
-            testGUI.draw();
-            testGUI.setCursor();
-        } finally {
-            GL11.glPopAttrib();
+            render = new LWJGLRenderer();
+            render.setUseSWMouseCursors(true);
+            return true;
+        } catch(LWJGLException ex) {
+            initException = ex;
+            render = null;
+            return false;
         }
+    }
+
+    private boolean loadTheme() {
+        reloadTheme = false;
+        if(themeLoadException == null) {
+            CacheContext oldCacheContext = render.getActiveCacheContext();
+            CacheContext newCacheContext = render.createNewCacheContext();
+            render.setActiveCacheContext(newCacheContext);
+            try {
+                ThemeManager newTheme = ThemeManager.createThemeManager(testEnv.getURL("/theme.xml"), render);
+                testGUI.applyTheme(newTheme);
+
+                oldCacheContext.destroy();
+                if(theme != null) {
+                    theme.destroy();
+                }
+
+                theme = newTheme;
+                testGUI.destroy();
+                return true;
+            } catch (IOException ex) {
+                themeLoadException = ex;
+                render.setActiveCacheContext(oldCacheContext);
+                newCacheContext.destroy();
+            }
+        }
+        return false;
     }
 
     @Override

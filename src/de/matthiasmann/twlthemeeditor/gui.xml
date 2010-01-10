@@ -99,8 +99,31 @@
         </theme>
     </theme>
 
-    <theme name="previewwidget" ref="-defaults">
+
+    <theme name="previewpane" ref="dialoglayout">
+        <param name=""><image>panel.*</image></param>
+        <param name="border"><border>0</border></param>
+        <theme name="previewwidget" ref="-defaults">
+            <param name="background"><image>black</image></param>
 <!--        <param name="mouseCursor"><cursor>cursor.none</cursor></param> -->
+            <param name="maxWidth"><int>32767</int></param>
+            <param name="maxHeight"><int>32767</int></param>
+        </theme>
+        <theme name="errorDisplay" ref="label">
+            <param name="maxWidth"><int>32767</int></param>
+        </theme>
+        <theme name="" ref="*"/>
+    </theme>
+
+    <theme name="previewExceptionPopup" ref="-defaults">
+        <param name="background"><image>-borderC</image></param>
+        <param name="border"><border>background.border</border></param>
+        <theme name="dialoglayout" ref="dialoglayout">
+            <theme name="scrollpane" ref="scrollpane">
+                <theme name="" ref="*"/>
+            </theme>
+            <theme name="" ref="*"/>
+        </theme>
     </theme>
 
     <theme name="textureviewerpane" ref="dialoglayout">

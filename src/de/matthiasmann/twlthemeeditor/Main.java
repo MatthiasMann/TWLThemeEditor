@@ -45,7 +45,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.Textures;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.gui.Context;
-import de.matthiasmann.twlthemeeditor.gui.PreviewWidget;
+import de.matthiasmann.twlthemeeditor.gui.PreviewPane;
 import de.matthiasmann.twlthemeeditor.gui.PropertyPanel;
 import de.matthiasmann.twlthemeeditor.gui.TextureViewerPane;
 import java.beans.IntrospectionException;
@@ -124,12 +124,12 @@ public class Main {
             spTools.add(treeTableScrollPane);
             spTools.add(scrollPane);
 
-            final PreviewWidget previewWidget = new PreviewWidget(env);
-            previewWidget.setTheme("/previewwidget");
+            final PreviewPane previewPane = new PreviewPane(env);
+            previewPane.setTheme("/previewpane");
 
             tf.addCallback(new Runnable() {
                 public void run() {
-                    previewWidget.reloadTheme();
+                    previewPane.reloadTheme();
                 }
             });
 
@@ -139,7 +139,7 @@ public class Main {
             SplitPane sp2 = new SplitPane();
             sp2.setDirection(SplitPane.Direction.VERTICAL);
             sp2.add(tvp);
-            sp2.add(previewWidget);
+            sp2.add(previewPane);
             
             root.add(spTools);
             root.add(sp2);
