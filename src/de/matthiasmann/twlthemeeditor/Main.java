@@ -33,21 +33,18 @@ import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
-import de.matthiasmann.twl.TableRowSelectionManager;
-import de.matthiasmann.twl.TreeTable;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
-import de.matthiasmann.twl.model.TableSingleSelectionModel;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twlthemeeditor.datamodel.HasProperties;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.gui.Context;
 import de.matthiasmann.twlthemeeditor.gui.PreviewPane;
 import de.matthiasmann.twlthemeeditor.gui.PropertyPanel;
 import de.matthiasmann.twlthemeeditor.gui.TextureViewerPane;
+import de.matthiasmann.twlthemeeditor.gui.ThemeTreePane;
 import java.beans.IntrospectionException;
 import java.io.FileOutputStream;
 import java.net.URL;
@@ -104,13 +101,9 @@ public class Main {
             SplitPane root = new SplitPane();
             GUI gui = new GUI(root, renderer);
 
-            final TreeTable treeTable = new TreeTable(ttm);
-            final TableSingleSelectionModel selectionModel = new TableSingleSelectionModel();
-            treeTable.setSelectionManager(new TableRowSelectionManager(selectionModel));
-
-            ScrollPane treeTableScrollPane = new ScrollPane(treeTable);
-            treeTableScrollPane.setTheme("/elementTree");
-            treeTableScrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
+            final ThemeTreePane themeTreePane = new ThemeTreePane();
+            themeTreePane.setTheme("/themetreepane");
+            themeTreePane.setModel(ttm);
 
             final ScrollPane scrollPane = new ScrollPane();
             scrollPane.setTheme("/propertyEditor");
@@ -119,7 +112,7 @@ public class Main {
             SplitPane spTools = new SplitPane();
             spTools.setTheme("/splitpane");
             spTools.setDirection(SplitPane.Direction.VERTICAL);
-            spTools.add(treeTableScrollPane);
+            spTools.add(themeTreePane);
             spTools.add(scrollPane);
 
             final PreviewPane previewPane = new PreviewPane(env);
@@ -146,10 +139,10 @@ public class Main {
 
             ctx.setTextureViewerPane(tvp);
             
-            selectionModel.addSelectionChangeListener(new Runnable() {
+            themeTreePane.addCallback(new Runnable() {
                 public void run() {
-                    if(selectionModel.hasSelection()) {
-                        Object obj = treeTable.getNodeFromRow(selectionModel.getFirstSelected());
+                    Object obj = themeTreePane.getSelected();
+                    if(obj != null) {
                         TextureViewerPane tvp = ctx.getTextureViewerPane();
                         if(tvp != null && (obj instanceof Image)) {
                             tvp.setUrl(((Image)obj).getTextures().getTextureURL());

@@ -6,14 +6,18 @@
     <include filename="gui_base.xml"/>
     <include filename="simple.xml"/>
 
-    <theme name="elementTree" ref="scrollpane">
-        <param name="background"><image>-borderC</image></param>
-        <param name="border"><border>background.border</border></param>
-        <theme name="treetable" ref="table">
-            <param name="columnWidths"><map>
-                <param name="1"><int>80</int></param>
-            </map></param>
+    <theme name="themetreepane" ref="dialoglayout">
+        <theme name="scrollpane" ref="scrollpane">
+            <param name="background"><image>-borderC</image></param>
+            <param name="border"><border>background.border</border></param>
+            <theme name="treetable" ref="table">
+                <param name="columnWidths"><map>
+                    <param name="1"><int>80</int></param>
+                </map></param>
+            </theme>
+            <theme name="table" ref="table"/>
         </theme>
+        <theme name="" ref="*"/>
     </theme>
 
     <theme name="propertyEditor" ref="scrollpane">
