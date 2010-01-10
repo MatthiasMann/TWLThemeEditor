@@ -144,6 +144,7 @@ public class Main {
             root.add(spTools);
             root.add(sp2);
             root.setSplitPosition(300);
+            root.setFocusKeyEnabled(true);
 
             ctx.setTextureViewerPane(tvp);
             
