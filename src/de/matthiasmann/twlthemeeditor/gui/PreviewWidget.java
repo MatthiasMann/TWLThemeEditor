@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
@@ -60,6 +61,7 @@ public class PreviewWidget extends Widget {
 
     public PreviewWidget(TestEnv testEnv) throws LWJGLException {
         this.testEnv = testEnv;
+        setCanAcceptKeyboardFocus(true);
     }
 
     public void reloadTheme() {
@@ -163,15 +165,19 @@ public class PreviewWidget extends Widget {
                     return true;
 
                 case KEY_PRESSED:
-                    testGUI.handleKey(evt.getKeyCode(), evt.getKeyChar(), false);
-                    return true;
-
                 case KEY_RELEASED:
-                    testGUI.handleKey(evt.getKeyCode(), evt.getKeyChar(), true);
+                    testGUI.handleKey(translateKeyCode(evt.getKeyCode()),
+                            evt.getKeyChar(), evt.getType() == Event.Type.KEY_PRESSED);
                     return true;
             }
         }
         return super.handleEvent(evt);
     }
 
+    protected int translateKeyCode(int keyCode) {
+        if(keyCode == Keyboard.KEY_F6) {
+            return Keyboard.KEY_TAB;
+        }
+        return keyCode;
+    }
 }
