@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.TestEnv;
@@ -57,12 +58,17 @@ import org.xmlpull.v1.XmlPullParser;
  */
 public class ThemeFile implements VirtualFile {
 
+    public enum CallbackReason {
+        ATTRIBUTE_CHANGED,
+        STRUCTURE_CHANGED
+    }
+
     private final TestEnv env;
     private final URL url;
     private final Document document;
     private final ModifyableTreeTableNode treeNode;
     
-    private Runnable[] callbacks;
+    private CallbackWithReason<?>[] callbacks;
 
     public ThemeFile(TestEnv env, URL url) throws IOException {
         this(env, url, null);
@@ -94,11 +100,11 @@ public class ThemeFile implements VirtualFile {
         w.flush();
     }
 
-    public void addCallback(Runnable cb) {
-        callbacks = CallbackSupport.addCallbackToList(callbacks, cb, Runnable.class);
+    public void addCallback(CallbackWithReason<CallbackReason> cb) {
+        callbacks = CallbackSupport.addCallbackToList(callbacks, cb, CallbackWithReason.class);
     }
 
-    public void removeCallbacks(Runnable cb) {
+    public void removeCallbacks(CallbackWithReason<CallbackReason> cb) {
         callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
     }
 
@@ -130,8 +136,8 @@ public class ThemeFile implements VirtualFile {
         env.registerFile(filename, this);
     }
 
-    void fireCallbacks() {
-        CallbackSupport.fireCallbacks(callbacks);
+    void fireCallbacks(CallbackReason reason) {
+        CallbackSupport.fireCallbacks(callbacks, reason);
     }
 
     @SuppressWarnings("unchecked")

@@ -37,9 +37,9 @@ import java.util.List;
  *
  * @author Matthias Mann
  */
-public abstract class ThemeTreeNode extends AbstractTreeTableNode implements ModifyableTreeTableNode {
+public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implements ModifyableTreeTableNode {
 
-    protected ThemeTreeNode(TreeTableNode parent) {
+    protected AbstractThemeTreeNode(TreeTableNode parent) {
         super(parent);
     }
 

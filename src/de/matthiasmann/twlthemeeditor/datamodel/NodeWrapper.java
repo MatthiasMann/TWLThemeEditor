@@ -85,7 +85,7 @@ public class NodeWrapper {
             } else {
                 node.setAttribute(name, value);
             }
-            getThemeFile().fireCallbacks();
+            getThemeFile().fireCallbacks(ThemeFile.CallbackReason.ATTRIBUTE_CHANGED);
         }
     }
 

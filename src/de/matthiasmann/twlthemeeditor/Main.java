@@ -29,16 +29,16 @@
  */
 package de.matthiasmann.twlthemeeditor;
 
+import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
-import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twlthemeeditor.datamodel.HasProperties;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.gui.Context;
 import de.matthiasmann.twlthemeeditor.gui.PreviewPane;
@@ -107,12 +107,6 @@ public class Main {
             final PreviewPane previewPane = new PreviewPane(env);
             previewPane.setTheme("/previewpane");
 
-            ttm.getRootThemeFile().addCallback(new Runnable() {
-                public void run() {
-                    previewPane.reloadTheme();
-                }
-            });
-
             TextureViewerPane tvp = new TextureViewerPane();
             tvp.setTheme("/textureviewerpane");
 
@@ -127,8 +121,8 @@ public class Main {
             root.setFocusKeyEnabled(true);
 
             ctx.setTextureViewerPane(tvp);
-            
-            themeTreePane.addCallback(new Runnable() {
+
+            final Runnable updatePropertyEditors = new Runnable() {
                 public void run() {
                     Object obj = themeTreePane.getSelected();
                     if(obj != null) {
@@ -147,6 +141,16 @@ public class Main {
                                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
+                    }
+                }
+            };
+            themeTreePane.addCallback(updatePropertyEditors);
+
+            ttm.getRootThemeFile().addCallback(new CallbackWithReason<ThemeFile.CallbackReason>() {
+                public void callback(ThemeFile.CallbackReason reason) {
+                    previewPane.reloadTheme();
+                    if(reason == ThemeFile.CallbackReason.STRUCTURE_CHANGED) {
+                        updatePropertyEditors.run();
                     }
                 }
             });

@@ -41,7 +41,7 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Textures extends ThemeTreeNode {
+public class Textures extends AbstractThemeTreeNode {
 
     private final ThemeFile themeFile;
     private final URL textureURL;
