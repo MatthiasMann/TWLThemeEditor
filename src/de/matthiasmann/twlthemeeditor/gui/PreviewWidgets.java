@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.gui;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.ComboBox;
 import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Scrollbar;
 import de.matthiasmann.twl.ToggleButton;
@@ -55,6 +56,8 @@ public class PreviewWidgets extends DialogLayout {
         checkBox.setTheme("checkbox");
         ComboBox<String> comboBox = new ComboBox<String>(
                 new SimpleChangableListModel<String>("Test", "Hello World", "End"));
+        EditField editField = new EditField();
+        
         Scrollbar scrollbarH = new Scrollbar(Scrollbar.Orientation.HORIZONTAL);
         Scrollbar scrollbarV = new Scrollbar(Scrollbar.Orientation.VERTICAL);
 
@@ -73,15 +76,18 @@ public class PreviewWidgets extends DialogLayout {
         }
 
         Widget[] widgets = new Widget[] {
-            label, button, toggleButton, checkBox,comboBox
+            label, button, toggleButton, checkBox
         };
         Group horzWidgets = createParallelGroup();
         for(Widget w : widgets) {
             horzWidgets.addGroup(createSequentialGroup().addWidget(w).addGap());
         }
+        horzWidgets.addWidget(comboBox).addWidget(editField);
         horzWidgets.addGroup(createSequentialGroup().addWidgetsWithGap("radiobutton", radioButtons));
 
         Group vertWidgets = createSequentialGroup(widgets)
+                .addWidget(comboBox)
+                .addWidget(editField)
                 .addGroup(createParallelGroup(radioButtons))
                 .addGap();
 
