@@ -526,6 +526,18 @@
             <param name=""><image>colorselector.*</image></param>
         </theme>
         <theme name="valueadjuster" ref="valueadjuster"/>
+        <theme name="previewLabel" ref="label">
+            <param name="text"><string>Current color:</string></param>
+        </theme>
+        <theme name="preview" ref="-defaults">
+            <param name="background"><image>-borderC</image></param>
+            <param name="border"><border>2</border></param>
+            <param name="minWidth"><int>64</int></param>
+            <param name="minHeight"><int>64</int></param>
+            <theme name="colorarea" ref="-defaults">
+                <param name="background"><image>white</image></param>
+            </theme>
+        </theme>
     </theme>
 
     <theme name="resizableframe-title" ref="-defaults" allowWildcard="true">

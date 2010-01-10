@@ -49,16 +49,14 @@ public class ColorEditor implements PropertyEditorFactory<Color> {
 
     public Widget create(final PropertyAccessor<Color> pa) {
         final ColorSelector cs = new ColorSelector(new ColorSpaceHSL());
+        cs.setUseLabels(false);
+        cs.setShowPreview(true);
         cs.setColor(pa.getValue(Color.WHITE));
         cs.addCallback(new Runnable() {
             public void run() {
                 Color color = cs.getColor();
                 pa.setValue(color);
-
-                TextureViewerPane tvp = ctx.getTextureViewerPane();
-                if(tvp != null) {
-                    tvp.setTintColor(color);
-                }
+                setTextureViewerTint(color);
             }
         });
 
@@ -72,7 +70,15 @@ public class ColorEditor implements PropertyEditorFactory<Color> {
             }
         });
 
+        setTextureViewerTint(cs.getColor());
+
         return cs;
     }
 
+    void setTextureViewerTint(Color color) {
+        TextureViewerPane tvp = ctx.getTextureViewerPane();
+        if(tvp != null) {
+            tvp.setTintColor(color);
+        }
+    }
 }

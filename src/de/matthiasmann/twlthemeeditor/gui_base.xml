@@ -675,7 +675,6 @@
         <param name=""><image>button.*</image></param>
         <param name="border"><border>background.border</border></param>
         <param name="textAlignment"><enum type="alignment">center</enum></param>
-        <param name="font"><font>button-font</font></param>
         <param name="minWidth"><int>20</int></param>
     </theme>
 
@@ -687,11 +686,13 @@
     <theme name="radiobutton" ref="button" allowWildcard="true">
         <param name=""><image>radiobutton.*</image></param>
         <param name="border"><border>background.border</border></param>
+        <param name="font"><font>button-font</font></param>
     </theme>
 
     <theme name="togglebutton" ref="button" allowWildcard="true">
         <param name=""><image>togglebutton.*</image></param>
         <param name="border"><border>background.border</border></param>
+        <param name="font"><font>button-font</font></param>
     </theme>
 
     <theme name="editfield" ref="label" allowWildcard="true">
