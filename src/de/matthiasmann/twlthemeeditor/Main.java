@@ -80,10 +80,7 @@ public class Main {
         ctx.setPropertyOrder("rect", "ref", "condition", "centered", "tint", "splitX", "splitY", "weightsX", "weightsY");
         
         for(Textures t : ttm.getTextures()) {
-            System.out.println(t);
-            
             for(Image i : t.getChildren(Image.class)) {
-                System.out.println("  " + i);
                 images.addElement(i);
             }
         }

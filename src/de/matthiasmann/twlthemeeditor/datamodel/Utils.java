@@ -122,7 +122,6 @@ public final class Utils {
                     mttn.addChildren();
                     mttn.setLeaf(ttn.getNumChildren() == 0);
                 }
-                System.out.println("Added " + ttn + " to " + parent);
                 parent.appendChild(ttn);
             }
         }
