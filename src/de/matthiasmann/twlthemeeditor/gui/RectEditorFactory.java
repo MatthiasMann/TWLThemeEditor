@@ -59,8 +59,6 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect> {
         }
     }
 
-    private static final Rect NULL_RECT = new Rect(0, 0, 1, 1);
-
     static class RectEditor extends DialogLayout {
         private final Context ctx;
         private final PropertyAccessor<Rect> pa;
@@ -75,7 +73,7 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect> {
         public RectEditor(Context ctx, PropertyAccessor<Rect> pa) {
             this.ctx = ctx;
             this.pa = pa;
-            this.rect = pa.getValue(NULL_RECT);
+            this.rect = pa.getValue(new Rect(0, 0, 1, 1));  // rect is mutable - need to create a new one
             this.dim = pa.getLimit(Dimension.class, Dimension.ZERO);
 
             this.modelX = new MyIntegerModel() {
