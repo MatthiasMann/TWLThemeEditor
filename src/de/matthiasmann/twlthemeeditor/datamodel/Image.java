@@ -241,7 +241,7 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
     
     public static DomWrapper getImageDomWrapper(final Textures textures) {
         return new DomWrapper() {
-            public TreeTableNode wrap(ThemeFile themeFile, ModifyableTreeTableNode parent, Element element) throws IOException {
+            public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                 String tagName = element.getName();
 
                 if("texture".equals(tagName)) {

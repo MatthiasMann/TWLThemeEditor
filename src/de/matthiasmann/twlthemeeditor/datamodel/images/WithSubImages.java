@@ -32,7 +32,7 @@ package de.matthiasmann.twlthemeeditor.datamodel.images;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.DomXPPParser;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.ModifyableTreeTableNode;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
 import java.io.IOException;
 import org.jdom.Element;
@@ -58,8 +58,8 @@ abstract class WithSubImages extends Image {
         int required = getRequiredChildren();
         for (int i = 0, n = getNumChildren(); i < n && generated < required; i++) {
             TreeTableNode child = getChild(i);
-            if (child instanceof ModifyableTreeTableNode) {
-                ((ModifyableTreeTableNode) child).addToXPP(xpp);
+            if (child instanceof ThemeTreeNode) {
+                ((ThemeTreeNode) child).addToXPP(xpp);
                 generated++;
             }
         }

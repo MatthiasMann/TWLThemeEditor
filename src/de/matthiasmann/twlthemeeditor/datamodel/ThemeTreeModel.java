@@ -41,7 +41,7 @@ import java.util.List;
  *
  * @author Matthias Mann
  */
-public class ThemeTreeModel extends AbstractTreeTableModel implements ModifyableTreeTableNode {
+public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeNode {
 
     private final ThemeFile rootThemeFile;
 

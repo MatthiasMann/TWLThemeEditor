@@ -37,7 +37,7 @@ import java.util.List;
  *
  * @author Matthias Mann
  */
-public interface ModifyableTreeTableNode extends TreeTableNode {
+public interface ThemeTreeNode extends TreeTableNode {
 
     public void addChildren() throws IOException;
     

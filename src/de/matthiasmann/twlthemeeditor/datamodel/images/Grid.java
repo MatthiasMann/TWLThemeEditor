@@ -30,7 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.ModifyableTreeTableNode;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.NameGenerator;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
 import de.matthiasmann.twlthemeeditor.datamodel.Weights;
@@ -43,7 +43,7 @@ import org.jdom.Element;
  */
 public class Grid extends WithSubImages implements NameGenerator {
 
-    public Grid(Textures textures, ModifyableTreeTableNode parent, Element element) throws IOException {
+    public Grid(Textures textures, ThemeTreeNode parent, Element element) throws IOException {
         super(textures, parent, element);
         this.properties = new GridProperties(textures, element);
     }

@@ -66,7 +66,7 @@ public class ThemeFile implements VirtualFile {
     private final TestEnv env;
     private final URL url;
     private final Document document;
-    private final ModifyableTreeTableNode treeNode;
+    private final ThemeTreeNode treeNode;
     
     private CallbackWithReason<?>[] callbacks;
 
@@ -74,7 +74,7 @@ public class ThemeFile implements VirtualFile {
         this(env, url, null);
     }
 
-    public ThemeFile(TestEnv env, URL url, ModifyableTreeTableNode node) throws IOException {
+    public ThemeFile(TestEnv env, URL url, ThemeTreeNode node) throws IOException {
         this.env = env;
         this.url = url;
         this.treeNode = node;
@@ -118,7 +118,7 @@ public class ThemeFile implements VirtualFile {
 
     protected void addChildren() throws IOException {
         Utils.addChildren(this, treeNode, document.getRootElement(), new DomWrapper() {
-            public TreeTableNode wrap(ThemeFile themeFile, ModifyableTreeTableNode parent, Element element) throws IOException {
+            public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                 String tagName = element.getName();
 
                 if("textures".equals(tagName)) {
