@@ -58,7 +58,7 @@ public class DelayedAction implements Runnable {
         synchronized(delay) {
             if(!triggered) {
                 triggered = true;
-                gui.invokeLater(this);
+                gui.invokeLater(delay);
             }
         }
     }
