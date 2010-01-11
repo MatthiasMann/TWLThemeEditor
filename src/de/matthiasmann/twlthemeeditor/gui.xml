@@ -148,7 +148,9 @@
                 <param name="border"><border>background.border</border></param>
             </theme>
         </theme>
-        <theme name="zoomadjuster" ref="valueadjuster"/>
+        <theme name="zoomadjuster" ref="valueadjuster">
+            <param name="maxWidth"><int>0</int></param>
+        </theme>
         <theme name="" ref="*"/>
     </theme>
 </themes>

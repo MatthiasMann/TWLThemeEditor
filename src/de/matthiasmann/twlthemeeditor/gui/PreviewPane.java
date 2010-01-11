@@ -50,26 +50,34 @@ public class PreviewPane extends DialogLayout {
 
     private final PreviewWidget previewWidget;
     private final Label labelErrorDisplay;
+    private final Button btnClearStackTrace;
     private final Button btnShowStackTrace;
 
     public PreviewPane(TestEnv env) {
         this.previewWidget = new PreviewWidget(env);
         this.labelErrorDisplay = new Label();
+        this.btnClearStackTrace = new Button("Clear");
         this.btnShowStackTrace = new Button("Stack Trace");
 
         labelErrorDisplay.setTheme("errorDisplay");
+        btnClearStackTrace.setEnabled(false);
         btnShowStackTrace.setEnabled(false);
 
         setHorizontalGroup(createParallelGroup()
                 .addWidget(previewWidget)
-                .addGroup(createSequentialGroup(labelErrorDisplay, btnShowStackTrace).addGap(SMALL_GAP)));
+                .addGroup(createSequentialGroup(labelErrorDisplay, btnClearStackTrace, btnShowStackTrace).addGap(SMALL_GAP)));
         setVerticalGroup(createSequentialGroup()
                 .addWidget(previewWidget)
-                .addGroup(createParallelGroup(labelErrorDisplay, btnShowStackTrace)));
+                .addGroup(createParallelGroup(labelErrorDisplay, btnClearStackTrace, btnShowStackTrace)));
 
         previewWidget.addCallback(new Runnable() {
             public void run() {
                 updateException();
+            }
+        });
+        btnClearStackTrace.addCallback(new Runnable() {
+            public void run() {
+                clearException();
             }
         });
         btnShowStackTrace.addCallback(new Runnable() {
@@ -83,15 +91,43 @@ public class PreviewPane extends DialogLayout {
         previewWidget.reloadTheme();
     }
 
+    public Object getThemeLoadErrorLocation() {
+        return previewWidget.getThemeLoadErrorLocation();
+    }
+
+    public void removeCallback(Runnable cb) {
+        previewWidget.removeCallback(cb);
+    }
+
+    public void addCallback(Runnable cb) {
+        previewWidget.addCallback(cb);
+    }
+
     void updateException() {
         Throwable ex = selectException();
         if(ex == null) {
             labelErrorDisplay.setText("");
+            btnClearStackTrace.setEnabled(false);
             btnShowStackTrace.setEnabled(false);
         } else {
             labelErrorDisplay.setText(ex.getMessage());
+            btnClearStackTrace.setEnabled(ex != previewWidget.getInitException());
             btnShowStackTrace.setEnabled(true);
         }
+    }
+
+    void clearException() {
+        Throwable ex = selectException();
+        clearException(ex);
+    }
+
+    void clearException(Throwable ex) {
+        if(ex == previewWidget.getExecuteException()) {
+            previewWidget.clearExecuteException();
+        } else if(ex == previewWidget.getThemeLoadException()) {
+            previewWidget.clearThemeException();
+        }
+        updateException();
     }
 
     void showStackTrace() {
@@ -114,6 +150,8 @@ public class PreviewPane extends DialogLayout {
         Button btnClear = new Button("Clear Exception and Close");
         Button btnClose = new Button("Close");
 
+        btnClear.setEnabled(ex != previewWidget.getInitException());
+        
         DialogLayout layout = new DialogLayout();
         layout.setHorizontalGroup(layout.createParallelGroup()
                 .addWidget(scrollPane)
@@ -130,12 +168,7 @@ public class PreviewPane extends DialogLayout {
 
         btnClear.addCallback(new Runnable() {
             public void run() {
-                if(ex == previewWidget.getExecuteException()) {
-                    previewWidget.clearExecuteException();
-                } else if(ex == previewWidget.getThemeLoadException()) {
-                    previewWidget.clearThemeException();
-                }
-                updateException();
+                clearException(ex);
                 popupWindow.closePopup();
             }
         });

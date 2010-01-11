@@ -86,7 +86,7 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
     }
 
     public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(element);
+        xpp.addElement(this, element);
     }
 
     public List<ThemeTreeOperation> getOperations() {
@@ -220,20 +220,25 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
     public Object getData(int column) {
         switch (column) {
             case 0: {
-                String name = properties.getName();
-                if(name != null) {
-                    return name;
-                }
-                if(getParent() instanceof NameGenerator) {
-                    return ((NameGenerator)getParent()).generateName(this);
-                }
-                return "Unnamed #" + (1+getParent().getChildIndex(this));
+                String displayName = getDisplayName();
+                return error ? new NodeNameWithError(displayName) : displayName;
             }
             case 1:
                 return getType();
             default:
                 return "";
         }
+    }
+
+    public String getDisplayName() {
+        String name = properties.getName();
+        if(name != null) {
+            return name;
+        }
+        if(getParent() instanceof NameGenerator) {
+            return ((NameGenerator)getParent()).generateName(this);
+        }
+        return "Unnamed #" + (1+getParent().getChildIndex(this));
     }
 
     protected String getType() {

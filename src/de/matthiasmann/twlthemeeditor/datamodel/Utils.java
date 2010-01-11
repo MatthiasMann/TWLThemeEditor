@@ -153,7 +153,7 @@ public final class Utils {
     }
 
     public static void addToXPP(DomXPPParser xpp, String tagName, ThemeTreeNode node, Collection<Attribute> attributes) {
-        xpp.addStartTag(tagName, attributes);
+        xpp.addStartTag(node, tagName, attributes);
         addToXPP(xpp, node);
         xpp.addEndTag(tagName);
     }

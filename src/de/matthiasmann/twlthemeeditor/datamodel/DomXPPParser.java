@@ -48,22 +48,25 @@ import org.xmlpull.v1.XmlPullParserException;
  */
 public class DomXPPParser implements XmlPullParser {
 
+    private final String fileName;
     private final ArrayList<Object> events;
     private Iterator<Object> iter;
     private Object currentEvent;
+    private StartTag currentStartTag;
     private int depth;
 
-    public DomXPPParser() {
+    public DomXPPParser(String fileName) {
+        this.fileName = fileName;
         this.events = new ArrayList<Object>();
         events.add(Boolean.TRUE);   // this causes teh START_DOCUMENT event
     }
 
     @SuppressWarnings("unchecked")
-    public void addElement(Element e) {
-        events.add(new StartTag(e.getName(), e.getAttributes()));
+    public void addElement(Object location, Element e) {
+        addStartTag(location, e.getName(), toArray(e.getAttributes()));
         for(Object child : e.getContent()) {
             if(child instanceof Element) {
-                addElement((Element)child);
+                addElement(location, (Element)child);
             } else if(child instanceof Text) {
                 addText(((Text)child).getText());
             } else if(child instanceof CDATA) {
@@ -72,19 +75,26 @@ public class DomXPPParser implements XmlPullParser {
                 //System.out.println("Ignoring: " + child.getClass());
             }
         }
-        events.add(new EndTag(e.getName()));
+        addEndTag(e.getName());
     }
 
-    public void addStartTag(String name, Collection<Attribute> attributes) {
-        events.add(new StartTag(name, attributes));
+    public void addStartTag(Object location, String name, Collection<Attribute> attributes) {
+        addStartTag(location, name, toArray(attributes));
     }
     
-    public void addStartTag(String name, Attribute ... attributes) {
-        events.add(new StartTag(name, attributes));
+    public void addStartTag(Object location, String name, Attribute ... attributes) {
+        StartTag tag = new StartTag(name, attributes, currentStartTag, location,
+                (currentStartTag != null) ? ++currentStartTag.numChildren : 1);
+        events.add(tag);
+        currentStartTag = tag;
     }
 
     public void addEndTag(String name) {
+        if(!currentStartTag.name.equals(name)) {
+            throw new IllegalArgumentException("Unbalanced XML tree, expected: " + currentStartTag.name);
+        }
         events.add(new EndTag(name));
+        currentStartTag = currentStartTag.parent;
     }
     
     public void addText(String text) {
@@ -95,6 +105,13 @@ public class DomXPPParser implements XmlPullParser {
             events.add(text);
         }
     }
+
+    public Object getLocation() {
+        return (currentStartTag != null) ? currentStartTag.location : null;
+    }
+
+
+    // Start of XPP API
 
     public void defineEntityReplacementText(String entityName, String replacementText) throws XmlPullParserException {
     }
@@ -142,7 +159,7 @@ public class DomXPPParser implements XmlPullParser {
         return depth;
     }
 
-    public int getEventType() throws XmlPullParserException {
+    public int getEventType() {
         if(iter == null) {
             return next();
         }
@@ -204,7 +221,23 @@ public class DomXPPParser implements XmlPullParser {
     }
 
     public String getPositionDescription() {
-        return "?";
+        StringBuilder sb = new StringBuilder();
+        sb.append(fileName).append(": ");
+        getPositionDescription(currentStartTag, sb);
+        return sb.toString();
+    }
+
+    private void getPositionDescription(StartTag tag, StringBuilder sb) {
+        if(tag != null) {
+            getPositionDescription(tag.parent, sb);
+            sb.append(" #").append(tag.position).append('<').append(tag.name);
+            for(int i=0 ; i<tag.attributes.length ; i++) {
+                Attribute attrib = tag.attributes[i];
+                sb.append(' ').append(attrib.getName())
+                        .append("=\"").append(attrib.getValue()).append('"');
+            }
+            sb.append('>');
+        }
     }
 
     public String getPrefix() {
@@ -238,17 +271,22 @@ public class DomXPPParser implements XmlPullParser {
         return getText().trim().isEmpty();
     }
 
-    public int next() throws XmlPullParserException {
+    public int next() {
         if(iter == null) {
+            if(currentStartTag != null) {
+                throw new IllegalStateException("Unclosed XML tag: " + currentStartTag.name);
+            }
             iter = events.iterator();
         }
         currentEvent = iter.next();
         int eventType = getEventType();
         switch (eventType) {
             case START_TAG:
+                currentStartTag = (StartTag)currentEvent;
                 depth++;
                 break;
             case END_TAG:
+                currentStartTag = currentStartTag.parent;
                 depth--;
                 break;
         }
@@ -332,17 +370,24 @@ public class DomXPPParser implements XmlPullParser {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    static Attribute[] toArray(Collection<Attribute> attributes) {
+        return attributes.toArray(new Attribute[attributes.size()]);
+    }
+
     static class StartTag {
         final String name;
         final Attribute[] attributes;
+        final StartTag parent;
+        final Object location;
+        final int position;
+        int numChildren;
 
-        StartTag(String name, Attribute[] attributes) {
+        StartTag(String name, Attribute[] attributes, StartTag parent, Object location, int position) {
             this.name = name;
             this.attributes = attributes;
-        }
-        StartTag(String name, Collection<Attribute> attributes) {
-            this.name = name;
-            this.attributes = attributes.toArray(new Attribute[attributes.size()]);
+            this.parent = parent;
+            this.location = location;
+            this.position = position;
         }
     }
 

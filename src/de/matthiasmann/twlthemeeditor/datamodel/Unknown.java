@@ -60,7 +60,7 @@ public class Unknown extends AbstractThemeTreeNode {
     }
 
     public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(element);
+        xpp.addElement(this, element);
     }
     
     public List<ThemeTreeOperation> getOperations() {

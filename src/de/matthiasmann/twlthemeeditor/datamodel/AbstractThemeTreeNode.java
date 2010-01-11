@@ -43,6 +43,8 @@ import org.jdom.Element;
  */
 public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implements ThemeTreeNode {
 
+    protected boolean error;
+
     protected AbstractThemeTreeNode(TreeTableNode parent) {
         super(parent);
     }
@@ -62,6 +64,10 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
 
     public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz) {
         return Utils.getChildren(this, clazz);
+    }
+
+    public void setError(boolean hasError) {
+        this.error = hasError;
     }
 
     protected static List<ThemeTreeOperation> getDefaultOperations(Element element, ThemeTreeNode node) {

@@ -53,7 +53,7 @@ abstract class WithSubImages extends Image {
 
     @Override
     public void addToXPP(DomXPPParser xpp) {
-        xpp.addStartTag(element.getName(), properties.getAttributes());
+        xpp.addStartTag(this, element.getName(), properties.getAttributes());
         int generated = 0;
         int required = getRequiredChildren();
         for (int i = 0, n = getNumChildren(); i < n && generated < required; i++) {
@@ -64,7 +64,7 @@ abstract class WithSubImages extends Image {
             }
         }
         for (; generated < required; generated++) {
-            xpp.addElement(ALIAS_REF_NONE);
+            xpp.addElement(this, ALIAS_REF_NONE);
         }
         xpp.addEndTag(element.getName());
     }

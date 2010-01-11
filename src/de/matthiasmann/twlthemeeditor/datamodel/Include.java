@@ -80,7 +80,7 @@ public class Include extends AbstractThemeTreeNode {
     }
 
     public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(node.node);
+        xpp.addElement(this, node.node);
     }
 
     public List<ThemeTreeOperation> getOperations() {

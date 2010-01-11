@@ -39,6 +39,7 @@ import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.TestEnv;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeLoadErrorTracker;
 import java.io.IOException;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -63,6 +64,7 @@ public class PreviewWidget extends Widget {
     private LWJGLException initException;
     private Throwable executeException;
     private IOException themeLoadException;
+    private Object themeLoadErrorLocation;
 
     public PreviewWidget(TestEnv testEnv) {
         this.testEnv = testEnv;
@@ -85,8 +87,13 @@ public class PreviewWidget extends Widget {
         return themeLoadException;
     }
 
+    public Object getThemeLoadErrorLocation() {
+        return themeLoadErrorLocation;
+    }
+
     public void clearThemeException() {
         themeLoadException = null;
+        themeLoadErrorLocation = null;
         reloadTheme = true;
     }
 
@@ -200,6 +207,9 @@ public class PreviewWidget extends Widget {
     private boolean loadTheme() {
         reloadTheme = false;
         if(themeLoadException == null) {
+            ThemeLoadErrorTracker tracker = new ThemeLoadErrorTracker();
+            ThemeLoadErrorTracker.push(tracker);
+
             CacheContext oldCacheContext = render.getActiveCacheContext();
             CacheContext newCacheContext = render.createNewCacheContext();
             render.setActiveCacheContext(newCacheContext);
@@ -219,6 +229,11 @@ public class PreviewWidget extends Widget {
                 themeLoadException = ex;
                 render.setActiveCacheContext(oldCacheContext);
                 newCacheContext.destroy();
+                themeLoadErrorLocation = tracker.findErrorLocation();
+            } finally {
+                if(ThemeLoadErrorTracker.pop() != tracker) {
+                    throw new IllegalStateException("Wrong error tracker");
+                }
             }
         }
         return false;

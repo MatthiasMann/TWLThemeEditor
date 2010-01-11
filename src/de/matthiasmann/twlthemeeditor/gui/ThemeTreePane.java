@@ -36,12 +36,14 @@ import de.matthiasmann.twl.PopupMenu;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SubMenu;
 import de.matthiasmann.twl.Table;
+import de.matthiasmann.twl.TableBase.StringCellRenderer;
 import de.matthiasmann.twl.TableRowSelectionManager;
 import de.matthiasmann.twl.TreeTable;
 import de.matthiasmann.twl.model.TableSingleSelectionModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.datamodel.FilteredModel;
+import de.matthiasmann.twlthemeeditor.datamodel.NodeNameWithError;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
@@ -79,6 +81,10 @@ public class ThemeTreePane extends DialogLayout {
         this.filterEditField = new EditField();
         this.btnNodeOperations = new Button("Operations");
         this.filter = new MyFilter();
+
+        StringCellRenderer errorRenderer = new StringCellRenderer();
+        errorRenderer.getAnimationState().setAnimationState("error", true);
+        treeTable.registerCellRenderer(NodeNameWithError.class, errorRenderer);
 
         scrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
         treeTable.setSelectionManager(new TableRowSelectionManager(treeTableSelectionModel));
@@ -156,7 +162,7 @@ public class ThemeTreePane extends DialogLayout {
     }
 
     public void setModel(ThemeTreeModel model) {
-        this.filteredModel = new FilteredModel(model);
+        filteredModel = new FilteredModel(model);
         treeTable.setModel(model);
         table.setModel(filteredModel);
         updateFilter();

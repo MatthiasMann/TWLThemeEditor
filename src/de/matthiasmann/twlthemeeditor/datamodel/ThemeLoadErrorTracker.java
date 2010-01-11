@@ -29,28 +29,58 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.model.TreeTableNode;
-import java.io.IOException;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Stack;
+import org.xmlpull.v1.XmlPullParser;
 
 /**
  *
  * @author Matthias Mann
  */
-public interface ThemeTreeNode extends TreeTableNode {
+public class ThemeLoadErrorTracker {
 
-    public void addChildren() throws IOException;
-    
-    public void appendChild(TreeTableNode ttn);
-    
-    public void setLeaf(boolean leaf);
+    private static final ThreadLocal<Stack<ThemeLoadErrorTracker>> tls = new ThreadLocal<Stack<ThemeLoadErrorTracker>>() {
+        @Override
+        protected Stack<ThemeLoadErrorTracker> initialValue() {
+            return new Stack<ThemeLoadErrorTracker>();
+        }
+    };
 
-    public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz);
+    private final ArrayList<DomXPPParser> parsers;
 
-    public void addToXPP(DomXPPParser xpp);
-    
-    public List<ThemeTreeOperation> getOperations();
+    public ThemeLoadErrorTracker() {
+        this.parsers = new ArrayList<DomXPPParser>();
+    }
 
-    public void setError(boolean hasError);
-    
+    public static void push(ThemeLoadErrorTracker tracker) {
+        tls.get().add(tracker);
+    }
+
+    public static ThemeLoadErrorTracker pop() {
+        return tls.get().pop();
+    }
+
+    public static void register(DomXPPParser parser) {
+        final Stack<ThemeLoadErrorTracker> stack = tls.get();
+        if(!stack.isEmpty()) {
+            stack.peek().parsers.add(parser);
+        }
+    }
+
+    public Object findErrorLocation() {
+        // search from newest parser to oldest
+        for(int i=parsers.size() ; i-->0 ;) {
+            DomXPPParser parser = parsers.get(i);
+            if(parser.getEventType() == XmlPullParser.END_DOCUMENT) {
+                parsers.remove(i);
+            } else {
+                Object location = parser.getLocation();
+                if(location != null) {
+                    return location;
+                }
+            }
+        }
+        return null;
+    }
+
 }

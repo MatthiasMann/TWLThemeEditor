@@ -40,6 +40,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.HasProperties;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.gui.Context;
 import de.matthiasmann.twlthemeeditor.gui.PreviewPane;
 import de.matthiasmann.twlthemeeditor.gui.PropertyPanel;
@@ -72,7 +73,7 @@ public class Main {
         final TestEnv env = new TestEnv();
 
         URL url = Main.class.getResource("gui.xml");
-        ThemeTreeModel ttm = new ThemeTreeModel(env, url);
+        final ThemeTreeModel ttm = new ThemeTreeModel(env, url);
         final Context ctx = new Context(ttm);
 
         ctx.setPropertyOrder("rect", "ref", "condition", "centered", "tint", "splitX", "splitY", "weightsX", "weightsY");
@@ -149,9 +150,21 @@ public class Main {
 
             ttm.getRootThemeFile().addCallback(new CallbackWithReason<ThemeFile.CallbackReason>() {
                 public void callback(ThemeFile.CallbackReason reason) {
+                    ttm.setErrorLocation(null);
                     previewPane.reloadTheme();
                     if(reason == ThemeFile.CallbackReason.STRUCTURE_CHANGED) {
                         updatePropertyEditors.run();
+                    }
+                }
+            });
+
+            previewPane.addCallback(new Runnable() {
+                public void run() {
+                    Object loc = previewPane.getThemeLoadErrorLocation();
+                    if(loc instanceof ThemeTreeNode) {
+                        ttm.setErrorLocation((ThemeTreeNode)loc);
+                    } else {
+                        ttm.setErrorLocation(null);
                     }
                 }
             });

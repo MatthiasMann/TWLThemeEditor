@@ -46,6 +46,7 @@ import java.util.List;
 public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeNode {
 
     private final ThemeFile rootThemeFile;
+    private ThemeTreeNode curErrorLocation;
 
     public ThemeTreeModel(TestEnv env, URL url) throws IOException {
         rootThemeFile = new ThemeFile(env, url, this);
@@ -88,6 +89,16 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
         return result;
     }
 
+    public void setErrorLocation(ThemeTreeNode location) {
+        if(curErrorLocation != null) {
+            curErrorLocation.setError(false);
+        }
+        curErrorLocation = location;
+        if(curErrorLocation != null) {
+            curErrorLocation.setError(true);
+        }
+    }
+
     private <E extends TreeTableNode> void processInclude(TreeTableNode node, Class<E> clazz, List<E> result) {
         Utils.getChildren(node, clazz, result);
         for(Include include : Utils.getChildren(node, Include.class)) {
@@ -106,6 +117,9 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
 
     public void addToXPP(DomXPPParser xpp) {
         Utils.addToXPP(xpp, this);
+    }
+
+    public void setError(boolean hasError) {
     }
 
     public List<ThemeTreeOperation> getOperations() {

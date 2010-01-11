@@ -67,7 +67,8 @@ public class ThemeFile implements VirtualFile {
     private final URL url;
     private final Document document;
     private final ThemeTreeNode treeNode;
-    
+
+    private String fileName;
     private CallbackWithReason<?>[] callbacks;
 
     public ThemeFile(TestEnv env, URL url) throws IOException {
@@ -132,8 +133,9 @@ public class ThemeFile implements VirtualFile {
         });
     }
 
-    public void registerAs(String filename) {
-        env.registerFile(filename, this);
+    public void registerAs(String fileName) {
+        this.fileName = fileName;
+        env.registerFile(fileName, this);
     }
 
     void fireCallbacks(CallbackReason reason) {
@@ -143,7 +145,8 @@ public class ThemeFile implements VirtualFile {
     @SuppressWarnings("unchecked")
     public Object getContent(Class<?> type) throws IOException {
         if(type == XmlPullParser.class) {
-            DomXPPParser xpp = new DomXPPParser();
+            DomXPPParser xpp = new DomXPPParser(fileName);
+            ThemeLoadErrorTracker.register(xpp);
             Element rootElement = document.getRootElement();
             Utils.addToXPP(xpp, rootElement.getName(), treeNode, rootElement.getAttributes());
             return xpp;

@@ -208,6 +208,7 @@
     </theme>
 
     <fontDef name="listbox-display" filename="font.fnt" color="black">
+        <fontParam if="error" color="red"/>
         <fontParam if="selected" color="white"/>
     </fontDef>
     <theme name="listbox" ref="-defaults" allowWildcard="true">
