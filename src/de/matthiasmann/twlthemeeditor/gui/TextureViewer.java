@@ -30,9 +30,9 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.Color;
+import de.matthiasmann.twl.DraggableButton;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Rect;
-import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.renderer.CacheContext;
 import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.renderer.Renderer;
@@ -46,7 +46,7 @@ import java.net.URL;
  *
  * @author Matthias Mann
  */
-public class TextureViewer extends Widget {
+public class TextureViewer extends DraggableButton {
 
     private URL url;
     private Rect rect;
@@ -54,7 +54,7 @@ public class TextureViewer extends Widget {
     private boolean tiled;
     private float zoomX;
     private float zoomY;
-    private Runnable[] callbacks;
+    private Runnable[] exceptionCallbacks;
 
     private CacheContext cacheContext;
     private Texture texture;
@@ -133,12 +133,12 @@ public class TextureViewer extends Widget {
         return loadException;
     }
 
-    public void addCallback(Runnable cb) {
-        callbacks = CallbackSupport.addCallbackToList(callbacks, cb, Runnable.class);
+    public void addExceptionCallback(Runnable cb) {
+        exceptionCallbacks = CallbackSupport.addCallbackToList(exceptionCallbacks, cb, Runnable.class);
     }
 
-    public void removeCallback(Runnable cb) {
-        callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
+    public void removeExceptionCallback(Runnable cb) {
+        exceptionCallbacks = CallbackSupport.removeCallbackFromList(exceptionCallbacks, cb);
     }
 
     @Override
@@ -181,7 +181,7 @@ public class TextureViewer extends Widget {
             }
 
             reloadTexture = false;
-            CallbackSupport.fireCallbacks(callbacks);
+            CallbackSupport.fireCallbacks(exceptionCallbacks);
         }
 
         if(texture != null && (image == null || changeImage)) {

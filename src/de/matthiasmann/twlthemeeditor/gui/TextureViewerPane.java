@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.DraggableButton.DragListener;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ScrollPane;
@@ -121,11 +122,26 @@ public class TextureViewerPane extends DialogLayout {
                 updateRect();
             }
         });
-        textureViewer.addCallback(new Runnable() {
+        textureViewer.addExceptionCallback(new Runnable() {
             public void run() {
                 Throwable ex = textureViewer.getLoadException();
                 labelErrorDisplay.setText((ex != null) ? ex.getMessage() : "");
                 labelErrorDisplay.getAnimationState().setAnimationState("error", ex != null);
+            }
+        });
+        textureViewer.setListener(new DragListener() {
+            int scrollStartX;
+            int scrollStartY;
+            
+            public void dragStarted() {
+                scrollStartX = scrollPane.getScrollPositionX();
+                scrollStartY = scrollPane.getScrollPositionY();
+            }
+            public void dragged(int deltaX, int deltaY) {
+                scrollPane.setScrollPositionX(scrollStartX - deltaX);
+                scrollPane.setScrollPositionY(scrollStartY - deltaY);
+            }
+            public void dragStopped() {
             }
         });
 
