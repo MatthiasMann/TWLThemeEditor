@@ -38,6 +38,7 @@ import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twlthemeeditor.datamodel.HasProperties;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
+import de.matthiasmann.twlthemeeditor.datamodel.Include;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
@@ -192,6 +193,17 @@ public class Main {
             ttm.getRootThemeFile().writeTo(fos);
         } finally {
             fos.close();
+        }
+
+        int i=1;
+        for(Include inc : ttm.getChildren(Include.class)) {
+            fos = new FileOutputStream("test"+i+".xml");
+            try {
+                inc.getIncludedThemeFile().writeTo(fos);
+            } finally {
+                fos.close();
+            }
+            i++;
         }
     }
 

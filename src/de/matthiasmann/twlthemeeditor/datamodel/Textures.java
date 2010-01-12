@@ -32,6 +32,8 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.renderer.lwjgl.PNGDecoder;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSplit;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewTexture;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -116,6 +118,11 @@ public class Textures extends AbstractThemeTreeNode {
     }
 
     public List<ThemeTreeOperation> getOperations() {
-        return AbstractThemeTreeNode.getDefaultOperations(node.node, this);
+        List<ThemeTreeOperation> operations = AbstractThemeTreeNode.getDefaultOperations(node.node, this);
+        operations.add(new CreateNewTexture(this));
+        operations.add(new CreateNewSplit(this, "hsplit", true, false));
+        operations.add(new CreateNewSplit(this, "vsplit", false, true));
+        operations.add(new CreateNewSplit(this, "hvsplit", true, true));
+        return operations;
     }
 }

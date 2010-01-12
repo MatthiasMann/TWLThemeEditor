@@ -86,6 +86,10 @@ public class Include extends AbstractThemeTreeNode {
         xpp.addElement(this, node.node);
     }
 
+    public ThemeFile getIncludedThemeFile() {
+        return includedThemeFile;
+    }
+
     public List<ThemeTreeOperation> getOperations() {
         return AbstractThemeTreeNode.getDefaultOperations(node.node, this);
     }

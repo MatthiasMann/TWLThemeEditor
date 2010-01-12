@@ -198,6 +198,7 @@ public class ThemeTreePane extends DialogLayout {
                      SubMenu subMenuBtn = new SubMenu();
                      subMenuBtn.setTheme(groupID);
                      subPopupMenu = subMenuBtn.getPopupMenu();
+                     subPopupMenu.setTheme(groupID + "-popupMenu");
                      submenus.put(groupID, subPopupMenu);
                      container.add(subMenuBtn);
                 }

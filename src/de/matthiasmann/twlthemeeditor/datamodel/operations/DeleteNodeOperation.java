@@ -27,62 +27,30 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
-import de.matthiasmann.twl.model.AbstractTreeTableNode;
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.operations.DeleteNodeOperation;
-import de.matthiasmann.twlthemeeditor.datamodel.operations.MoveNodeOperations;
-import java.util.ArrayList;
-import java.util.List;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import java.io.IOException;
 import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implements ThemeTreeNode {
+public class DeleteNodeOperation extends ElementOperation {
 
-    protected boolean error;
-
-    protected AbstractThemeTreeNode(TreeTableNode parent) {
-        super(parent);
-    }
-
-    public ThemeTreeModel getThemeTreeModel() {
-        return (ThemeTreeModel)getTreeTableModel();
-    }
-    
-    @Override
-    public void insertChild(TreeTableNode ttn, int idx) {
-        super.insertChild(ttn, idx);
-    }
-
-    public void removeChild(TreeTableNode ttn) {
-        int childIndex = super.getChildIndex(ttn);
-        if(childIndex >= 0) {
-            super.removeChild(childIndex);
-        }
+    public DeleteNodeOperation(Element element, ThemeTreeNode node) {
+        super(null, "opDeleteNode", element, node);
     }
 
     @Override
-    public void setLeaf(boolean leaf) {
-        super.setLeaf(leaf);
+    public boolean needConfirm() {
+        return true;
     }
 
-    public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz) {
-        return Utils.getChildren(this, clazz);
-    }
-
-    public void setError(boolean hasError) {
-        this.error = hasError;
-    }
-
-    protected static List<ThemeTreeOperation> getDefaultOperations(Element element, ThemeTreeNode node) {
-        List<ThemeTreeOperation> result = new ArrayList<ThemeTreeOperation>();
-        result.add(new DeleteNodeOperation(element, node));
-        result.add(new MoveNodeOperations("opMoveNodeUp", element, node, -1));
-        result.add(new MoveNodeOperations("opMoveNodeDown", element, node, +1));
-        return result;
+    @Override
+    public void execute() throws IOException {
+        element.detach();
+        getNodeParent().addChildren();
     }
 }

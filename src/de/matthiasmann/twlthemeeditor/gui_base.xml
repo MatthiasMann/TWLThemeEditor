@@ -313,6 +313,12 @@
         </select>
         <alias name="button.overlay" ref="-selectionX"/>
 
+        <select name="popupmenubutton.background" border="4,1">
+            <alias ref="area9X" if="armed"/>
+            <alias ref="area8X" if="hover + !disabled"/>
+        </select>
+        <alias name="popupmenubutton.overlay" ref="-selectionX"/>
+
         <select name="editfield.background" border="4,1">
             <alias ref="area8X" if="hover"/>
             <alias ref="area7X"/>
@@ -635,33 +641,6 @@
             <texture x="90" y="28" width="5" height="8" if="expanded"/>
             <texture x="94" y="28" width="5" height="8"/>
         </select>
-
-        <texture name="checkerboard" x="56" y="106" width="8" height="8" tiled="true"/>
-
-        <alias name="textureviewer.background" ref="checkerboard" border="64" inset="64"/>
-
-        <texture name="-icon-moveup" x="74" y="19" width="12" height="8" center="true"/>
-        <texture name="-icon-movedown" x="87" y="19" width="12" height="8" center="true"/>
-
-        <alias name="button.opDeleteNode.overlay" ref="removebutton.overlay"/>
-
-        <composed name="button.opMoveNodeUp.overlay">
-            <select>
-                <alias ref="-icon-moveup" if="disabled" tint="#6fff"/>
-                <alias ref="-icon-moveup" if="armed" inset="1,1,-1,-1"/>
-                <alias ref="-icon-moveup"/>
-            </select>
-            <alias ref="vbutton.overlay"/>
-        </composed>
-
-        <composed name="button.opMoveNodeDown.overlay">
-            <select>
-                <alias ref="-icon-movedown" if="disabled" tint="#6fff"/>
-                <alias ref="-icon-movedown" if="armed" inset="1,1,-1,-1"/>
-                <alias ref="-icon-movedown"/>
-            </select>
-            <alias ref="vbutton.overlay"/>
-        </composed>
     </textures>
 
     <fontDef name="button-font" filename="font.fnt" color="white">
@@ -723,6 +702,12 @@
         <param name=""><image>togglebutton.*</image></param>
         <param name="border"><border>background.border</border></param>
         <param name="font"><font>button-font</font></param>
+    </theme>
+
+    <theme name="popupMenuButton" ref="button">
+        <param name=""><image>popupmenubutton.*</image></param>
+        <param name="border"><border>background.border</border></param>
+        <param name="textAlignment"><enum type="alignment">left</enum></param>
     </theme>
 
     <theme name="editfield" ref="label" allowWildcard="true">

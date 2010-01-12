@@ -37,20 +37,34 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class DeleteNodeOperations extends ElementOperation {
+public class CreateNewSplit extends CreateChildOperation {
 
-    public DeleteNodeOperations(Element element, ThemeTreeNode node) {
-        super(null, "opDeleteNode", element, node);
-    }
+    private final String tagName;
+    private final boolean splitx;
+    private final boolean splity;
 
-    @Override
-    public boolean needConfirm() {
-        return true;
+    public CreateNewSplit(ThemeTreeNode parent, String tagName, boolean splitx, boolean splity) {
+        super("opNewNode" + Character.toUpperCase(tagName.charAt(0)) + tagName.substring(1), parent);
+        this.tagName = tagName;
+        this.splitx = splitx;
+        this.splity = splity;
     }
 
     @Override
     public void execute() throws IOException {
-        element.detach();
-        getNodeParent().addChildren();
+        Element e = new Element(tagName);
+        e.setAttribute("name", "new" + System.nanoTime());
+        e.setAttribute("x", "0");
+        e.setAttribute("y", "0");
+        e.setAttribute("width", "1");
+        e.setAttribute("height", "1");
+        if(splitx) {
+            e.setAttribute("splitx", "0,0");
+        }
+        if(splity) {
+            e.setAttribute("splity", "0,0");
+        }
+        addChild(e);
     }
+
 }
