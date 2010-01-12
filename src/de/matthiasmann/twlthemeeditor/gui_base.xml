@@ -8,6 +8,8 @@
         <texture name="panel.background" x="0" y="19" width="1" height="1"/>
         <texture name="panel.separator" x="6" y="19" width="1" height="2"/>
 
+        <hvsplit name="frame.background" x="0" y="121" width="7" height="7" border="3"/>
+        
         <texture name="-area1L" x="0" y="0" width="4" height="18"/>
         <texture name="-area1F" x="3" y="0" width="1" height="18"/>
         <texture name="-area1M" x="4" y="0" width="1" height="18"/>
@@ -629,9 +631,37 @@
             <texture x="17" y="19" width="8" height="8"/>
         </select>
 
+        <select name="collapsiblepanel.arrowH.background" center="true">
+            <texture x="90" y="28" width="5" height="8" if="expanded"/>
+            <texture x="94" y="28" width="5" height="8"/>
+        </select>
+
         <texture name="checkerboard" x="56" y="106" width="8" height="8" tiled="true"/>
 
         <alias name="textureviewer.background" ref="checkerboard" border="64" inset="64"/>
+
+        <texture name="-icon-moveup" x="74" y="19" width="12" height="8" center="true"/>
+        <texture name="-icon-movedown" x="87" y="19" width="12" height="8" center="true"/>
+
+        <alias name="button.opDeleteNode.overlay" ref="removebutton.overlay"/>
+
+        <composed name="button.opMoveNodeUp.overlay">
+            <select>
+                <alias ref="-icon-moveup" if="disabled" tint="#6fff"/>
+                <alias ref="-icon-moveup" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-moveup"/>
+            </select>
+            <alias ref="vbutton.overlay"/>
+        </composed>
+
+        <composed name="button.opMoveNodeDown.overlay">
+            <select>
+                <alias ref="-icon-movedown" if="disabled" tint="#6fff"/>
+                <alias ref="-icon-movedown" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-movedown"/>
+            </select>
+            <alias ref="vbutton.overlay"/>
+        </composed>
     </textures>
 
     <fontDef name="button-font" filename="font.fnt" color="white">
@@ -699,6 +729,7 @@
         <param name=""><image>editfield.*</image></param>
         <param name="border"><border>background.border</border></param>
         <param name="passwordChar"><int>0x25CF</int></param>
+        <param name="minHeight"><int>18</int></param>
         <param name="maxWidth"><int>32767</int></param>
         <param name="columns"><int>5</int></param>
         <theme name="renderer" ref="label"/>

@@ -27,46 +27,30 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import java.io.IOException;
+import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public abstract class ThemeTreeOperation {
+public class DeleteNodeOperations extends ElementOperation {
 
-    private final String groupID;
-    private final String actionID;
-
-    protected ThemeTreeOperation(String groupID, String actionID) {
-        this.groupID = groupID;
-        this.actionID = actionID;
+    public DeleteNodeOperations(Element element, ThemeTreeNode node) {
+        super(null, "opDeleteNode", element, node);
     }
 
-    /**
-     * Operations can be put into groups, then they will get only one button
-     * plus a popup menu
-     * 
-     * @return the group ID or null
-     */
-    public String getGroupID() {
-        return groupID;
-    }
-
-    public String getActionID() {
-        return actionID;
-    }
-
-    public boolean isEnabled() {
+    @Override
+    public boolean needConfirm() {
         return true;
     }
 
-    public boolean needConfirm() {
-        return false;
+    @Override
+    public void execute() throws IOException {
+        element.detach();
+        getNodeParent().addChildren();
     }
-
-    public abstract void execute() throws IOException;
-    
 }

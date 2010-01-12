@@ -27,46 +27,55 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
-import java.io.IOException;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
+import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public abstract class ThemeTreeOperation {
+abstract class ElementOperation extends ThemeTreeOperation {
 
-    private final String groupID;
-    private final String actionID;
+    protected final Element element;
+    protected final ThemeTreeNode node;
 
-    protected ThemeTreeOperation(String groupID, String actionID) {
-        this.groupID = groupID;
-        this.actionID = actionID;
+    protected ElementOperation(String groupName, String actionName, Element element, ThemeTreeNode node) {
+        super(groupName, actionName);
+        this.element = element;
+        this.node = node;
     }
 
-    /**
-     * Operations can be put into groups, then they will get only one button
-     * plus a popup menu
-     * 
-     * @return the group ID or null
-     */
-    public String getGroupID() {
-        return groupID;
+    protected ThemeTreeNode getNodeParent() {
+        return (ThemeTreeNode)node.getParent();
     }
 
-    public String getActionID() {
-        return actionID;
+    protected int getElementPosition() {
+        Element parent = element.getParentElement();
+        for(int i = 0, n = parent.getContentSize(); i < n; i++) {
+            if(parent.getContent(i) == element) {
+                return i;
+            }
+        }
+        return -1;
     }
 
-    public boolean isEnabled() {
-        return true;
+    protected int getPrevSiblingPosition(int pos) {
+        Element parent = element.getParentElement();
+        do {
+            pos--;
+        } while(pos >= 0 && !(parent.getContent(pos) instanceof Element));
+        return pos;
     }
 
-    public boolean needConfirm() {
-        return false;
+    protected int getNextSiblingPosition(int pos) {
+        Element parent = element.getParentElement();
+        int count = parent.getContentSize();
+        do {
+            pos++;
+        } while(pos < count && !(parent.getContent(pos) instanceof Element));
+        return pos;
     }
-
-    public abstract void execute() throws IOException;
-    
 }

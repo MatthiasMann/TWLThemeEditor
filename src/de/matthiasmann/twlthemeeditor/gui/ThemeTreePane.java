@@ -29,16 +29,21 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.BoxLayout;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.PopupMenu;
+import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SubMenu;
 import de.matthiasmann.twl.Table;
 import de.matthiasmann.twl.TableBase.StringCellRenderer;
 import de.matthiasmann.twl.TableRowSelectionManager;
 import de.matthiasmann.twl.TreeTable;
+import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.TableSingleSelectionModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.CallbackSupport;
@@ -47,7 +52,6 @@ import de.matthiasmann.twlthemeeditor.datamodel.NodeNameWithError;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -65,8 +69,8 @@ public class ThemeTreePane extends DialogLayout {
     private final TableSingleSelectionModel tableSelectionModel;
     private final ScrollPane scrollPane;
     private final EditField filterEditField;
-    private final Button btnNodeOperations;
     private final MyFilter filter;
+    private final BoxLayout buttons;
 
     private FilteredModel filteredModel;
     private TreeTableNode selected;
@@ -79,8 +83,12 @@ public class ThemeTreePane extends DialogLayout {
         this.tableSelectionModel = new TableSingleSelectionModel();
         this.scrollPane = new ScrollPane(treeTable);
         this.filterEditField = new EditField();
-        this.btnNodeOperations = new Button("Operations");
         this.filter = new MyFilter();
+        this.buttons = new BoxLayout(BoxLayout.Direction.HORIZONTAL);
+
+        CollapsiblePanel collapsibleButtons = new CollapsiblePanel(
+                CollapsiblePanel.Direction.HORIZONTAL, "", buttons, null);
+        collapsibleButtons.setExpanded(false);
 
         StringCellRenderer errorRenderer = new StringCellRenderer();
         errorRenderer.getAnimationState().setAnimationState("error", true);
@@ -113,19 +121,13 @@ public class ThemeTreePane extends DialogLayout {
                 setSelected(node);
             }
         });
-        btnNodeOperations.setEnabled(false);
-        btnNodeOperations.addCallback(new Runnable() {
-            public void run() {
-                showNodeOperations();
-            }
-        });
 
         setHorizontalGroup(createParallelGroup()
                 .addWidget(scrollPane)
-                .addGroup(createSequentialGroup(filterEditField, btnNodeOperations)));
+                .addGroup(createSequentialGroup(filterEditField, collapsibleButtons)));
         setVerticalGroup(createSequentialGroup()
                 .addWidget(scrollPane)
-                .addGroup(createParallelGroup(filterEditField, btnNodeOperations)));
+                .addGroup(createParallelGroup(filterEditField, collapsibleButtons)));
     }
 
     public void addCallback(Runnable cb) {
@@ -153,7 +155,15 @@ public class ThemeTreePane extends DialogLayout {
         if(selected != node) {
             selected = node;
             CallbackSupport.fireCallbacks(callbacks);
-            btnNodeOperations.setEnabled(node instanceof ThemeTreeNode);
+            updateOperationButtons();
+        }
+    }
+
+    void updateOperationButtons() {
+        buttons.removeAllChildren();
+        if(selected instanceof ThemeTreeNode) {
+            List<ThemeTreeOperation> operations = ((ThemeTreeNode)selected).getOperations();
+            createButtons(operations, buttons);
         }
     }
 
@@ -168,46 +178,102 @@ public class ThemeTreePane extends DialogLayout {
         updateFilter();
     }
 
-    void showNodeOperations() {
+    void showNodeOperations(int x, int y) {
         List<ThemeTreeOperation> operations = ((ThemeTreeNode)selected).getOperations();
-        if(operations.isEmpty()) {
-            btnNodeOperations.setEnabled(false);
-            return;
+        if(!operations.isEmpty()) {
+            PopupMenu popupMenu = new PopupMenu(this);
+            createButtons(operations, popupMenu);
+            popupMenu.showPopup(x, y);
         }
+    }
+
+    private void createButtons(List<ThemeTreeOperation> operations, Widget container) {
         HashMap<String, PopupMenu> submenus = new HashMap<String, PopupMenu>();
-        final PopupMenu popupMenu = new PopupMenu(this);
+        for(final ThemeTreeOperation operation : operations) {
+            String groupID = operation.getGroupID();
 
-        for(final ThemeTreeOperation o : operations) {
-            String groupName = o.getGroupName();
-
-            PopupMenu menu = popupMenu;
-            if(groupName != null) {
-                menu = submenus.get(groupName);
-                if(menu == null) {
-                     SubMenu subMenu = new SubMenu(groupName);
-                     menu = subMenu.getPopupMenu();
-                     submenus.put(groupName, menu);
-                     popupMenu.add(subMenu);
+            PopupMenu subPopupMenu = null;
+            if(groupID != null) {
+                subPopupMenu = submenus.get(groupID);
+                if(subPopupMenu == null) {
+                     SubMenu subMenuBtn = new SubMenu();
+                     subMenuBtn.setTheme(groupID);
+                     subPopupMenu = subMenuBtn.getPopupMenu();
+                     submenus.put(groupID, subPopupMenu);
+                     container.add(subMenuBtn);
                 }
             }
 
-            Button btn = new Button(o.getActionName());
+            final PopupMenu menuToClose = (container instanceof PopupMenu) ?
+                ((PopupMenu)container) : subPopupMenu;
+
+            Button btn = new Button();
+            btn.setTheme(operation.getActionID());
+            btn.setEnabled(operation.isEnabled());
             btn.addCallback(new Runnable() {
                 public void run() {
-                    popupMenu.closePopup();
-                    try {
-                        o.execute();
-                    } catch(IOException ex) {
-                        Logger.getLogger(ThemeTreePane.class.getName()).log(Level.SEVERE, null, ex);
+                    if(menuToClose != null) {
+                        menuToClose.closePopup();
+                    }
+                    if(operation.needConfirm()) {
+                        confirmOperation(operation);
+                    } else {
+                        executeOperation(operation);
                     }
                 }
             });
-            menu.add(btn);
-        }
 
-        popupMenu.showPopup(
-                btnNodeOperations.getX() + btnNodeOperations.getWidth()/2,
-                btnNodeOperations.getY() + btnNodeOperations.getHeight()/2);
+            ((subPopupMenu != null) ? subPopupMenu : container).add(btn);
+        }
+    }
+
+    void executeOperation(ThemeTreeOperation operation) {
+        TreeTableNode curSel = selected;
+        try {
+            operation.execute();
+        } catch(Throwable ex) {
+            Logger.getLogger(ThemeTreePane.class.getName()).log(Level.SEVERE,
+                    "Error while executing tree operation", ex);
+        }
+        int idx = (curSel != null) ? treeTable.getRowFromNode(curSel) : -1;
+        treeTableSelectionModel.setSelection(idx, idx);
+        updateOperationButtons();
+    }
+
+    void confirmOperation(final ThemeTreeOperation operation) {
+        final PopupWindow popupWindow = new PopupWindow(this);
+        popupWindow.setTheme("confirmationDlg-" + operation.getActionID());
+
+        Label msg = new Label();
+        msg.setTheme("msg");
+
+        Button btnOK = new Button();
+        btnOK.setTheme("btnOK");
+        btnOK.addCallback(new Runnable() {
+            public void run() {
+                popupWindow.closePopup();
+                executeOperation(operation);
+            }
+        });
+
+        Button btnCancel = new Button();
+        btnCancel.setTheme("btnCancel");
+        btnCancel.addCallback(new Runnable() {
+            public void run() {
+                popupWindow.closePopup();
+            }
+        });
+
+        DialogLayout l = new DialogLayout();
+        l.setHorizontalGroup(l.createParallelGroup()
+                .addWidget(msg)
+                .addGroup(l.createSequentialGroup().addWidget(btnOK).addGap().addWidget(btnCancel)));
+        l.setVerticalGroup(l.createSequentialGroup()
+                .addWidget(msg)
+                .addGroup(l.createParallelGroup(btnOK, btnCancel)));
+
+        popupWindow.add(l);
+        popupWindow.openPopupCentered();
     }
 
     static class MyFilter implements FilteredModel.Filter {

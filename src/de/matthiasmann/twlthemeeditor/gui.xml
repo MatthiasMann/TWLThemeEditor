@@ -7,6 +7,8 @@
     <include filename="simple.xml"/>
 
     <theme name="themetreepane" ref="dialoglayout">
+        <param name=""><image>panel.*</image></param>
+        <param name="border"><border>0,0,5,0</border></param>
         <theme name="scrollpane" ref="scrollpane">
             <param name="background"><image>-borderC</image></param>
             <param name="border"><border>background.border</border></param>
@@ -17,7 +19,54 @@
             </theme>
             <theme name="table" ref="table"/>
         </theme>
+        <theme name="collapsiblepanel" ref="dialoglayout">
+            <param name="border"><border>5,0</border></param>
+            <theme name="arrow" ref="-defaults">
+                <param name=""><image>collapsiblepanel.arrowH.*</image></param>
+                <param name="tooltip"><string>Toggle tree editing buttons </string></param>
+                <param name="minWidth"><int>12</int></param>
+                <param name="maxHeight"><int>32767</int></param>
+            </theme>
+            <param name="namedGaps"><map>
+                <param name="title-content"><gap>0</gap></param>
+            </map></param>
+            
+            <theme name="contentcontainer" ref="-defaults">
+                <theme name="boxlayout" ref="-defaults">
+                    <param name="alignment"><enum type="alignment">center</enum></param>
+                    <param name="spacing"><int>2</int></param>
+                    <theme name="opMoveNodeUp" ref="button">
+                        <param name=""><image>button.opMoveNodeUp.*</image></param>
+                        <param name="tooltip"><string>Moves the selected node upwards</string></param>
+                    </theme>
+                    <theme name="opMoveNodeDown" ref="button">
+                        <param name=""><image>button.opMoveNodeDown.*</image></param>
+                        <param name="tooltip"><string>Moves the selected node downwards</string></param>
+                    </theme>
+                    <theme name="opDeleteNode" ref="button">
+                        <param name=""><image>button.opDeleteNode.*</image></param>
+                        <param name="tooltip"><string>Deletes the selected node</string></param>
+                    </theme>
+                </theme>
+            </theme>
+        </theme>
         <theme name="" ref="*"/>
+    </theme>
+
+    <theme name="confirmationDlg-opDeleteNode" ref="-defaults">
+        <param name="background"><image>frame.background</image></param>
+        <param name="border"><border>20</border></param>
+        <theme name="dialoglayout" ref="dialoglayout">
+            <theme name="msg" ref="label">
+                <param name="text"><string>Delete the selected node ?</string></param>
+            </theme>
+            <theme name="btnOK" ref="button">
+                <param name="text"><string>Delete</string></param>
+            </theme>
+            <theme name="btnCancel" ref="button">
+                <param name="text"><string>Cancel</string></param>
+            </theme>
+        </theme>
     </theme>
 
     <theme name="propertyEditor" ref="scrollpane">
@@ -35,6 +84,9 @@
                 </theme>
                 <theme name="title" ref="label"/>
                 <theme name="active" ref="checkbox"/>
+                <param name="namedGaps"><map>
+                    <param name="title-content"><gap>5</gap></param>
+                </map></param>
 
                 <theme name="contentcontainer" ref="-defaults">
                     <theme name="" ref="*"/>
@@ -120,8 +172,8 @@
     </theme>
 
     <theme name="previewExceptionPopup" ref="-defaults">
-        <param name="background"><image>-borderC</image></param>
-        <param name="border"><border>background.border</border></param>
+        <param name="background"><image>frame.background</image></param>
+        <param name="border"><border>20</border></param>
         <theme name="dialoglayout" ref="dialoglayout">
             <theme name="scrollpane" ref="scrollpane">
                 <theme name="" ref="*"/>

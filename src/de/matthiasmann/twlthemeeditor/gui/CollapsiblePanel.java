@@ -36,6 +36,7 @@ import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Timer;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.BooleanModel;
 
 /**
  *
@@ -43,45 +44,86 @@ import de.matthiasmann.twl.Widget;
  */
 public class CollapsiblePanel extends DialogLayout {
 
-    public static final String STATE_EXPANDED = "expanded";
+    public enum Direction {
+        HORIZONTAL,
+        VERTICAL
+    }
     
+    public static final String STATE_EXPANDED = "expanded";
+
+    private final Direction direction;
     private final Arrow arrow;
     private final ContentContainer container;
 
     private boolean expanded;
 
-    public CollapsiblePanel(String title, Widget content, final ToggleButton enabled) {
+    public CollapsiblePanel(Direction direction, String title, Widget content, final BooleanModel activeModel) {
+        this.direction = direction;
         this.arrow = new Arrow();
         this.container = new ContentContainer(content);
 
-        Label titleLabel = new Label(title);
-        titleLabel.setTheme("title");
-        titleLabel.setLabelFor(content);
-
-        Group horzTitle = createSequentialGroup().addWidget(arrow);
-        Group vertTitle = createParallelGroup().addWidget(arrow);
-        if(enabled != null) {
-            horzTitle.addWidget(enabled);
-            vertTitle.addWidget(enabled);
+        Group horzTitle, vertTitle;
+        
+        if(direction == Direction.VERTICAL) {
+            horzTitle = createSequentialGroup();
+            vertTitle = createParallelGroup();
+        } else {
+            horzTitle = createParallelGroup();
+            vertTitle = createSequentialGroup();
         }
-        horzTitle.addWidget(titleLabel).addGap();
-        vertTitle.addWidget(titleLabel);
 
-        setHorizontalGroup(createParallelGroup().addGroup(horzTitle).addWidget(container));
-        setVerticalGroup(createSequentialGroup().addGroup(vertTitle).addWidget(container));
+        horzTitle.addWidget(arrow);
+        vertTitle.addWidget(arrow);
 
-        if(enabled == null || enabled.isActive()) {
+        if(activeModel != null) {
+            ToggleButton btnActive = new ToggleButton(activeModel);
+            btnActive.setTheme("active");
+
+            horzTitle.addWidget(btnActive);
+            vertTitle.addWidget(btnActive);
+        }
+
+        if(title != null && title.length() > 0) {
+            Label titleLabel = new Label(title);
+            titleLabel.setTheme("title");
+            titleLabel.setLabelFor(content);
+
+            horzTitle.addWidget(titleLabel);
+            vertTitle.addWidget(titleLabel);
+        }
+
+        if(direction == Direction.VERTICAL) {
+            horzTitle.addGap();
+
+            setHorizontalGroup(createParallelGroup().addGroup(horzTitle).addWidget(container));
+            setVerticalGroup(createSequentialGroup().addGroup(vertTitle).addGap("title-content").addWidget(container));
+        } else {
+            setHorizontalGroup(createSequentialGroup().addGroup(horzTitle).addGap("title-content").addWidget(container));
+            setVerticalGroup(createParallelGroup().addGroup(vertTitle).addWidget(container));
+        }
+
+        if(activeModel == null || activeModel.getValue()) {
             toggleExpand();
         }
 
-        if(enabled != null) {
-            enabled.addCallback(new Runnable() {
+        if(activeModel != null) {
+            activeModel.addCallback(new Runnable() {
                 public void run() {
-                    if(enabled.isActive() && !expanded) {
+                    if(activeModel.getValue() && !expanded) {
                         toggleExpand();
                     }
                 }
             });
+        }
+    }
+
+    public boolean isExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(boolean expanded) {
+        if(this.expanded != expanded) {
+            toggleExpand();
         }
     }
 
@@ -91,9 +133,9 @@ public class CollapsiblePanel extends DialogLayout {
         container.startAnimate();
     }
 
-    class Arrow extends Widget {
+    class Arrow extends Label {
         @Override
-        protected boolean handleEvent(Event evt) {
+        public boolean handleEvent(Event evt) {
             if(evt.getType() == Event.Type.MOUSE_CLICKED && evt.getMouseClickCount() == 1) {
                 toggleExpand();
                 return true;
@@ -109,7 +151,7 @@ public class CollapsiblePanel extends DialogLayout {
     class ContentContainer extends Widget implements Runnable {
         private final Widget content;
         private Timer timer;
-        private int prefInnerHeight = -1;
+        private int prefInnerSize = -1;
         private int speed;
 
         public ContentContainer(Widget content) {
@@ -135,32 +177,54 @@ public class CollapsiblePanel extends DialogLayout {
         }
 
         @Override
-        public int getPreferredInnerHeight() {
-            if(prefInnerHeight < 0) {
-                prefInnerHeight = computPrefferedInnerHeight();
+        public int getPreferredInnerWidth() {
+            if(direction == Direction.VERTICAL) {
+                return super.getPreferredInnerWidth();
             }
-            return prefInnerHeight;
+            if(prefInnerSize < 0) {
+                prefInnerSize = computePrefferedInnerHeight();
+            }
+            return prefInnerSize;
+        }
+
+        @Override
+        public int getPreferredInnerHeight() {
+            if(direction == Direction.HORIZONTAL) {
+                return super.getPreferredInnerHeight();
+            }
+            if(prefInnerSize < 0) {
+                prefInnerSize = computePrefferedInnerHeight();
+            }
+            return prefInnerSize;
         }
 
         public void run() {
-            int pref = computPrefferedInnerHeight();
-            if(pref == prefInnerHeight) {
+            int pref = computePrefferedInnerHeight();
+            if(pref == prefInnerSize) {
                 timer.stop();
-            } else if(prefInnerHeight < pref) {
-                prefInnerHeight = Math.min(prefInnerHeight + speed, pref);
+            } else if(prefInnerSize < pref) {
+                prefInnerSize = Math.min(prefInnerSize + speed, pref);
             } else {
-                prefInnerHeight = Math.max(prefInnerHeight - speed, pref);
+                prefInnerSize = Math.max(prefInnerSize - speed, pref);
             }
             speed = Math.min(speed + STEP, MAX_SPEED);
             checkSize();
         }
 
-        private int computPrefferedInnerHeight() {
-            return expanded ? content.getPreferredHeight() : 0;
+        private int computePrefferedInnerHeight() {
+            if(!expanded) {
+                return 0;
+            }
+            if(direction == Direction.VERTICAL) {
+                return content.getPreferredHeight();
+            } else {
+                return content.getPreferredWidth();
+            }
         }
 
         private void checkSize() {
-            if(getInnerHeight() != prefInnerHeight) {
+            int size = (direction == Direction.VERTICAL) ? getInnerHeight() : getInnerWidth();
+            if(size != prefInnerSize) {
                 invalidateLayoutTree();
             }
         }
