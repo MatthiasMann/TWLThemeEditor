@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import java.io.IOException;
 import java.util.List;
+import org.jdom.Element;
 
 /**
  *
@@ -41,10 +42,14 @@ public interface ThemeTreeNode extends TreeTableNode {
 
     public void addChildren() throws IOException;
     
-    public void appendChild(TreeTableNode ttn);
-    
+    public void insertChild(TreeTableNode ttn, int idx);
+
+    public void removeChild(TreeTableNode ttn);
+
     public void setLeaf(boolean leaf);
 
+    public Element getDOMElement();
+    
     public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz);
 
     public void addToXPP(DomXPPParser xpp);

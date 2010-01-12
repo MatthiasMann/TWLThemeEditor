@@ -245,8 +245,11 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
         return element.getName();
     }
 
+    public Element getDOMElement() {
+        return element;
+    }
+
     public void addChildren() throws IOException {
-        removeAllChildren();
         Utils.addChildren(textures.getThemeFile(), this, element, getImageDomWrapper(textures));
     }
     

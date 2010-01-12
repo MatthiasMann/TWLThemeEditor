@@ -103,8 +103,11 @@ public class Textures extends AbstractThemeTreeNode {
         return textureDimensions;
     }
 
+    public Element getDOMElement() {
+        return node.node;
+    }
+
     public void addChildren() throws IOException {
-        removeAllChildren();
         Utils.addChildren(themeFile, this, node.node, Image.getImageDomWrapper(this));
     }
 

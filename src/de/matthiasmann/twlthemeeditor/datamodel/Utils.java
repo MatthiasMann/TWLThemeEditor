@@ -35,6 +35,7 @@ import de.matthiasmann.twl.model.TreeTableNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.List;
 import org.jdom.Attribute;
 import org.jdom.Element;
@@ -111,20 +112,45 @@ public final class Utils {
     }
 
     public static void addChildren(ThemeFile themeFile, ThemeTreeNode parent, Element node, DomWrapper wrapper) throws IOException {
+        IdentityHashMap<Element, TreeTableNode> existingNodes = new IdentityHashMap<Element, TreeTableNode>();
+        for(int i=0,n=parent.getNumChildren() ; i<n ; i++) {
+            TreeTableNode ttn = parent.getChild(i);
+            if(ttn instanceof ThemeTreeNode) {
+                Element element = ((ThemeTreeNode)ttn).getDOMElement();
+                if(element != null) {
+                    existingNodes.put(element, ttn);
+                }
+            }
+        }
+
+        int pos = 0;
         for(Object child : node.getChildren()) {
             if(child instanceof Element) {
                 Element element = (Element)child;
-                TreeTableNode ttn = wrapper.wrap(themeFile, parent, element);
-                if(ttn == null) {
-                    ttn = new Unknown(parent, element);
+                TreeTableNode ttn = existingNodes.remove(element);
+                if(ttn != null) {
+                    if(parent.getChild(pos) != ttn) {
+                        parent.removeChild(ttn);
+                        parent.insertChild(ttn, pos);
+                    }
+                } else {
+                    ttn = wrapper.wrap(themeFile, parent, element);
+                    if(ttn == null) {
+                        ttn = new Unknown(parent, element);
+                    }
+                    if(ttn instanceof ThemeTreeNode) {
+                        ThemeTreeNode mttn = (ThemeTreeNode)ttn;
+                        mttn.addChildren();
+                        mttn.setLeaf(ttn.getNumChildren() == 0);
+                    }
+                    parent.insertChild(ttn, pos);
                 }
-                if(ttn instanceof ThemeTreeNode) {
-                    ThemeTreeNode mttn = (ThemeTreeNode)ttn;
-                    mttn.addChildren();
-                    mttn.setLeaf(ttn.getNumChildren() == 0);
-                }
-                parent.appendChild(ttn);
+                pos++;
             }
+        }
+
+        for(TreeTableNode ttn : existingNodes.values()) {
+            parent.removeChild(ttn);
         }
     }
 

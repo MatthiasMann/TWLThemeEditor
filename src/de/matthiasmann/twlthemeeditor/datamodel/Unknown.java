@@ -59,6 +59,10 @@ public class Unknown extends AbstractThemeTreeNode {
     public void addChildren() throws IOException {
     }
 
+    public Element getDOMElement() {
+        return element;
+    }
+
     public void addToXPP(DomXPPParser xpp) {
         xpp.addElement(this, element);
     }

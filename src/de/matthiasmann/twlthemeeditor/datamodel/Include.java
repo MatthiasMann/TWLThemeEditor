@@ -74,8 +74,11 @@ public class Include extends AbstractThemeTreeNode {
         return node.getAttribute("filename");
     }
 
+    public Element getDOMElement() {
+        return node.node;
+    }
+
     public void addChildren() throws IOException {
-        removeAllChildren();
         includedThemeFile.addChildren();
     }
 

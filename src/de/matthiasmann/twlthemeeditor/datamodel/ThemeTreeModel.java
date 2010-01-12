@@ -38,6 +38,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.jdom.Element;
 
 /**
  *
@@ -64,11 +65,23 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
         return COLUMN_HEADER.length;
     }
 
-    public void appendChild(TreeTableNode ttn) {
-        insertChild(ttn, getNumChildren());
+    @Override
+    public void insertChild(TreeTableNode node, int idx) {
+        super.insertChild(node, idx);
+    }
+
+    public void removeChild(TreeTableNode ttn) {
+        int childIndex = super.getChildIndex(ttn);
+        if(childIndex >= 0) {
+            super.removeChild(childIndex);
+        }
     }
 
     public void setLeaf(boolean leaf) {
+    }
+
+    public Element getDOMElement() {
+        return null;
     }
 
     public ThemeFile getRootThemeFile() {
@@ -107,7 +120,6 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
     }
 
     public void addChildren() throws IOException {
-        removeAllChildren();
         rootThemeFile.addChildren();
     }
     

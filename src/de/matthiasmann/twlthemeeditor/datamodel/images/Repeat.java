@@ -58,7 +58,6 @@ public class Repeat extends WithSubImages {
 
     @Override
     public void addChildren() throws IOException {
-        removeAllChildren();
         Utils.addChildren(textures.getThemeFile(), this, element, new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                 String tagName = element.getName();

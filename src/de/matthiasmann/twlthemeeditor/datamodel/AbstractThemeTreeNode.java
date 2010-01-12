@@ -53,8 +53,16 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
         return (ThemeTreeModel)getTreeTableModel();
     }
     
-    public void appendChild(TreeTableNode ttn) {
-        insertChild(ttn, getNumChildren());
+    @Override
+    public void insertChild(TreeTableNode ttn, int idx) {
+        super.insertChild(ttn, idx);
+    }
+
+    public void removeChild(TreeTableNode ttn) {
+        int childIndex = super.getChildIndex(ttn);
+        if(childIndex >= 0) {
+            super.removeChild(childIndex);
+        }
     }
 
     @Override
@@ -149,13 +157,13 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
 
             if(direction < 0) {
                 int insertPos = getPrevSiblingPosition(elementTextPos-1) + 1;
-                if(insertPos < elementTextPos) {
+                if(insertPos >= 0 && insertPos < elementTextPos) {
                     moveContent(elementTextPos, insertPos, elementPos - elementTextPos + 1);
                     getNodeParent().addChildren();
                 }
             } else {
                 int insertPos = getNextSiblingPosition(elementPos);
-                if(insertPos > elementPos) {
+                if(insertPos > elementPos && insertPos < element.getParent().getContentSize()) {
                     moveContent(elementTextPos, insertPos, elementPos - elementTextPos + 1);
                     getNodeParent().addChildren();
                 }
