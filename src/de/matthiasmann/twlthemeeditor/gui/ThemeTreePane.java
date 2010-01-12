@@ -32,7 +32,6 @@ package de.matthiasmann.twlthemeeditor.gui;
 import de.matthiasmann.twl.BoxLayout;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
-import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.PopupMenu;
@@ -140,13 +139,13 @@ public class ThemeTreePane extends DialogLayout {
 
     void updateFilter() {
         if(filter.setString(filterEditField.getText())) {
-            if(filterEditField.hasSelection()) {
-                scrollPane.setContent(treeTable);
-            } else {
+            if(filter.hasFilter()) {
                 scrollPane.setContent(table);
                 if(filteredModel != null) {
                     filteredModel.setFilter(filter);
                 }
+            } else {
+                scrollPane.setContent(treeTable);
             }
         }
     }
@@ -285,6 +284,9 @@ public class ThemeTreePane extends DialogLayout {
                 return true;
             }
             return false;
+        }
+        boolean hasFilter() {
+            return str.length() > 0;
         }
         public boolean isVisible(TreeTableNode node) {
             return String.valueOf(node.getData(0)).contains(str);
