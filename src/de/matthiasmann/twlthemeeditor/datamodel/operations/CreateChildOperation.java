@@ -43,6 +43,8 @@ import org.jdom.Text;
  */
 abstract class CreateChildOperation extends ThemeTreeOperation {
 
+    private static final int INDENTATION_SIZE = 4;
+
     protected final ThemeTreeNode parent;
 
     public CreateChildOperation(String actionID, ThemeTreeNode parent) {
@@ -52,22 +54,12 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
 
     protected int getBaseIndentation() {
         Element element = parent.getDOMElement();
-        Element parentElement = element.getParentElement();
-        if(parentElement != null) {
-            for(int i=1 ; i<parentElement.getContentSize() ; i++) {
-                if(parentElement.getContent(i) == element) {
-                    Content prevSibling = parentElement.getContent(i-1);
-                    if(prevSibling instanceof Text) {
-                        String prevText = ((Text)prevSibling).getText();
-                        return prevText.length() - Math.max(
-                                prevText.lastIndexOf('\n'),
-                                prevText.lastIndexOf('\r')) + 3;
-                    }
-                    break;
-                }
-            }
+        int indentation = 0;
+        while(element != null) {
+            element = element.getParentElement();
+            indentation += INDENTATION_SIZE;
         }
-        return 0;
+        return indentation;
     }
     
     protected Text createIndentation(int indentation) {
@@ -92,7 +84,7 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
 
     protected void addIndentation(Element element, int indentation) {
         boolean hasElements = false;
-        indentation += 4;
+        indentation += INDENTATION_SIZE;
         for(int i=element.getContentSize() ; i-->0 ; i++) {
             Content content = element.getContent(i);
             if(content instanceof Element) {
@@ -102,7 +94,7 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
             }
         }
         if(hasElements) {
-            element.addContent(createIndentation(indentation-4));
+            element.addContent(createIndentation(indentation-INDENTATION_SIZE));
         }
     }
 }
