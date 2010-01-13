@@ -29,13 +29,12 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.SimpleDialog;
 import de.matthiasmann.twl.BoxLayout;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
-import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.PopupMenu;
-import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SubMenu;
 import de.matthiasmann.twl.Table;
@@ -87,7 +86,6 @@ public class ThemeTreePane extends DialogLayout {
 
         CollapsiblePanel collapsibleButtons = new CollapsiblePanel(
                 CollapsiblePanel.Direction.HORIZONTAL, "", buttons, null);
-        collapsibleButtons.setExpanded(false);
 
         StringCellRenderer errorRenderer = new StringCellRenderer();
         errorRenderer.getAnimationState().setAnimationState("error", true);
@@ -97,6 +95,7 @@ public class ThemeTreePane extends DialogLayout {
         treeTable.setSelectionManager(new TableRowSelectionManager(treeTableSelectionModel));
         table.setSelectionManager(new TableRowSelectionManager(tableSelectionModel));
 
+        filterEditField.setTheme("filter");
         filterEditField.addCallback(new EditField.Callback() {
             public void callback(int key) {
                 updateFilter();
@@ -139,6 +138,7 @@ public class ThemeTreePane extends DialogLayout {
 
     void updateFilter() {
         if(filter.setString(filterEditField.getText())) {
+            TreeTableNode curSel = selected;
             if(filter.hasFilter()) {
                 scrollPane.setContent(table);
                 if(filteredModel != null) {
@@ -147,6 +147,7 @@ public class ThemeTreePane extends DialogLayout {
             } else {
                 scrollPane.setContent(treeTable);
             }
+            selectNode(curSel);
         }
     }
 
@@ -235,45 +236,36 @@ public class ThemeTreePane extends DialogLayout {
             Logger.getLogger(ThemeTreePane.class.getName()).log(Level.SEVERE,
                     "Error while executing tree operation", ex);
         }
-        int idx = (curSel != null) ? treeTable.getRowFromNode(curSel) : -1;
+        selectNode(curSel);
+    }
+
+    void selectNode(TreeTableNode node) {
+        int idx = (node != null) ? treeTable.getRowFromNodeExpand(node) : -1;
         treeTableSelectionModel.setSelection(idx, idx);
+        if(idx >= 0) {
+            treeTable.scrollToRow(idx);
+        }
+
+        idx = (node != null) ? filteredModel.getRowFromNode(node) : -1;
+        tableSelectionModel.setSelection(idx, idx);
+        if(idx >= 0) {
+            table.scrollToRow(idx);
+        }
+
         updateOperationButtons();
     }
 
     void confirmOperation(final ThemeTreeOperation operation) {
-        final PopupWindow popupWindow = new PopupWindow(this);
-        popupWindow.setTheme("confirmationDlg-" + operation.getActionID());
-
-        Label msg = new Label();
-        msg.setTheme("msg");
-
-        Button btnOK = new Button();
-        btnOK.setTheme("btnOK");
-        btnOK.addCallback(new Runnable() {
+        SimpleDialog dialog = new SimpleDialog();
+        dialog.setTheme("confirmationDlg-" + operation.getActionID());
+        dialog.setTitle(operation.getActionID());
+        dialog.setMessage(selected.toString());
+        dialog.setOkCallback(new Runnable() {
             public void run() {
-                popupWindow.closePopup();
                 executeOperation(operation);
             }
         });
-
-        Button btnCancel = new Button();
-        btnCancel.setTheme("btnCancel");
-        btnCancel.addCallback(new Runnable() {
-            public void run() {
-                popupWindow.closePopup();
-            }
-        });
-
-        DialogLayout l = new DialogLayout();
-        l.setHorizontalGroup(l.createParallelGroup()
-                .addWidget(msg)
-                .addGroup(l.createSequentialGroup().addWidget(btnOK).addGap().addWidget(btnCancel)));
-        l.setVerticalGroup(l.createSequentialGroup()
-                .addWidget(msg)
-                .addGroup(l.createParallelGroup(btnOK, btnCancel)));
-
-        popupWindow.add(l);
-        popupWindow.openPopupCentered();
+        dialog.showDialog(this);
     }
 
     static class MyFilter implements FilteredModel.Filter {

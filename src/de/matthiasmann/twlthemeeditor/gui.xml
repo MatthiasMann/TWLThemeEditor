@@ -49,11 +49,14 @@
             </theme>
             <theme name="table" ref="table"/>
         </theme>
+        <theme name="filter" ref="editfield">
+            <param name="tooltip"><string>Search for nodes</string></param>
+        </theme>
         <theme name="collapsiblepanel" ref="dialoglayout">
             <param name="border"><border>5,0</border></param>
             <theme name="arrow" ref="-defaults">
                 <param name=""><image>collapsiblepanel.arrowH.*</image></param>
-                <param name="tooltip"><string>Toggle tree editing buttons </string></param>
+                <param name="tooltip"><string>Toggle tree editing buttons</string></param>
                 <param name="minWidth"><int>12</int></param>
                 <param name="maxHeight"><int>32767</int></param>
             </theme>
@@ -105,18 +108,13 @@
         </theme>
     </theme>
 
-    <theme name="confirmationDlg-opDeleteNode" ref="-defaults">
-        <param name="background"><image>frame.background</image></param>
-        <param name="border"><border>20</border></param>
-        <theme name="dialoglayout" ref="dialoglayout">
-            <theme name="msg" ref="label">
+    <theme name="confirmationDlg-opDeleteNode" ref="simpledialog">
+        <theme name="content" merge="true">
+            <theme name="title" merge="true">
                 <param name="text"><string>Delete the selected node ?</string></param>
             </theme>
-            <theme name="btnOK" ref="button">
+            <theme name="btnOk" merge="true">
                 <param name="text"><string>Delete</string></param>
-            </theme>
-            <theme name="btnCancel" ref="button">
-                <param name="text"><string>Cancel</string></param>
             </theme>
         </theme>
     </theme>

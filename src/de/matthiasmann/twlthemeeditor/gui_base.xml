@@ -807,4 +807,25 @@
         </map></param>
     </theme>
 
+    <theme name="simpledialog" ref="-defaults">
+        <param name="background"><image>frame.background</image></param>
+        <param name="border"><border>20</border></param>
+        <theme name="content" ref="dialoglayout">
+            <theme name="title" ref="label"/>
+            <theme name="btnOk" ref="button"/>
+            <theme name="btnCancel" ref="button"/>
+            <theme name="" ref="*"/>
+            <param name="namedGaps"><map>
+                <param name="title-buttons"><gap>20</gap></param>
+                <param name="title-msg"><gap>10</gap></param>
+                <param name="msg-buttons"><gap>20</gap></param>
+                <param name="left-msg"><gap>0</gap></param>
+                <param name="msg-right"><gap>0,0,32767</gap></param>
+                <param name="left-btnOk"><gap>0,0,32767</gap></param>
+                <param name="btnOk-btnCancel"><gap>20</gap></param>
+                <param name="btnCancel-right"><gap>0</gap></param>
+            </map></param>
+        </theme>
+    </theme>
+    
 </themes>

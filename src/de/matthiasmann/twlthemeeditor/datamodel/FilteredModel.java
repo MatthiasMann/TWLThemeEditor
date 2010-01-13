@@ -106,6 +106,15 @@ public class FilteredModel extends AbstractTableModel {
         return rows.size();
     }
 
+    public int getRowFromNode(TreeTableNode node) {
+        for(int i=0,n=rows.size() ; i<n ; i++) {
+            if(rows.get(i) == node) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     void addRow(int pos, TreeTableNode node) {
         rows.add(pos, node);
         fireRowsInserted(pos, 1);
