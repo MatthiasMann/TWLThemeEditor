@@ -27,29 +27,38 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
+package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
-import de.matthiasmann.twl.ToggleButton;
-import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.Border;
+import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 
 /**
  *
  * @author Matthias Mann
  */
-public class BooleanEditor implements PropertyEditorFactory<Boolean> {
+public class BorderProperty extends DerivedProperty<Border> {
 
-    public Widget create(final PropertyAccessor<Boolean> pa) {
-        final ToggleButton btn = new ToggleButton(pa.getDisplayName());
-        btn.setTheme("boolean");
-        btn.setActive(pa.getValue(Boolean.FALSE));
-        btn.addCallback(new Runnable() {
-            public void run() {
-                pa.setValue(btn.isActive());
-            }
-        });
+    private final int minValue;
 
-        return btn;
+    public BorderProperty(AttributeProperty base, int minValue) {
+        super(base, Border.class);
+        this.minValue = minValue;
     }
 
+    public Border getPropertyValue() {
+        String value = base.getPropertyValue();
+        if(value == null && canBeNull()) {
+            return null;
+        }
+        return Utils.parseBorder(value);
+    }
+
+    public void setPropertyValue(Border value) throws IllegalArgumentException {
+        base.setPropertyValue((value != null) ? Utils.toString(value) : null);
+    }
+
+    public int getMinValue() {
+        return minValue;
+    }
+    
 }

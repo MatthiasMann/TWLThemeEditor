@@ -34,21 +34,21 @@ import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
-import de.matthiasmann.twlthemeeditor.properties.MinValueI;
+import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
 import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 
 /**
  *
  * @author Matthias Mann
  */
-public class BorderEditorFactory implements PropertyEditorFactory<Border> {
+public class BorderEditorFactory implements PropertyEditorFactory<Border, BorderProperty> {
 
-    public Widget create(PropertyAccessor<Border> pa) {
+    public Widget create(PropertyAccessor<Border, BorderProperty> pa) {
         return new BorderEditor(pa);
     }
 
     static class BorderEditor extends DialogLayout implements Runnable {
-        private final PropertyAccessor<Border> pa;
+        private final PropertyAccessor<Border, BorderProperty> pa;
         private final SimpleIntegerModel modelTop;
         private final SimpleIntegerModel modelLeft;
         private final SimpleIntegerModel modelBottom;
@@ -56,13 +56,12 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border> {
 
         private static final int MAX_BORDER_SIZE = 1000;
 
-        public BorderEditor(PropertyAccessor<Border> pa) {
+        public BorderEditor(PropertyAccessor<Border, BorderProperty> pa) {
             this.pa = pa;
 
             Border border = pa.getValue(Border.ZERO);
 
-            MinValueI minValueI = pa.getAnnotation(MinValueI.class);
-            int minValue = (minValueI != null) ? minValueI.value() : -MAX_BORDER_SIZE;
+            int minValue = pa.getProperty().getMinValue();
 
             modelTop = new SimpleIntegerModel(minValue, MAX_BORDER_SIZE, border.getBorderTop());
             modelLeft = new SimpleIntegerModel(minValue, MAX_BORDER_SIZE, border.getBorderLeft());

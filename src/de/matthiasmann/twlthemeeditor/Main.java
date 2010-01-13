@@ -36,7 +36,7 @@ import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
-import de.matthiasmann.twlthemeeditor.datamodel.HasProperties;
+import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Include;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;

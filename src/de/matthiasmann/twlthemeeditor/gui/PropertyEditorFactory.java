@@ -31,13 +31,14 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.Property;
 
 /**
  *
  * @author Matthias Mann
  */
-public interface PropertyEditorFactory<T> {
+public interface PropertyEditorFactory<T, P extends Property<T>> {
 
-    public Widget create(PropertyAccessor<T> pa);
+    public Widget create(PropertyAccessor<T, P> pa);
     
 }

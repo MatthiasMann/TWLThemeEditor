@@ -27,35 +27,75 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel.images;
+package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.Dimension;
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
-import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
+import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.datamodel.HotSpot;
 import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Cursor extends Image {
+public abstract class HotSpotProperty implements Property<HotSpot> {
 
-    public Cursor(Textures textures, TreeTableNode parent, Element node) {
-        super(textures, parent, node);
-        final ImageRectProperty rectProperty = new ImageRectProperty(node);
-        addProperty(rectProperty);
-        addProperty(new HotSpotProperty(element, "Hot spot") {
+    private final IntegerProperty baseX;
+    private final IntegerProperty baseY;
+    private final String name;
+
+    public HotSpotProperty(Element element, String name) {
+        this.baseX = new IntegerProperty(new AttributeProperty(element, "hotSpotX"), 0, 0) {
             @Override
-            public Dimension getLimit() {
-                return rectProperty.getPropertyValue().getSize();
+            public int getMaxValue() {
+                return getLimit().getX();
             }
-        });
+        };
+        this.baseY = new IntegerProperty(new AttributeProperty(element, "hotSpotY"), 0, 0) {
+            @Override
+            public int getMaxValue() {
+                return getLimit().getY();
+            }
+        };
+        this.name = name;
     }
 
-    @Override
-    public Kind getKind() {
-        return Kind.CURSOR;
+    public String getName() {
+        return name;
     }
+
+    public Class<HotSpot> getType() {
+        return HotSpot.class;
+    }
+
+    public boolean canBeNull() {
+        return false;
+    }
+
+    public boolean isReadOnly() {
+        return false;
+    }
+
+    public HotSpot getPropertyValue() {
+        return new HotSpot(
+                baseX.getValue(),
+                baseY.getValue());
+    }
+
+    public void setPropertyValue(HotSpot value) throws IllegalArgumentException {
+        baseX.setValue(value.getX());
+        baseY.setValue(value.getY());
+    }
+
+    public void addValueChangedCallback(Runnable cb) {
+        baseX.addValueChangedCallback(cb);
+        baseY.addValueChangedCallback(cb);
+    }
+
+    public void removeValueChangedCallback(Runnable cb) {
+        baseX.removeValueChangedCallback(cb);
+        baseY.removeValueChangedCallback(cb);
+    }
+
+    public abstract Dimension getLimit();
 }

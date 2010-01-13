@@ -36,24 +36,25 @@ import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractIntegerModel;
 import de.matthiasmann.twlthemeeditor.datamodel.HotSpot;
+import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class HotSpotEditorFactory implements PropertyEditorFactory<HotSpot>{
+public class HotSpotEditorFactory implements PropertyEditorFactory<HotSpot, HotSpotProperty> {
 
-    public Widget create(PropertyAccessor<HotSpot> pa) {
+    public Widget create(PropertyAccessor<HotSpot, HotSpotProperty> pa) {
         return new HotSpotEditor(pa);
     }
 
     private static final HotSpot NULL_HOTSPOT = new HotSpot(0,0);
 
     static class HotSpotEditor extends DialogLayout {
-        private final PropertyAccessor<HotSpot> pa;
+        private final PropertyAccessor<HotSpot, HotSpotProperty> pa;
         private HotSpot hotspot;
 
-        public HotSpotEditor(PropertyAccessor<HotSpot> pa) {
+        public HotSpotEditor(PropertyAccessor<HotSpot, HotSpotProperty> pa) {
             this.pa = pa;
             this.hotspot = pa.getValue(NULL_HOTSPOT);
 
@@ -94,7 +95,7 @@ public class HotSpotEditorFactory implements PropertyEditorFactory<HotSpot>{
         }
 
         Dimension getLimit() {
-            return pa.getLimit(Dimension.class, Dimension.ZERO);
+            return pa.getProperty().getLimit();
         }
 
         void setHotSpot(HotSpot hotspot) {

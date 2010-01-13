@@ -39,15 +39,16 @@ import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.utils.StateExpression;
 import de.matthiasmann.twlthemeeditor.datamodel.Condition;
+import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
 import java.text.ParseException;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ConditionEditor implements PropertyEditorFactory<Condition> {
+public class ConditionEditor implements PropertyEditorFactory<Condition, ConditionProperty> {
 
-    public Widget create(PropertyAccessor<Condition> pa) {
+    public Widget create(PropertyAccessor<Condition, ConditionProperty> pa) {
         final ConditionModifier cm = new ConditionModifier(pa);
 
         ToggleButton btnNone = new ToggleButton(cm.new TypeBooleanModel(Condition.Type.NONE));
@@ -73,11 +74,11 @@ public class ConditionEditor implements PropertyEditorFactory<Condition> {
     }
 
     static class ConditionModifier extends HasCallback implements EditField.Callback {
-        final PropertyAccessor<Condition> pa;
+        final PropertyAccessor<Condition, ConditionProperty> pa;
         final EditField ef;
         Condition.Type conditionType;
 
-        protected ConditionModifier(PropertyAccessor<Condition> pa) {
+        protected ConditionModifier(PropertyAccessor<Condition, ConditionProperty> pa) {
             this.pa = pa;
 
             Condition condition = pa.getValue(Condition.NONE);

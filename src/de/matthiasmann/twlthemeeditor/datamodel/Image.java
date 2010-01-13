@@ -29,10 +29,9 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twlthemeeditor.properties.MinValueI;
-import de.matthiasmann.twlthemeeditor.properties.Optional;
-import de.matthiasmann.twl.Border;
-import de.matthiasmann.twl.Color;
+import de.matthiasmann.twl.Dimension;
+import de.matthiasmann.twlthemeeditor.properties.HasProperties;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Alias;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Animation;
@@ -45,7 +44,15 @@ import de.matthiasmann.twlthemeeditor.datamodel.images.HVSplitSimple;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Select;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Texture;
 import de.matthiasmann.twlthemeeditor.datamodel.images.VSplitSimple;
+import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
+import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
+import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
+import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
+import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
+import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.jdom.Element;
 
@@ -61,28 +68,36 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
     }
 
     protected final Textures textures;
-    protected BaseProperties properties;
+    protected final ArrayList<Property<?>> properties;
     protected final Element element;
+    protected final AttributeProperty nameProperty;
+    protected ConditionProperty conditionProperty;
 
     protected Image(Textures textures, TreeTableNode parent, Element element) {
         super(parent);
         this.textures = textures;
+        this.properties = new ArrayList<Property<?>>();
         this.element = element;
+
+        if(parent == textures) {
+            this.nameProperty = new AttributeProperty(element, "name");
+            addProperty(nameProperty);
+        } else {
+            this.nameProperty = null;
+        }
     }
 
     public Kind getKind() {
         return Kind.IMAGE;
     }
-    
-    public BaseProperties getProperties() {
-        return properties;
+
+    public Property<?>[] getProperties() {
+        return properties.toArray(new Property[properties.size()]);
     }
 
-    public <T> T getProperties(Class<T> type) {
-        if(type.isInstance(properties)) {
-            return type.cast(properties);
-        }
-        return null;
+    protected final void addProperty(Property<?> property) {
+        textures.getThemeFile().registerProperty(property);
+        properties.add(property);
     }
 
     public void addToXPP(DomXPPParser xpp) {
@@ -93,119 +108,24 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
         return AbstractThemeTreeNode.getDefaultOperations(element, this);
     }
 
-    public class BaseProperties extends NodeWrapper {
-        protected final Textures textures;
-
-        protected BaseProperties(Textures textures, Element node) {
-            super(textures.getThemeFile(), node);
-            this.textures = textures;
-        }
-
-        public String getName() {
-            return getAttribute("name");
-        }
-    }
-
-    public class ImageProperties extends BaseProperties {
-        public ImageProperties(Textures textures, Element node) {
-            super(textures, node);
-        }
-
-        public boolean isCentered() {
-            return parseBoolFromAttribute("center", false);
-        }
-
-        public void setCentered(boolean centered) {
-            setAttribute("center", centered, false);
-        }
-
-        @Optional
-        @MinValueI(0)
-        public Border getBorder() {
-            return Utils.parseBorder(getAttribute("border"));
-        }
-
-        public void setBorder(Border border) {
-            setAttribute("border", Utils.toString(border));
-        }
-
-        @Optional
-        public Border getInset() {
-            return Utils.parseBorder(getAttribute("inset"));
-        }
-
-        public void setInset(Border inset) {
-            setAttribute("inset", Utils.toString(inset));
-        }
-
-        @Optional
-        @MinValueI(0)
-        public Integer getSizeOverwriteH() {
-            String value = getAttribute("sizeOverwriteH");
-            return (value == null) ? null : Integer.valueOf(value);
-        }
-
-        public void setSizeOverwriteH(Integer sizeOverwriteH) {
-            setAttribute("sizeOverwriteH", Utils.toStringOrNull(sizeOverwriteH));
-        }
-
-        @Optional
-        @MinValueI(0)
-        public Integer getSizeOverwriteV() {
-            String value = getAttribute("sizeOverwriteV");
-            return (value == null) ? null : Integer.valueOf(value);
-        }
-
-        public void setSizeOverwriteV(Integer sizeOverwriteV) {
-            setAttribute("sizeOverwriteV", Utils.toStringOrNull(sizeOverwriteV));
-        }
-
-        public boolean isRepeatX() {
-            return parseBoolFromAttribute("repeatX", false);
-        }
-
-        public void setRepeatX(boolean repeatX) {
-            setAttribute("repeatX", repeatX, false);
-        }
-
-        public boolean isRepeatY() {
-            return parseBoolFromAttribute("repeatY", false);
-        }
-
-        public void setRepeatY(boolean repeatY) {
-            setAttribute("repeatY", repeatY, false);
-        }
-
-        @Optional
-        public Color getTint() {
-            String value = getAttribute("tint");
-            return (value == null) ? null : Color.parserColor(value);
-        }
-
-        public void setTint(Color tint) {
-            setAttribute("tint", Utils.toStringOrNull(tint));
-        }
-
-        public Condition getCondition() {
-            String cond = getAttribute("if");
-            if(cond != null) {
-                return new Condition(Condition.Type.IF, cond);
-            }
-            cond = getAttribute("unless");
-            if(cond != null) {
-                return new Condition(Condition.Type.UNLESS, cond);
-            }
-            return Condition.NONE;
-        }
-
-        public void setCondition(Condition condition) {
-            setAttribute("if", (condition.getType() == Condition.Type.IF) ? condition.getCondition() : null);
-            setAttribute("unless", (condition.getType() == Condition.Type.UNLESS) ? condition.getCondition() : null);
-        }
+    protected void addStandardProperties() {
+        addProperty(conditionProperty = new ConditionProperty(element, "Condition"));
+        addProperty(new BooleanProperty(new AttributeProperty(element, "center", "Centered", true), false));
+        addProperty(new BorderProperty(new AttributeProperty(element, "border", "Border", true), 0));
+        addProperty(new BorderProperty(new AttributeProperty(element, "inset", "Inset", true), Short.MIN_VALUE));
+        addProperty(new IntegerProperty(new AttributeProperty(element, "sizeOverwriteH", "Size overwrite horizontal", true), 0, Short.MAX_VALUE));
+        addProperty(new IntegerProperty(new AttributeProperty(element, "sizeOverwriteV", "Size overwrite vertical", true), 0, Short.MAX_VALUE));
+        addProperty(new BooleanProperty(new AttributeProperty(element, "repeatX", "Repeat horizontal (deprecated)", true), false));
+        addProperty(new BooleanProperty(new AttributeProperty(element, "repeatY", "Repeat vertical (deprecated)", true), false));
+        addProperty(new ColorProperty(new AttributeProperty(element, "tint", "Tint color", true)));
     }
 
     public String getName() {
-        return properties.getName();
+        return (nameProperty != null) ? nameProperty.getPropertyValue() : null;
+    }
+
+    public Condition getCondition() {
+        return (conditionProperty != null) ? conditionProperty.getPropertyValue() : Condition.NONE;
     }
 
     public Textures getTextures() {
@@ -214,7 +134,7 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
 
     @Override
     public String toString() {
-        return properties.getName();
+        return getName();
     }
 
     public Object getData(int column) {
@@ -231,7 +151,7 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
     }
 
     public String getDisplayName() {
-        String name = properties.getName();
+        String name = getName();
         if(name != null) {
             return name;
         }
@@ -256,6 +176,13 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
     public static DomWrapper getImageDomWrapper(final Textures textures) {
         return new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
+                Image image = createChild(themeFile, parent, element);
+                if(image != null && image.getKind() != Kind.CURSOR) {
+                    image.addStandardProperties();
+                }
+                return image;
+            }
+            public Image createChild(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                 String tagName = element.getName();
 
                 if("texture".equals(tagName)) {
@@ -297,4 +224,14 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
         };
     }
 
+    protected class ImageRectProperty extends RectProperty {
+        public ImageRectProperty(Element element) {
+            super(element, "rect");
+        }
+
+        @Override
+        public Dimension getLimit() {
+            return textures.getTextureDimensions();
+        }
+    }
 }

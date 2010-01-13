@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.CallbackWithReason;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.TestEnv;
@@ -67,6 +68,7 @@ public class ThemeFile implements VirtualFile {
     private final URL url;
     private final Document document;
     private final ThemeTreeNode treeNode;
+    private final Runnable xmlChangedCB;
 
     private String fileName;
     private CallbackWithReason<?>[] callbacks;
@@ -79,6 +81,11 @@ public class ThemeFile implements VirtualFile {
         this.env = env;
         this.url = url;
         this.treeNode = node;
+        this.xmlChangedCB = new Runnable() {
+            public void run() {
+                fireCallbacks(CallbackReason.ATTRIBUTE_CHANGED);
+            }
+        };
         
         try {
             SAXBuilder saxb = new SAXBuilder(false);
@@ -138,6 +145,10 @@ public class ThemeFile implements VirtualFile {
         env.registerFile(fileName, this);
     }
 
+    void registerProperty(Property<?> property) {
+        property.addValueChangedCallback(xmlChangedCB);
+    }
+    
     void fireCallbacks(CallbackReason reason) {
         CallbackSupport.fireCallbacks(callbacks, reason);
     }

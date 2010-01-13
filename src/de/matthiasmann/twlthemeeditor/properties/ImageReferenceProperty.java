@@ -27,46 +27,36 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
+package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
-import de.matthiasmann.twl.ComboBox;
-import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
-import de.matthiasmann.twlthemeeditor.datamodel.Utils;
-import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ImageRefEditor implements PropertyEditorFactory<ImageReference, ImageReferenceProperty> {
+public class ImageReferenceProperty extends DerivedProperty<ImageReference> {
 
-    private final Context ctx;
+    private final Image limit;
 
-    public ImageRefEditor(Context ctx) {
-        this.ctx = ctx;
+    public ImageReferenceProperty(AttributeProperty base, Image limit) {
+        super(base, ImageReference.class);
+        this.limit = limit;
     }
 
-    public Widget create(final PropertyAccessor<ImageReference, ImageReferenceProperty> pa) {
-        Image limit = pa.getProperty().getLimit();
-        final ImageReference ref = pa.getValue(ImageReference.NONE_REF);
-        final Image.Kind kind = ref.getKind();
-        final ListModel<String> refableImages = ctx.getRefableImages(limit, kind);
-        final ComboBox<String> cb = new ComboBox<String>(refableImages);
-        cb.setSelected(Utils.find(refableImages, ref.getName()));
-        cb.addCallback(new Runnable() {
-            public void run() {
-                int selected = cb.getSelected();
-                if(selected >= 0) {
-                    pa.setValue(new ImageReference(refableImages.getEntry(selected), kind));
-                }
-            }
-        });
-
-        return cb;
+    public ImageReference getPropertyValue() {
+        String value = base.getPropertyValue();
+        return new ImageReference(value, limit.getKind());
     }
 
+    public void setPropertyValue(ImageReference value) throws IllegalArgumentException {
+        if(value.getKind() == limit.getKind()) {
+            base.setPropertyValue(value.getName());
+        }
+    }
+
+    public Image getLimit() {
+        return limit;
+    }
 }

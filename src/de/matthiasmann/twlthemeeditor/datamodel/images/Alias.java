@@ -31,9 +31,9 @@ package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.Image.ImageProperties;
-import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
 import org.jdom.Element;
 
 /**
@@ -44,27 +44,10 @@ public class Alias extends Image {
 
     public Alias(Textures textures, TreeTableNode parent, Element node) {
         super(textures, parent, node);
-        this.properties = new AliasProperties(textures, node);
-    }
-
-    public class AliasProperties extends ImageProperties {
-
-        public AliasProperties(Textures textures, Element node) {
-            super(textures, node);
+        Image limit = this;
+        while(limit.getParent() != textures) {
+            limit = (Image)limit.getParent();
         }
-
-        public ImageReference getRef() {
-            return new ImageReference(getAttribute("ref"), Kind.IMAGE);
-        }
-
-        public Alias getRefLimit() {
-            return Alias.this;
-        }
-
-        public void setRef(ImageReference ref) {
-            if(ref.getKind() == Kind.IMAGE) {
-                setAttribute("ref", ref.getName());
-            }
-        }
+        addProperty(new ImageReferenceProperty(new AttributeProperty(element, "ref"), limit));
     }
 }

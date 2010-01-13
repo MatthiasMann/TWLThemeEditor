@@ -43,12 +43,12 @@ import org.jdom.Element;
 public class Include extends AbstractThemeTreeNode {
 
     private final ThemeFile includedThemeFile;
-    private final NodeWrapper node;
+    private final Element element;
 
-    public Include(TreeTableNode parent, Element node, final ThemeFile themeFile) throws IOException {
+    public Include(TreeTableNode parent, Element element, final ThemeFile themeFile) throws IOException {
         super(parent);
 
-        this.node = new NodeWrapper(themeFile, node);
+        this.element = element;
         this.includedThemeFile = new ThemeFile(themeFile.getEnv(), themeFile.getURL(getFileName()), this);
 
         includedThemeFile.registerAs(getFileName());
@@ -71,11 +71,11 @@ public class Include extends AbstractThemeTreeNode {
     }
 
     public String getFileName() {
-        return node.getAttribute("filename");
+        return element.getAttributeValue("filename");
     }
 
     public Element getDOMElement() {
-        return node.node;
+        return element;
     }
 
     public void addChildren() throws IOException {
@@ -83,7 +83,7 @@ public class Include extends AbstractThemeTreeNode {
     }
 
     public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(this, node.node);
+        xpp.addElement(this, element);
     }
 
     public ThemeFile getIncludedThemeFile() {
@@ -91,7 +91,7 @@ public class Include extends AbstractThemeTreeNode {
     }
 
     public List<ThemeTreeOperation> getOperations() {
-        return AbstractThemeTreeNode.getDefaultOperations(node.node, this);
+        return AbstractThemeTreeNode.getDefaultOperations(element, this);
     }
 
 }

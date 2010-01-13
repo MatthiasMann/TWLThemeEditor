@@ -29,12 +29,11 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel.images;
 
-import de.matthiasmann.twl.Dimension;
-import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.Image.ImageProperties;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
 import org.jdom.Element;
 
 /**
@@ -43,34 +42,33 @@ import org.jdom.Element;
  */
 public class Texture extends Image {
 
+    protected final ImageRectProperty rectProperty;
+
     public Texture(Textures textures, TreeTableNode parent, Element node) {
         super(textures, parent, node);
-        this.properties = new TextureProperties(textures, node);
+        this.rectProperty = new ImageRectProperty(node);
+        addProperty(rectProperty);
     }
 
-    public class TextureProperties extends ImageProperties {
-
-        public TextureProperties(Textures textures, Element node) {
-            super(textures, node);
+    protected class HSplitProperty extends SplitProperty {
+        public HSplitProperty(AttributeProperty base) {
+            super(base);
         }
 
-        public Rect getRect() {
-            return new Rect(
-                    parseIntFromAttribute("x"),
-                    parseIntFromAttribute("y"),
-                    parseIntFromAttribute("width"),
-                    parseIntFromAttribute("height"));
+        @Override
+        public int getLimit() {
+            return rectProperty.getPropertyValue().getWidth();
+        }
+    }
+
+    protected class VSplitProperty extends SplitProperty {
+        public VSplitProperty(AttributeProperty base) {
+            super(base);
         }
 
-        public Dimension getRectLimit() {
-            return textures.getTextureDimensions();
-        }
-
-        public void setRect(Rect rect) {
-            setAttribute("x", rect.getX());
-            setAttribute("y", rect.getY());
-            setAttribute("width", rect.getWidth());
-            setAttribute("height", rect.getHeight());
+        @Override
+        public int getLimit() {
+            return rectProperty.getPropertyValue().getHeight();
         }
     }
 }

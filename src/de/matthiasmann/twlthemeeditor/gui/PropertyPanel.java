@@ -33,13 +33,9 @@ import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
-import de.matthiasmann.twlthemeeditor.properties.Optional;
-import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.util.TreeMap;
 
 /**
  *
@@ -47,40 +43,23 @@ import java.util.TreeMap;
  */
 public class PropertyPanel extends DialogLayout {
 
-    protected static final int NUM_COLUMNS = 2;
-
     protected final Context ctx;
 
-    public PropertyPanel(Context ctx, Object obj) throws IntrospectionException {
+    public PropertyPanel(Context ctx, Property<?>[] properties) throws IntrospectionException {
         this.ctx = ctx;
         
         setHorizontalGroup(createParallelGroup());
         setVerticalGroup(createSequentialGroup());
 
-        BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());
-        TreeMap<String, PropertyDescriptor> properties = new TreeMap<String, PropertyDescriptor>();
-        for(PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-            if(pd.getWriteMethod() != null && pd.getReadMethod() != null) {
-                properties.put(pd.getName(), pd);
-            }
-        }
-
-        for(String property : ctx.getPropertyOrder()) {
-            PropertyDescriptor pd = properties.remove(property);
-            if(pd != null) {
-                addProperty(obj, pd);
-            }
-        }
-
-        for(PropertyDescriptor pd : properties.values()) {
-            addProperty(obj, pd);
+        for(Property<?> p : properties) {
+            addProperty(p);
         }
     }
 
     @SuppressWarnings("unchecked")
-    protected void addProperty(Object obj, PropertyDescriptor pd) {
-        boolean optional = pd.getReadMethod().isAnnotationPresent(Optional.class);
-        Class<?> type = pd.getPropertyType();
+    protected void addProperty(Property<?> p) {
+        boolean optional = p.canBeNull();
+        Class<?> type = p.getClass();
 
         PropertyEditorFactory factory = ctx.getFactory(type);
         if(factory != null) {
@@ -90,16 +69,16 @@ public class PropertyPanel extends DialogLayout {
                 activeModel = new SimpleBooleanModel();
             }
 
-            Widget content = factory.create(new PropertyAccessor(obj, pd, activeModel));
+            Widget content = factory.create(new PropertyAccessor(p, activeModel));
 
             CollapsiblePanel panel = new CollapsiblePanel(
                     CollapsiblePanel.Direction.VERTICAL,
-                    pd.getDisplayName(), content, activeModel);
+                    p.getName(), content, activeModel);
             
             getVerticalGroup().addWidget(panel);
             getHorizontalGroup().addWidget(panel);            
         } else {
-            System.out.println("No factory for property " + pd.getName() + " type " + type);
+            System.out.println("No factory for property " + p.getName() + " type " + type);
         }
     }
 }

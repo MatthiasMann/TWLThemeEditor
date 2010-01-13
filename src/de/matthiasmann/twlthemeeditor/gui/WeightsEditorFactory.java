@@ -32,23 +32,24 @@ package de.matthiasmann.twlthemeeditor.gui;
 import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twlthemeeditor.datamodel.Weights;
+import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class WeightsEditorFactory implements PropertyEditorFactory<Weights> {
+public class WeightsEditorFactory implements PropertyEditorFactory<Weights, WeightsProperty> {
 
     private static final Weights DEFAULT_WEIGHTS = new Weights(1);
     
-    public Widget create(final PropertyAccessor<Weights> pa) {
+    public Widget create(final PropertyAccessor<Weights, WeightsProperty> pa) {
         return new WeightsEditor(pa);
     }
 
     class WeightsEditor extends IntegerArrayEditor {
-        private final PropertyAccessor<Weights> pa;
+        private final PropertyAccessor<Weights, WeightsProperty> pa;
 
-        public WeightsEditor(PropertyAccessor<Weights> pa) {
+        public WeightsEditor(PropertyAccessor<Weights, WeightsProperty> pa) {
             this.pa = pa;
             init(pa.getValue(DEFAULT_WEIGHTS).getWeights());
         }

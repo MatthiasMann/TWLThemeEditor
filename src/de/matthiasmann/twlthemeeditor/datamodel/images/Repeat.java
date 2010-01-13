@@ -35,8 +35,8 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
-import de.matthiasmann.twlthemeeditor.properties.MinValueI;
-import de.matthiasmann.twlthemeeditor.properties.Optional;
+import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import java.io.IOException;
 import org.jdom.Element;
 
@@ -48,7 +48,7 @@ public class Repeat extends WithSubImages {
 
     Repeat(Textures textures, TreeTableNode parent, Element element) throws IOException {
         super(textures, parent, element);
-        this.properties = new RepeatProperties(textures, element);
+        addProperty(new IntegerProperty(new AttributeProperty(element, "count", "Count", true), 0, Short.MAX_VALUE));
     }
 
     @Override
@@ -71,23 +71,5 @@ public class Repeat extends WithSubImages {
                 return null;
             }
         });
-    }
-
-    public class RepeatProperties extends ImageProperties {
-
-        RepeatProperties(Textures textures, Element node) {
-            super(textures, node);
-        }
-
-        @Optional
-        @MinValueI(0)
-        public Integer getRepeatCunt() {
-            String value = getAttribute("count");
-            return (value != null) ? Integer.valueOf(value) : null;
-        }
-
-        public void setRepeatCount(Integer repeatCount) {
-            setAttribute("count", (repeatCount != null) ? repeatCount.toString() : null);
-        }
     }
 }

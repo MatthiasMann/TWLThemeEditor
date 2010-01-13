@@ -29,19 +29,21 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twl.Border;
-import de.matthiasmann.twl.Color;
-import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.utils.TypeMapping;
-import de.matthiasmann.twlthemeeditor.datamodel.Condition;
-import de.matthiasmann.twlthemeeditor.datamodel.HotSpot;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
-import de.matthiasmann.twlthemeeditor.datamodel.Split;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
-import de.matthiasmann.twlthemeeditor.datamodel.Weights;
+import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
+import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
+import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
+import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
+import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
+import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
+import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
+import de.matthiasmann.twlthemeeditor.properties.RectProperty;
+import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
+import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,7 +56,7 @@ import java.util.List;
 public class Context {
 
     private final ThemeTreeModel model;
-    private final TypeMapping<PropertyEditorFactory<?>> factories;
+    private final TypeMapping<PropertyEditorFactory<?,?>> factories;
     private final ArrayList<String> propertyOrder;
 
     private TextureViewerPane textureViewerPane;
@@ -62,18 +64,17 @@ public class Context {
     public Context(ThemeTreeModel model) {
         this.model = model;
         
-        factories = new TypeMapping<PropertyEditorFactory<?>>();
-        factories.put(Integer.class, new IntegerEditor());
-        factories.put(int.class, new IntegerEditor());
-        factories.put(boolean.class, new BooleanEditor());
-        factories.put(Color.class, new ColorEditor(this));
-        factories.put(Rect.class, new RectEditorFactory(this));
-        factories.put(Condition.class, new ConditionEditor());
-        factories.put(ImageReference.class, new ImageRefEditor(this));
-        factories.put(Weights.class, new WeightsEditorFactory());
-        factories.put(Split.class, new SplitEditorFactory());
-        factories.put(HotSpot.class, new HotSpotEditorFactory());
-        factories.put(Border.class, new BorderEditorFactory());
+        factories = new TypeMapping<PropertyEditorFactory<?,?>>();
+        factories.put(IntegerProperty.class, new IntegerEditorFactory());
+        factories.put(BooleanProperty.class, new BooleanEditorFactory());
+        factories.put(ColorProperty.class, new ColorEditor(this));
+        factories.put(RectProperty.class, new RectEditorFactory(this));
+        factories.put(ConditionProperty.class, new ConditionEditor());
+        factories.put(ImageReferenceProperty.class, new ImageRefEditor(this));
+        factories.put(WeightsProperty.class, new WeightsEditorFactory());
+        factories.put(SplitProperty.class, new SplitEditorFactory());
+        factories.put(HotSpotProperty.class, new HotSpotEditorFactory());
+        factories.put(BorderProperty.class, new BorderEditorFactory());
 
         this.propertyOrder = new ArrayList<String>();
     }
@@ -106,7 +107,7 @@ public class Context {
         return result;
     }
 
-    public PropertyEditorFactory<?> getFactory(Class<?> clazz) {
+    public PropertyEditorFactory<?,?> getFactory(Class<?> clazz) {
         return factories.get(clazz);
     }
 

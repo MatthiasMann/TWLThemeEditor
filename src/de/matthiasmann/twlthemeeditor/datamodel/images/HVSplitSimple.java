@@ -30,8 +30,8 @@
 package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Split;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import org.jdom.Element;
 
 /**
@@ -42,39 +42,7 @@ public class HVSplitSimple extends Texture {
 
     public HVSplitSimple(Textures textures, TreeTableNode parent, Element node) {
         super(textures, parent, node);
-        this.properties = new HVSplitSimpleProperties(textures, node);
-    }
-
-    public class HVSplitSimpleProperties extends TextureProperties {
-
-        public HVSplitSimpleProperties(Textures textures, Element node) {
-            super(textures, node);
-        }
-
-        public Split getSplitX() {
-            String value = getAttribute("splitx");
-            return (value != null) ? new Split(value) : null;
-        }
-
-        public int getSplitXLimit() {
-            return getRect().getWidth();
-        }
-
-        public void setSplitX(Split splitX) {
-            setAttribute("splitx", splitX.toString());
-        }
-
-        public Split getSplitY() {
-            String value = getAttribute("splity");
-            return (value != null) ? new Split(value) : null;
-        }
-
-        public int getSplitYLimit() {
-            return getRect().getHeight();
-        }
-
-        public void setSplitY(Split splitY) {
-            setAttribute("splity", splitY.toString());
-        }
+        addProperty(new HSplitProperty(new AttributeProperty(element, "splitx")));
+        addProperty(new VSplitProperty(new AttributeProperty(element, "splity")));
     }
 }

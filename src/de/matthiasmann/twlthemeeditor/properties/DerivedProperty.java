@@ -27,14 +27,54 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.properties;
+
+import de.matthiasmann.twl.model.Property;
 
 /**
  *
- * @author Matthias mann
+ * @author Matthias Mann
  */
-public interface HasProperties {
+public abstract class DerivedProperty<T> implements Property<T> {
 
-    public Object getProperties();
-    
+    protected final AttributeProperty base;
+    protected final Class<T> type;
+
+    protected DerivedProperty(AttributeProperty base, Class<T> type) {
+        this.base = base;
+        this.type = type;
+    }
+
+    public void removeValueChangedCallback(Runnable cb) {
+        base.removeValueChangedCallback(cb);
+    }
+
+    public void addValueChangedCallback(Runnable cb) {
+        base.addValueChangedCallback(cb);
+    }
+
+    public void addCallback(Runnable callback) {
+        base.addValueChangedCallback(callback);
+    }
+
+    public void removeCallback(Runnable callback) {
+        base.removeValueChangedCallback(callback);
+    }
+
+    public String getName() {
+        return base.getName();
+    }
+
+    public boolean canBeNull() {
+        return base.canBeNull();
+    }
+
+    public Class<T> getType() {
+        return type;
+    }
+
+    public boolean isReadOnly() {
+        return false;
+    }
+
 }

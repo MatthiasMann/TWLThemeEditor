@@ -27,38 +27,64 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
+package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
-import de.matthiasmann.twl.ValueAdjusterInt;
-import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.SimpleIntegerModel;
-import de.matthiasmann.twlthemeeditor.properties.MinValueI;
+import de.matthiasmann.twl.model.IntegerModel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Matthias Mann
  */
-public class IntegerEditor implements PropertyEditorFactory<Integer> {
+public class IntegerProperty extends DerivedProperty<Integer> implements IntegerModel {
 
-    public Widget create(final PropertyAccessor<Integer> pa) {
-        Integer value = pa.getValue(0);
-        MinValueI minValueI = pa.getAnnotation(MinValueI.class);
+    private final int minValue;
+    private final int maxValue;
 
-        final SimpleIntegerModel model = new SimpleIntegerModel(
-                (minValueI != null) ? minValueI.value() : Short.MIN_VALUE,
-                Short.MAX_VALUE, (value == null) ? 0 : value.intValue());
+    public IntegerProperty(AttributeProperty base, int minValue, int maxValue) {
+        super(base, Integer.class);
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+    }
 
-        model.addCallback(new Runnable() {
-            public void run() {
-                pa.setValue(model.getValue());
-            }
-        });
+    public Integer getPropertyValue() {
+        String value = base.getPropertyValue();
+        if(value == null && canBeNull()) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(value, 10);
+        } catch (Throwable ex) {
+            Logger.getLogger(IntegerProperty.class.getName()).log(Level.SEVERE,
+                    "Can't parse value of propterty '" + getName() + "': " + value, ex);
+            return getMinValue();
+        }
+    }
 
-        ValueAdjusterInt va = new ValueAdjusterInt(model);
-        pa.setWidgetsToEnable(va);
+    public void setPropertyValue(Integer value) throws IllegalArgumentException {
+        if(canBeNull() && value == null) {
+            base.setPropertyValue(null);
+        } else {
+            base.setPropertyValue(value.toString());
+        }
+    }
 
-        return va;
+    public int getMaxValue() {
+        return maxValue;
+    }
+
+    public int getMinValue() {
+        return minValue;
+    }
+
+    public void setValue(int value) {
+       setPropertyValue(value);
+    }
+
+    public int getValue() {
+        Integer value = getPropertyValue();
+        return (value != null) ? value : minValue;
     }
 
 }

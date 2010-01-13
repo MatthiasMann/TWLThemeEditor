@@ -111,6 +111,13 @@ public final class Utils {
         return border.getBorderTop()+","+border.getBorderLeft()+","+border.getBorderBottom()+","+border.getBorderRight();
     }
 
+    public static String capitalize(String str) {
+        if(str.length() > 0) {
+            return Character.toUpperCase(str.charAt(0)) + str.substring(1);
+        }
+        return str;
+    }
+    
     public static void addChildren(ThemeFile themeFile, ThemeTreeNode parent, Element node, DomWrapper wrapper) throws IOException {
         IdentityHashMap<Element, TreeTableNode> existingNodes = new IdentityHashMap<Element, TreeTableNode>();
         for(int i=0,n=parent.getNumChildren() ; i<n ; i++) {
@@ -182,10 +189,6 @@ public final class Utils {
         xpp.addStartTag(node, tagName, attributes);
         addToXPP(xpp, node);
         xpp.addEndTag(tagName);
-    }
-
-    public static void addToXPP(DomXPPParser xpp, NodeWrapper wrapper, ThemeTreeNode node) {
-        addToXPP(xpp, wrapper.node.getName(), node, wrapper.getAttributes());
     }
 
     public static<T> int find(ListModel<T> list, T entry) {

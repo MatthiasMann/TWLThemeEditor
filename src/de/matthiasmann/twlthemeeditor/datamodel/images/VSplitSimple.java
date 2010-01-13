@@ -30,8 +30,8 @@
 package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Split;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import org.jdom.Element;
 
 /**
@@ -42,26 +42,7 @@ public class VSplitSimple extends Texture {
 
     public VSplitSimple(Textures textures, TreeTableNode parent, Element node) {
         super(textures, parent, node);
-        this.properties = new VSplitSimpleProperties(textures, node);
+        addProperty(new VSplitProperty(new AttributeProperty(element, "splity")));
     }
 
-    public class VSplitSimpleProperties extends TextureProperties {
-
-        public VSplitSimpleProperties(Textures textures, Element node) {
-            super(textures, node);
-        }
-
-        public Split getSplitY() {
-            String value = getAttribute("splity");
-            return (value != null) ? new Split(value) : null;
-        }
-
-        public int getSplitYLimit() {
-            return getRect().getHeight();
-        }
-
-        public void setSplitY(Split splitY) {
-            setAttribute("splity", splitY.toString());
-        }
-    }
 }

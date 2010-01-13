@@ -52,8 +52,9 @@ abstract class WithSubImages extends Image {
     private static final Element ALIAS_REF_NONE = new Element("alias").setAttribute("ref", "none");
 
     @Override
+    @SuppressWarnings("unchecked")
     public void addToXPP(DomXPPParser xpp) {
-        xpp.addStartTag(this, element.getName(), properties.getAttributes());
+        xpp.addStartTag(this, element.getName(), element.getAttributes());
         int generated = 0;
         int required = getRequiredChildren();
         for (int i = 0, n = getNumChildren(); i < n && generated < required; i++) {

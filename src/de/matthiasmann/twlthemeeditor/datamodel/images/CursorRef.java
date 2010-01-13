@@ -31,9 +31,9 @@ package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.Image.BaseProperties;
-import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
 import org.jdom.Element;
 
 /**
@@ -44,32 +44,11 @@ public class CursorRef extends Image {
 
     public CursorRef(Textures textures, TreeTableNode parent, Element node) {
         super(textures, parent, node);
-        this.properties = new CursorRefProperties(textures, node);
+        addProperty(new ImageReferenceProperty(new AttributeProperty(element, "ref"), this));
     }
 
     @Override
     public Kind getKind() {
         return Kind.CURSOR;
-    }
-
-    public class CursorRefProperties extends BaseProperties {
-
-        public CursorRefProperties(Textures textures, Element node) {
-            super(textures, node);
-        }
-
-        public ImageReference getRef() {
-            return new ImageReference(getAttribute("ref"), Kind.CURSOR);
-        }
-
-        public CursorRef getRefLimit() {
-            return CursorRef.this;
-        }
-
-        public void setRef(ImageReference ref) {
-            if(ref.getKind() == Kind.CURSOR) {
-                setAttribute("ref", ref.getName());
-            }
-        }
     }
 }

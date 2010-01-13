@@ -31,7 +31,8 @@ package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
-import de.matthiasmann.twlthemeeditor.properties.MinValueI;
+import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import org.jdom.Element;
 
 /**
@@ -42,22 +43,6 @@ public class Frame extends Alias {
 
     Frame(Textures textures, TreeTableNode parent, Element node) {
         super(textures, parent, node);
-        this.properties = new FrameProperties(textures, node);
-    }
-
-    public class FrameProperties extends AliasProperties {
-
-        FrameProperties(Textures textures, Element node) {
-            super(textures, node);
-        }
-
-        @MinValueI(0)
-        public int getDuration() {
-            return parseIntFromAttribute("duration");
-        }
-
-        public void setDuration(int duration) {
-            setAttribute("duration", duration);
-        }
+        addProperty(new IntegerProperty(new AttributeProperty(element, "duration"), 0, Short.MAX_VALUE));
     }
 }

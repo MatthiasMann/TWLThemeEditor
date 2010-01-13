@@ -30,43 +30,20 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
-import de.matthiasmann.twl.ComboBox;
+import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.ListModel;
-import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
-import de.matthiasmann.twlthemeeditor.datamodel.Utils;
-import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
+import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ImageRefEditor implements PropertyEditorFactory<ImageReference, ImageReferenceProperty> {
+public class BooleanEditorFactory implements PropertyEditorFactory<Boolean, BooleanProperty> {
 
-    private final Context ctx;
-
-    public ImageRefEditor(Context ctx) {
-        this.ctx = ctx;
+    public Widget create(final PropertyAccessor<Boolean, BooleanProperty> pa) {
+        final ToggleButton btn = new ToggleButton(pa.getProperty());
+        btn.setText(pa.getDisplayName());
+        btn.setTheme("boolean");
+        return btn;
     }
-
-    public Widget create(final PropertyAccessor<ImageReference, ImageReferenceProperty> pa) {
-        Image limit = pa.getProperty().getLimit();
-        final ImageReference ref = pa.getValue(ImageReference.NONE_REF);
-        final Image.Kind kind = ref.getKind();
-        final ListModel<String> refableImages = ctx.getRefableImages(limit, kind);
-        final ComboBox<String> cb = new ComboBox<String>(refableImages);
-        cb.setSelected(Utils.find(refableImages, ref.getName()));
-        cb.addCallback(new Runnable() {
-            public void run() {
-                int selected = cb.getSelected();
-                if(selected >= 0) {
-                    pa.setValue(new ImageReference(refableImages.getEntry(selected), kind));
-                }
-            }
-        });
-
-        return cb;
-    }
-
 }

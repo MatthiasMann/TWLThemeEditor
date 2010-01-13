@@ -29,17 +29,26 @@
  */
 package de.matthiasmann.twlthemeeditor.properties;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import de.matthiasmann.twlthemeeditor.datamodel.Split;
 
 /**
  *
  * @author Matthias Mann
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Optional {
+public abstract class SplitProperty extends DerivedProperty<Split> {
 
+    public SplitProperty(AttributeProperty base) {
+        super(base, Split.class);
+    }
+
+    public Split getPropertyValue() {
+        String value = base.getPropertyValue();
+        return (value != null) ? new Split(value) : null;
+    }
+
+    public void setPropertyValue(Split value) throws IllegalArgumentException {
+        base.setPropertyValue((value != null) ? value.toString() : null);
+    }
+
+    public abstract int getLimit();
 }

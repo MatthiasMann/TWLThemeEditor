@@ -49,13 +49,13 @@ public class Textures extends AbstractThemeTreeNode {
     private final ThemeFile themeFile;
     private final URL textureURL;
     private final Dimension textureDimensions;
-    private final NodeWrapper node;
+    private final Element element;
     
-    Textures(TreeTableNode parent, Element node, ThemeFile themeFile) throws IOException {
+    Textures(TreeTableNode parent, Element element, ThemeFile themeFile) throws IOException {
         super(parent);
 
         this.themeFile = themeFile;
-        this.node = new NodeWrapper(themeFile, node);
+        this.element = element;
         
         textureURL = themeFile.getURL(getFile());
         InputStream textureStream = textureURL.openStream();
@@ -74,11 +74,11 @@ public class Textures extends AbstractThemeTreeNode {
     }
 
     public String getFile() {
-        return node.getAttribute("file");
+        return element.getAttributeValue("file");
     }
 
     public String getFormat() {
-        return node.getAttribute("format");
+        return element.getAttributeValue("format");
     }
 
     public URL getTextureURL() {
@@ -106,19 +106,20 @@ public class Textures extends AbstractThemeTreeNode {
     }
 
     public Element getDOMElement() {
-        return node.node;
+        return element;
     }
 
     public void addChildren() throws IOException {
-        Utils.addChildren(themeFile, this, node.node, Image.getImageDomWrapper(this));
+        Utils.addChildren(themeFile, this, element, Image.getImageDomWrapper(this));
     }
 
+    @SuppressWarnings("unchecked")
     public void addToXPP(DomXPPParser xpp) {
-        Utils.addToXPP(xpp, node, this);
+        Utils.addToXPP(xpp, element.getName(), this, element.getAttributes());
     }
 
     public List<ThemeTreeOperation> getOperations() {
-        List<ThemeTreeOperation> operations = AbstractThemeTreeNode.getDefaultOperations(node.node, this);
+        List<ThemeTreeOperation> operations = AbstractThemeTreeNode.getDefaultOperations(element, this);
         operations.add(new CreateNewTexture(this));
         operations.add(new CreateNewSplit(this, "hsplit", true, false));
         operations.add(new CreateNewSplit(this, "vsplit", false, true));

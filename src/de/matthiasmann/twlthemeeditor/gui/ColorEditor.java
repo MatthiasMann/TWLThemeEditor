@@ -34,12 +34,13 @@ import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.ColorSelector;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.ColorSpaceHSL;
+import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ColorEditor implements PropertyEditorFactory<Color> {
+public class ColorEditor implements PropertyEditorFactory<Color, ColorProperty> {
 
     private final Context ctx;
 
@@ -47,7 +48,7 @@ public class ColorEditor implements PropertyEditorFactory<Color> {
         this.ctx = ctx;
     }
 
-    public Widget create(final PropertyAccessor<Color> pa) {
+    public Widget create(final PropertyAccessor<Color, ColorProperty> pa) {
         final ColorSelector cs = new ColorSelector(new ColorSpaceHSL());
         cs.setUseLabels(false);
         cs.setShowPreview(true);

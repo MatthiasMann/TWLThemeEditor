@@ -31,11 +31,7 @@ package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
-import de.matthiasmann.twl.utils.ClassUtils;
-import java.beans.PropertyDescriptor;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import de.matthiasmann.twl.model.Property;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,34 +39,25 @@ import java.util.logging.Logger;
  *
  * @author Matthias Mann
  */
-public class PropertyAccessor<T> {
+public class PropertyAccessor<T, P extends Property<T>> {
 
-    private final Object obj;
-    private final PropertyDescriptor pd;
+    private final P property;
     private final BooleanModel activeModel;
 
     private T value;
     private Widget[] widgetsToEnable;
-    private Method getLimitMethod;
-    private boolean triedLimitMethod;
 
-    @SuppressWarnings("unchecked")
-    public PropertyAccessor(Object obj, PropertyDescriptor pd, BooleanModel activeModel) {
-        this.obj = obj;
-        this.pd = pd;
+    public PropertyAccessor(P property, BooleanModel activeModel) {
+        this.property = property;
         this.activeModel = activeModel;
 
-        try {
-            value = (T) pd.getReadMethod().invoke(obj);
-        } catch (Exception ex) {
-            Logger.getLogger(PropertyAccessor.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        value = property.getPropertyValue();
 
         if(activeModel != null) {
             activeModel.setValue(value != null);
             activeModel.addCallback(new Runnable() {
                 public void run() {
-                    setProperty();
+                    setPropertyValue();
                     syncWithActive();
                 }
             });
@@ -98,71 +85,23 @@ public class PropertyAccessor<T> {
     
     public void setValue(T value) {
         this.value = value;
-        setProperty();
-    }
-
-    public Object getObject() {
-        return obj;
+        setPropertyValue();
     }
 
     public String getDisplayName() {
-        return pd.getDisplayName();
+        return property.getName();
     }
 
-    public<A extends Annotation> A getAnnotation(Class<A> annotationClass) {
-        return pd.getReadMethod().getAnnotation(annotationClass);
+    public P getProperty() {
+        return property;
     }
 
-    public<LT> LT getLimit(Class<LT> type, LT defaultLimit) {
-        if(type.isPrimitive()) {
-            throw new IllegalArgumentException("type is a primitive, call with wrapper type");
-        }
-        if(getLimitMethod == null && !triedLimitMethod) {
-            getLimitMethod = initLimitMethod(type);
-            triedLimitMethod = true;
-        }
-        if(getLimitMethod != null) {
-            try {
-                return type.cast(getLimitMethod.invoke(obj));
-            } catch (Exception ex) {
-                Logger.getLogger(PropertyAccessor.class.getName()).log(Level.SEVERE,
-                        "can't invoke limit method: " + getLimitMethod, ex);
-            }
-        }
-        return defaultLimit;
-    }
-
-    private Method initLimitMethod(Class<?> type) {
-        String methodName = pd.getReadMethod().getName().concat("Limit");
-        Class<?> clazz = obj.getClass();
+    void setPropertyValue() {
         try {
-            Method method = clazz.getMethod(methodName);
-            if(!Modifier.isPublic(method.getModifiers())) {
-                Logger.getLogger(PropertyAccessor.class.getName()).log(Level.SEVERE,
-                        "can't access non public limit method: " + methodName +
-                        " on class " + clazz.getName());
-                return null;
-            }
-            Class<?> returnType = ClassUtils.mapPrimitiveToWrapper(method.getReturnType());
-            if(!type.isAssignableFrom(returnType)) {
-                Logger.getLogger(PropertyAccessor.class.getName()).log(Level.SEVERE,
-                        "return type of limit method " + methodName + " on class " +
-                        clazz.getName() + " is incompatible: got " + returnType + " need " + type);
-                return null;
-            }
-            return method;
+            property.setPropertyValue(value);
         } catch (Exception ex) {
             Logger.getLogger(PropertyAccessor.class.getName()).log(Level.SEVERE,
-                    "can't get limit method: " + methodName + " on class " + clazz.getName(), ex);
-            return null;
-        }
-    }
-    
-    void setProperty() {
-        try {
-            pd.getWriteMethod().invoke(obj, isActive() ? value : null);
-        } catch (Exception ex) {
-            Logger.getLogger(PropertyAccessor.class.getName()).log(Level.SEVERE, null, ex);
+                    "Could not set property value", ex);
         }
     }
 

@@ -34,6 +34,8 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.NameGenerator;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
 import de.matthiasmann.twlthemeeditor.datamodel.Weights;
+import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
 import java.io.IOException;
 import org.jdom.Element;
 
@@ -43,58 +45,31 @@ import org.jdom.Element;
  */
 public class Grid extends WithSubImages implements NameGenerator {
 
+    private final WeightsProperty weightsXProperty;
+    private final WeightsProperty weightsYProperty;
+
     public Grid(Textures textures, ThemeTreeNode parent, Element element) throws IOException {
         super(textures, parent, element);
-        this.properties = new GridProperties(textures, element);
-    }
-
-    @Override
-    public GridProperties getProperties() {
-        return (GridProperties) properties;
+        this.weightsXProperty = new WeightsProperty(new AttributeProperty(element, "weightsX"));
+        this.weightsYProperty = new WeightsProperty(new AttributeProperty(element, "weightsY"));
+        addProperty(weightsXProperty);
+        addProperty(weightsYProperty);
     }
 
     @Override
     protected int getRequiredChildren() {
-        Weights weightsX = getProperties().getWeightsX();
-        Weights weightsY = getProperties().getWeightsY();
-        if (weightsX == null || weightsY == null) {
-            return 0;
-        }
+        Weights weightsX = weightsXProperty.getPropertyValue();
+        Weights weightsY = weightsYProperty.getPropertyValue();
         return weightsX.getNumWeights() * weightsY.getNumWeights();
     }
 
     public String generateName(Image image) {
         int idx = getChildIndex(image);
-        int cols = Math.max(1, getProperties().getWeightsX().getNumWeights());
+        int cols = Math.max(1, weightsXProperty.getPropertyValue().getNumWeights());
 
         int row = idx / cols;
         int col = idx % cols;
 
         return "row " + row + " col " + col;
-    }
-
-    public class GridProperties extends ImageProperties {
-
-        public GridProperties(Textures textures, Element node) {
-            super(textures, node);
-        }
-
-        public Weights getWeightsX() {
-            String value = getAttribute("weightsX");
-            return (value != null) ? new Weights(value) : null;
-        }
-
-        public void setWeightsX(Weights weightsX) {
-            setAttribute("weightsX", weightsX.toString());
-        }
-
-        public Weights getWeightsY() {
-            String value = getAttribute("weightsY");
-            return (value != null) ? new Weights(value) : null;
-        }
-
-        public void setWeightsY(Weights weightsY) {
-            setAttribute("weightsY", weightsY.toString());
-        }
     }
 }

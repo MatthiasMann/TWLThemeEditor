@@ -29,17 +29,24 @@
  */
 package de.matthiasmann.twlthemeeditor.properties;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import de.matthiasmann.twl.Color;
 
 /**
  *
  * @author Matthias Mann
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface MinValueI {
-    public int value();
+public class ColorProperty extends DerivedProperty<Color> {
+
+    public ColorProperty(AttributeProperty base) {
+        super(base, Color.class);
+    }
+
+    public Color getPropertyValue() {
+        String value = base.getPropertyValue();
+        return (value != null) ? Color.parserColor(value) : null;
+    }
+
+    public void setPropertyValue(Color value) throws IllegalArgumentException {
+        base.setPropertyValue((value != null) ? value.toString() : null);
+    }
 }

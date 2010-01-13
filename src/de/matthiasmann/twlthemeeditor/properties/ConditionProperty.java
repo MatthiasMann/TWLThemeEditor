@@ -27,43 +27,68 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel.images;
+package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.Condition;
-import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.NameGenerator;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
-import java.io.IOException;
 import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Select extends WithSubImages implements NameGenerator {
+public class ConditionProperty implements Property<Condition> {
 
-    public Select(Textures textures, TreeTableNode parent, Element element) throws IOException {
-        super(textures, parent, element);
+    private final AttributeProperty baseIf;
+    private final AttributeProperty baseUnless;
+    private final String name;
+
+    public ConditionProperty(Element element, String name) {
+        this.baseIf = new AttributeProperty(element, "if", name, true);
+        this.baseUnless = new AttributeProperty(element, "unless", name, true);
+        this.name = name;
     }
 
-    @Override
-    protected int getRequiredChildren() {
-        return Math.max(1, getNumChildren());
+    public String getName() {
+        return name;
     }
 
-    public String generateName(Image image) {
-        Condition condition = image.getCondition();
+    public Class<Condition> getType() {
+        return Condition.class;
+    }
 
-        if(condition.getType() == Condition.Type.NONE) {
-            if(getChildIndex(image) == getNumChildren()-1) {
-                return "DEFAULT";
-            } else {
-                return "MISSING CONDITION !!";
-            }
+    public boolean canBeNull() {
+        return false;
+    }
+
+    public boolean isReadOnly() {
+        return false;
+    }
+
+    public Condition getPropertyValue() {
+        String cond = baseIf.getPropertyValue();
+        if(cond != null) {
+            return new Condition(Condition.Type.IF, cond);
         }
-
-        return condition.getType().name() + "(" + condition.getCondition() + ")";
+        cond = baseUnless.getPropertyValue();
+        if(cond != null) {
+            return new Condition(Condition.Type.UNLESS, cond);
+        }
+        return Condition.NONE;
     }
 
+    public void setPropertyValue(Condition value) throws IllegalArgumentException {
+        baseIf.setPropertyValue((value.getType() == Condition.Type.IF) ? value.getCondition() : null);
+        baseUnless.setPropertyValue((value.getType() == Condition.Type.UNLESS) ? value.getCondition() : null);
+    }
+
+    public void addValueChangedCallback(Runnable cb) {
+        baseIf.addValueChangedCallback(cb);
+        baseUnless.addValueChangedCallback(cb);
+    }
+
+    public void removeValueChangedCallback(Runnable cb) {
+        baseIf.removeValueChangedCallback(cb);
+        baseUnless.removeValueChangedCallback(cb);
+    }
 }

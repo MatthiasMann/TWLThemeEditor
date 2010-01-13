@@ -36,12 +36,13 @@ import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractIntegerModel;
+import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class RectEditorFactory implements PropertyEditorFactory<Rect> {
+public class RectEditorFactory implements PropertyEditorFactory<Rect, RectProperty> {
 
     private final Context ctx;
 
@@ -49,7 +50,7 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect> {
         this.ctx = ctx;
     }
 
-    public Widget create(final PropertyAccessor<Rect> pa) {
+    public Widget create(final PropertyAccessor<Rect, RectProperty> pa) {
         return new RectEditor(ctx, pa);
     }
 
@@ -61,7 +62,7 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect> {
 
     static class RectEditor extends DialogLayout {
         private final Context ctx;
-        private final PropertyAccessor<Rect> pa;
+        private final PropertyAccessor<Rect, RectProperty> pa;
         private final Dimension dim;
         private Rect rect;
 
@@ -70,11 +71,11 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect> {
         final MyIntegerModel modelWidth;
         final MyIntegerModel modelHeight;
 
-        public RectEditor(Context ctx, PropertyAccessor<Rect> pa) {
+        public RectEditor(Context ctx, PropertyAccessor<Rect, RectProperty> pa) {
             this.ctx = ctx;
             this.pa = pa;
             this.rect = pa.getValue(new Rect(0, 0, 1, 1));  // rect is mutable - need to create a new one
-            this.dim = pa.getLimit(Dimension.class, Dimension.ZERO);
+            this.dim = pa.getProperty().getLimit();
 
             this.modelX = new MyIntegerModel() {
                 public int getMaxValue() {
