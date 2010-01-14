@@ -58,16 +58,15 @@ public class Include extends AbstractThemeTreeNode {
             }
         });
     }
+    
+    @Override
+    public String getName() {
+        return getFileName();
+    }
 
-    public Object getData(int column) {
-        switch (column) {
-            case 0:
-                return getFileName();
-            case 1:
-                return "Include";
-            default:
-                return "";
-        }
+    @Override
+    protected String getType() {
+        return "Include";
     }
 
     public String getFileName() {

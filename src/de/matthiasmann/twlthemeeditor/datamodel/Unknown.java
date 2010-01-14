@@ -47,13 +47,14 @@ public class Unknown extends AbstractThemeTreeNode {
         this.element = element;
     }
 
-    public Object getData(int column) {
-        switch (column) {
-            case 0:
-                return "<"+element.getName()+">";
-            default:
-                return "Unknown";
-        }
+    @Override
+    public String getName() {
+        return "<"+element.getName()+">";
+    }
+
+    @Override
+    protected String getType() {
+        return "Unknown";
     }
 
     public void addChildren() throws IOException {

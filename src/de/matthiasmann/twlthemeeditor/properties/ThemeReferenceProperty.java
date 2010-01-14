@@ -27,14 +27,36 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.properties;
+
+import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.datamodel.Theme;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeReference;
 
 /**
  *
  * @author Matthias Mann
  */
-public interface NameGenerator {
+public class ThemeReferenceProperty extends DerivedProperty<ThemeReference> {
 
-    public String generateName(ThemeTreeNode node);
+    private final Theme limit;
+
+    public ThemeReferenceProperty(Property<String> base, Theme limit) {
+        super(base, ThemeReference.class);
+        this.limit = limit;
+    }
+
+    public ThemeReference getPropertyValue() {
+        String value = base.getPropertyValue();
+        return (value != null) ? new ThemeReference(value) : null;
+    }
+
+    public void setPropertyValue(ThemeReference value) throws IllegalArgumentException {
+        base.setPropertyValue((value != null) ? value.getName() : null);
+    }
+
+    public Theme getLimit() {
+        return limit;
+    }
     
 }

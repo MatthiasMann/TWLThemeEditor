@@ -63,8 +63,8 @@ public class Grid extends WithSubImages implements NameGenerator {
         return weightsX.getNumWeights() * weightsY.getNumWeights();
     }
 
-    public String generateName(Image image) {
-        int idx = getChildIndex(image);
+    public String generateName(ThemeTreeNode node) {
+        int idx = getChildIndex(node);
         int cols = Math.max(1, weightsXProperty.getPropertyValue().getNumWeights());
 
         int row = idx / cols;

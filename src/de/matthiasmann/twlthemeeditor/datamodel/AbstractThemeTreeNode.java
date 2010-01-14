@@ -85,4 +85,32 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
         result.add(new MoveNodeOperations("opMoveNodeDown", element, node, +1));
         return result;
     }
+
+    public Object getData(int column) {
+        switch (column) {
+            case 0: {
+                String displayName = getDisplayName();
+                return error ? new NodeNameWithError(displayName) : displayName;
+            }
+            case 1:
+                return getType();
+            default:
+                return "";
+        }
+    }
+
+    public String getDisplayName() {
+        String name = getName();
+        if(name == null && (getParent() instanceof NameGenerator)) {
+            name = ((NameGenerator)getParent()).generateName(this);
+        }
+        if(name == null) {
+            name = "Unnamed #" + (1+getParent().getChildIndex(this));
+        }
+        return name;
+    }
+
+    public abstract String getName();
+
+    protected abstract String getType();
 }

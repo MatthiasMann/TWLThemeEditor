@@ -102,6 +102,12 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
         return result;
     }
 
+    public List<Theme> getThemes() {
+        ArrayList<Theme> result = new ArrayList<Theme>();
+        processInclude(this, Theme.class, result);
+        return result;
+    }
+
     public void setErrorLocation(ThemeTreeNode location) {
         if(curErrorLocation != null) {
             curErrorLocation.setError(false);
@@ -113,9 +119,13 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
     }
 
     private <E extends TreeTableNode> void processInclude(TreeTableNode node, Class<E> clazz, List<E> result) {
-        Utils.getChildren(node, clazz, result);
-        for(Include include : Utils.getChildren(node, Include.class)) {
-            processInclude(include, clazz, result);
+        for(int i=0,n=node.getNumChildren() ; i<n ; i++) {
+            TreeTableNode child = node.getChild(i);
+            if(child instanceof Include) {
+                processInclude((Include)child, clazz, result);
+            } else if(clazz.isInstance(child)) {
+                result.add(clazz.cast(child));
+            }
         }
     }
 

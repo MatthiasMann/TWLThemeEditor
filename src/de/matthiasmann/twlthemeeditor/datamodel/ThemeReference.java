@@ -33,8 +33,16 @@ package de.matthiasmann.twlthemeeditor.datamodel;
  *
  * @author Matthias Mann
  */
-public interface NameGenerator {
+public class ThemeReference {
 
-    public String generateName(ThemeTreeNode node);
+    private final String name;
+
+    public ThemeReference(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
     
 }

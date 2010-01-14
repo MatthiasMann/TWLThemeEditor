@@ -90,15 +90,14 @@ public class Textures extends AbstractThemeTreeNode {
         return "[Textures file=\""+getFile()+"\"]";
     }
 
-    public Object getData(int column) {
-        switch (column) {
-            case 0:
-                return getFile();
-            case 1:
-                return "PNG";
-            default:
-                return "";
-        }
+    @Override
+    public String getName() {
+        return getFile();
+    }
+
+    @Override
+    protected String getType() {
+        return "PNG";
     }
 
     public Dimension getTextureDimensions() {

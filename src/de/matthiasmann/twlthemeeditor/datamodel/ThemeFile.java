@@ -135,6 +135,9 @@ public class ThemeFile implements VirtualFile {
                 if("include".equals(tagName)) {
                     return new Include(parent, element, ThemeFile.this);
                 }
+                if("theme".equals(tagName)) {
+                    return new Theme(ThemeFile.this, parent, element);
+                }
                 return null;
             }
         });

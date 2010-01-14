@@ -27,14 +27,44 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.gui;
+
+import de.matthiasmann.twl.ComboBox;
+import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.ListModel;
+import de.matthiasmann.twlthemeeditor.datamodel.Theme;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeReference;
+import de.matthiasmann.twlthemeeditor.datamodel.Utils;
+import de.matthiasmann.twlthemeeditor.properties.ThemeReferenceProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public interface NameGenerator {
+public class ThemeReferenceEditorFactory implements PropertyEditorFactory<ThemeReference, ThemeReferenceProperty> {
 
-    public String generateName(ThemeTreeNode node);
-    
+    private final Context ctx;
+
+    public ThemeReferenceEditorFactory(Context ctx) {
+        this.ctx = ctx;
+    }
+
+    public Widget create(final PropertyAccessor<ThemeReference, ThemeReferenceProperty> pa) {
+        Theme limit = pa.getProperty().getLimit();
+        final ThemeReference ref = pa.getValue(null);
+        final ListModel<String> refableThemes = ctx.getRefableThemes(limit);
+        final ComboBox<String> cb = new ComboBox<String>(refableThemes);
+        cb.setSelected((ref != null) ? Utils.find(refableThemes, ref.getName()) : -1);
+        cb.addCallback(new Runnable() {
+            public void run() {
+                int selected = cb.getSelected();
+                if(selected >= 0) {
+                    pa.setValue(new ThemeReference(refableThemes.getEntry(selected)));
+                }
+            }
+        });
+
+        return cb;
+    }
+
 }

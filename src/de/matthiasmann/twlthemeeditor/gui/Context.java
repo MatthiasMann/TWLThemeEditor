@@ -33,6 +33,7 @@ import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.utils.TypeMapping;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
+import de.matthiasmann.twlthemeeditor.datamodel.Theme;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
@@ -44,6 +45,7 @@ import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
+import de.matthiasmann.twlthemeeditor.properties.ThemeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
 
 /**
@@ -67,6 +69,7 @@ public class Context {
         factories.put(RectProperty.class, new RectEditorFactory(this));
         factories.put(ConditionProperty.class, new ConditionEditor());
         factories.put(ImageReferenceProperty.class, new ImageRefEditor(this));
+        factories.put(ThemeReferenceProperty.class, new ThemeReferenceEditorFactory(this));
         factories.put(WeightsProperty.class, new WeightsEditorFactory());
         factories.put(SplitProperty.class, new SplitEditorFactory());
         factories.put(HotSpotProperty.class, new HotSpotEditorFactory());
@@ -86,6 +89,17 @@ public class Context {
             if(img.getKind() == kind) {
                 result.addElement(img.getName());
             }
+        }
+        return result;
+    }
+
+    public ListModel<String> getRefableThemes(Theme stopAt) {
+        SimpleChangableListModel<String> result = new SimpleChangableListModel<String>();
+        for(Theme theme : model.getThemes()) {
+            if(theme == stopAt) {
+                break;
+            }
+            result.addElement(theme.getName());
         }
         return result;
     }

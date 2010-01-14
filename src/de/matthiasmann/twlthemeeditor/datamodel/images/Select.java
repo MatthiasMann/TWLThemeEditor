@@ -34,6 +34,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.Condition;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.NameGenerator;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import java.io.IOException;
 import org.jdom.Element;
 
@@ -52,18 +53,22 @@ public class Select extends WithSubImages implements NameGenerator {
         return Math.max(1, getNumChildren());
     }
 
-    public String generateName(Image image) {
-        Condition condition = image.getCondition();
+    public String generateName(ThemeTreeNode node) {
+        if(node instanceof Image) {
+            Image image = (Image)node;
+            Condition condition = image.getCondition();
 
-        if(condition.getType() == Condition.Type.NONE) {
-            if(getChildIndex(image) == getNumChildren()-1) {
-                return "DEFAULT";
-            } else {
-                return "MISSING CONDITION !!";
+            if(condition.getType() == Condition.Type.NONE) {
+                if(getChildIndex(image) == getNumChildren()-1) {
+                    return "DEFAULT";
+                } else {
+                    return "MISSING CONDITION !!";
+                }
             }
-        }
 
-        return condition.getType().name() + "(" + condition.getCondition() + ")";
+            return condition.getType().name() + "(" + condition.getCondition() + ")";
+        }
+        return null;
     }
 
 }

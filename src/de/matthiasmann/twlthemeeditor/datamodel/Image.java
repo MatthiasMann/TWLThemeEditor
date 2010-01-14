@@ -140,30 +140,6 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
         return getName();
     }
 
-    public Object getData(int column) {
-        switch (column) {
-            case 0: {
-                String displayName = getDisplayName();
-                return error ? new NodeNameWithError(displayName) : displayName;
-            }
-            case 1:
-                return getType();
-            default:
-                return "";
-        }
-    }
-
-    public String getDisplayName() {
-        String name = getName();
-        if(name != null) {
-            return name;
-        }
-        if(getParent() instanceof NameGenerator) {
-            return ((NameGenerator)getParent()).generateName(this);
-        }
-        return "Unnamed #" + (1+getParent().getChildIndex(this));
-    }
-
     protected String getType() {
         return element.getName();
     }
@@ -240,6 +216,9 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
 
         @Override
         public void validateName(String name) throws IllegalArgumentException {
+            if(name == null || name.length() == 0) {
+                throw new IllegalArgumentException("empty name not allowed");
+            }
             if("none".equals(name)) {
                 throw new IllegalArgumentException("\"none\" is a reserved name");
             }
