@@ -30,49 +30,22 @@
 package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.DomWrapper;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
-import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
-import java.io.IOException;
 import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Repeat extends WithSubImages {
+public class Frames extends Texture {
 
-    Repeat(Textures textures, TreeTableNode parent, Element element) throws IOException {
-        super(textures, parent, element);
-        addProperty(new IntegerProperty(new AttributeProperty(element, "count", "Count", true), 0, Short.MAX_VALUE));
+    public Frames(Textures textures, TreeTableNode parent, Element node) {
+        super(textures, parent, node);
+        addProperty(new IntegerProperty(new AttributeProperty(element, "count", "Number of frames", false), 1, Short.MAX_VALUE));
+        addProperty(new IntegerProperty(new AttributeProperty(element, "offsetx", "Offset X between frames", true), Short.MIN_VALUE, Short.MAX_VALUE));
+        addProperty(new IntegerProperty(new AttributeProperty(element, "offsety", "Offset Y between frames", true), Short.MIN_VALUE, Short.MAX_VALUE));
     }
 
-    @Override
-    protected int getRequiredChildren() {
-        return Math.max(1, getNumChildren());
-    }
-
-    @Override
-    public void addChildren() throws IOException {
-        Utils.addChildren(textures.getThemeFile(), this, element, new DomWrapper() {
-            public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
-                String tagName = element.getName();
-
-                if("repeat".equals(tagName)) {
-                    return new Repeat(textures, parent, element);
-                }
-                if("frame".equals(tagName)) {
-                    return new Frame(textures, parent, element);
-                }
-                if("frames".equals(tagName)) {
-                    return new Frames(textures, parent, element);
-                }
-                return null;
-            }
-        });
-    }
 }

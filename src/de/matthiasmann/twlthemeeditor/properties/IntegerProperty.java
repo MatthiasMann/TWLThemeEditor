@@ -49,7 +49,7 @@ public class IntegerProperty extends DerivedProperty<Integer> implements Integer
         super(base, Integer.class);
         this.minValue = minValue;
         this.maxValue = maxValue;
-        this.prevValue = minValue;
+        this.prevValue = (minValue < 0 && maxValue >= 0) ? 0 : minValue;
     }
 
     public Integer getPropertyValue() {
