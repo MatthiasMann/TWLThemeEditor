@@ -37,6 +37,7 @@ import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractIntegerModel;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -103,14 +104,16 @@ public abstract class IntegerArrayEditor extends DialogLayout {
                 .addGroup(vertControlls)
                 .addWidget(addButton));
 
+        ArrayList<Widget> widgets = new ArrayList<Widget>();
+        widgets.addAll(Arrays.asList(adjusters));
+        widgets.addAll(Arrays.asList(removeButtons));
+        widgets.add(addButton);
+        setWidgetsToEnable(widgets.toArray(new Widget[widgets.size()]));
+
         updateButtonEnabled();
     }
 
-    private void removeWidgets(Widget[] widgets) {
-        for (Widget w : widgets) {
-            removeChild(w);
-        }
-    }
+    public abstract void setWidgetsToEnable(Widget ... widgetsToEnable);
 
     protected boolean isValid(int[] array) {
         return array.length > 0;

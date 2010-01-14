@@ -29,7 +29,6 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twlthemeeditor.datamodel.Weights;
 import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
@@ -81,6 +80,11 @@ public class WeightsEditorFactory implements PropertyEditorFactory<Weights, Weig
         @Override
         protected int getNewValueForAppend(int[] array) {
             return 1;
+        }
+
+        @Override
+        public void setWidgetsToEnable(Widget... widgetsToEnable) {
+            pa.setWidgetsToEnable(widgetsToEnable);
         }
     }
 

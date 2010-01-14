@@ -27,7 +27,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.properties;
+package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;

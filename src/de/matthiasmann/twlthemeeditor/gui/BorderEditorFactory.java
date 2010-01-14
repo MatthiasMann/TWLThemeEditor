@@ -35,7 +35,6 @@ import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
-import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 
 /**
  *

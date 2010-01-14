@@ -39,11 +39,11 @@ import de.matthiasmann.twlthemeeditor.datamodel.images.Composed;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Cursor;
 import de.matthiasmann.twlthemeeditor.datamodel.images.CursorRef;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Grid;
-import de.matthiasmann.twlthemeeditor.datamodel.images.HSplitSimple;
-import de.matthiasmann.twlthemeeditor.datamodel.images.HVSplitSimple;
+import de.matthiasmann.twlthemeeditor.datamodel.images.HSplit;
+import de.matthiasmann.twlthemeeditor.datamodel.images.HVSplit;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Select;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Texture;
-import de.matthiasmann.twlthemeeditor.datamodel.images.VSplitSimple;
+import de.matthiasmann.twlthemeeditor.datamodel.images.VSplit;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
@@ -209,14 +209,14 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
                 if("grid".equals(tagName)) {
                     return new Grid(textures, parent, element);
                 }
-                if("hsplit".equals(tagName) && element.getAttribute("splitx") != null) {
-                    return new HSplitSimple(textures, parent, element);
+                if("hsplit".equals(tagName)) {
+                    return new HSplit(textures, parent, element);
                 }
-                if("vsplit".equals(tagName) && element.getAttribute("splity") != null) {
-                    return new VSplitSimple(textures, parent, element);
+                if("vsplit".equals(tagName)) {
+                    return new VSplit(textures, parent, element);
                 }
-                if("hvsplit".equals(tagName) && element.getAttribute("splitx") != null && element.getAttribute("splity") != null) {
-                    return new HVSplitSimple(textures, parent, element);
+                if("hvsplit".equals(tagName)) {
+                    return new HVSplit(textures, parent, element);
                 }
                 if("cursor".equals(tagName)) {
                     if(element.getAttribute("ref") != null) {

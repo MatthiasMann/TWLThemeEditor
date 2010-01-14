@@ -29,7 +29,6 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.Property;
 

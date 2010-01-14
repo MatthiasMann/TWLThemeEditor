@@ -51,8 +51,8 @@ public class Texture extends Image {
     }
 
     protected class HSplitProperty extends SplitProperty {
-        public HSplitProperty(AttributeProperty base) {
-            super(base);
+        public HSplitProperty() {
+            super(new AttributeProperty(element, "splitx", "Split X positions", true));
         }
 
         @Override
@@ -62,8 +62,8 @@ public class Texture extends Image {
     }
 
     protected class VSplitProperty extends SplitProperty {
-        public VSplitProperty(AttributeProperty base) {
-            super(base);
+        public VSplitProperty() {
+            super(new AttributeProperty(element, "splity", "Split Y positions", true));
         }
 
         @Override

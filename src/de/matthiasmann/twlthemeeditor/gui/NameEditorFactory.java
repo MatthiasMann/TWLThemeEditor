@@ -34,7 +34,6 @@ import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
-import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 import org.lwjgl.input.Keyboard;
 
 /**

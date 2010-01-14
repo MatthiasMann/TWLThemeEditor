@@ -29,7 +29,6 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ValueAdjusterInt;

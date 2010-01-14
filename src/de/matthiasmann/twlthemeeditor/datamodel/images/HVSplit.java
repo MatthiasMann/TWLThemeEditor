@@ -30,19 +30,18 @@
 package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Split;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
-import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public class HSplitSimple extends Texture {
+public class HVSplit extends Texture {
 
-    public HSplitSimple(Textures textures, TreeTableNode parent, Element node) {
+    public HVSplit(Textures textures, TreeTableNode parent, Element node) {
         super(textures, parent, node);
-        addProperty(new HSplitProperty(new AttributeProperty(element, "splitx")));
+        addProperty(new HSplitProperty());
+        addProperty(new VSplitProperty());
     }
 }

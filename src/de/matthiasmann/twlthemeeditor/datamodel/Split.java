@@ -35,26 +35,33 @@ package de.matthiasmann.twlthemeeditor.datamodel;
  */
 public class Split {
 
-    private final int[] splits;
+    private final int split1;
+    private final int split2;
 
-    public Split(int ... splits) {
-        this.splits = splits;
+    public Split(int split1, int split2) {
+        this.split1 = split1;
+        this.split2 = split2;
     }
 
     public Split(String splits) {
-        this.splits = Utils.parseInts(splits);
+        int[] tmp = Utils.parseInts(splits);
+        if(tmp.length != 2) {
+            throw new IllegalArgumentException("Need 2 integers");
+        }
+        this.split1 = tmp[0];
+        this.split2 = tmp[1];
     }
 
-    public int[] getSplits() {
-        return splits.clone();
+    public int getSplit1() {
+        return split1;
     }
 
-    public int getNumSplits() {
-        return splits.length;
+    public int getSplit2() {
+        return split2;
     }
 
     @Override
     public String toString() {
-        return Utils.toString(splits);
+        return split1 + "," + split2;
     }
 }

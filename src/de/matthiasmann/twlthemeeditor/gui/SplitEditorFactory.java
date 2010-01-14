@@ -29,8 +29,10 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
+import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.AbstractIntegerModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Split;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
 
@@ -44,49 +46,61 @@ public class SplitEditorFactory implements PropertyEditorFactory<Split, SplitPro
         return new SplitEditor(pa);
     }
 
-    static class SplitEditor extends IntegerArrayEditor {
+    static class SplitEditor extends DialogLayout {
+        private static final Split DEFAULT_SPLIT = new Split(0, 0);
+
         private final PropertyAccessor<Split, SplitProperty> pa;
+        private final SplitIntegerModel model1;
+        private final SplitIntegerModel model2;
+        private Split split;
 
         public SplitEditor(PropertyAccessor<Split, SplitProperty> pa) {
             this.pa = pa;
-            init(pa.getValue(new Split(0)).getSplits());
-        }
+            this.split = pa.getValue(DEFAULT_SPLIT);
 
-        @Override
-        protected int getMaxValue(int idx) {
-            return pa.getProperty().getLimit();
-        }
-
-        @Override
-        protected boolean isValid(int[] array) {
-            if(array.length < 1) {
-                errorMessage = "Need atleast 1 split entry";
-                return false;
-            }
-            int last = 0;
-            for(int pos : array) {
-                if(pos < last) {
-                    errorMessage = "Values must be monotonically increasing";
-                    return false;
+            this.model1 = new SplitIntegerModel() {
+                public int getValue() {
+                    return split.getSplit1();
                 }
-                last = pos;
+                public void setValue(int value) {
+                    setSplit(value, Math.max(value, split.getSplit2()));
+                }
+            };
+            this.model2 = new SplitIntegerModel() {
+                public int getValue() {
+                    return split.getSplit2();
+                }
+                public void setValue(int value) {
+                    setSplit(Math.min(value, split.getSplit1()), value);
+                }
+            };
+
+            ValueAdjusterInt adjuster1 = new ValueAdjusterInt(model1);
+            ValueAdjusterInt adjuster2 = new ValueAdjusterInt(model2);
+
+            pa.setWidgetsToEnable(adjuster1, adjuster2);
+
+            setHorizontalGroup(createParallelGroup(adjuster1, adjuster2));
+            setVerticalGroup(createSequentialGroup().addWidgetsWithGap("adjuster", adjuster1, adjuster2));
+        }
+
+        void setSplit(int split1, int split2) {
+            split = new Split(split1, split2);
+            pa.setValue(split);
+            model1.fireCallback();
+            model2.fireCallback();
+        }
+
+        abstract class SplitIntegerModel extends AbstractIntegerModel {
+            public int getMaxValue() {
+                return pa.getProperty().getLimit();
             }
-            if(last > getMaxValue(0)) {
-                errorMessage = "split values outside range";
-                return false;
+            public int getMinValue() {
+                return 0;
             }
-            return true;
+            void fireCallback() {
+                doCallback();
+            }
         }
-
-        @Override
-        protected void updateProperty() {
-            pa.setValue(new Split(array));
-        }
-
-        @Override
-        protected int getNewValueForAppend(int[] array) {
-            return (array.length > 0) ? array[array.length-1] : 0;
-        }
-
     }
 }
