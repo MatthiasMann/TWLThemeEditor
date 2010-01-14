@@ -41,6 +41,7 @@ import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
 import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
 import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
+import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
 import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
@@ -70,6 +71,7 @@ public class Context {
         factories.put(SplitProperty.class, new SplitEditorFactory());
         factories.put(HotSpotProperty.class, new HotSpotEditorFactory());
         factories.put(BorderProperty.class, new BorderEditorFactory());
+        factories.put(NameProperty.class, new NameEditorFactory());
     }
 
     public ListModel<String> getRefableImages(Image stopAt, Image.Kind kind) {

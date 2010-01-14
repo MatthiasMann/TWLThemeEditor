@@ -32,7 +32,6 @@ package de.matthiasmann.twlthemeeditor.properties;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.HotSpot;
-import org.jdom.Element;
 
 /**
  *
@@ -44,14 +43,14 @@ public abstract class HotSpotProperty implements Property<HotSpot> {
     private final IntegerProperty baseY;
     private final String name;
 
-    public HotSpotProperty(Element element, String name) {
-        this.baseX = new IntegerProperty(new AttributeProperty(element, "hotSpotX"), 0, 0) {
+    public HotSpotProperty(Property<String> x, Property<String> y, String name) {
+        this.baseX = new IntegerProperty(x, 0, 0) {
             @Override
             public int getMaxValue() {
                 return getLimit().getX();
             }
         };
-        this.baseY = new IntegerProperty(new AttributeProperty(element, "hotSpotY"), 0, 0) {
+        this.baseY = new IntegerProperty(y, 0, 0) {
             @Override
             public int getMaxValue() {
                 return getLimit().getY();

@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.properties;
 
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.Split;
 
 /**
@@ -37,7 +38,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.Split;
  */
 public abstract class SplitProperty extends DerivedProperty<Split> {
 
-    public SplitProperty(AttributeProperty base) {
+    public SplitProperty(Property<String> base) {
         super(base, Split.class);
     }
 

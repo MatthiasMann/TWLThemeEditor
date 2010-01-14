@@ -27,41 +27,28 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel.images;
+package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
-import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
-import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
-import org.jdom.Element;
+import de.matthiasmann.twl.model.Property;
 
 /**
  *
  * @author Matthias Mann
  */
-public class CursorRef extends Image {
+public abstract class NameProperty extends DerivedProperty<String> {
 
-    private final ImageReferenceProperty refProperty;
-
-    public CursorRef(Textures textures, TreeTableNode parent, Element node) {
-        super(textures, parent, node);
-        this.refProperty = new ImageReferenceProperty(new AttributeProperty(element, "ref"), this);
-        addProperty(refProperty);
+    public NameProperty(Property<String> base) {
+        super(base, String.class);
     }
 
-    @Override
-    public Kind getKind() {
-        return Kind.CURSOR;
+    public String getPropertyValue() {
+        return base.getPropertyValue();
     }
 
-    @Override
-    protected void handleImageRenamed(String from, String to, Kind kind) {
-        super.handleImageRenamed(from, to, kind);
-        if(kind == getKind() && from.equals(refProperty.getPropertyValue().getName())) {
-            refProperty.setPropertyValue(new ImageReference(to, kind));
-        }
+    public void setPropertyValue(String value) throws IllegalArgumentException {
+        base.setPropertyValue(value);
     }
 
+    public abstract void validateName(String name) throws IllegalArgumentException;
+    
 }

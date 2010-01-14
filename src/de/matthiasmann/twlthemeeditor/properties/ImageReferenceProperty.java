@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.properties;
 
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
 
@@ -40,7 +41,7 @@ public class ImageReferenceProperty extends DerivedProperty<ImageReference> {
 
     private final Image limit;
 
-    public ImageReferenceProperty(AttributeProperty base, Image limit) {
+    public ImageReferenceProperty(Property<String> base, Image limit) {
         super(base, ImageReference.class);
         this.limit = limit;
     }

@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.model.BooleanModel;
+import de.matthiasmann.twl.model.Property;
 
 /**
  *
@@ -39,7 +40,7 @@ public class BooleanProperty extends DerivedProperty<Boolean> implements Boolean
 
     private final boolean defaultValue;
 
-    public BooleanProperty(AttributeProperty base, boolean defaultValue) {
+    public BooleanProperty(Property<String> base, boolean defaultValue) {
         super(base, Boolean.class);
         this.defaultValue = defaultValue;
     }

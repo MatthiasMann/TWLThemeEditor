@@ -31,7 +31,6 @@ package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.Condition;
-import org.jdom.Element;
 
 /**
  *
@@ -39,14 +38,23 @@ import org.jdom.Element;
  */
 public class ConditionProperty implements Property<Condition> {
 
-    private final AttributeProperty baseIf;
-    private final AttributeProperty baseUnless;
+    private final Property<String> baseIf;
+    private final Property<String> baseUnless;
     private final String name;
 
-    public ConditionProperty(Element element, String name) {
-        this.baseIf = new AttributeProperty(element, "if", name, true);
-        this.baseUnless = new AttributeProperty(element, "unless", name, true);
+    private String prevCondition;
+
+    public ConditionProperty(Property<String> baseIf, Property<String> baseUnless, String name) {
+        if(!baseIf.canBeNull()) {
+            throw new IllegalArgumentException("baseIf must be nullable");
+        }
+        if(!baseUnless.canBeNull()) {
+            throw new IllegalArgumentException("baseIf must be nullable");
+        }
+        this.baseIf = baseIf;
+        this.baseUnless = baseUnless;
         this.name = name;
+        this.prevCondition = "";
     }
 
     public String getName() {
@@ -74,10 +82,11 @@ public class ConditionProperty implements Property<Condition> {
         if(cond != null) {
             return new Condition(Condition.Type.UNLESS, cond);
         }
-        return Condition.NONE;
+        return new Condition(Condition.Type.NONE, prevCondition);
     }
 
     public void setPropertyValue(Condition value) throws IllegalArgumentException {
+        prevCondition = value.getCondition();
         baseIf.setPropertyValue((value.getType() == Condition.Type.IF) ? value.getCondition() : null);
         baseUnless.setPropertyValue((value.getType() == Condition.Type.UNLESS) ? value.getCondition() : null);
     }

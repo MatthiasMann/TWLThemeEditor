@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.Color;
+import de.matthiasmann.twl.model.Property;
 
 /**
  *
@@ -37,7 +38,7 @@ import de.matthiasmann.twl.Color;
  */
 public class ColorProperty extends DerivedProperty<Color> {
 
-    public ColorProperty(AttributeProperty base) {
+    public ColorProperty(Property<String> base) {
         super(base, Color.class);
     }
 

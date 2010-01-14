@@ -10,6 +10,7 @@
         <texture name="checkerboard" x="56" y="106" width="8" height="8" tiled="true"/>
         <texture name="-icon-moveup" x="74" y="19" width="12" height="8" center="true"/>
         <texture name="-icon-movedown" x="87" y="19" width="12" height="8" center="true"/>
+        <texture name="-icon-apply" x="86" y="37" width="13" height="10" center="true" inset="0,1,0,-1"/>
 
         <alias name="textureviewer.background" ref="checkerboard" border="64" inset="64"/>
 
@@ -30,6 +31,15 @@
                 <alias ref="-icon-movedown" if="disabled" tint="#6fff"/>
                 <alias ref="-icon-movedown" if="armed" inset="1,1,-1,-1"/>
                 <alias ref="-icon-movedown"/>
+            </select>
+            <alias ref="vbutton.overlay"/>
+        </composed>
+
+        <composed name="applybutton.overlay">
+            <select>
+                <alias ref="-icon-apply" if="disabled" tint="#6fff"/>
+                <alias ref="-icon-apply" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-apply"/>
             </select>
             <alias ref="vbutton.overlay"/>
         </composed>
@@ -198,6 +208,14 @@
                     </theme>
 
                     <theme name="bordereditor" ref="dialoglayout">
+                        <theme name="" ref="*"/>
+                    </theme>
+
+                    <theme name="nameeditor" ref="dialoglayout">
+                        <theme name="applybutton" ref="vbutton">
+                            <param name=""><image>applybutton.*</image></param>
+                            <param name="tooltip"><string>Change name of this element</string></param>
+                        </theme>
                         <theme name="" ref="*"/>
                     </theme>
                 </theme>

@@ -184,6 +184,10 @@ public class TextureViewer extends DraggableButton {
             CallbackSupport.fireCallbacks(exceptionCallbacks);
         }
 
+        // render the previous image if the rectangle changes to give layout time to update
+        // this prevents jumpy image scaling when the rectangle size is changed
+        Image prevImage = image;
+
         if(texture != null && (image == null || changeImage)) {
             if(rect == null) {
                 rect = getTextureRect();
@@ -198,8 +202,12 @@ public class TextureViewer extends DraggableButton {
             changeImage = false;
         }
 
-        if(image != null) {
-            image.draw(getAnimationState(), getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight());
+        if(prevImage == null) {
+            prevImage = image;
+        }
+
+        if(prevImage != null) {
+            prevImage.draw(getAnimationState(), getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight());
         }
     }
 

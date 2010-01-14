@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.Border;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 
 /**
@@ -40,7 +41,7 @@ public class BorderProperty extends DerivedProperty<Border> {
 
     private final int minValue;
 
-    public BorderProperty(AttributeProperty base, int minValue) {
+    public BorderProperty(Property<String> base, int minValue) {
         super(base, Border.class);
         this.minValue = minValue;
     }

@@ -50,6 +50,7 @@ import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
+import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,7 +71,7 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
     protected final Textures textures;
     protected final ArrayList<Property<?>> properties;
     protected final Element element;
-    protected final AttributeProperty nameProperty;
+    protected final NameProperty nameProperty;
     protected ConditionProperty conditionProperty;
 
     protected Image(Textures textures, TreeTableNode parent, Element element) {
@@ -80,7 +81,7 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
         this.element = element;
 
         if(parent == textures) {
-            this.nameProperty = new AttributeProperty(element, "name");
+            this.nameProperty = new ImageNameProperty(element);
             addProperty(nameProperty);
         } else {
             this.nameProperty = null;
@@ -109,7 +110,9 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
     }
 
     protected void addStandardProperties() {
-        addProperty(conditionProperty = new ConditionProperty(element, "Condition"));
+        addProperty(conditionProperty = new ConditionProperty(
+                new AttributeProperty(element, "if", "Condition", true),
+                new AttributeProperty(element, "unless", "Condition", true), "Condition"));
         addProperty(new BooleanProperty(new AttributeProperty(element, "center", "Centered", true), false));
         addProperty(new BorderProperty(new AttributeProperty(element, "border", "Border", true), 0));
         addProperty(new BorderProperty(new AttributeProperty(element, "inset", "Inset", true), Short.MIN_VALUE));
@@ -172,6 +175,12 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
     public void addChildren() throws IOException {
         Utils.addChildren(textures.getThemeFile(), this, element, getImageDomWrapper(textures));
     }
+
+    protected void handleImageRenamed(String from, String to, Kind kind) {
+        for(Image img : getChildren(Image.class)) {
+            img.handleImageRenamed(from, to, kind);
+        }
+    }
     
     public static DomWrapper getImageDomWrapper(final Textures textures) {
         return new DomWrapper() {
@@ -224,9 +233,46 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
         };
     }
 
+    protected class ImageNameProperty extends NameProperty {
+        public ImageNameProperty(Element element) {
+            super(new AttributeProperty(element, "name"));
+        }
+
+        @Override
+        public void validateName(String name) throws IllegalArgumentException {
+            if("none".equals(name)) {
+                throw new IllegalArgumentException("\"none\" is a reserved name");
+            }
+            for(Image img : getThemeTreeModel().getImages()) {
+                if(img != Image.this && img.getKind() == getKind()) {
+                    String imgName = img.getName();
+                    if(name.equals(imgName)) {
+                        throw new IllegalArgumentException("Name \"" + name + "\" already in use");
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void setPropertyValue(String value) throws IllegalArgumentException {
+            validateName(value);
+            String prevName = getPropertyValue();
+            if(!prevName.equals(value)) {
+                for(Image img : getThemeTreeModel().getImages()) {
+                    img.handleImageRenamed(prevName, value, getKind());
+                }
+                super.setPropertyValue(value);
+            }
+        }
+    }
+
     protected class ImageRectProperty extends RectProperty {
         public ImageRectProperty(Element element) {
-            super(element, "rect");
+            super(new AttributeProperty(element, "x"),
+                    new AttributeProperty(element, "y"),
+                    new AttributeProperty(element, "width"),
+                    new AttributeProperty(element, "height"),
+                    "rect");
         }
 
         @Override

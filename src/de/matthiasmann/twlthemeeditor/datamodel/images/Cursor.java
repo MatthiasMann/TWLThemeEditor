@@ -33,6 +33,7 @@ import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
 import org.jdom.Element;
 
@@ -46,7 +47,9 @@ public class Cursor extends Image {
         super(textures, parent, node);
         final ImageRectProperty rectProperty = new ImageRectProperty(node);
         addProperty(rectProperty);
-        addProperty(new HotSpotProperty(element, "Hot spot") {
+        addProperty(new HotSpotProperty(
+                new AttributeProperty(element, "hotSpotX"),
+                new AttributeProperty(element, "hotSpotY"), "Hot spot") {
             @Override
             public Dimension getLimit() {
                 return rectProperty.getPropertyValue().getSize();

@@ -37,10 +37,10 @@ import de.matthiasmann.twl.model.Property;
  */
 public abstract class DerivedProperty<T> implements Property<T> {
 
-    protected final AttributeProperty base;
+    protected final Property<String> base;
     protected final Class<T> type;
 
-    protected DerivedProperty(AttributeProperty base, Class<T> type) {
+    protected DerivedProperty(Property<String> base, Class<T> type) {
         this.base = base;
         this.type = type;
     }

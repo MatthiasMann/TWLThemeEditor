@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.properties;
 
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.Weights;
 
 /**
@@ -37,7 +38,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.Weights;
  */
 public class WeightsProperty extends DerivedProperty<Weights> {
 
-    public WeightsProperty(AttributeProperty base) {
+    public WeightsProperty(Property<String> base) {
         super(base, Weights.class);
     }
 

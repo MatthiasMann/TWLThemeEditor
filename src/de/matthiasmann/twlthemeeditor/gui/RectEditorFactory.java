@@ -31,11 +31,9 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twlthemeeditor.properties.PropertyAccessor;
 import de.matthiasmann.twl.DialogLayout;
-import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.AbstractIntegerModel;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 
 /**
@@ -54,97 +52,18 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect, RectProper
         return new RectEditor(ctx, pa);
     }
 
-    static abstract class MyIntegerModel extends AbstractIntegerModel {
-        protected void fireCallback() {
-            super.doCallback();
-        }
-    }
-
-    static class RectEditor extends DialogLayout {
+    static class RectEditor extends DialogLayout implements Runnable {
         private final Context ctx;
         private final PropertyAccessor<Rect, RectProperty> pa;
-        private final Dimension dim;
-        private Rect rect;
-
-        final MyIntegerModel modelX;
-        final MyIntegerModel modelY;
-        final MyIntegerModel modelWidth;
-        final MyIntegerModel modelHeight;
 
         public RectEditor(Context ctx, PropertyAccessor<Rect, RectProperty> pa) {
             this.ctx = ctx;
             this.pa = pa;
-            this.rect = pa.getValue(new Rect(0, 0, 1, 1));  // rect is mutable - need to create a new one
-            this.dim = pa.getProperty().getLimit();
 
-            this.modelX = new MyIntegerModel() {
-                public int getMaxValue() {
-                    return dim.getX() - 1;
-                }
-                public int getMinValue() {
-                    return 0;
-                }
-                public int getValue() {
-                    return rect.getX();
-                }
-                public void setValue(int x) {
-                    int width = Math.min(dim.getX() - x, rect.getWidth());
-                    setRect(x, rect.getY(), width, rect.getHeight());
-                }
-            };
-            
-            this.modelY = new MyIntegerModel() {
-                public int getMaxValue() {
-                    return dim.getY() - 1;
-                }
-                public int getMinValue() {
-                    return 0;
-                }
-                public int getValue() {
-                    return rect.getY();
-                }
-                public void setValue(int y) {
-                    int height = Math.min(dim.getY() - y, rect.getHeight());
-                    setRect(rect.getX(), y, rect.getWidth(), height);
-                }
-            };
-            
-            this.modelWidth = new MyIntegerModel() {
-                public int getMaxValue() {
-                    return dim.getX();
-                }
-                public int getMinValue() {
-                    return 1;
-                }
-                public int getValue() {
-                    return rect.getWidth();
-                }
-                public void setValue(int width) {
-                    int x = Math.min(dim.getX() - width, rect.getX());
-                    setRect(x, rect.getY(), width, rect.getHeight());
-                }
-            };
-
-            this.modelHeight = new MyIntegerModel() {
-                public int getMaxValue() {
-                    return dim.getY();
-                }
-                public int getMinValue() {
-                    return 1;
-                }
-                public int getValue() {
-                    return rect.getHeight();
-                }
-                public void setValue(int height) {
-                    int y = Math.min(dim.getY() - height, rect.getY());
-                    setRect(rect.getX(), y, rect.getWidth(), height);
-                }
-            };
-
-            ValueAdjusterInt adjusterX = new ValueAdjusterInt(modelX);
-            ValueAdjusterInt adjusterY = new ValueAdjusterInt(modelY);
-            ValueAdjusterInt adjusterW = new ValueAdjusterInt(modelWidth);
-            ValueAdjusterInt adjusterH = new ValueAdjusterInt(modelHeight);
+            ValueAdjusterInt adjusterX = new ValueAdjusterInt(pa.getProperty().getXProperty());
+            ValueAdjusterInt adjusterY = new ValueAdjusterInt(pa.getProperty().getYProperty());
+            ValueAdjusterInt adjusterW = new ValueAdjusterInt(pa.getProperty().getWidthProperty());
+            ValueAdjusterInt adjusterH = new ValueAdjusterInt(pa.getProperty().getHeightProperty());
 
             adjusterX.setTooltipContent("X position");
             adjusterY.setTooltipContent("Y position");
@@ -158,27 +77,20 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect, RectProper
 
             setHorizontalGroup(createParallelGroup(adjusterX, adjusterY, adjusterW, adjusterH));
             setVerticalGroup(createSequentialGroup().addWidgetsWithGap("adjuster", adjusterX, adjusterY, adjusterW, adjusterH));
+
+            pa.getProperty().addValueChangedCallback(this);
             
             updateTextureViewerPane();
         }
 
-        void setRect(int x, int y, int width, int height) {
-            rect = new Rect(x, y, width, height);
-            pa.setValue(rect);
-            
-            modelX.fireCallback();
-            modelY.fireCallback();
-            modelWidth.fireCallback();
-            modelHeight.fireCallback();
-
+        public void run() {
             updateTextureViewerPane();
         }
 
         void updateTextureViewerPane() {
             TextureViewerPane tvp = ctx.getTextureViewerPane();
             if(tvp != null) {
-                // rect is mutable, make a copy
-                tvp.setRect(new Rect(rect));
+                tvp.setRect(pa.getProperty().getPropertyValue());
             }
         }
     }

@@ -32,7 +32,6 @@ package de.matthiasmann.twlthemeeditor.properties;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.model.Property;
-import org.jdom.Element;
 
 /**
  *
@@ -46,29 +45,57 @@ public abstract class RectProperty implements Property<Rect> {
     private final IntegerProperty baseH;
     private final String name;
 
-    public RectProperty(Element element, String name) {
-        this.baseX = new IntegerProperty(new AttributeProperty(element, "x"), 0, 0) {
+    public RectProperty(Property<String> x, Property<String> y, Property<String> width, Property<String> height, String name) {
+        this.baseX = new IntegerProperty(x, 0, 0) {
             @Override
             public int getMaxValue() {
                 return getLimit().getX() - 1;
             }
+            @Override
+            public void setValue(int value) {
+                if(getValue() != value) {
+                    baseW.setValue(Math.min(getLimit().getX() - value, baseW.getValue()));
+                    super.setValue(value);
+                }
+            }
         };
-        this.baseY = new IntegerProperty(new AttributeProperty(element, "y"), 0, 0) {
+        this.baseY = new IntegerProperty(y, 0, 0) {
             @Override
             public int getMaxValue() {
                 return getLimit().getY() - 1;
             }
+            @Override
+            public void setValue(int value) {
+                if(getValue() != value) {
+                    baseH.setValue(Math.min(getLimit().getY() - value, baseH.getValue()));
+                    super.setValue(value);
+                }
+            }
         };
-        this.baseW = new IntegerProperty(new AttributeProperty(element, "width"), 0, 0) {
+        this.baseW = new IntegerProperty(width, 0, 0) {
             @Override
             public int getMaxValue() {
                 return getLimit().getX();
             }
+            @Override
+            public void setValue(int value) {
+                if(getValue() != value) {
+                    baseX.setValue(Math.min(getLimit().getX() - value, baseX.getValue()));
+                    super.setValue(value);
+                }
+            }
         };
-        this.baseH = new IntegerProperty(new AttributeProperty(element, "height"), 0, 0) {
+        this.baseH = new IntegerProperty(height, 0, 0) {
             @Override
             public int getMaxValue() {
                 return getLimit().getY();
+            }
+            @Override
+            public void setValue(int value) {
+                if(getValue() != value) {
+                    baseY.setValue(Math.min(getLimit().getY() - value, baseY.getValue()));
+                    super.setValue(value);
+                }
             }
         };
         this.name = name;
@@ -117,6 +144,22 @@ public abstract class RectProperty implements Property<Rect> {
         baseY.removeValueChangedCallback(cb);
         baseW.removeValueChangedCallback(cb);
         baseH.removeValueChangedCallback(cb);
+    }
+
+    public IntegerProperty getXProperty() {
+        return baseX;
+    }
+
+    public IntegerProperty getYProperty() {
+        return baseY;
+    }
+
+    public IntegerProperty getWidthProperty() {
+        return baseW;
+    }
+
+    public IntegerProperty getHeightProperty() {
+        return baseH;
     }
 
     public abstract Dimension getLimit();

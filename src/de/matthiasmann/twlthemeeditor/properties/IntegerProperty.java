@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.model.IntegerModel;
+import de.matthiasmann.twl.model.Property;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,10 +43,13 @@ public class IntegerProperty extends DerivedProperty<Integer> implements Integer
     private final int minValue;
     private final int maxValue;
 
-    public IntegerProperty(AttributeProperty base, int minValue, int maxValue) {
+    private int prevValue;
+
+    public IntegerProperty(Property<String> base, int minValue, int maxValue) {
         super(base, Integer.class);
         this.minValue = minValue;
         this.maxValue = maxValue;
+        this.prevValue = minValue;
     }
 
     public Integer getPropertyValue() {
@@ -58,7 +62,7 @@ public class IntegerProperty extends DerivedProperty<Integer> implements Integer
         } catch (Throwable ex) {
             Logger.getLogger(IntegerProperty.class.getName()).log(Level.SEVERE,
                     "Can't parse value of propterty '" + getName() + "': " + value, ex);
-            return getMinValue();
+            return prevValue;
         }
     }
 
@@ -66,6 +70,7 @@ public class IntegerProperty extends DerivedProperty<Integer> implements Integer
         if(canBeNull() && value == null) {
             base.setPropertyValue(null);
         } else {
+            prevValue = value;
             base.setPropertyValue(value.toString());
         }
     }
@@ -84,7 +89,7 @@ public class IntegerProperty extends DerivedProperty<Integer> implements Integer
 
     public int getValue() {
         Integer value = getPropertyValue();
-        return (value != null) ? value : minValue;
+        return (value != null) ? value : prevValue;
     }
 
 }
