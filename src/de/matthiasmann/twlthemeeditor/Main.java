@@ -77,8 +77,6 @@ public class Main {
         final ThemeTreeModel ttm = new ThemeTreeModel(env, url);
         final Context ctx = new Context(ttm);
 
-        ctx.setPropertyOrder("rect", "ref", "condition", "centered", "tint", "splitX", "splitY", "weightsX", "weightsY");
-        
         env.registerFile("/font.fnt", new URL(url, "font.fnt"));
         env.registerFile("/font_00.png", new URL(url, "font_00.png"));
         

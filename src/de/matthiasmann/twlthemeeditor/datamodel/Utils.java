@@ -203,8 +203,4 @@ public final class Utils {
     public static boolean equals(Object a, Object b) {
         return (a == b) || (a != null && a.equals(b));
     }
-    
-    public static String toStringOrNull(Object o) {
-        return (o == null) ? null : o.toString();
-    }
 }

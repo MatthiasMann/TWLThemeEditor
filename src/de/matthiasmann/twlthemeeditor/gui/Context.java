@@ -44,10 +44,6 @@ import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
 import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  *
@@ -57,7 +53,6 @@ public class Context {
 
     private final ThemeTreeModel model;
     private final TypeMapping<PropertyEditorFactory<?,?>> factories;
-    private final ArrayList<String> propertyOrder;
 
     private TextureViewerPane textureViewerPane;
 
@@ -75,8 +70,6 @@ public class Context {
         factories.put(SplitProperty.class, new SplitEditorFactory());
         factories.put(HotSpotProperty.class, new HotSpotEditorFactory());
         factories.put(BorderProperty.class, new BorderEditorFactory());
-
-        this.propertyOrder = new ArrayList<String>();
     }
 
     public ListModel<String> getRefableImages(Image stopAt, Image.Kind kind) {
@@ -95,29 +88,8 @@ public class Context {
         return result;
     }
 
-    public ListModel<String> getRefableCursors(Image stopAt) {
-        SimpleChangableListModel<String> result = new SimpleChangableListModel<String>();
-        result.addElement("none");
-        for(Image img : model.getImages()) {
-            if(img == stopAt) {
-                break;
-            }
-            result.addElement(img.getName());
-        }
-        return result;
-    }
-
     public PropertyEditorFactory<?,?> getFactory(Class<?> clazz) {
         return factories.get(clazz);
-    }
-
-    public List<String> getPropertyOrder() {
-        return Collections.unmodifiableList(propertyOrder);
-    }
-
-    public void setPropertyOrder(String ... order) {
-        propertyOrder.clear();
-        propertyOrder.addAll(Arrays.asList(order));
     }
 
     public TextureViewerPane getTextureViewerPane() {
