@@ -31,13 +31,18 @@ package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.DomWrapper;
+import de.matthiasmann.twlthemeeditor.datamodel.DomXPPParser;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewTexture;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import java.io.IOException;
+import java.util.List;
 import org.jdom.Element;
 
 /**
@@ -75,4 +80,17 @@ public class Repeat extends WithSubImages {
             }
         });
     }
+
+    @Override
+    protected void addMissingChild(DomXPPParser xpp) {
+        xpp.addElement(this, new Element("frame").setAttribute("ref", "none").setAttribute("duration", "100"));
+    }
+
+    @Override
+    protected void addOperations(List<ThemeTreeOperation> operations) {
+        operations.add(new CreateNewSimple(this, "repeat", "count", "1"));
+        operations.add(new CreateNewSimple(this, "frame", "duration", "100", "ref", "none"));
+        operations.add(new CreateNewTexture(this, "frames", "duration", "100", "count", "2", "offsetx", "10"));
+    }
+
 }

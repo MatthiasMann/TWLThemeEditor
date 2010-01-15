@@ -32,7 +32,7 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.renderer.lwjgl.PNGDecoder;
-import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSplit;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewTexture;
 import java.io.IOException;
 import java.io.InputStream;
@@ -112,10 +112,18 @@ public class Textures extends AbstractThemeTreeNode {
 
     public List<ThemeTreeOperation> getOperations() {
         List<ThemeTreeOperation> operations = AbstractThemeTreeNode.getDefaultOperations(element, this);
-        operations.add(new CreateNewTexture(this));
-        operations.add(new CreateNewSplit(this, "hsplit", true, false));
-        operations.add(new CreateNewSplit(this, "vsplit", false, true));
-        operations.add(new CreateNewSplit(this, "hvsplit", true, true));
+        addCreateImageOperations(operations, this);
         return operations;
+    }
+
+    public static void addCreateImageOperations(List<ThemeTreeOperation> operations, ThemeTreeNode parent) {
+        operations.add(new CreateNewTexture(parent, "texture"));
+        operations.add(new CreateNewTexture(parent, "hsplit", "hsplit", "0,0"));
+        operations.add(new CreateNewTexture(parent, "vsplit", "vsplit", "0,0"));
+        operations.add(new CreateNewTexture(parent, "hvsplit", "hsplit", "0,0", "vsplit", "0,0"));
+        operations.add(new CreateNewSimple(parent, "select"));
+        operations.add(new CreateNewSimple(parent, "composed"));
+        operations.add(new CreateNewSimple(parent, "grid", "weightsX", "0,1,0", "weightsY", "0,1,0"));
+        operations.add(new CreateNewSimple(parent, "animation", "timeSource", "hover"));
     }
 }

@@ -34,7 +34,9 @@ import de.matthiasmann.twlthemeeditor.datamodel.DomXPPParser;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
 import java.io.IOException;
+import java.util.List;
 import org.jdom.Element;
 
 /**
@@ -49,8 +51,6 @@ abstract class WithSubImages extends Image {
 
     protected abstract int getRequiredChildren();
     
-    private static final Element ALIAS_REF_NONE = new Element("alias").setAttribute("ref", "none");
-
     @Override
     @SuppressWarnings("unchecked")
     public void addToXPP(DomXPPParser xpp) {
@@ -65,8 +65,23 @@ abstract class WithSubImages extends Image {
             }
         }
         for (; generated < required; generated++) {
-            xpp.addElement(this, ALIAS_REF_NONE);
+            addMissingChild(xpp);
         }
         xpp.addEndTag(element.getName());
+    }
+
+    protected void addMissingChild(DomXPPParser xpp) {
+        xpp.addElement(this, new Element("alias").setAttribute("ref", "none"));
+    }
+
+    @Override
+    public List<ThemeTreeOperation> getOperations() {
+        List<ThemeTreeOperation> operations = super.getOperations();
+        addOperations(operations);
+        return operations;
+    }
+
+    protected void addOperations(List<ThemeTreeOperation> operations) {
+        Textures.addCreateImageOperations(operations, this);
     }
 }

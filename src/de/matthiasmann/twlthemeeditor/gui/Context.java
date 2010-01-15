@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.model.ListModel;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.utils.TypeMapping;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
@@ -58,28 +59,32 @@ import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
 public class Context {
 
     private final ThemeTreeModel model;
-    private final TypeMapping<PropertyEditorFactory<?,?>> factories;
+    private final TypeMapping<PropertyEditorFactory<?,?>> factories1;
+    private final TypeMapping<PropertyEditorFactory<?,?>> factories2;
 
     private TextureViewerPane textureViewerPane;
 
     public Context(ThemeTreeModel model) {
         this.model = model;
         
-        factories = new TypeMapping<PropertyEditorFactory<?,?>>();
-        factories.put(IntegerProperty.class, new IntegerEditorFactory());
-        factories.put(BooleanProperty.class, new BooleanEditorFactory());
-        factories.put(ColorProperty.class, new ColorEditor(this));
-        factories.put(RectProperty.class, new RectEditorFactory(this));
-        factories.put(ConditionProperty.class, new ConditionEditor());
-        factories.put(ImageReferenceProperty.class, new ImageRefEditor(this));
-        factories.put(ThemeReferenceProperty.class, new ThemeReferenceEditorFactory(this));
-        factories.put(WeightsProperty.class, new WeightsEditorFactory());
-        factories.put(SplitProperty.class, new SplitEditorFactory());
-        factories.put(GapProperty.class, new GapEditorFactory());
-        factories.put(DimensionProperty.class, new DimensionEditorFactory());
-        factories.put(HotSpotProperty.class, new HotSpotEditorFactory());
-        factories.put(BorderProperty.class, new BorderEditorFactory());
-        factories.put(NameProperty.class, new NameEditorFactory());
+        factories1 = new TypeMapping<PropertyEditorFactory<?,?>>();
+        factories1.put(IntegerProperty.class, new IntegerEditorFactory());
+        factories1.put(BooleanProperty.class, new BooleanEditorFactory());
+        factories1.put(ColorProperty.class, new ColorEditor(this));
+        factories1.put(RectProperty.class, new RectEditorFactory(this));
+        factories1.put(ConditionProperty.class, new ConditionEditor());
+        factories1.put(ImageReferenceProperty.class, new ImageRefEditor(this));
+        factories1.put(ThemeReferenceProperty.class, new ThemeReferenceEditorFactory(this));
+        factories1.put(WeightsProperty.class, new WeightsEditorFactory());
+        factories1.put(SplitProperty.class, new SplitEditorFactory());
+        factories1.put(GapProperty.class, new GapEditorFactory());
+        factories1.put(DimensionProperty.class, new DimensionEditorFactory());
+        factories1.put(HotSpotProperty.class, new HotSpotEditorFactory());
+        factories1.put(BorderProperty.class, new BorderEditorFactory());
+        factories1.put(NameProperty.class, new NameEditorFactory());
+
+        factories2 = new TypeMapping<PropertyEditorFactory<?,?>>();
+        factories2.put(String.class, new StringEditorFactory());
     }
 
     public ListModel<String> getRefableImages(ThemeTreeNode stopAt, Image.Kind kind) {
@@ -109,8 +114,12 @@ public class Context {
         return result;
     }
 
-    public PropertyEditorFactory<?,?> getFactory(Class<?> clazz) {
-        return factories.get(clazz);
+    public PropertyEditorFactory<?,?> getFactory(Property<?> property) {
+        PropertyEditorFactory<?,?> factory = factories1.get(property.getClass());
+        if(factory == null) {
+            factory = factories2.get(property.getType());
+        }
+        return factory;
     }
 
     public TextureViewerPane getTextureViewerPane() {

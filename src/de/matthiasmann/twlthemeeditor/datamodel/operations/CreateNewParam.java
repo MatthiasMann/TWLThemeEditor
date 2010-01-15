@@ -59,7 +59,7 @@ public class CreateNewParam extends CreateChildOperation {
     @Override
     public void execute() throws IOException {
         Element e = new Element("param");
-        e.setAttribute("name", "new" + System.nanoTime());
+        e.setAttribute("name", makeRandomName());
         if("enum".equals(tagName)) {
             e.setAttribute("type", "");
         }

@@ -58,9 +58,8 @@ public class PropertyPanel extends DialogLayout {
     @SuppressWarnings("unchecked")
     protected void addProperty(Property<?> p) {
         boolean optional = p.canBeNull();
-        Class<?> type = p.getClass();
-
-        PropertyEditorFactory factory = ctx.getFactory(type);
+        
+        PropertyEditorFactory factory = ctx.getFactory(p);
         if(factory != null) {
             BooleanModel activeModel = null;
 
@@ -77,7 +76,8 @@ public class PropertyPanel extends DialogLayout {
             getVerticalGroup().addWidget(panel);
             getHorizontalGroup().addWidget(panel);            
         } else {
-            System.out.println("No factory for property " + p.getName() + " type " + type);
+            System.out.println("No factory for property " + p.getName() +
+                    " type " + p.getClass() + "<" + p.getType() + ">");
         }
     }
 }

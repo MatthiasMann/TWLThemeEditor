@@ -111,4 +111,14 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
             element.addContent(createIndentation(indentation));
         }
     }
+
+    protected String makeRandomName() {
+        return "new" + System.nanoTime();
+    }
+
+    protected void imageSetNameIfNeeded(Element e) {
+        if("textures".equals(getDOMElement().getName())) {
+            e.setAttribute("name", makeRandomName());
+        }
+    }
 }

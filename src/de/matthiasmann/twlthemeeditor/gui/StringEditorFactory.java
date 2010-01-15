@@ -27,29 +27,27 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel.operations;
+package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
-import java.io.IOException;
-import org.jdom.Element;
+import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.Property;
 
 /**
  *
  * @author Matthias Mann
  */
-public class CreateNewTexture extends CreateNewSimple {
+public class StringEditorFactory implements PropertyEditorFactory<String, Property<String>> {
 
-    public CreateNewTexture(ThemeTreeNode parent, String tagName, String ... attributes) {
-        super(parent, tagName, attributes);
-    }
+    public Widget create(final PropertyAccessor<String, Property<String>> pa) {
+        final EditField ef = new EditField();
+        ef.setText(pa.getValue(""));
+        ef.addCallback(new EditField.Callback() {
+            public void callback(int key) {
+                pa.setValue(ef.getText());
+            }
+        });
 
-    @Override
-    protected void addChild(Element e) throws IOException {
-        e.setAttribute("x", "0");
-        e.setAttribute("y", "0");
-        e.setAttribute("width", "1");
-        e.setAttribute("height", "1");
-        super.addChild(e);
+        return ef;
     }
-    
 }

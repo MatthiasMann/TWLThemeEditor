@@ -157,16 +157,19 @@ public class Param extends AbstractThemeTreeNode implements HasProperties {
             return new BorderProperty(new ElementTextProperty(e, "border"), 0, true);
         }
         if("int".equals(tagName)) {
-            return new IntegerProperty(new ElementTextProperty(e, "value"), Short.MIN_VALUE, Short.MAX_VALUE);
+            return new IntegerProperty(new ElementTextProperty(e, "integer value"), Short.MIN_VALUE, Short.MAX_VALUE);
         }
         if("bool".equals(tagName)) {
-            return new BooleanProperty(new ElementTextProperty(e, "value"), false);
+            return new BooleanProperty(new ElementTextProperty(e, "boolean value"), false);
         }
         if("gap".equals(tagName)) {
             return new GapProperty(new ElementTextProperty(e, "layout gap"));
         }
         if("dimension".equals(tagName)) {
             return new DimensionProperty(new ElementTextProperty(e, "dimesnion"));
+        }
+        if("string".equals(tagName)) {
+            return new ElementTextProperty(e, "string value");
         }
         return null;
     }

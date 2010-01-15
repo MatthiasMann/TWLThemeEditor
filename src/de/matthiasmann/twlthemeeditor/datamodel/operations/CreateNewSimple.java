@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import java.io.IOException;
 import org.jdom.Element;
 
@@ -37,34 +38,25 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class CreateNewSplit extends CreateChildOperation {
+public class CreateNewSimple extends CreateChildOperation {
 
     private final String tagName;
-    private final boolean splitx;
-    private final boolean splity;
+    private final String[] attributes;
 
-    public CreateNewSplit(ThemeTreeNode parent, String tagName, boolean splitx, boolean splity) {
-        super("opNewNode" + Character.toUpperCase(tagName.charAt(0)) + tagName.substring(1), parent);
+    public CreateNewSimple(ThemeTreeNode parent, String tagName, String ... attributes) {
+        super("opNewNode" + Utils.capitalize(tagName), parent);
         this.tagName = tagName;
-        this.splitx = splitx;
-        this.splity = splity;
+        this.attributes = attributes;
     }
 
     @Override
     public void execute() throws IOException {
         Element e = new Element(tagName);
-        e.setAttribute("name", "new" + System.nanoTime());
-        e.setAttribute("x", "0");
-        e.setAttribute("y", "0");
-        e.setAttribute("width", "1");
-        e.setAttribute("height", "1");
-        if(splitx) {
-            e.setAttribute("splitx", "0,0");
-        }
-        if(splity) {
-            e.setAttribute("splity", "0,0");
+        imageSetNameIfNeeded(e);
+        for(int i=0 ; i<attributes.length ; i+=2) {
+            e.setAttribute(attributes[i], attributes[i+1]);
         }
         addChild(e);
     }
-
+    
 }
