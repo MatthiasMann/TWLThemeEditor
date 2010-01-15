@@ -149,14 +149,14 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
     }
 
     public void handleImageRenamed(String from, String to, Image.Kind kind) {
-        for(Image img : getImages()) {
-            img.handleImageRenamed(from, to, kind);
+        for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
+            node.handleImageRenamed(from, to, kind);
         }
     }
 
     public void handleThemeRenamed(String from, String to) {
-        for(Theme theme : getThemes()) {
-            theme.handleThemeRenamed(from, to);
+        for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
+            node.handleThemeRenamed(from, to);
         }
     }
 

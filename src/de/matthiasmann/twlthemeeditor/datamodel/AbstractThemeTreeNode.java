@@ -124,14 +124,14 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
     protected abstract String getType();
 
     public void handleImageRenamed(String from, String to, Image.Kind kind) {
-        for(Image img : getChildren(Image.class)) {
-            img.handleImageRenamed(from, to, kind);
+        for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
+            node.handleImageRenamed(from, to, kind);
         }
     }
 
     public void handleThemeRenamed(String from, String to) {
-        for(Theme theme : getChildren(Theme.class)) {
-            theme.handleThemeRenamed(from, to);
+        for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
+            node.handleThemeRenamed(from, to);
         }
     }
 

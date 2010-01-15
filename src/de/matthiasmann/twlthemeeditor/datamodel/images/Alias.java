@@ -58,9 +58,7 @@ public class Alias extends Image {
     @Override
     public void handleImageRenamed(String from, String to, Kind kind) {
         super.handleImageRenamed(from, to, kind);
-        if(kind == getKind() && from.equals(refProperty.getPropertyValue().getName())) {
-            refProperty.setPropertyValue(new ImageReference(to, kind));
-        }
+        refProperty.handleImageRenamed(from, to, kind);
     }
     
 }

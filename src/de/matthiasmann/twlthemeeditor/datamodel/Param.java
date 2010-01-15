@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.datamodel.Image.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParam;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
@@ -57,6 +58,7 @@ public class Param extends AbstractThemeTreeNode implements HasProperties {
     protected final Element element;
     protected final NameProperty nameProperty;
     protected final Element valueElement;
+    protected final Property<?> property;
 
     public Param(Theme theme, TreeTableNode parent, Element element) {
         super(theme.getThemeFile(), parent);
@@ -80,7 +82,7 @@ public class Param extends AbstractThemeTreeNode implements HasProperties {
         }
         valueElement = e;
 
-        Property<?> property = createProperty(valueElement, this);
+        property = createProperty(valueElement, this);
         if(property != null) {
             addProperty(property);
         }
@@ -136,6 +138,14 @@ public class Param extends AbstractThemeTreeNode implements HasProperties {
             addCreateParam(operations, this, valueElement);
         }
         return operations;
+    }
+
+    @Override
+    public void handleImageRenamed(String from, String to, Kind kind) {
+        super.handleImageRenamed(from, to, kind);
+        if(property instanceof ImageReferenceProperty) {
+            ((ImageReferenceProperty)property).handleImageRenamed(from, to, kind);
+        }
     }
 
     static void addCreateParam(List<ThemeTreeOperation> operations, ThemeTreeNode node, Element element) {

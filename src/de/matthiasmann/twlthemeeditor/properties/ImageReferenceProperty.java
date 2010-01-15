@@ -68,4 +68,10 @@ public class ImageReferenceProperty extends DerivedProperty<ImageReference> {
     public ThemeTreeNode getLimit() {
         return limit;
     }
+
+    public void handleImageRenamed(String from, String to, Kind kind) {
+        if(kind == this.kind && from.equals(base.getPropertyValue())) {
+            base.setPropertyValue(to);
+        }
+    }
 }
