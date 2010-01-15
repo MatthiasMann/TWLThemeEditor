@@ -40,20 +40,13 @@ import org.jdom.Element;
  */
 public class CreateNewParam extends CreateChildOperation {
 
-    private final Element element;
     private final String tagName;
     private final String initialText;
 
     public CreateNewParam(Element element, String tagName, ThemeTreeNode parent, String initialText) {
-        super("opNewParam" + Utils.capitalize(tagName), parent);
-        this.element = element;
+        super("opNewParam" + Utils.capitalize(tagName), parent, element);
         this.tagName = tagName;
         this.initialText = initialText;
-    }
-
-    @Override
-    protected Element getDOMElement() {
-        return element;
     }
 
     @Override

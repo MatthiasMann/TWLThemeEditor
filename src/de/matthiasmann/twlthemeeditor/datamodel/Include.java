@@ -90,7 +90,9 @@ public class Include extends AbstractThemeTreeNode {
     }
 
     public List<ThemeTreeOperation> getOperations() {
-        return AbstractThemeTreeNode.getDefaultOperations(element, this);
+        List<ThemeTreeOperation> operations = AbstractThemeTreeNode.getDefaultOperations(element, this);
+        includedThemeFile.addCreateOperations(operations, this);
+        return operations;
     }
 
 }

@@ -36,6 +36,7 @@ import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.XMLWriter;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,6 +45,7 @@ import java.io.StringReader;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -141,6 +143,10 @@ public class ThemeFile implements VirtualFile {
                 return null;
             }
         });
+    }
+
+    protected void addCreateOperations(List<ThemeTreeOperation> operations, ThemeTreeNode node) {
+        operations.add(new CreateNewSimple(node, document.getRootElement(), "theme", "ref", "-defaults"));
     }
 
     public void registerAs(String fileName) {

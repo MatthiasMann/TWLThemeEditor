@@ -145,6 +145,7 @@ public class Param extends AbstractThemeTreeNode implements HasProperties {
         operations.add(new CreateNewParam(element, "bool", node, "false"));
         operations.add(new CreateNewParam(element, "gap", node, ""));
         operations.add(new CreateNewParam(element, "dimension", node, "0,0"));
+        operations.add(new CreateNewParam(element, "string", node, ""));
         operations.add(new CreateNewParam(element, "map", node, "\n"));
     }
 

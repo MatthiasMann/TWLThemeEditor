@@ -137,6 +137,9 @@
         <theme name="opNewNodeRepeat" ref="popupMenuButton">
             <param name="text"><string>Create a new animation repeat node</string></param>
         </theme>
+        <theme name="opNewNodeTheme" ref="popupMenuButton">
+            <param name="text"><string>Create a new "theme" node</string></param>
+        </theme>
         <theme name="opNewParamImage" ref="popupMenuButton">
             <param name="text"><string>Create a new image parameter</string></param>
         </theme>

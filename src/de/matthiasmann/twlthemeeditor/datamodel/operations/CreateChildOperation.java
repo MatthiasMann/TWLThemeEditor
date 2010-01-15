@@ -46,21 +46,17 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
     private static final int INDENTATION_SIZE = 4;
 
     protected final ThemeTreeNode parent;
+    protected final Element element;
 
-    public CreateChildOperation(String actionID, ThemeTreeNode parent) {
+    public CreateChildOperation(String actionID, ThemeTreeNode parent, Element element) {
         super("opNewNode", actionID);
         this.parent = parent;
-    }
-
-    protected Element getDOMElement() {
-        return parent.getDOMElement();
+        this.element = element;
     }
 
     protected int getBaseIndentation() {
-        Element element = getDOMElement();
         int indentation = 0;
-        while(element != null) {
-            element = element.getParentElement();
+        for(Element e=element ; e!=null ; e=e.getParentElement()) {
             indentation += INDENTATION_SIZE;
         }
         return indentation;
@@ -78,7 +74,6 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
     }
 
     protected void addChild(Element child, boolean dontIndentChilds) throws IOException {
-        Element element = getDOMElement();
         int indentation = getBaseIndentation();
         int pos = element.getContentSize();
         if(pos>0 && element.getContent(pos-1) instanceof Text) {
@@ -116,8 +111,8 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
         return "new" + System.nanoTime();
     }
 
-    protected void imageSetNameIfNeeded(Element e) {
-        if("textures".equals(getDOMElement().getName())) {
+    protected void addNameAttributeIfNeeded(Element e) {
+        if(element.isRootElement() || "textures".equals(element.getName())) {
             e.setAttribute("name", makeRandomName());
         }
     }

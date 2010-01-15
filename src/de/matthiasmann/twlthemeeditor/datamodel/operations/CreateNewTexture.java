@@ -39,8 +39,8 @@ import org.jdom.Element;
  */
 public class CreateNewTexture extends CreateNewSimple {
 
-    public CreateNewTexture(ThemeTreeNode parent, String tagName, String ... attributes) {
-        super(parent, tagName, attributes);
+    public CreateNewTexture(ThemeTreeNode parent, Element element, String tagName, String ... attributes) {
+        super(parent, element, tagName, attributes);
     }
 
     @Override

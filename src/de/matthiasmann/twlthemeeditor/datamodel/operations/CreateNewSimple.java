@@ -43,8 +43,8 @@ public class CreateNewSimple extends CreateChildOperation {
     private final String tagName;
     private final String[] attributes;
 
-    public CreateNewSimple(ThemeTreeNode parent, String tagName, String ... attributes) {
-        super("opNewNode" + Utils.capitalize(tagName), parent);
+    public CreateNewSimple(ThemeTreeNode parent, Element element, String tagName, String ... attributes) {
+        super("opNewNode" + Utils.capitalize(tagName), parent, element);
         this.tagName = tagName;
         this.attributes = attributes;
     }
@@ -52,7 +52,7 @@ public class CreateNewSimple extends CreateChildOperation {
     @Override
     public void execute() throws IOException {
         Element e = new Element(tagName);
-        imageSetNameIfNeeded(e);
+        addNameAttributeIfNeeded(e);
         for(int i=0 ; i<attributes.length ; i+=2) {
             e.setAttribute(attributes[i], attributes[i+1]);
         }
