@@ -61,20 +61,13 @@ import org.jdom.Element;
  */
 public abstract class Image extends AbstractThemeTreeNode implements HasProperties {
 
-    public enum Kind {
-        IMAGE,
-        CURSOR
-    }
-
     protected final Textures textures;
-    protected final Element element;
     protected final NameProperty nameProperty;
     protected ConditionProperty conditionProperty;
 
     protected Image(Textures textures, TreeTableNode parent, Element element) {
-        super(textures.getThemeFile(), parent);
+        super(textures.getThemeFile(), parent, element);
         this.textures = textures;
-        this.element = element;
 
         if(parent == textures) {
             this.nameProperty = new ImageNameProperty(element);
@@ -118,21 +111,21 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
         return (conditionProperty != null) ? conditionProperty.getPropertyValue() : Condition.NONE;
     }
 
-    public Textures getTextures() {
+    public final Textures getTextures() {
         return textures;
     }
 
+    public final Image getLimit() {
+        Image limit = this;
+        while(limit.getParent() instanceof Image) {
+            limit = (Image)limit.getParent();
+        }
+        return limit;
+    }
+    
     @Override
     public String toString() {
         return getName();
-    }
-
-    protected String getType() {
-        return element.getName();
-    }
-
-    public Element getDOMElement() {
-        return element;
     }
 
     public void addChildren() throws IOException {
@@ -192,7 +185,7 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
 
     protected class ImageNameProperty extends NameProperty {
         public ImageNameProperty(Element element) {
-            super(new AttributeProperty(element, "name"));
+            super(new AttributeProperty(element, "name"), getThemeTreeModel(), getKind());
         }
 
         @Override
@@ -210,16 +203,6 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
                         throw new IllegalArgumentException("Name \"" + name + "\" already in use");
                     }
                 }
-            }
-        }
-
-        @Override
-        public void setPropertyValue(String value) throws IllegalArgumentException {
-            validateName(value);
-            String prevName = getPropertyValue();
-            if(!prevName.equals(value)) {
-                getThemeTreeModel().handleImageRenamed(prevName, value, getKind());
-                super.setPropertyValue(value);
             }
         }
     }

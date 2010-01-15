@@ -32,36 +32,36 @@ package de.matthiasmann.twlthemeeditor.gui;
 import de.matthiasmann.twl.ComboBox;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.ListModel;
-import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
+import de.matthiasmann.twlthemeeditor.datamodel.Kind;
+import de.matthiasmann.twlthemeeditor.datamodel.NodeReference;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
-import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
+import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ImageRefEditor implements PropertyEditorFactory<ImageReference, ImageReferenceProperty> {
+public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeReference, NodeReferenceProperty> {
 
     private final Context ctx;
 
-    public ImageRefEditor(Context ctx) {
+    public NodeReferenceEditorFactory(Context ctx) {
         this.ctx = ctx;
     }
 
-    public Widget create(final PropertyAccessor<ImageReference, ImageReferenceProperty> pa) {
+    public Widget create(final PropertyAccessor<NodeReference, NodeReferenceProperty> pa) {
         ThemeTreeNode limit = pa.getProperty().getLimit();
-        final ImageReference ref = pa.getValue(ImageReference.NONE_REF);
-        final Image.Kind kind = ref.getKind();
-        final ListModel<String> refableImages = ctx.getRefableImages(limit, kind);
-        final ComboBox<String> cb = new ComboBox<String>(refableImages);
-        cb.setSelected(Utils.find(refableImages, ref.getName()));
+        final Kind kind = pa.getProperty().getKind();
+        final NodeReference ref = pa.getValue(null);
+        final ListModel<String> refableNodes = ctx.getRefableNodes(limit, kind);
+        final ComboBox<String> cb = new ComboBox<String>(refableNodes);
+        cb.setSelected((ref != null) ? Utils.find(refableNodes, ref.getName()) : -1);
         cb.addCallback(new Runnable() {
             public void run() {
                 int selected = cb.getSelected();
                 if(selected >= 0) {
-                    pa.setValue(new ImageReference(refableImages.getEntry(selected), kind));
+                    pa.setValue(new NodeReference(refableNodes.getEntry(selected), kind));
                 }
             }
         });

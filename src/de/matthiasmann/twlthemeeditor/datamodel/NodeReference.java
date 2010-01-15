@@ -27,36 +27,32 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.properties;
-
-import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twlthemeeditor.datamodel.Theme;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeReference;
+package de.matthiasmann.twlthemeeditor.datamodel;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ThemeReferenceProperty extends DerivedProperty<ThemeReference> {
+public class NodeReference {
 
-    private final Theme limit;
+    private final String name;
+    private final Kind kind;
 
-    public ThemeReferenceProperty(Property<String> base, Theme limit) {
-        super(base, ThemeReference.class);
-        this.limit = limit;
+    public NodeReference(String name, Kind kind) {
+        this.name = name;
+        this.kind = kind;
     }
 
-    public ThemeReference getPropertyValue() {
-        String value = base.getPropertyValue();
-        return (value != null) ? new ThemeReference(value) : null;
+    public String getName() {
+        return name;
     }
 
-    public void setPropertyValue(ThemeReference value) throws IllegalArgumentException {
-        base.setPropertyValue((value != null) ? value.getName() : null);
+    public Kind getKind() {
+        return kind;
     }
 
-    public Theme getLimit() {
-        return limit;
+    @Override
+    public String toString() {
+        return name;
     }
-    
 }

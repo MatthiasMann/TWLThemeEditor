@@ -140,6 +140,12 @@
         <theme name="opNewNodeTheme" ref="popupMenuButton">
             <param name="text"><string>Create a new "theme" node</string></param>
         </theme>
+        <theme name="opNewNodeFontDef" ref="popupMenuButton">
+            <param name="text"><string>Create a new "fontDef" node</string></param>
+        </theme>
+        <theme name="opNewNodeFontParam" ref="popupMenuButton">
+            <param name="text"><string>Create a new font parameter</string></param>
+        </theme>
         <theme name="opNewParamImage" ref="popupMenuButton">
             <param name="text"><string>Create a new image parameter</string></param>
         </theme>

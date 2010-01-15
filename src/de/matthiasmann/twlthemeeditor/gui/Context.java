@@ -33,8 +33,7 @@ import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.utils.TypeMapping;
-import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.Theme;
+import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
@@ -44,12 +43,11 @@ import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
 import de.matthiasmann.twlthemeeditor.properties.DimensionProperty;
 import de.matthiasmann.twlthemeeditor.properties.GapProperty;
 import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
-import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
-import de.matthiasmann.twlthemeeditor.properties.ThemeReferenceProperty;
+import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
 
 /**
@@ -73,8 +71,7 @@ public class Context {
         factories1.put(ColorProperty.class, new ColorEditor(this));
         factories1.put(RectProperty.class, new RectEditorFactory(this));
         factories1.put(ConditionProperty.class, new ConditionEditor());
-        factories1.put(ImageReferenceProperty.class, new ImageRefEditor(this));
-        factories1.put(ThemeReferenceProperty.class, new ThemeReferenceEditorFactory(this));
+        factories1.put(NodeReferenceProperty.class, new NodeReferenceEditorFactory(this));
         factories1.put(WeightsProperty.class, new WeightsEditorFactory());
         factories1.put(SplitProperty.class, new SplitEditorFactory());
         factories1.put(GapProperty.class, new GapEditorFactory());
@@ -87,29 +84,18 @@ public class Context {
         factories2.put(String.class, new StringEditorFactory());
     }
 
-    public ListModel<String> getRefableImages(ThemeTreeNode stopAt, Image.Kind kind) {
+    public ListModel<String> getRefableNodes(ThemeTreeNode stopAt, Kind kind) {
         SimpleChangableListModel<String> result = new SimpleChangableListModel<String>();
-        if(kind == Image.Kind.IMAGE) {
+        if(kind == Kind.IMAGE) {
             result.addElement("none");
         }
-        for(Image img : model.getImages()) {
-            if(img == stopAt) {
+        for(ThemeTreeNode node : model.getTopLevelNodes(ThemeTreeNode.class)) {
+            if(node == stopAt) {
                 break;
             }
-            if(img.getKind() == kind) {
-                result.addElement(img.getName());
+            if(node.getKind() == kind) {
+                result.addElement(node.getName());
             }
-        }
-        return result;
-    }
-
-    public ListModel<String> getRefableThemes(Theme stopAt) {
-        SimpleChangableListModel<String> result = new SimpleChangableListModel<String>();
-        for(Theme theme : model.getThemes()) {
-            if(theme == stopAt) {
-                break;
-            }
-            result.addElement(theme.getName());
         }
         return result;
     }

@@ -48,11 +48,9 @@ public class Textures extends AbstractThemeTreeNode {
 
     private final URL textureURL;
     private final Dimension textureDimensions;
-    private final Element element;
     
     Textures(TreeTableNode parent, Element element, ThemeFile themeFile) throws IOException {
-        super(themeFile, parent);
-        this.element = element;
+        super(themeFile, parent, element);
         
         textureURL = themeFile.getURL(getFile());
         InputStream textureStream = textureURL.openStream();
@@ -88,6 +86,10 @@ public class Textures extends AbstractThemeTreeNode {
         return getFile();
     }
 
+    public Kind getKind() {
+        return Kind.NONE;
+    }
+
     @Override
     protected String getType() {
         return "PNG";
@@ -95,10 +97,6 @@ public class Textures extends AbstractThemeTreeNode {
 
     public Dimension getTextureDimensions() {
         return textureDimensions;
-    }
-
-    public Element getDOMElement() {
-        return element;
     }
 
     public void addChildren() throws IOException {

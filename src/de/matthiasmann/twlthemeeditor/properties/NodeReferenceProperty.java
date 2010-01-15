@@ -27,37 +27,50 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twlthemeeditor.datamodel.Image.Kind;
+import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.datamodel.Kind;
+import de.matthiasmann.twlthemeeditor.datamodel.NodeReference;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 
 /**
  *
  * @author Matthias Mann
  */
-public final class ImageReference {
+public class NodeReferenceProperty extends DerivedProperty<NodeReference> {
 
-    private final String name;
-    private final Image.Kind kind;
+    private final ThemeTreeNode limit;
+    private final Kind kind;
 
-    public static final ImageReference NONE_REF = new ImageReference("none", Image.Kind.IMAGE);
-
-    public ImageReference(String name, Kind kind) {
-        this.name = name;
+    public NodeReferenceProperty(Property<String> base, ThemeTreeNode limit, Kind kind) {
+        super(base, NodeReference.class);
+        this.limit = limit;
         this.kind = kind;
     }
-    
-    public String getName() {
-        return name;
+
+    public NodeReference getPropertyValue() {
+        String value = base.getPropertyValue();
+        return (value != null) ? new NodeReference(value, kind) : null;
+    }
+
+    public void setPropertyValue(NodeReference value) throws IllegalArgumentException {
+        if(value.getKind() == kind) {
+            base.setPropertyValue((value != null) ? value.getName() : null);
+        }
+    }
+
+    public ThemeTreeNode getLimit() {
+        return limit;
     }
 
     public Kind getKind() {
         return kind;
     }
 
-    @Override
-    public String toString() {
-        return name;
+    public void handleNodeRenamed(String from, String to, Kind kind) {
+        if(this.kind == kind && from.equals(base.getPropertyValue())) {
+            base.setPropertyValue(to);
+        }
     }
-    
 }

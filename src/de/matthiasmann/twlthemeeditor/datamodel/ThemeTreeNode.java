@@ -49,6 +49,10 @@ public interface ThemeTreeNode extends TreeTableNode {
     public void setLeaf(boolean leaf);
 
     public Element getDOMElement();
+
+    public Kind getKind();
+    
+    public String getName();
     
     public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz);
 
@@ -58,7 +62,5 @@ public interface ThemeTreeNode extends TreeTableNode {
 
     public void setError(boolean hasError);
 
-    public void handleImageRenamed(String from, String to, Image.Kind kind);
-
-    public void handleThemeRenamed(String from, String to);
+    public void handleNodeRenamed(String from, String to, Kind kind);
 }

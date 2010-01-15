@@ -29,20 +29,53 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
+import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
+import de.matthiasmann.twlthemeeditor.properties.HasProperties;
+import java.io.IOException;
+import java.util.List;
+import org.jdom.Element;
+
 /**
  *
  * @author Matthias Mann
  */
-public class ThemeReference {
+public class FontParam extends AbstractThemeTreeNode implements HasProperties {
 
-    private final String name;
+    protected final ConditionProperty conditionProperty;
 
-    public ThemeReference(String name) {
-        this.name = name;
+    public FontParam(ThemeFile themeFile, TreeTableNode parent, Element element) {
+        super(themeFile, parent, element);
+
+        conditionProperty = new ConditionProperty(
+                new AttributeProperty(element, "if", "if", true),
+                new AttributeProperty(element, "unless", "unless", true),
+                "Condition");
+        addProperty(conditionProperty);
+        
+        addProperty(new ColorProperty(new AttributeProperty(element, "color", "Font color", true)));
     }
 
+    @Override
     public String getName() {
-        return name;
+        Condition condition = conditionProperty.getPropertyValue();
+        return condition.getType() + " " + condition.getCondition();
     }
-    
+
+    public Kind getKind() {
+        return Kind.NONE;
+    }
+
+    public void addChildren() throws IOException {
+    }
+
+    public void addToXPP(DomXPPParser xpp) {
+        xpp.addElement(this, element);
+    }
+
+    public List<ThemeTreeOperation> getOperations() {
+        return AbstractThemeTreeNode.getDefaultOperations(element, this);
+    }
 }

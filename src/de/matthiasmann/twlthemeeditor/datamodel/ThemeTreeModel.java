@@ -80,6 +80,14 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
     public void setLeaf(boolean leaf) {
     }
 
+    public String getName() {
+        return null;
+    }
+
+    public Kind getKind() {
+        return Kind.NONE;
+    }
+
     public Element getDOMElement() {
         return null;
     }
@@ -88,24 +96,29 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
         return rootThemeFile;
     }
 
-    public List<Textures> getTextures() {
-        List<Textures> result = new ArrayList<Textures>();
-        processInclude(this, Textures.class, result);
+    public<E extends TreeTableNode> List<E> getTopLevelNodes(Class<E> clazz) {
+        List<E> result = new ArrayList<E>();
+        processInclude(this, clazz, result);
         return result;
     }
 
     public List<Image> getImages() {
         ArrayList<Image> result = new ArrayList<Image>();
-        for(Textures t : getTextures()) {
+        for(Textures t : getTopLevelNodes(Textures.class)) {
             result.addAll(t.getChildren(Image.class));
         }
         return result;
     }
 
-    public List<Theme> getThemes() {
-        ArrayList<Theme> result = new ArrayList<Theme>();
-        processInclude(this, Theme.class, result);
-        return result;
+    public<E extends ThemeTreeNode> E findTopLevelNodes(Class<E> clazz, String name, E exclude) {
+        List<E> result = new ArrayList<E>();
+        processInclude(this, clazz, result);
+        for(E e : result) {
+            if(e != exclude && name.equals(e.getName())) {
+                return e;
+            }
+        }
+        return null;
     }
 
     public void setErrorLocation(ThemeTreeNode location) {
@@ -148,15 +161,9 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
         return Collections.<ThemeTreeOperation>emptyList();
     }
 
-    public void handleImageRenamed(String from, String to, Image.Kind kind) {
+    public void handleNodeRenamed(String from, String to, Kind kind) {
         for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
-            node.handleImageRenamed(from, to, kind);
-        }
-    }
-
-    public void handleThemeRenamed(String from, String to) {
-        for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
-            node.handleThemeRenamed(from, to);
+            node.handleNodeRenamed(from, to, kind);
         }
     }
 

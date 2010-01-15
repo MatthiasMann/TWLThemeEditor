@@ -30,11 +30,11 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
-import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
+import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
-import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import java.io.IOException;
 import java.util.List;
 import org.jdom.Element;
@@ -43,67 +43,41 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Theme extends AbstractThemeTreeNode implements HasProperties {
+public class FontDef extends AbstractThemeTreeNode implements HasProperties {
 
     protected final NameProperty nameProperty;
 
-    public Theme(ThemeFile themeFile, TreeTableNode parent, Element element) {
+    public FontDef(ThemeFile themeFile, TreeTableNode parent, Element element) {
         super(themeFile, parent, element);
 
-        this.nameProperty = new NameProperty(new AttributeProperty(element, "name"), getThemeTreeModel(), Kind.THEME) {
+        nameProperty = new NameProperty(new AttributeProperty(element, "name"), getThemeTreeModel(), Kind.FONT) {
             @Override
             public void validateName(String name) throws IllegalArgumentException {
                 if(name == null || name.length() == 0) {
-                    throw new IllegalArgumentException("empty name not allowed");
-                }
-                if(getThemeTreeModel().findTopLevelNodes(Theme.class, name, Theme.this) != null) {
-                    throw new IllegalArgumentException("Name \"" + name + "\" already in use");
+                    throw new IllegalArgumentException("Empty name not allowed");
                 }
             }
         };
         addProperty(nameProperty);
 
-        if(!element.getParentElement().isRootElement()) {
-            addProperty(new BooleanProperty(new AttributeProperty(element, "merge", "Merge", true), false));
-        }
-
-        addProperty(new NodeReferenceProperty(
-                new AttributeProperty(element, "ref", "Base theme reference", true),
-                this, Kind.THEME));
+        addProperty(new AttributeProperty(element, "fileName", "Font file name", true));
+        addProperty(new ColorProperty(new AttributeProperty(element, "color", "Font color", true)));
     }
 
+    @Override
     public String getName() {
-        if(nameProperty == null) {
-            return null;
-        }
-        String name = nameProperty.getPropertyValue();
-        if("".equals(name)) {
-            return "WILDCARD";
-        }
-        return name;
+        return nameProperty.getPropertyValue();
     }
 
     public Kind getKind() {
-        return Kind.THEME;
+        return Kind.FONT;
     }
 
-    public final Theme getLimit() {
-        Theme node = this;
-        while(node.getParent() instanceof Theme) {
-            node = (Theme)node.getParent();
-        }
-        return node;
-    }
-    
     public void addChildren() throws IOException {
         Utils.addChildren(themeFile, this, element, new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
-                String tagName = element.getName();
-                if("theme".equals(tagName)) {
-                    return new Theme(themeFile, parent, element);
-                }
-                if("param".equals(tagName)) {
-                    return new Param(Theme.this, parent, element);
+                if("fontParam".equals(element.getName())) {
+                    return new FontParam(themeFile, parent, element);
                 }
                 return null;
             }
@@ -117,7 +91,8 @@ public class Theme extends AbstractThemeTreeNode implements HasProperties {
 
     public List<ThemeTreeOperation> getOperations() {
         List<ThemeTreeOperation> operations = AbstractThemeTreeNode.getDefaultOperations(element, this);
-        Param.addCreateParam(operations, this, element);
+        operations.add(new CreateNewSimple(this, element, "fontParam", "if", "hover"));
         return operations;
     }
+
 }

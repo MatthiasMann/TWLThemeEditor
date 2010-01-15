@@ -43,12 +43,10 @@ import org.jdom.Element;
 public class Include extends AbstractThemeTreeNode {
 
     private final ThemeFile includedThemeFile;
-    private final Element element;
 
     public Include(TreeTableNode parent, Element element, final ThemeFile themeFile) throws IOException {
-        super(themeFile, parent);
+        super(themeFile, parent, element);
 
-        this.element = element;
         this.includedThemeFile = new ThemeFile(themeFile.getEnv(), themeFile.getURL(getFileName()), this);
 
         includedThemeFile.registerAs(getFileName());
@@ -64,17 +62,12 @@ public class Include extends AbstractThemeTreeNode {
         return getFileName();
     }
 
-    @Override
-    protected String getType() {
-        return "Include";
+    public Kind getKind() {
+        return Kind.NONE;
     }
 
     public String getFileName() {
         return element.getAttributeValue("filename");
-    }
-
-    public Element getDOMElement() {
-        return element;
     }
 
     public void addChildren() throws IOException {

@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.datamodel.images;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
+import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;

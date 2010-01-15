@@ -31,7 +31,6 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Image.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParam;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
@@ -40,9 +39,9 @@ import de.matthiasmann.twlthemeeditor.properties.DimensionProperty;
 import de.matthiasmann.twlthemeeditor.properties.ElementTextProperty;
 import de.matthiasmann.twlthemeeditor.properties.GapProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
-import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
+import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import java.io.IOException;
 import java.util.List;
 import org.jdom.Content;
@@ -55,17 +54,15 @@ import org.jdom.Element;
 public class Param extends AbstractThemeTreeNode implements HasProperties {
 
     protected final Theme theme;
-    protected final Element element;
     protected final NameProperty nameProperty;
     protected final Element valueElement;
     protected final Property<?> property;
 
     public Param(Theme theme, TreeTableNode parent, Element element) {
-        super(theme.getThemeFile(), parent);
+        super(theme.getThemeFile(), parent, element);
         this.theme = theme;
-        this.element = element;
         
-        this.nameProperty = new NameProperty(new AttributeProperty(element, "name")) {
+        this.nameProperty = new NameProperty(new AttributeProperty(element, "name"), null, null) {
             @Override
             public void validateName(String name) throws IllegalArgumentException {
             }
@@ -82,7 +79,7 @@ public class Param extends AbstractThemeTreeNode implements HasProperties {
         }
         valueElement = e;
 
-        property = createProperty(valueElement, this);
+        property = createProperty(valueElement, this, theme.getLimit());
         if(property != null) {
             addProperty(property);
         }
@@ -95,6 +92,10 @@ public class Param extends AbstractThemeTreeNode implements HasProperties {
     @Override
     public String getName() {
         return nameProperty.getPropertyValue();
+    }
+
+    public Kind getKind() {
+        return Kind.NONE;
     }
 
     @Override
@@ -128,24 +129,12 @@ public class Param extends AbstractThemeTreeNode implements HasProperties {
         }
     }
 
-    public Element getDOMElement() {
-        return element;
-    }
-
     public List<ThemeTreeOperation> getOperations() {
         List<ThemeTreeOperation> operations = AbstractThemeTreeNode.getDefaultOperations(element, this);
         if(isMap()) {
             addCreateParam(operations, this, valueElement);
         }
         return operations;
-    }
-
-    @Override
-    public void handleImageRenamed(String from, String to, Kind kind) {
-        super.handleImageRenamed(from, to, kind);
-        if(property instanceof ImageReferenceProperty) {
-            ((ImageReferenceProperty)property).handleImageRenamed(from, to, kind);
-        }
     }
 
     static void addCreateParam(List<ThemeTreeOperation> operations, ThemeTreeNode node, Element element) {
@@ -156,13 +145,15 @@ public class Param extends AbstractThemeTreeNode implements HasProperties {
         operations.add(new CreateNewParam(element, "gap", node, ""));
         operations.add(new CreateNewParam(element, "dimension", node, "0,0"));
         operations.add(new CreateNewParam(element, "string", node, ""));
+        operations.add(new CreateNewParam(element, "font", node, "default"));
+        operations.add(new CreateNewParam(element, "cursor", node, "text"));
         operations.add(new CreateNewParam(element, "map", node, "\n"));
     }
 
-    static Property<?> createProperty(Element e, ThemeTreeNode node) {
+    static Property<?> createProperty(Element e, ThemeTreeNode node, ThemeTreeNode limit) {
         String tagName = e.getName();
         if("image".equals(tagName)) {
-            return new ImageReferenceProperty(new ElementTextProperty(e, "image reference"), node, Image.Kind.IMAGE);
+            return new NodeReferenceProperty(new ElementTextProperty(e, "image reference"), limit, Kind.IMAGE);
         }
         if("border".equals(tagName)) {
             return new BorderProperty(new ElementTextProperty(e, "border"), 0, true);
@@ -181,6 +172,12 @@ public class Param extends AbstractThemeTreeNode implements HasProperties {
         }
         if("string".equals(tagName)) {
             return new ElementTextProperty(e, "string value");
+        }
+        if("font".equals(tagName)) {
+            return new NodeReferenceProperty(new ElementTextProperty(e, "font reference"), limit, Kind.FONT);
+        }
+        if("cursor".equals(tagName)) {
+            return new NodeReferenceProperty(new ElementTextProperty(e, "cursor reference"), limit, Kind.CURSOR);
         }
         return null;
     }

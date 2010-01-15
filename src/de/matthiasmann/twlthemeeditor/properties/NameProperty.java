@@ -30,6 +30,8 @@
 package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.datamodel.Kind;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 
 /**
  *
@@ -37,8 +39,13 @@ import de.matthiasmann.twl.model.Property;
  */
 public abstract class NameProperty extends DerivedProperty<String> {
 
-    public NameProperty(Property<String> base) {
+    private final ThemeTreeModel ttm;
+    private final Kind kind;
+
+    public NameProperty(Property<String> base, ThemeTreeModel ttm, Kind kind) {
         super(base, String.class);
+        this.ttm = ttm;
+        this.kind = kind;
     }
 
     public String getPropertyValue() {
@@ -46,7 +53,14 @@ public abstract class NameProperty extends DerivedProperty<String> {
     }
 
     public void setPropertyValue(String value) throws IllegalArgumentException {
-        base.setPropertyValue(value);
+        validateName(value);
+        String prevName = base.getPropertyValue();
+        if(!prevName.equals(value)) {
+            if(ttm != null && kind != null) {
+                ttm.handleNodeRenamed(prevName, value, kind);
+            }
+            base.setPropertyValue(value);
+        }
     }
 
     public abstract void validateName(String name) throws IllegalArgumentException;

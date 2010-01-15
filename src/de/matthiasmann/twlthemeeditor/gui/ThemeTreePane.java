@@ -38,6 +38,7 @@ import de.matthiasmann.twl.PopupMenu;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SubMenu;
 import de.matthiasmann.twl.Table;
+import de.matthiasmann.twl.TableBase.Callback;
 import de.matthiasmann.twl.TableBase.StringCellRenderer;
 import de.matthiasmann.twl.TableRowSelectionManager;
 import de.matthiasmann.twl.TreeTable;
@@ -117,6 +118,13 @@ public class ThemeTreePane extends DialogLayout {
                     node = filteredModel.getRow(tableSelectionModel.getFirstSelected());
                 }
                 setSelected(node);
+            }
+        });
+        treeTable.addCallback(new Callback() {
+            public void mouseDoubleClicked(int row, int column) {
+                treeTable.setRowExpanded(row, !treeTable.isRowExpanded(row));
+            }
+            public void columnHeaderClicked(int column) {
             }
         });
 

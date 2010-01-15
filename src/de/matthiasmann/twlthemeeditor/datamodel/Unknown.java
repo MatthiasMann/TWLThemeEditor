@@ -40,16 +40,17 @@ import org.jdom.Element;
  */
 public class Unknown extends AbstractThemeTreeNode {
 
-    private final Element element;
-
     public Unknown(TreeTableNode parent, Element element, ThemeFile themeFile) {
-        super(themeFile, parent);
-        this.element = element;
+        super(themeFile, parent, element);
     }
 
     @Override
     public String getName() {
         return "<"+element.getName()+">";
+    }
+
+    public Kind getKind() {
+        return Kind.NONE;
     }
 
     @Override
@@ -58,10 +59,6 @@ public class Unknown extends AbstractThemeTreeNode {
     }
 
     public void addChildren() throws IOException {
-    }
-
-    public Element getDOMElement() {
-        return element;
     }
 
     public void addToXPP(DomXPPParser xpp) {

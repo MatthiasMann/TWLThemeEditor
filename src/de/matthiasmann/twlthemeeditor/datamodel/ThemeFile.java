@@ -132,13 +132,16 @@ public class ThemeFile implements VirtualFile {
                 String tagName = element.getName();
 
                 if("textures".equals(tagName)) {
-                    return new Textures(parent, element, ThemeFile.this);
+                    return new Textures(parent, element, themeFile);
                 }
                 if("include".equals(tagName)) {
-                    return new Include(parent, element, ThemeFile.this);
+                    return new Include(parent, element, themeFile);
+                }
+                if("fontDef".equals(tagName)) {
+                    return new FontDef(themeFile, parent, element);
                 }
                 if("theme".equals(tagName)) {
-                    return new Theme(ThemeFile.this, parent, element);
+                    return new Theme(themeFile, parent, element);
                 }
                 return null;
             }
@@ -147,6 +150,7 @@ public class ThemeFile implements VirtualFile {
 
     protected void addCreateOperations(List<ThemeTreeOperation> operations, ThemeTreeNode node) {
         operations.add(new CreateNewSimple(node, document.getRootElement(), "theme", "ref", "-defaults"));
+        operations.add(new CreateNewSimple(node, document.getRootElement(), "fontDef", "filename", "font.fnt", "color", "white"));
     }
 
     public void registerAs(String fileName) {

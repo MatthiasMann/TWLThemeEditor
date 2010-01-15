@@ -31,10 +31,10 @@ package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
+import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
-import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
+import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import org.jdom.Element;
 
 /**
@@ -43,11 +43,11 @@ import org.jdom.Element;
  */
 public class CursorRef extends Image {
 
-    private final ImageReferenceProperty refProperty;
+    private final NodeReferenceProperty refProperty;
 
     public CursorRef(Textures textures, TreeTableNode parent, Element node) {
         super(textures, parent, node);
-        this.refProperty = new ImageReferenceProperty(new AttributeProperty(element, "ref"), this);
+        this.refProperty = new NodeReferenceProperty(new AttributeProperty(element, "ref"), this, Kind.CURSOR);
         addProperty(refProperty);
     }
 
@@ -55,13 +55,4 @@ public class CursorRef extends Image {
     public Kind getKind() {
         return Kind.CURSOR;
     }
-
-    @Override
-    public void handleImageRenamed(String from, String to, Kind kind) {
-        super.handleImageRenamed(from, to, kind);
-        if(kind == getKind() && from.equals(refProperty.getPropertyValue().getName())) {
-            refProperty.setPropertyValue(new ImageReference(to, kind));
-        }
-    }
-
 }

@@ -34,6 +34,7 @@ import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.DeleteNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.MoveNodeOperations;
+import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdom.Element;
@@ -45,23 +46,29 @@ import org.jdom.Element;
 public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implements ThemeTreeNode {
 
     protected final ThemeFile themeFile;
+    protected final Element element;
     protected final ArrayList<Property<?>> properties;
     protected boolean error;
 
-    protected AbstractThemeTreeNode(ThemeFile themeFile, TreeTableNode parent) {
+    protected AbstractThemeTreeNode(ThemeFile themeFile, TreeTableNode parent, Element element) {
         super(parent);
         this.themeFile = themeFile;
+        this.element = element;
         this.properties = new ArrayList<Property<?>>();
     }
 
-    public ThemeTreeModel getThemeTreeModel() {
+    public final ThemeTreeModel getThemeTreeModel() {
         return (ThemeTreeModel)getTreeTableModel();
     }
 
-    public ThemeFile getThemeFile() {
+    public final ThemeFile getThemeFile() {
         return themeFile;
     }
-    
+
+    public final Element getDOMElement() {
+        return element;
+    }
+
     @Override
     public void insertChild(TreeTableNode ttn, int idx) {
         super.insertChild(ttn, idx);
@@ -121,17 +128,18 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
 
     public abstract String getName();
 
-    protected abstract String getType();
-
-    public void handleImageRenamed(String from, String to, Image.Kind kind) {
-        for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
-            node.handleImageRenamed(from, to, kind);
-        }
+    protected String getType() {
+        return element.getName();
     }
 
-    public void handleThemeRenamed(String from, String to) {
+    public final void handleNodeRenamed(String from, String to, Kind kind) {
+        for(Property<?> property : properties) {
+            if(property instanceof NodeReferenceProperty) {
+                ((NodeReferenceProperty)property).handleNodeRenamed(from, to, kind);
+            }
+        }
         for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
-            node.handleThemeRenamed(from, to);
+            node.handleNodeRenamed(from, to, kind);
         }
     }
 
