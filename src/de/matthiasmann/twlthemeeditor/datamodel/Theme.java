@@ -38,7 +38,6 @@ import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.ThemeReferenceProperty;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.jdom.Element;
 
@@ -48,16 +47,12 @@ import org.jdom.Element;
  */
 public class Theme extends AbstractThemeTreeNode implements HasProperties {
 
-    protected final ThemeFile themeFile;
-    protected final ArrayList<Property<?>> properties;
     protected final Element element;
     protected final NameProperty nameProperty;
     protected final ThemeReferenceProperty refProperty;
 
     public Theme(ThemeFile themeFile, TreeTableNode parent, Element element) {
-        super(parent);
-        this.themeFile = themeFile;
-        this.properties = new ArrayList<Property<?>>();
+        super(themeFile, parent);
         this.element = element;
 
         this.nameProperty = new NameProperty(new AttributeProperty(element, "name")) {
@@ -81,9 +76,7 @@ public class Theme extends AbstractThemeTreeNode implements HasProperties {
                 validateName(value);
                 String prevName = getPropertyValue();
                 if(!prevName.equals(value)) {
-                    for(Theme theme : getThemeTreeModel().getThemes()) {
-                        theme.handleThemeRenamed(prevName, value);
-                    }
+                    getThemeTreeModel().handleThemeRenamed(prevName, value);
                     super.setPropertyValue(value);
                 }
             }
@@ -96,11 +89,6 @@ public class Theme extends AbstractThemeTreeNode implements HasProperties {
 
         refProperty = new ThemeReferenceProperty(new AttributeProperty(element, "ref", "Base theme reference", true), this);
         addProperty(refProperty);
-    }
-
-    protected final void addProperty(Property<?> property) {
-        themeFile.registerProperty(property);
-        properties.add(property);
     }
 
     public String getName() {
@@ -118,10 +106,9 @@ public class Theme extends AbstractThemeTreeNode implements HasProperties {
         return "theme";
     }
 
-    void handleThemeRenamed(String from, String to) {
-        for(Theme theme : getChildren(Theme.class)) {
-            theme.handleThemeRenamed(from, to);
-        }
+    @Override
+    public void handleThemeRenamed(String from, String to) {
+        super.handleThemeRenamed(from, to);
         ThemeReference ref = refProperty.getPropertyValue();
         if(ref != null && from.equals(ref.getName())) {
             refProperty.setPropertyValue(new ThemeReference(to));
@@ -135,13 +122,17 @@ public class Theme extends AbstractThemeTreeNode implements HasProperties {
                 if("theme".equals(tagName)) {
                     return new Theme(themeFile, parent, element);
                 }
+                if("param".equals(tagName)) {
+                    return new Param(Theme.this, parent, element);
+                }
                 return null;
             }
         });
     }
 
+    @SuppressWarnings("unchecked")
     public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(this, element);
+        Utils.addToXPP(xpp, element.getName(), this, element.getAttributes());
     }
 
     public Element getDOMElement() {
@@ -149,11 +140,8 @@ public class Theme extends AbstractThemeTreeNode implements HasProperties {
     }
 
     public List<ThemeTreeOperation> getOperations() {
-        return Collections.<ThemeTreeOperation>emptyList();
+        List<ThemeTreeOperation> operations = AbstractThemeTreeNode.getDefaultOperations(element, this);
+        Param.addCreateParam(operations, this, element);
+        return operations;
     }
-
-    public Property<?>[] getProperties() {
-        return properties.toArray(new Property<?>[properties.size()]);
-    }
-
 }

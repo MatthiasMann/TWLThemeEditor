@@ -30,6 +30,8 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.Border;
+import de.matthiasmann.twl.DialogLayout.Gap;
+import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import java.io.IOException;
@@ -95,13 +97,57 @@ public final class Utils {
         }
     }
 
-    public static String toString(Border border) {
+    public static Gap parseGap(String value) {
+        if(value == null) {
+            return null;
+        }
+        if(value.length() == 0) {
+            return new Gap();
+        }
+        int[] values = parseInts(value);
+        if(values == null) {
+            return null;
+        }
+        switch (values.length) {
+            case 1:
+                return new Gap(values[0]);
+            case 2:
+                return new Gap(values[0], values[1]);
+            case 3:
+                return new Gap(values[0], values[1], values[2]);
+            default:
+                return null;
+        }
+    }
+
+    public static Dimension parseDimension(String value) {
+        if(value == null) {
+            return null;
+        }
+        int[] values = parseInts(value);
+        if(values == null) {
+            return null;
+        }
+        switch (values.length) {
+            case 1:
+                return new Dimension(values[0], values[0]);
+            case 2:
+                return new Dimension(values[0], values[1]);
+            default:
+                return null;
+        }
+    }
+
+    public static String toString(Border border, boolean canBeNull) {
         if(border == null) {
             return null;
         }
+        if(border instanceof BorderFormular) {
+            return border.toString();
+        }
         if(border.getBorderTop() == border.getBorderBottom() && border.getBorderLeft() == border.getBorderRight()) {
             if(border.getBorderTop() == border.getBorderLeft()) {
-                if(border.getBorderTop() == 0) {
+                if(canBeNull && border.getBorderTop() == 0) {
                     return null;
                 }
                 return Integer.toString(border.getBorderTop());
@@ -109,6 +155,29 @@ public final class Utils {
             return border.getBorderLeft()+","+border.getBorderTop();
         }
         return border.getBorderTop()+","+border.getBorderLeft()+","+border.getBorderBottom()+","+border.getBorderRight();
+    }
+
+    public static String toString(Gap gap) {
+        if(gap == null) {
+            return null;
+        }
+        if(gap.min == gap.max && gap.min == gap.preferred) {
+            return Integer.toString(gap.min);
+        }
+        if(gap.max == Short.MAX_VALUE) {
+            if(gap.min == 0 && gap.preferred == 0) {
+                return "";
+            }
+            return gap.min + "," + gap.preferred;
+        }
+        return gap.min + "," + gap.preferred + "," + gap.max;
+    }
+
+    public static String toString(Dimension dim) {
+        if(dim == null) {
+            return null;
+        }
+        return dim.getX() + "," + dim.getY();
     }
 
     public static String capitalize(String str) {
@@ -143,7 +212,7 @@ public final class Utils {
                 } else {
                     ttn = wrapper.wrap(themeFile, parent, element);
                     if(ttn == null) {
-                        ttn = new Unknown(parent, element);
+                        ttn = new Unknown(parent, element, themeFile);
                     }
                     if(ttn instanceof ThemeTreeNode) {
                         ThemeTreeNode mttn = (ThemeTreeNode)ttn;
@@ -159,6 +228,8 @@ public final class Utils {
         for(TreeTableNode ttn : existingNodes.values()) {
             parent.removeChild(ttn);
         }
+
+        parent.setLeaf(parent.getNumChildren() == 0);
     }
 
     public static <T extends TreeTableNode> void getChildren(TreeTableNode node, Class<T> clazz, List<T> result) {

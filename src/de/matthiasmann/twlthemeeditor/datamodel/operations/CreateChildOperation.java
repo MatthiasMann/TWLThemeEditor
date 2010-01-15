@@ -52,8 +52,12 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
         this.parent = parent;
     }
 
+    protected Element getDOMElement() {
+        return parent.getDOMElement();
+    }
+
     protected int getBaseIndentation() {
-        Element element = parent.getDOMElement();
+        Element element = getDOMElement();
         int indentation = 0;
         while(element != null) {
             element = element.getParentElement();
@@ -62,39 +66,49 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
         return indentation;
     }
     
-    protected Text createIndentation(int indentation) {
+    protected String createIndentation(int indentation) {
         char[] buf = new char[indentation + 1];
         Arrays.fill(buf, ' ');
         buf[0] = '\n';
-        return new Text(new String(buf));
+        return new String(buf);
     }
 
     protected void addChild(Element child) throws IOException {
-        Element element = parent.getDOMElement();
+        addChild(child, false);
+    }
+
+    protected void addChild(Element child, boolean dontIndentChilds) throws IOException {
+        Element element = getDOMElement();
         int indentation = getBaseIndentation();
         int pos = element.getContentSize();
         if(pos>0 && element.getContent(pos-1) instanceof Text) {
             pos--;
         }
-        element.addContent(pos++, createIndentation(indentation));
+        element.addContent(pos++, new Text(createIndentation(indentation)));
         element.addContent(pos, child);
-        addIndentation(child, indentation);
+        if(!dontIndentChilds) {
+            addIndentation(child, indentation);
+        }
         parent.addChildren();
     }
 
     protected void addIndentation(Element element, int indentation) {
         boolean hasElements = false;
-        indentation += INDENTATION_SIZE;
-        for(int i=element.getContentSize() ; i-->0 ; i++) {
+        for(int i=element.getContentSize() ; i-->0 ;) {
             Content content = element.getContent(i);
             if(content instanceof Element) {
-                addIndentation((Element)content, indentation);
-                element.addContent(i, createIndentation(indentation));
+                addIndentation((Element)content, indentation + INDENTATION_SIZE);
+                element.addContent(i, new Text(createIndentation(indentation + INDENTATION_SIZE)));
                 hasElements = true;
+            } else if(content instanceof Text) {
+                Text text = (Text)content;
+                if("\n".equals(text.getText())) {
+                    text.setText(createIndentation(indentation));
+                }
             }
         }
         if(hasElements) {
-            element.addContent(createIndentation(indentation-INDENTATION_SIZE));
+            element.addContent(createIndentation(indentation));
         }
     }
 }

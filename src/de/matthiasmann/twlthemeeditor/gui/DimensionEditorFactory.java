@@ -30,79 +30,56 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.AbstractIntegerModel;
-import de.matthiasmann.twlthemeeditor.datamodel.Split;
-import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
+import de.matthiasmann.twl.model.SimpleIntegerModel;
+import de.matthiasmann.twlthemeeditor.properties.DimensionProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class SplitEditorFactory implements PropertyEditorFactory<Split, SplitProperty> {
+public class DimensionEditorFactory implements PropertyEditorFactory<Dimension, DimensionProperty> {
 
-    public Widget create(PropertyAccessor<Split, SplitProperty> pa) {
-        return new SplitEditor(pa);
+    public Widget create(PropertyAccessor<Dimension, DimensionProperty> pa) {
+        return new DimensionEditor(pa);
     }
 
-    static class SplitEditor extends DialogLayout {
-        private static final Split DEFAULT_SPLIT = new Split(0, 0);
+    static class DimensionEditor extends DialogLayout implements Runnable {
+        private static final Dimension DEFAULT_DIM = new Dimension(0, 0);
 
-        private final PropertyAccessor<Split, SplitProperty> pa;
-        private final SplitIntegerModel model1;
-        private final SplitIntegerModel model2;
-        private Split split;
+        private final PropertyAccessor<Dimension, DimensionProperty> pa;
+        private final SimpleIntegerModel modelX;
+        private final SimpleIntegerModel modelY;
 
-        public SplitEditor(PropertyAccessor<Split, SplitProperty> pa) {
+        public DimensionEditor(PropertyAccessor<Dimension, DimensionProperty> pa) {
             this.pa = pa;
-            this.split = pa.getValue(DEFAULT_SPLIT);
+            
+            
+            Dimension dim = pa.getValue(DEFAULT_DIM);
 
-            this.model1 = new SplitIntegerModel() {
-                public int getValue() {
-                    return split.getSplit1();
-                }
-                public void setValue(int value) {
-                    setSplit(value, Math.max(value, split.getSplit2()));
-                }
-            };
-            this.model2 = new SplitIntegerModel() {
-                public int getValue() {
-                    return split.getSplit2();
-                }
-                public void setValue(int value) {
-                    setSplit(Math.min(value, split.getSplit1()), value);
-                }
-            };
+            this.modelX = new SimpleIntegerModel(0, Short.MAX_VALUE, dim.getX());
+            this.modelY = new SimpleIntegerModel(0, Short.MAX_VALUE, dim.getY());
+
+            modelX.addCallback(this);
+            modelY.addCallback(this);
 
             ValueAdjusterInt adjusters[] = new ValueAdjusterInt[] {
-                new ValueAdjusterInt(model1),
-                new ValueAdjusterInt(model2)
+                new ValueAdjusterInt(modelX),
+                new ValueAdjusterInt(modelY)
             };
 
-            pa.setWidgetsToEnable(adjusters);
+            adjusters[0].setDisplayPrefix("X: ");
+            adjusters[1].setDisplayPrefix("Y: ");
 
             setHorizontalGroup(createParallelGroup(adjusters));
             setVerticalGroup(createSequentialGroup().addWidgetsWithGap("adjuster", adjusters));
         }
 
-        void setSplit(int split1, int split2) {
-            split = new Split(split1, split2);
-            pa.setValue(split);
-            model1.fireCallback();
-            model2.fireCallback();
-        }
-
-        abstract class SplitIntegerModel extends AbstractIntegerModel {
-            public int getMaxValue() {
-                return pa.getProperty().getLimit();
-            }
-            public int getMinValue() {
-                return 0;
-            }
-            void fireCallback() {
-                doCallback();
-            }
+        public void run() {
+            Dimension dim = new Dimension(modelX.getValue(), modelY.getValue());
+            pa.setValue(dim);
         }
     }
 }

@@ -116,6 +116,27 @@
         <theme name="opNewNodeHvsplit" ref="popupMenuButton">
             <param name="text"><string>Create a new "hvsplit" node</string></param>
         </theme>
+        <theme name="opNewParamImage" ref="popupMenuButton">
+            <param name="text"><string>Create a new image parameter</string></param>
+        </theme>
+        <theme name="opNewParamBorder" ref="popupMenuButton">
+            <param name="text"><string>Create a new border parameter</string></param>
+        </theme>
+        <theme name="opNewParamInt" ref="popupMenuButton">
+            <param name="text"><string>Create a new integer parameter</string></param>
+        </theme>
+        <theme name="opNewParamBool" ref="popupMenuButton">
+            <param name="text"><string>Create a new boolean parameter</string></param>
+        </theme>
+        <theme name="opNewParamGap" ref="popupMenuButton">
+            <param name="text"><string>Create a new layout gap parameter</string></param>
+        </theme>
+        <theme name="opNewParamDimension" ref="popupMenuButton">
+            <param name="text"><string>Create a new dimension parameter</string></param>
+        </theme>
+        <theme name="opNewParamMap" ref="popupMenuButton">
+            <param name="text"><string>Create a new parameter map</string></param>
+        </theme>
     </theme>
 
     <theme name="confirmationDlg-opDeleteNode" ref="simpledialog">
@@ -207,7 +228,18 @@
                         <theme name="" ref="*"/>
                     </theme>
 
+                    <theme name="gapeditor" ref="dialoglayout">
+                        <theme name="" ref="*"/>
+                    </theme>
+
+                    <theme name="dimensioneditor" ref="dialoglayout">
+                        <theme name="" ref="*"/>
+                    </theme>
+
                     <theme name="bordereditor" ref="dialoglayout">
+                        <theme name="btnUseFormular" ref="checkbox">
+                            <param name="tooltip"><string>Use formular instead of value adjusters</string></param>
+                        </theme>
                         <theme name="" ref="*"/>
                     </theme>
 

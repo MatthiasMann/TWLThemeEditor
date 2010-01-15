@@ -57,5 +57,8 @@ public interface ThemeTreeNode extends TreeTableNode {
     public List<ThemeTreeOperation> getOperations();
 
     public void setError(boolean hasError);
-    
+
+    public void handleImageRenamed(String from, String to, Image.Kind kind);
+
+    public void handleThemeRenamed(String from, String to);
 }

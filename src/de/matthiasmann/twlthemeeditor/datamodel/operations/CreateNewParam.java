@@ -27,70 +27,48 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
-import de.matthiasmann.twl.CallbackWithReason;
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile.CallbackReason;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import java.io.IOException;
-import java.util.List;
 import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Include extends AbstractThemeTreeNode {
+public class CreateNewParam extends CreateChildOperation {
 
-    private final ThemeFile includedThemeFile;
     private final Element element;
+    private final String tagName;
+    private final String initialText;
 
-    public Include(TreeTableNode parent, Element element, final ThemeFile themeFile) throws IOException {
-        super(themeFile, parent);
-
+    public CreateNewParam(Element element, String tagName, ThemeTreeNode parent, String initialText) {
+        super("opNewParam" + Utils.capitalize(tagName), parent);
         this.element = element;
-        this.includedThemeFile = new ThemeFile(themeFile.getEnv(), themeFile.getURL(getFileName()), this);
-
-        includedThemeFile.registerAs(getFileName());
-        includedThemeFile.addCallback(new CallbackWithReason<ThemeFile.CallbackReason>() {
-            public void callback(CallbackReason reason) {
-                themeFile.fireCallbacks(reason);
-            }
-        });
-    }
-    
-    @Override
-    public String getName() {
-        return getFileName();
+        this.tagName = tagName;
+        this.initialText = initialText;
     }
 
     @Override
-    protected String getType() {
-        return "Include";
-    }
-
-    public String getFileName() {
-        return element.getAttributeValue("filename");
-    }
-
-    public Element getDOMElement() {
+    protected Element getDOMElement() {
         return element;
     }
 
-    public void addChildren() throws IOException {
-        includedThemeFile.addChildren();
-    }
+    @Override
+    public void execute() throws IOException {
+        Element e = new Element("param");
+        e.setAttribute("name", "new" + System.nanoTime());
+        if("enum".equals(tagName)) {
+            e.setAttribute("type", "");
+        }
 
-    public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(this, element);
-    }
+        Element v = new Element(tagName);
+        v.setText(initialText);
+        e.addContent(v);
 
-    public ThemeFile getIncludedThemeFile() {
-        return includedThemeFile;
+        boolean isMap = "map".equals(tagName);
+        addChild(e, !isMap);
     }
-
-    public List<ThemeTreeOperation> getOperations() {
-        return AbstractThemeTreeNode.getDefaultOperations(element, this);
-    }
-
 }

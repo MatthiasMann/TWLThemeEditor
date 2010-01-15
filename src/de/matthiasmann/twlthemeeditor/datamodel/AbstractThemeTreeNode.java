@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.AbstractTreeTableNode;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.DeleteNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.MoveNodeOperations;
@@ -43,14 +44,22 @@ import org.jdom.Element;
  */
 public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implements ThemeTreeNode {
 
+    protected final ThemeFile themeFile;
+    protected final ArrayList<Property<?>> properties;
     protected boolean error;
 
-    protected AbstractThemeTreeNode(TreeTableNode parent) {
+    protected AbstractThemeTreeNode(ThemeFile themeFile, TreeTableNode parent) {
         super(parent);
+        this.themeFile = themeFile;
+        this.properties = new ArrayList<Property<?>>();
     }
 
     public ThemeTreeModel getThemeTreeModel() {
         return (ThemeTreeModel)getTreeTableModel();
+    }
+
+    public ThemeFile getThemeFile() {
+        return themeFile;
     }
     
     @Override
@@ -113,4 +122,26 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
     public abstract String getName();
 
     protected abstract String getType();
+
+    public void handleImageRenamed(String from, String to, Image.Kind kind) {
+        for(Image img : getChildren(Image.class)) {
+            img.handleImageRenamed(from, to, kind);
+        }
+    }
+
+    public void handleThemeRenamed(String from, String to) {
+        for(Theme theme : getChildren(Theme.class)) {
+            theme.handleThemeRenamed(from, to);
+        }
+    }
+
+    public Property<?>[] getProperties() {
+        return properties.toArray(new Property[properties.size()]);
+    }
+
+    protected final void addProperty(Property<?> property) {
+        themeFile.registerProperty(property);
+        properties.add(property);
+    }
+
 }

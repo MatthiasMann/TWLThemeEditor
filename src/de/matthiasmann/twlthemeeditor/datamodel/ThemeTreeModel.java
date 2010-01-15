@@ -148,6 +148,18 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
         return Collections.<ThemeTreeOperation>emptyList();
     }
 
+    public void handleImageRenamed(String from, String to, Image.Kind kind) {
+        for(Image img : getImages()) {
+            img.handleImageRenamed(from, to, kind);
+        }
+    }
+
+    public void handleThemeRenamed(String from, String to) {
+        for(Theme theme : getThemes()) {
+            theme.handleThemeRenamed(from, to);
+        }
+    }
+
     void fireCallbacks(CallbackReason reason) {
         rootThemeFile.fireCallbacks(reason);
     }
@@ -161,7 +173,6 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
         super.fireNodesAdded(parent, idx, count);
         structureModified();
     }
-
 
     @Override
     protected void fireNodesChanged(TreeTableNode parent, int idx, int count) {

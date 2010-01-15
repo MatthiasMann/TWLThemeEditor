@@ -29,68 +29,28 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.CallbackWithReason;
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile.CallbackReason;
-import java.io.IOException;
-import java.util.List;
-import org.jdom.Element;
+import de.matthiasmann.twl.Border;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Include extends AbstractThemeTreeNode {
+public class BorderFormular extends Border {
 
-    private final ThemeFile includedThemeFile;
-    private final Element element;
+    private final String formular;
 
-    public Include(TreeTableNode parent, Element element, final ThemeFile themeFile) throws IOException {
-        super(themeFile, parent);
+    public BorderFormular(String formular) {
+        super(0);
+        this.formular = formular;
+    }
 
-        this.element = element;
-        this.includedThemeFile = new ThemeFile(themeFile.getEnv(), themeFile.getURL(getFileName()), this);
+    public String getFormular() {
+        return formular;
+    }
 
-        includedThemeFile.registerAs(getFileName());
-        includedThemeFile.addCallback(new CallbackWithReason<ThemeFile.CallbackReason>() {
-            public void callback(CallbackReason reason) {
-                themeFile.fireCallbacks(reason);
-            }
-        });
+    @Override
+    public String toString() {
+        return formular;
     }
     
-    @Override
-    public String getName() {
-        return getFileName();
-    }
-
-    @Override
-    protected String getType() {
-        return "Include";
-    }
-
-    public String getFileName() {
-        return element.getAttributeValue("filename");
-    }
-
-    public Element getDOMElement() {
-        return element;
-    }
-
-    public void addChildren() throws IOException {
-        includedThemeFile.addChildren();
-    }
-
-    public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(this, element);
-    }
-
-    public ThemeFile getIncludedThemeFile() {
-        return includedThemeFile;
-    }
-
-    public List<ThemeTreeOperation> getOperations() {
-        return AbstractThemeTreeNode.getDefaultOperations(element, this);
-    }
-
 }

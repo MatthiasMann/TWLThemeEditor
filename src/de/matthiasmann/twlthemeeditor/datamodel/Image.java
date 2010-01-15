@@ -31,7 +31,6 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
-import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Alias;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Animation;
@@ -53,7 +52,6 @@ import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import org.jdom.Element;
 
@@ -69,15 +67,13 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
     }
 
     protected final Textures textures;
-    protected final ArrayList<Property<?>> properties;
     protected final Element element;
     protected final NameProperty nameProperty;
     protected ConditionProperty conditionProperty;
 
     protected Image(Textures textures, TreeTableNode parent, Element element) {
-        super(parent);
+        super(textures.getThemeFile(), parent);
         this.textures = textures;
-        this.properties = new ArrayList<Property<?>>();
         this.element = element;
 
         if(parent == textures) {
@@ -90,15 +86,6 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
 
     public Kind getKind() {
         return Kind.IMAGE;
-    }
-
-    public Property<?>[] getProperties() {
-        return properties.toArray(new Property[properties.size()]);
-    }
-
-    protected final void addProperty(Property<?> property) {
-        textures.getThemeFile().registerProperty(property);
-        properties.add(property);
     }
 
     public void addToXPP(DomXPPParser xpp) {
@@ -114,8 +101,8 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
                 new AttributeProperty(element, "if", "Condition", true),
                 new AttributeProperty(element, "unless", "Condition", true), "Condition"));
         addProperty(new BooleanProperty(new AttributeProperty(element, "center", "Centered", true), false));
-        addProperty(new BorderProperty(new AttributeProperty(element, "border", "Border", true), 0));
-        addProperty(new BorderProperty(new AttributeProperty(element, "inset", "Inset", true), Short.MIN_VALUE));
+        addProperty(new BorderProperty(new AttributeProperty(element, "border", "Border", true), 0, false));
+        addProperty(new BorderProperty(new AttributeProperty(element, "inset", "Inset", true), Short.MIN_VALUE, false));
         addProperty(new IntegerProperty(new AttributeProperty(element, "sizeOverwriteH", "Size overwrite horizontal", true), 0, Short.MAX_VALUE));
         addProperty(new IntegerProperty(new AttributeProperty(element, "sizeOverwriteV", "Size overwrite vertical", true), 0, Short.MAX_VALUE));
         addProperty(new BooleanProperty(new AttributeProperty(element, "repeatX", "Repeat horizontal (deprecated)", true), false));
@@ -152,12 +139,6 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
         Utils.addChildren(textures.getThemeFile(), this, element, getImageDomWrapper(textures));
     }
 
-    protected void handleImageRenamed(String from, String to, Kind kind) {
-        for(Image img : getChildren(Image.class)) {
-            img.handleImageRenamed(from, to, kind);
-        }
-    }
-    
     public static DomWrapper getImageDomWrapper(final Textures textures) {
         return new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
@@ -237,9 +218,7 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
             validateName(value);
             String prevName = getPropertyValue();
             if(!prevName.equals(value)) {
-                for(Image img : getThemeTreeModel().getImages()) {
-                    img.handleImageRenamed(prevName, value, getKind());
-                }
+                getThemeTreeModel().handleImageRenamed(prevName, value, getKind());
                 super.setPropertyValue(value);
             }
         }

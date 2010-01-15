@@ -27,40 +27,29 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel.images;
 
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
-import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
-import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
-import org.jdom.Element;
+package de.matthiasmann.twlthemeeditor.properties;
+
+import de.matthiasmann.twl.Dimension;
+import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Alias extends Image {
+public class DimensionProperty extends DerivedProperty<Dimension> {
 
-    private final ImageReferenceProperty refProperty;
-
-    public Alias(Textures textures, TreeTableNode parent, Element node) {
-        super(textures, parent, node);
-        Image limit = this;
-        while(limit.getParent() != textures) {
-            limit = (Image)limit.getParent();
-        }
-        this.refProperty = new ImageReferenceProperty(new AttributeProperty(element, "ref"), limit);
-        addProperty(refProperty);
+    public DimensionProperty(Property<String> base) {
+        super(base, Dimension.class);
     }
 
-    @Override
-    public void handleImageRenamed(String from, String to, Kind kind) {
-        super.handleImageRenamed(from, to, kind);
-        if(kind == getKind() && from.equals(refProperty.getPropertyValue().getName())) {
-            refProperty.setPropertyValue(new ImageReference(to, kind));
-        }
+    public Dimension getPropertyValue() {
+        return Utils.parseDimension(base.getPropertyValue());
     }
-    
+
+    public void setPropertyValue(Dimension value) throws IllegalArgumentException {
+        base.setPropertyValue(Utils.toString(value));
+    }
+
 }

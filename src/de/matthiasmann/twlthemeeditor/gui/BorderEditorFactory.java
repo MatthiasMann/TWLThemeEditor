@@ -31,9 +31,14 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
+import de.matthiasmann.twlthemeeditor.datamodel.BorderFormular;
+import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
 
 /**
@@ -46,12 +51,17 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border, Border
         return new BorderEditor(pa);
     }
 
-    static class BorderEditor extends DialogLayout implements Runnable {
+    static class BorderEditor extends DialogLayout implements Runnable, EditField.Callback {
         private final PropertyAccessor<Border, BorderProperty> pa;
+        private final SimpleBooleanModel useFormular;
         private final SimpleIntegerModel modelTop;
         private final SimpleIntegerModel modelLeft;
         private final SimpleIntegerModel modelBottom;
         private final SimpleIntegerModel modelRight;
+        private final EditField efFormular;
+        private final ValueAdjusterInt adjusters[];
+
+        boolean inSetProperty;
 
         private static final int MAX_BORDER_SIZE = 1000;
 
@@ -61,39 +71,118 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border, Border
             Border border = pa.getValue(Border.ZERO);
 
             int minValue = pa.getProperty().getMinValue();
+            boolean allowFormular = pa.getProperty().isAllowFormular();
 
+            useFormular = new SimpleBooleanModel(border instanceof BorderFormular);
+            
             modelTop = new SimpleIntegerModel(minValue, MAX_BORDER_SIZE, border.getBorderTop());
             modelLeft = new SimpleIntegerModel(minValue, MAX_BORDER_SIZE, border.getBorderLeft());
             modelBottom = new SimpleIntegerModel(minValue, MAX_BORDER_SIZE, border.getBorderBottom());
             modelRight = new SimpleIntegerModel(minValue, MAX_BORDER_SIZE, border.getBorderRight());
 
-            ValueAdjusterInt adjuster[] = {
+            adjusters = new ValueAdjusterInt[] {
                 new ValueAdjusterInt(modelTop),
                 new ValueAdjusterInt(modelLeft),
                 new ValueAdjusterInt(modelBottom),
                 new ValueAdjusterInt(modelRight)
             };
 
-            adjuster[0].setDisplayPrefix("T: ");
-            adjuster[1].setDisplayPrefix("L: ");
-            adjuster[2].setDisplayPrefix("B: ");
-            adjuster[3].setDisplayPrefix("R: ");
+            adjusters[0].setDisplayPrefix("T: ");
+            adjusters[1].setDisplayPrefix("L: ");
+            adjusters[2].setDisplayPrefix("B: ");
+            adjusters[3].setDisplayPrefix("R: ");
 
             modelTop.addCallback(this);
             modelLeft.addCallback(this);
             modelBottom.addCallback(this);
             modelRight.addCallback(this);
 
-            setHorizontalGroup(createParallelGroup(adjuster));
-            setVerticalGroup(createSequentialGroup().addWidgetsWithGap("adjuster", adjuster));
+            useFormular.addCallback(new Runnable() {
+                public void run() {
+                    setEnabled();
+                    setProperty();
+                }
+            });
+
+            Group horz = createParallelGroup();
+            Group vert = createSequentialGroup();
+
+            if(allowFormular) {
+                ToggleButton btnUseFormular = new ToggleButton(useFormular);
+                btnUseFormular.setTheme("btnUseFormular");
+                efFormular = new EditField();
+                efFormular.setText(Utils.toString(border, false));
+                efFormular.addCallback(this);
+
+                horz.addGroup(createSequentialGroup().addWidget(btnUseFormular).addWidget(efFormular));
+                vert.addGroup(createParallelGroup().addWidget(btnUseFormular).addWidget(efFormular));
+            } else {
+                efFormular = null;
+            }
+
+            horz.addWidgets(adjusters);
+            vert.addWidgetsWithGap("adjuster", adjusters);
+
+            setHorizontalGroup(horz);
+            setVerticalGroup(vert);
+
+            setEnabled();
         }
 
         public void run() {
-            pa.setValue(new Border(
-                    modelTop.getValue(),
-                    modelLeft.getValue(),
-                    modelBottom.getValue(),
-                    modelRight.getValue()));
+            setProperty();
+        }
+
+        public void callback(int key) {
+            if(!inSetProperty) {
+                setProperty();
+            }
+        }
+
+        void setProperty() {
+            try {
+                inSetProperty = true;
+                Border border;
+                if(useFormular.getValue()) {
+                    String formular = efFormular.getText();
+                    border = new BorderFormular(formular);
+                    try {
+                        Border values = Utils.parseBorder(formular);
+                        modelTop.setValue(values.getBorderTop());
+                        modelLeft.setValue(values.getBorderLeft());
+                        modelBottom.setValue(values.getBorderBottom());
+                        modelRight.setValue(values.getBorderRight());
+                    } catch (NumberFormatException ex) {
+                    }
+                } else {
+                    border = new Border(
+                        modelTop.getValue(),
+                        modelLeft.getValue(),
+                        modelBottom.getValue(),
+                        modelRight.getValue());
+
+                    if(efFormular != null) {
+                        try {
+                            // if the current formular is a parseable border then update it
+                            Utils.parseBorder(efFormular.getText());
+                            efFormular.setText(Utils.toString(border, false));
+                        } catch (NumberFormatException ex) {
+                        }
+                    }
+                }
+                pa.setValue(border);
+            } finally {
+                inSetProperty = false;
+            }
+        }
+
+        void setEnabled() {
+            if(efFormular != null) {
+                efFormular.setEnabled(useFormular.getValue());
+            }
+            for(ValueAdjusterInt va : adjusters) {
+                va.setEnabled(!useFormular.getValue());
+            }
         }
     }
 }

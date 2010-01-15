@@ -31,7 +31,9 @@ package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
+import de.matthiasmann.twlthemeeditor.datamodel.Image.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 
 /**
  *
@@ -39,25 +41,31 @@ import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
  */
 public class ImageReferenceProperty extends DerivedProperty<ImageReference> {
 
-    private final Image limit;
+    private final ThemeTreeNode limit;
+    private final Image.Kind kind;
 
-    public ImageReferenceProperty(Property<String> base, Image limit) {
+    public ImageReferenceProperty(Property<String> base, ThemeTreeNode limit, Kind kind) {
         super(base, ImageReference.class);
         this.limit = limit;
+        this.kind = kind;
+    }
+
+    public ImageReferenceProperty(Property<String> base, Image limit) {
+        this(base, limit, limit.getKind());
     }
 
     public ImageReference getPropertyValue() {
         String value = base.getPropertyValue();
-        return new ImageReference(value, limit.getKind());
+        return new ImageReference(value, kind);
     }
 
     public void setPropertyValue(ImageReference value) throws IllegalArgumentException {
-        if(value.getKind() == limit.getKind()) {
+        if(value.getKind() == kind) {
             base.setPropertyValue(value.getName());
         }
     }
 
-    public Image getLimit() {
+    public ThemeTreeNode getLimit() {
         return limit;
     }
 }

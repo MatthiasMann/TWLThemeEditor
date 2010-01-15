@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.datamodel.BorderFormular;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 
 /**
@@ -40,10 +41,12 @@ import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 public class BorderProperty extends DerivedProperty<Border> {
 
     private final int minValue;
+    private final boolean allowFormular;
 
-    public BorderProperty(Property<String> base, int minValue) {
+    public BorderProperty(Property<String> base, int minValue, boolean allowFormular) {
         super(base, Border.class);
         this.minValue = minValue;
+        this.allowFormular = allowFormular;
     }
 
     public Border getPropertyValue() {
@@ -51,15 +54,27 @@ public class BorderProperty extends DerivedProperty<Border> {
         if(value == null && canBeNull()) {
             return null;
         }
-        return Utils.parseBorder(value);
+        try {
+            return Utils.parseBorder(value);
+        } catch (NumberFormatException ex) {
+            if(allowFormular) {
+                return new BorderFormular(value);
+            } else {
+                throw ex;
+            }
+        }
     }
 
     public void setPropertyValue(Border value) throws IllegalArgumentException {
-        base.setPropertyValue((value != null) ? Utils.toString(value) : null);
+        base.setPropertyValue(Utils.toString(value, canBeNull()));
     }
 
     public int getMinValue() {
         return minValue;
+    }
+
+    public boolean isAllowFormular() {
+        return allowFormular;
     }
     
 }

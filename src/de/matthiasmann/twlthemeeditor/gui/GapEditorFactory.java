@@ -30,72 +30,85 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.DialogLayout.Gap;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractIntegerModel;
-import de.matthiasmann.twlthemeeditor.datamodel.Split;
-import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
+import de.matthiasmann.twlthemeeditor.properties.GapProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class SplitEditorFactory implements PropertyEditorFactory<Split, SplitProperty> {
+public class GapEditorFactory implements PropertyEditorFactory<Gap, GapProperty> {
 
-    public Widget create(PropertyAccessor<Split, SplitProperty> pa) {
-        return new SplitEditor(pa);
+    public Widget create(PropertyAccessor<Gap, GapProperty> pa) {
+        return new GapEditor(pa);
     }
 
-    static class SplitEditor extends DialogLayout {
-        private static final Split DEFAULT_SPLIT = new Split(0, 0);
+    static class GapEditor extends DialogLayout {
+        private static final Gap DEFAULT_GAP_VALUE = new Gap();
 
-        private final PropertyAccessor<Split, SplitProperty> pa;
-        private final SplitIntegerModel model1;
-        private final SplitIntegerModel model2;
-        private Split split;
+        private final PropertyAccessor<Gap, GapProperty> pa;
+        private final GapIntegerModel modelMin;
+        private final GapIntegerModel modelPref;
+        private final GapIntegerModel modelMax;
+        private Gap gap;
 
-        public SplitEditor(PropertyAccessor<Split, SplitProperty> pa) {
+        public GapEditor(PropertyAccessor<Gap, GapProperty> pa) {
             this.pa = pa;
-            this.split = pa.getValue(DEFAULT_SPLIT);
+            this.gap = pa.getValue(DEFAULT_GAP_VALUE);
 
-            this.model1 = new SplitIntegerModel() {
+            this.modelMin = new GapIntegerModel() {
                 public int getValue() {
-                    return split.getSplit1();
+                    return gap.min;
                 }
                 public void setValue(int value) {
-                    setSplit(value, Math.max(value, split.getSplit2()));
+                    setGap(value, Math.max(value, gap.preferred), Math.max(value, gap.max));
                 }
             };
-            this.model2 = new SplitIntegerModel() {
+            this.modelPref = new GapIntegerModel() {
                 public int getValue() {
-                    return split.getSplit2();
+                    return gap.preferred;
                 }
                 public void setValue(int value) {
-                    setSplit(Math.min(value, split.getSplit1()), value);
+                    setGap(Math.min(value, gap.min), value, Math.max(value, gap.max));
+                }
+            };
+            this.modelMax = new GapIntegerModel() {
+                public int getValue() {
+                    return gap.max;
+                }
+                public void setValue(int value) {
+                    setGap(Math.min(value, gap.min), Math.min(value, gap.preferred), value);
                 }
             };
 
             ValueAdjusterInt adjusters[] = new ValueAdjusterInt[] {
-                new ValueAdjusterInt(model1),
-                new ValueAdjusterInt(model2)
+                new ValueAdjusterInt(modelMin),
+                new ValueAdjusterInt(modelPref),
+                new ValueAdjusterInt(modelMax),
             };
 
-            pa.setWidgetsToEnable(adjusters);
+            adjusters[0].setDisplayPrefix("Min: ");
+            adjusters[1].setDisplayPrefix("Pref: ");
+            adjusters[2].setDisplayPrefix("Max: ");
 
             setHorizontalGroup(createParallelGroup(adjusters));
             setVerticalGroup(createSequentialGroup().addWidgetsWithGap("adjuster", adjusters));
         }
 
-        void setSplit(int split1, int split2) {
-            split = new Split(split1, split2);
-            pa.setValue(split);
-            model1.fireCallback();
-            model2.fireCallback();
+        void setGap(int min, int pref, int max) {
+            gap = new Gap(min, pref, max);
+            pa.setValue(gap);
+            modelMin.fireCallback();
+            modelPref.fireCallback();
+            modelMax.fireCallback();
         }
 
-        abstract class SplitIntegerModel extends AbstractIntegerModel {
+        abstract class GapIntegerModel extends AbstractIntegerModel {
             public int getMaxValue() {
-                return pa.getProperty().getLimit();
+                return Short.MAX_VALUE;
             }
             public int getMinValue() {
                 return 0;

@@ -35,10 +35,13 @@ import de.matthiasmann.twl.utils.TypeMapping;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Theme;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
+import de.matthiasmann.twlthemeeditor.properties.DimensionProperty;
+import de.matthiasmann.twlthemeeditor.properties.GapProperty;
 import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
 import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
@@ -72,12 +75,14 @@ public class Context {
         factories.put(ThemeReferenceProperty.class, new ThemeReferenceEditorFactory(this));
         factories.put(WeightsProperty.class, new WeightsEditorFactory());
         factories.put(SplitProperty.class, new SplitEditorFactory());
+        factories.put(GapProperty.class, new GapEditorFactory());
+        factories.put(DimensionProperty.class, new DimensionEditorFactory());
         factories.put(HotSpotProperty.class, new HotSpotEditorFactory());
         factories.put(BorderProperty.class, new BorderEditorFactory());
         factories.put(NameProperty.class, new NameEditorFactory());
     }
 
-    public ListModel<String> getRefableImages(Image stopAt, Image.Kind kind) {
+    public ListModel<String> getRefableImages(ThemeTreeNode stopAt, Image.Kind kind) {
         SimpleChangableListModel<String> result = new SimpleChangableListModel<String>();
         if(kind == Image.Kind.IMAGE) {
             result.addElement("none");

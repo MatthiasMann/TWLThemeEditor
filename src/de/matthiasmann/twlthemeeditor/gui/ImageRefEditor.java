@@ -34,6 +34,7 @@ import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ImageReference;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.properties.ImageReferenceProperty;
 
@@ -50,7 +51,7 @@ public class ImageRefEditor implements PropertyEditorFactory<ImageReference, Ima
     }
 
     public Widget create(final PropertyAccessor<ImageReference, ImageReferenceProperty> pa) {
-        Image limit = pa.getProperty().getLimit();
+        ThemeTreeNode limit = pa.getProperty().getLimit();
         final ImageReference ref = pa.getValue(ImageReference.NONE_REF);
         final Image.Kind kind = ref.getKind();
         final ListModel<String> refableImages = ctx.getRefableImages(limit, kind);

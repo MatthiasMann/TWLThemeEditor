@@ -27,70 +27,50 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twl.CallbackWithReason;
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile.CallbackReason;
-import java.io.IOException;
-import java.util.List;
+import de.matthiasmann.twl.model.AbstractProperty;
 import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Include extends AbstractThemeTreeNode {
+public class ElementTextProperty extends AbstractProperty<String> {
 
-    private final ThemeFile includedThemeFile;
     private final Element element;
+    private final String name;
 
-    public Include(TreeTableNode parent, Element element, final ThemeFile themeFile) throws IOException {
-        super(themeFile, parent);
-
+    public ElementTextProperty(Element element, String name) {
         this.element = element;
-        this.includedThemeFile = new ThemeFile(themeFile.getEnv(), themeFile.getURL(getFileName()), this);
-
-        includedThemeFile.registerAs(getFileName());
-        includedThemeFile.addCallback(new CallbackWithReason<ThemeFile.CallbackReason>() {
-            public void callback(CallbackReason reason) {
-                themeFile.fireCallbacks(reason);
-            }
-        });
+        this.name = name;
     }
-    
-    @Override
+
+    public Class<String> getType() {
+        return String.class;
+    }
+
     public String getName() {
-        return getFileName();
+        return name;
     }
 
-    @Override
-    protected String getType() {
-        return "Include";
+    public boolean canBeNull() {
+        return false;
     }
 
-    public String getFileName() {
-        return element.getAttributeValue("filename");
+    public boolean isReadOnly() {
+        return false;
     }
 
-    public Element getDOMElement() {
-        return element;
+    public String getPropertyValue() {
+        return element.getText();
     }
 
-    public void addChildren() throws IOException {
-        includedThemeFile.addChildren();
+    public void setPropertyValue(String value) throws IllegalArgumentException {
+        String oldText = element.getText();
+        if(!oldText.equals(value)) {
+            element.setText(value);
+            fireValueChangedCallback();
+        }
     }
-
-    public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(this, element);
-    }
-
-    public ThemeFile getIncludedThemeFile() {
-        return includedThemeFile;
-    }
-
-    public List<ThemeTreeOperation> getOperations() {
-        return AbstractThemeTreeNode.getDefaultOperations(element, this);
-    }
-
 }

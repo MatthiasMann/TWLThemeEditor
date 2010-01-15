@@ -46,15 +46,12 @@ import org.jdom.Element;
  */
 public class Textures extends AbstractThemeTreeNode {
 
-    private final ThemeFile themeFile;
     private final URL textureURL;
     private final Dimension textureDimensions;
     private final Element element;
     
     Textures(TreeTableNode parent, Element element, ThemeFile themeFile) throws IOException {
-        super(parent);
-
-        this.themeFile = themeFile;
+        super(themeFile, parent);
         this.element = element;
         
         textureURL = themeFile.getURL(getFile());
@@ -67,10 +64,6 @@ public class Textures extends AbstractThemeTreeNode {
         }
 
         themeFile.getEnv().registerFile(getFile(), textureURL);
-    }
-
-    public ThemeFile getThemeFile() {
-        return themeFile;
     }
 
     public String getFile() {

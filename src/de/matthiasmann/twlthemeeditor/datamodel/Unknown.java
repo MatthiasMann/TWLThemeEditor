@@ -42,8 +42,8 @@ public class Unknown extends AbstractThemeTreeNode {
 
     private final Element element;
 
-    public Unknown(TreeTableNode parent, Element element) {
-        super(parent);
+    public Unknown(TreeTableNode parent, Element element, ThemeFile themeFile) {
+        super(themeFile, parent);
         this.element = element;
     }
 
