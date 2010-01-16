@@ -57,6 +57,7 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
         this.themeFile = themeFile;
         this.element = element;
         this.properties = new ArrayList<Property<?>>();
+        setLeaf(true);
     }
 
     public final ThemeTreeModel getThemeTreeModel() {
@@ -69,18 +70,6 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
 
     public final Element getDOMElement() {
         return element;
-    }
-
-    public void removeChild(TreeTableNode ttn) {
-        int childIndex = super.getChildIndex(ttn);
-        if(childIndex >= 0) {
-            super.removeChild(childIndex);
-        }
-    }
-
-    @Override
-    public void setLeaf(boolean leaf) {
-        super.setLeaf(leaf);
     }
 
     public void setError(boolean hasError) {
@@ -126,9 +115,7 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
                         ttn = new Unknown(this, e, themeFile);
                     }
                     if(ttn instanceof ThemeTreeNode) {
-                        ThemeTreeNode mttn = (ThemeTreeNode)ttn;
-                        mttn.addChildren();
-                        mttn.setLeaf(ttn.getNumChildren() == 0);
+                        ((ThemeTreeNode)ttn).addChildren();
                     }
                     insertChild(ttn, pos);
                 }
@@ -141,6 +128,13 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
         }
 
         setLeaf(getNumChildren() == 0);
+    }
+
+    private void removeChild(TreeTableNode ttn) {
+        int childIndex = super.getChildIndex(ttn);
+        if(childIndex >= 0) {
+            super.removeChild(childIndex);
+        }
     }
 
     public List<ThemeTreeOperation> getOperations() {

@@ -41,10 +41,6 @@ import org.jdom.Element;
 public interface ThemeTreeNode extends TreeTableNode {
 
     public void addChildren() throws IOException;
-    
-    public void removeChild(TreeTableNode ttn);
-
-    public void setLeaf(boolean leaf);
 
     public Element getDOMElement();
 
