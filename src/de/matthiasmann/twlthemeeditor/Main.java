@@ -196,7 +196,7 @@ public class Main {
         }
 
         int i=1;
-        for(Include inc : ttm.getChildren(Include.class)) {
+        for(Include inc : ttm.getTopLevelNodes(Include.class)) {
             fos = new FileOutputStream("test"+i+".xml");
             try {
                 inc.getIncludedThemeFile().writeTo(fos);

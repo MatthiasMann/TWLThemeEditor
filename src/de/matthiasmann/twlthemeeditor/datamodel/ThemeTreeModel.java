@@ -38,20 +38,23 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeNode {
+public class ThemeTreeModel extends AbstractTreeTableModel {
 
     private final ThemeFile rootThemeFile;
+    private final ThemeTreeRootNode rootNode;
     private ThemeTreeNode curErrorLocation;
 
     public ThemeTreeModel(TestEnv env, URL url) throws IOException {
-        rootThemeFile = new ThemeFile(env, url, this);
-        rootThemeFile.addChildren();
+        rootThemeFile = new ThemeFile(env, url);
+        rootNode = new ThemeTreeRootNode(rootThemeFile, this);
+
+        insertChild(rootNode, 0);
+        rootNode.addChildren();
     }
 
     private static final String COLUMN_HEADER[] = {"Name", "Type"};
@@ -64,40 +67,13 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
         return COLUMN_HEADER.length;
     }
 
-    @Override
-    public void insertChild(TreeTableNode node, int idx) {
-        super.insertChild(node, idx);
-    }
-
-    public void removeChild(TreeTableNode ttn) {
-        int childIndex = super.getChildIndex(ttn);
-        if(childIndex >= 0) {
-            super.removeChild(childIndex);
-        }
-    }
-
-    public void setLeaf(boolean leaf) {
-    }
-
-    public String getName() {
-        return null;
-    }
-
-    public Kind getKind() {
-        return Kind.NONE;
-    }
-
-    public Element getDOMElement() {
-        return null;
-    }
-
     public ThemeFile getRootThemeFile() {
         return rootThemeFile;
     }
 
     public<E extends TreeTableNode> List<E> getTopLevelNodes(Class<E> clazz) {
         List<E> result = new ArrayList<E>();
-        processInclude(this, clazz, result);
+        processInclude(rootNode, clazz, result);
         return result;
     }
 
@@ -110,9 +86,7 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
     }
 
     public<E extends ThemeTreeNode> E findTopLevelNodes(Class<E> clazz, String name, E exclude) {
-        List<E> result = new ArrayList<E>();
-        processInclude(this, clazz, result);
-        for(E e : result) {
+        for(E e : getTopLevelNodes(clazz)) {
             if(e != exclude && name.equals(e.getName())) {
                 return e;
             }
@@ -141,29 +115,12 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
         }
     }
 
-    public void addChildren() throws IOException {
-        rootThemeFile.addChildren();
-    }
-    
-    public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz) {
-        return Utils.getChildren(this, clazz);
-    }
-
-    public void addToXPP(DomXPPParser xpp) {
-        Utils.addToXPP(xpp, this);
-    }
-
-    public void setError(boolean hasError) {
-    }
-
     public List<ThemeTreeOperation> getOperations() {
         return Collections.<ThemeTreeOperation>emptyList();
     }
 
     public void handleNodeRenamed(String from, String to, Kind kind) {
-        for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
-            node.handleNodeRenamed(from, to, kind);
-        }
+        rootNode.handleNodeRenamed(from, to, kind);
     }
 
     void fireCallbacks(CallbackReason reason) {

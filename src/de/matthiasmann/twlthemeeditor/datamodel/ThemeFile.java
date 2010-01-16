@@ -64,20 +64,15 @@ public class ThemeFile implements VirtualFile {
     private final TestEnv env;
     private final URL url;
     private final Document document;
-    private final ThemeTreeNode treeNode;
     private final Runnable xmlChangedCB;
 
+    private ThemeTreeNode treeNode;
     private String fileName;
     private CallbackWithReason<?>[] callbacks;
 
     public ThemeFile(TestEnv env, URL url) throws IOException {
-        this(env, url, null);
-    }
-
-    public ThemeFile(TestEnv env, URL url, ThemeTreeNode node) throws IOException {
         this.env = env;
         this.url = url;
-        this.treeNode = node;
         this.xmlChangedCB = new Runnable() {
             public void run() {
                 fireCallbacks(CallbackReason.ATTRIBUTE_CHANGED);
@@ -106,6 +101,10 @@ public class ThemeFile implements VirtualFile {
         return env;
     }
 
+    public Element getRootElement() {
+        return document.getRootElement();
+    }
+    
     public URL getURL(String file) throws MalformedURLException {
         return new URL(url, file);
     }
@@ -114,8 +113,9 @@ public class ThemeFile implements VirtualFile {
         return env.getURL(url.getFile());
     }
     
-    protected void addChildren() throws IOException {
-        Utils.addChildren(this, treeNode, document.getRootElement(), new DomWrapper() {
+    protected void addChildren(ThemeTreeNode node) throws IOException {
+        this.treeNode = node;
+        Utils.addChildren(this, node, document.getRootElement(), new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                 String tagName = element.getName();
 
@@ -155,7 +155,7 @@ public class ThemeFile implements VirtualFile {
 
     @SuppressWarnings("unchecked")
     public Object getContent(Class<?> type) throws IOException {
-        if(type == XmlPullParser.class) {
+        if(type == XmlPullParser.class && treeNode != null) {
             DomXPPParser xpp = new DomXPPParser(fileName);
             ThemeLoadErrorTracker.register(xpp);
             Element rootElement = document.getRootElement();

@@ -29,62 +29,43 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile.CallbackReason;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Include extends AbstractThemeTreeNode {
+public class ThemeTreeRootNode extends AbstractThemeTreeNode {
 
-    private final ThemeFile includedThemeFile;
-
-    public Include(TreeTableNode parent, Element element, final ThemeFile themeFile) throws IOException {
-        super(themeFile, parent, element);
-
-        this.includedThemeFile = new ThemeFile(themeFile.getEnv(), themeFile.getURL(getFileName()));
-
-        includedThemeFile.addCallback(new CallbackWithReason<ThemeFile.CallbackReason>() {
-            public void callback(CallbackReason reason) {
-                themeFile.fireCallbacks(reason);
-            }
-        });
+    public ThemeTreeRootNode(ThemeFile themeFile, TreeTableNode parent) {
+        super(themeFile, parent, themeFile.getRootElement());
     }
-    
+
     @Override
     public String getName() {
-        return getFileName();
+        String name = themeFile.getVirtualFileName();
+        int idx = name.lastIndexOf('/');
+        return name.substring(idx+1);
+    }
+
+    public void addChildren() throws IOException {
+        themeFile.addChildren(this);
+    }
+
+    public void addToXPP(DomXPPParser xpp) {
+        throw new IllegalStateException("Should not reach here");
     }
 
     public Kind getKind() {
         return Kind.NONE;
     }
 
-    public String getFileName() {
-        return element.getAttributeValue("filename");
-    }
-
-    public void addChildren() throws IOException {
-        includedThemeFile.addChildren(this);
-    }
-
-    public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(this, element);
-    }
-
-    public ThemeFile getIncludedThemeFile() {
-        return includedThemeFile;
-    }
-
     public List<ThemeTreeOperation> getOperations() {
-        List<ThemeTreeOperation> operations = AbstractThemeTreeNode.getDefaultOperations(element, this);
-        includedThemeFile.addCreateOperations(operations, this);
+        ArrayList<ThemeTreeOperation> operations = new ArrayList<ThemeTreeOperation>();
+        themeFile.addCreateOperations(operations, this);
         return operations;
     }
-
 }
