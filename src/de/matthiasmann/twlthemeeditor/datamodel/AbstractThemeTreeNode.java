@@ -35,7 +35,9 @@ import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.DeleteNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.MoveNodeOperations;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 import org.jdom.Element;
 
@@ -69,11 +71,6 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
         return element;
     }
 
-    @Override
-    public void insertChild(TreeTableNode ttn, int idx) {
-        super.insertChild(ttn, idx);
-    }
-
     public void removeChild(TreeTableNode ttn) {
         int childIndex = super.getChildIndex(ttn);
         if(childIndex >= 0) {
@@ -86,13 +83,66 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
         super.setLeaf(leaf);
     }
 
-    public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz) {
-        return Utils.getChildren(this, clazz);
-    }
-
     public void setError(boolean hasError) {
         this.error = hasError;
     }
+
+    public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz) {
+        ArrayList<E> result = new ArrayList<E>();
+        for(int i=0,n=getNumChildren() ; i<n ; i++) {
+            TreeTableNode child = getChild(i);
+            if(clazz.isInstance(child)) {
+                result.add(clazz.cast(child));
+            }
+        }
+        return result;
+    }
+
+    protected void addChildren(ThemeFile themeFile, Element node, DomWrapper wrapper) throws IOException {
+        IdentityHashMap<Element, TreeTableNode> existingNodes = new IdentityHashMap<Element, TreeTableNode>();
+        for(int i=0,n=getNumChildren() ; i<n ; i++) {
+            TreeTableNode ttn = getChild(i);
+            if(ttn instanceof ThemeTreeNode) {
+                Element e = ((ThemeTreeNode)ttn).getDOMElement();
+                if(e != null) {
+                    existingNodes.put(e, ttn);
+                }
+            }
+        }
+
+        int pos = 0;
+        for(Object child : node.getChildren()) {
+            if(child instanceof Element) {
+                Element e = (Element)child;
+                TreeTableNode ttn = existingNodes.remove(e);
+                if(ttn != null) {
+                    if(getChild(pos) != ttn) {
+                        removeChild(ttn);
+                        insertChild(ttn, pos);
+                    }
+                } else {
+                    ttn = wrapper.wrap(themeFile, this, e);
+                    if(ttn == null) {
+                        ttn = new Unknown(this, e, themeFile);
+                    }
+                    if(ttn instanceof ThemeTreeNode) {
+                        ThemeTreeNode mttn = (ThemeTreeNode)ttn;
+                        mttn.addChildren();
+                        mttn.setLeaf(ttn.getNumChildren() == 0);
+                    }
+                    insertChild(ttn, pos);
+                }
+                pos++;
+            }
+        }
+
+        for(TreeTableNode ttn : existingNodes.values()) {
+            removeChild(ttn);
+        }
+
+        setLeaf(getNumChildren() == 0);
+    }
+
 
     protected static List<ThemeTreeOperation> getDefaultOperations(Element element, ThemeTreeNode node) {
         List<ThemeTreeOperation> result = new ArrayList<ThemeTreeOperation>();

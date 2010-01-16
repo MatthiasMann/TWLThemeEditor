@@ -114,7 +114,7 @@ public class Textures extends AbstractThemeTreeNode {
     }
 
     public void addChildren() throws IOException {
-        Utils.addChildren(themeFile, this, element, Image.getImageDomWrapper(this));
+        addChildren(themeFile, element, Image.getImageDomWrapper(this));
     }
 
     @SuppressWarnings("unchecked")

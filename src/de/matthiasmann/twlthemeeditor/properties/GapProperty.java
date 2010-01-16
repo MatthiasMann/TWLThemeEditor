@@ -49,7 +49,20 @@ public class GapProperty extends DerivedProperty<Gap> {
     }
 
     public void setPropertyValue(Gap value) throws IllegalArgumentException {
-        base.setPropertyValue(Utils.toString(value));
+        base.setPropertyValue((value != null) ? toString(value) : null);
+    }
+
+    private static String toString(Gap gap) {
+        if(gap.min == gap.max && gap.min == gap.preferred) {
+            return Integer.toString(gap.min);
+        }
+        if(gap.max == Short.MAX_VALUE) {
+            if(gap.min == 0 && gap.preferred == 0) {
+                return "";
+            }
+            return gap.min + "," + gap.preferred;
+        }
+        return gap.min + "," + gap.preferred + "," + gap.max;
     }
 
 }

@@ -42,8 +42,6 @@ public interface ThemeTreeNode extends TreeTableNode {
 
     public void addChildren() throws IOException;
     
-    public void insertChild(TreeTableNode ttn, int idx);
-
     public void removeChild(TreeTableNode ttn);
 
     public void setLeaf(boolean leaf);

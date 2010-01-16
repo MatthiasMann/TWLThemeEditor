@@ -129,7 +129,7 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
     }
 
     public void addChildren() throws IOException {
-        Utils.addChildren(textures.getThemeFile(), this, element, getImageDomWrapper(textures));
+        addChildren(textures.getThemeFile(), element, getImageDomWrapper(textures));
     }
 
     public static DomWrapper getImageDomWrapper(final Textures textures) {

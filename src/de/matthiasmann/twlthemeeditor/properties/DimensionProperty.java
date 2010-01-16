@@ -49,7 +49,7 @@ public class DimensionProperty extends DerivedProperty<Dimension> {
     }
 
     public void setPropertyValue(Dimension value) throws IllegalArgumentException {
-        base.setPropertyValue(Utils.toString(value));
+        base.setPropertyValue((value != null) ? (value.getX() + "," + value.getY()) : null);
     }
 
 }

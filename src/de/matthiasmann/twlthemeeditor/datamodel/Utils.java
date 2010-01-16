@@ -37,13 +37,9 @@ import de.matthiasmann.twl.model.TreeTableNode;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.IdentityHashMap;
-import java.util.List;
 import org.jdom.Attribute;
 import org.jdom.Document;
-import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -164,29 +160,6 @@ public final class Utils {
         return border.getBorderTop()+","+border.getBorderLeft()+","+border.getBorderBottom()+","+border.getBorderRight();
     }
 
-    public static String toString(Gap gap) {
-        if(gap == null) {
-            return null;
-        }
-        if(gap.min == gap.max && gap.min == gap.preferred) {
-            return Integer.toString(gap.min);
-        }
-        if(gap.max == Short.MAX_VALUE) {
-            if(gap.min == 0 && gap.preferred == 0) {
-                return "";
-            }
-            return gap.min + "," + gap.preferred;
-        }
-        return gap.min + "," + gap.preferred + "," + gap.max;
-    }
-
-    public static String toString(Dimension dim) {
-        if(dim == null) {
-            return null;
-        }
-        return dim.getX() + "," + dim.getY();
-    }
-
     public static String capitalize(String str) {
         if(str.length() > 0) {
             return Character.toUpperCase(str.charAt(0)) + str.substring(1);
@@ -194,66 +167,6 @@ public final class Utils {
         return str;
     }
     
-    public static void addChildren(ThemeFile themeFile, ThemeTreeNode parent, Element node, DomWrapper wrapper) throws IOException {
-        IdentityHashMap<Element, TreeTableNode> existingNodes = new IdentityHashMap<Element, TreeTableNode>();
-        for(int i=0,n=parent.getNumChildren() ; i<n ; i++) {
-            TreeTableNode ttn = parent.getChild(i);
-            if(ttn instanceof ThemeTreeNode) {
-                Element element = ((ThemeTreeNode)ttn).getDOMElement();
-                if(element != null) {
-                    existingNodes.put(element, ttn);
-                }
-            }
-        }
-
-        int pos = 0;
-        for(Object child : node.getChildren()) {
-            if(child instanceof Element) {
-                Element element = (Element)child;
-                TreeTableNode ttn = existingNodes.remove(element);
-                if(ttn != null) {
-                    if(parent.getChild(pos) != ttn) {
-                        parent.removeChild(ttn);
-                        parent.insertChild(ttn, pos);
-                    }
-                } else {
-                    ttn = wrapper.wrap(themeFile, parent, element);
-                    if(ttn == null) {
-                        ttn = new Unknown(parent, element, themeFile);
-                    }
-                    if(ttn instanceof ThemeTreeNode) {
-                        ThemeTreeNode mttn = (ThemeTreeNode)ttn;
-                        mttn.addChildren();
-                        mttn.setLeaf(ttn.getNumChildren() == 0);
-                    }
-                    parent.insertChild(ttn, pos);
-                }
-                pos++;
-            }
-        }
-
-        for(TreeTableNode ttn : existingNodes.values()) {
-            parent.removeChild(ttn);
-        }
-
-        parent.setLeaf(parent.getNumChildren() == 0);
-    }
-
-    public static <T extends TreeTableNode> void getChildren(TreeTableNode node, Class<T> clazz, List<T> result) {
-        for(int i=0,n=node.getNumChildren() ; i<n ; i++) {
-            TreeTableNode child = node.getChild(i);
-            if(clazz.isInstance(child)) {
-                result.add(clazz.cast(child));
-            }
-        }
-    }
-
-    public static <T extends TreeTableNode> List<T> getChildren(TreeTableNode node, Class<T> clazz) {
-        ArrayList<T> result = new ArrayList<T>();
-        getChildren(node, clazz, result);
-        return result;
-    }
-
     public static void addToXPP(DomXPPParser xpp, ThemeTreeNode node) {
         for(int i=0,n=node.getNumChildren() ; i<n ; i++) {
             TreeTableNode child = node.getChild(i);

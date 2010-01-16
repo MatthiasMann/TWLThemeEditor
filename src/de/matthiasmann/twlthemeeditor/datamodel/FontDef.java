@@ -101,7 +101,7 @@ public class FontDef extends AbstractThemeTreeNode implements HasProperties {
     }
 
     public void addChildren() throws IOException {
-        Utils.addChildren(themeFile, this, element, new DomWrapper() {
+        addChildren(themeFile, element, new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                 if("fontParam".equals(element.getName())) {
                     return new FontParam(themeFile, parent, element);

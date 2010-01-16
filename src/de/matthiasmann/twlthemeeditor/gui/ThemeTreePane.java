@@ -182,6 +182,7 @@ public class ThemeTreePane extends DialogLayout {
     public void setModel(ThemeTreeModel model) {
         filteredModel = new FilteredModel(model);
         treeTable.setModel(model);
+        treeTable.setRowExpanded(0, true);
         table.setModel(filteredModel);
         updateFilter();
     }

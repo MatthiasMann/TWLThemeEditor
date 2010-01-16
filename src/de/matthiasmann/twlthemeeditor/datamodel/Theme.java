@@ -96,7 +96,7 @@ public class Theme extends AbstractThemeTreeNode implements HasProperties {
     }
     
     public void addChildren() throws IOException {
-        Utils.addChildren(themeFile, this, element, new DomWrapper() {
+        addChildren(themeFile, element, new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                 String tagName = element.getName();
                 if("theme".equals(tagName)) {

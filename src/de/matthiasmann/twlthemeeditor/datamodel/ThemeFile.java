@@ -113,9 +113,9 @@ public class ThemeFile implements VirtualFile {
         return env.getURL(url.getFile());
     }
     
-    protected void addChildren(ThemeTreeNode node) throws IOException {
+    protected void addChildren(AbstractThemeTreeNode node) throws IOException {
         this.treeNode = node;
-        Utils.addChildren(this, node, document.getRootElement(), new DomWrapper() {
+        node.addChildren(this, document.getRootElement(), new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                 String tagName = element.getName();
 

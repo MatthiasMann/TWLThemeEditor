@@ -105,7 +105,7 @@ public class Param extends AbstractThemeTreeNode implements HasProperties {
 
     public void addChildren() throws IOException {
         if(isMap()) {
-            Utils.addChildren(theme.getThemeFile(), this, valueElement, new DomWrapper() {
+            addChildren(theme.getThemeFile(), valueElement, new DomWrapper() {
                 public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                     if("param".equals(element.getName())) {
                         return new Param(theme, parent, element);

@@ -36,7 +36,6 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
-import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewTexture;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
@@ -63,7 +62,7 @@ public class Repeat extends WithSubImages {
 
     @Override
     public void addChildren() throws IOException {
-        Utils.addChildren(textures.getThemeFile(), this, element, new DomWrapper() {
+        addChildren(textures.getThemeFile(), element, new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                 String tagName = element.getName();
 
