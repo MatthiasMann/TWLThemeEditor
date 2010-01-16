@@ -52,7 +52,6 @@ public class ThemeTreeModel extends AbstractTreeTableModel implements ThemeTreeN
     public ThemeTreeModel(TestEnv env, URL url) throws IOException {
         rootThemeFile = new ThemeFile(env, url, this);
         rootThemeFile.addChildren();
-        rootThemeFile.registerAs("/theme.xml");
     }
 
     private static final String COLUMN_HEADER[] = {"Name", "Type"};

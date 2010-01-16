@@ -36,7 +36,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  *
@@ -44,34 +45,54 @@ import java.util.HashMap;
  */
 public class TestEnv extends URLStreamHandler {
 
-    private final HashMap<String, VirtualFile> files;
+    private final ArrayList<VirtualFile> files;
 
     public TestEnv() {
-        this.files = new HashMap<String, VirtualFile>();
+        this.files = new ArrayList<VirtualFile>();
     }
 
-    public void registerFile(String name, VirtualFile file) {
-        if(name.length() == 0 || name.charAt(0) != '/') {
-            name = "/".concat(name);
-        }
-        files.put(name, file);
+    public void unregisterFile(VirtualFile file) {
+        files.remove(file);
     }
 
-    public void registerFile(String name, final URL url) {
-        registerFile(name, new VirtualFile() {
+    public void unregisterFiles(Collection<VirtualFile> file) {
+        files.removeAll(file);
+    }
+
+    public void registerFile(VirtualFile file) {
+        files.add(file);
+    }
+
+    public VirtualFile registerFile(final URL url) {
+        VirtualFile file = new VirtualFile() {
+            public String getVirtualFileName() {
+                return url.getFile();
+            }
             public Object getContent(Class<?> type) throws IOException {
                 return url.getContent(new Class[]{type});
             }
             public InputStream openStream() throws IOException {
                 return url.openStream();
             }
-        });
+        };
+        registerFile(file);
+        return file;
     }
 
+    protected VirtualFile findVirtualFile(String fileName) {
+        for(VirtualFile file : files) {
+            String vFileName = file.getVirtualFileName();
+            if(vFileName.equals(fileName)) {
+                return file;
+            }
+        }
+        return null;
+    }
+    
     @Override
     protected URLConnection openConnection(final URL url) throws IOException {
         final String fileName = url.getFile();
-        final VirtualFile file = files.get(fileName);
+        final VirtualFile file = findVirtualFile(fileName);
         return new URLConnection(url) {
             @Override
             public void connect() throws IOException {

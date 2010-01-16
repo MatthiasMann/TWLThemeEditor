@@ -49,7 +49,6 @@ public class Include extends AbstractThemeTreeNode {
 
         this.includedThemeFile = new ThemeFile(themeFile.getEnv(), themeFile.getURL(getFileName()), this);
 
-        includedThemeFile.registerAs(getFileName());
         includedThemeFile.addCallback(new CallbackWithReason<ThemeFile.CallbackReason>() {
             public void callback(CallbackReason reason) {
                 themeFile.fireCallbacks(reason);

@@ -38,9 +38,9 @@ import de.matthiasmann.twl.renderer.CacheContext;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twl.utils.CallbackSupport;
-import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeLoadErrorTracker;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -55,7 +55,7 @@ public class PreviewWidget extends Widget {
 
     private final IntBuffer viewPortBuffer;
 
-    private TestEnv testEnv;
+    private URL url;
     private LWJGLRenderer render;
     private ThemeManager theme;
     private GUI testGUI;
@@ -69,9 +69,9 @@ public class PreviewWidget extends Widget {
     private IOException themeLoadException;
     private Object themeLoadErrorLocation;
 
-    public PreviewWidget(TestEnv testEnv) {
+    public PreviewWidget(URL url) {
         this.viewPortBuffer = BufferUtils.createIntBuffer(16);
-        this.testEnv = testEnv;
+        this.url = url;
         setCanAcceptKeyboardFocus(true);
     }
 
@@ -222,7 +222,7 @@ public class PreviewWidget extends Widget {
             CacheContext newCacheContext = render.createNewCacheContext();
             render.setActiveCacheContext(newCacheContext);
             try {
-                ThemeManager newTheme = ThemeManager.createThemeManager(testEnv.getURL("/theme.xml"), render);
+                ThemeManager newTheme = ThemeManager.createThemeManager(url, render);
                 testGUI.applyTheme(newTheme);
 
                 oldCacheContext.destroy();

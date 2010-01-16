@@ -32,10 +32,13 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.renderer.lwjgl.PNGDecoder;
+import de.matthiasmann.twlthemeeditor.TestEnv;
+import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewTexture;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import org.jdom.Element;
@@ -46,13 +49,26 @@ import org.jdom.Element;
  */
 public class Textures extends AbstractThemeTreeNode {
 
-    private final URL textureURL;
-    private final Dimension textureDimensions;
+    private Dimension textureDimensions;
+
+    protected VirtualFile textureVirtualFile;
     
     Textures(TreeTableNode parent, Element element, ThemeFile themeFile) throws IOException {
         super(themeFile, parent, element);
         
-        textureURL = themeFile.getURL(getFile());
+        registerTextureURL();
+    }
+
+    protected void registerTextureURL() throws IOException {
+        TestEnv env = themeFile.getEnv();
+        if(textureVirtualFile != null) {
+            env.unregisterFile(textureVirtualFile);
+            textureVirtualFile = null;
+        }
+
+        URL textureURL = getTextureURL();
+        textureVirtualFile = env.registerFile(textureURL);
+        
         InputStream textureStream = textureURL.openStream();
         try {
             PNGDecoder decoder = new PNGDecoder(textureStream);
@@ -60,8 +76,10 @@ public class Textures extends AbstractThemeTreeNode {
         } finally {
             textureStream.close();
         }
+    }
 
-        themeFile.getEnv().registerFile(getFile(), textureURL);
+    public URL getTextureURL() throws MalformedURLException {
+        return themeFile.getURL(getFile());
     }
 
     public String getFile() {
@@ -70,10 +88,6 @@ public class Textures extends AbstractThemeTreeNode {
 
     public String getFormat() {
         return element.getAttributeValue("format");
-    }
-
-    public URL getTextureURL() {
-        return textureURL;
     }
 
     @Override

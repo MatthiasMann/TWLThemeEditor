@@ -38,9 +38,9 @@ import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.TextArea;
 import de.matthiasmann.twl.model.SimpleTextAreaModel;
 import de.matthiasmann.twl.model.TextAreaModel;
-import de.matthiasmann.twlthemeeditor.TestEnv;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 
 /**
  *
@@ -53,13 +53,19 @@ public class PreviewPane extends DialogLayout {
     private final Button btnClearStackTrace;
     private final Button btnShowStackTrace;
 
-    public PreviewPane(TestEnv env) {
-        this.previewWidget = new PreviewWidget(env);
-        this.labelErrorDisplay = new Label();
+    public PreviewPane(URL url) {
+        this.previewWidget = new PreviewWidget(url);
+        this.labelErrorDisplay = new Label() {
+            @Override
+            public int getMinWidth() {
+                return 0;
+            }
+        };
         this.btnClearStackTrace = new Button("Clear");
         this.btnShowStackTrace = new Button("Stack Trace");
 
         labelErrorDisplay.setTheme("errorDisplay");
+        labelErrorDisplay.setClip(true);
         btnClearStackTrace.setEnabled(false);
         btnShowStackTrace.setEnabled(false);
 

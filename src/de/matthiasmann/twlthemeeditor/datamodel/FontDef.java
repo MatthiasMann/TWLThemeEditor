@@ -29,14 +29,21 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.TestEnv;
+import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import org.jdom.Document;
 import org.jdom.Element;
 
 /**
@@ -45,10 +52,13 @@ import org.jdom.Element;
  */
 public class FontDef extends AbstractThemeTreeNode implements HasProperties {
 
+    protected final ArrayList<VirtualFile> virtualFontFiles;
     protected final NameProperty nameProperty;
+    protected final Property<String> fileNameProperty;
 
-    public FontDef(ThemeFile themeFile, TreeTableNode parent, Element element) {
+    public FontDef(ThemeFile themeFile, TreeTableNode parent, Element element) throws IOException {
         super(themeFile, parent, element);
+        this.virtualFontFiles = new ArrayList<VirtualFile>();
 
         nameProperty = new NameProperty(new AttributeProperty(element, "name"), getThemeTreeModel(), Kind.FONT) {
             @Override
@@ -60,8 +70,20 @@ public class FontDef extends AbstractThemeTreeNode implements HasProperties {
         };
         addProperty(nameProperty);
 
-        addProperty(new AttributeProperty(element, "fileName", "Font file name", true));
+        fileNameProperty = new AttributeProperty(element, "filename", "Font file name", true);
+        fileNameProperty.addValueChangedCallback(new Runnable() {
+            public void run() {
+                try {
+                    registerFontFiles();
+                } catch(IOException ignore) {
+                }
+            }
+        });
+        addProperty(fileNameProperty);
+        
         addProperty(new ColorProperty(new AttributeProperty(element, "color", "Font color", true)));
+
+        registerFontFiles();
     }
 
     @Override
@@ -71,6 +93,11 @@ public class FontDef extends AbstractThemeTreeNode implements HasProperties {
 
     public Kind getKind() {
         return Kind.FONT;
+    }
+
+    public URL getFontFileURL() throws MalformedURLException {
+        String value = fileNameProperty.getPropertyValue();
+        return (value != null) ? themeFile.getURL(value) : null;
     }
 
     public void addChildren() throws IOException {
@@ -95,4 +122,26 @@ public class FontDef extends AbstractThemeTreeNode implements HasProperties {
         return operations;
     }
 
+    protected void registerFontFiles() throws IOException {
+        TestEnv env = getThemeFile().getEnv();
+        env.unregisterFiles(virtualFontFiles);
+        virtualFontFiles.clear();
+
+        URL fontFileURL = getFontFileURL();
+        if(fontFileURL != null) {
+            virtualFontFiles.add(env.registerFile(fontFileURL));
+
+            Document fontFileDOM = Utils.loadDocument(fontFileURL);
+            Element pages = fontFileDOM.getRootElement().getChild("pages");
+            if(pages != null) {
+                for(Object obj : pages.getChildren("page")) {
+                    Element page = (Element)obj;
+                    String file = page.getAttributeValue("file");
+                    if(file != null) {
+                        virtualFontFiles.add(env.registerFile(new URL(fontFileURL, file)));
+                    }
+                }
+            }
+        }
+    }
 }

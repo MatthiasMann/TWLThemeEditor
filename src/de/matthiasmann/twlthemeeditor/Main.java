@@ -49,6 +49,7 @@ import de.matthiasmann.twlthemeeditor.gui.TextureViewerPane;
 import de.matthiasmann.twlthemeeditor.gui.ThemeTreePane;
 import java.beans.IntrospectionException;
 import java.io.FileOutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -77,9 +78,6 @@ public class Main {
         final ThemeTreeModel ttm = new ThemeTreeModel(env, url);
         final Context ctx = new Context(ttm);
 
-        env.registerFile("/font.fnt", new URL(url, "font.fnt"));
-        env.registerFile("/font_00.png", new URL(url, "font_00.png"));
-        
         try {
             Display.setDisplayMode(new DisplayMode(1000, 800));
             Display.create();
@@ -104,7 +102,7 @@ public class Main {
             spTools.add(themeTreePane);
             spTools.add(scrollPane);
 
-            final PreviewPane previewPane = new PreviewPane(env);
+            final PreviewPane previewPane = new PreviewPane(ttm.getRootThemeFile().getVirtualURL());
             previewPane.setTheme("/previewpane");
 
             TextureViewerPane tvp = new TextureViewerPane();
@@ -128,7 +126,11 @@ public class Main {
                     if(obj != null) {
                         TextureViewerPane tvp = ctx.getTextureViewerPane();
                         if(tvp != null && (obj instanceof Image)) {
-                            tvp.setUrl(((Image)obj).getTextures().getTextureURL());
+                            try {
+                                tvp.setUrl(((Image)obj).getTextures().getTextureURL());
+                            } catch(MalformedURLException ex) {
+                                tvp.setUrl(null);
+                            }
                             tvp.setRect(null);
                             tvp.setTintColor(Color.WHITE);
                         }

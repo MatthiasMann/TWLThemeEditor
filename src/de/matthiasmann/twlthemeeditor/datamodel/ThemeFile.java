@@ -41,18 +41,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParser;
 
 /**
@@ -89,19 +84,8 @@ public class ThemeFile implements VirtualFile {
             }
         };
         
-        try {
-            SAXBuilder saxb = new SAXBuilder(false);
-            saxb.setEntityResolver(new EntityResolver() {
-                public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                    return new InputSource(new StringReader(""));
-                }
-            });
-            document = saxb.build(url);
-        } catch(IOException ex) {
-            throw ex;
-        } catch(Exception ex) {
-            throw new IOException(ex);
-        }
+        document = Utils.loadDocument(url);
+        env.registerFile(this);
     }
 
     public void writeTo(OutputStream out) throws IOException {
@@ -126,6 +110,10 @@ public class ThemeFile implements VirtualFile {
         return new URL(url, file);
     }
 
+    public URL getVirtualURL() throws MalformedURLException {
+        return env.getURL(url.getFile());
+    }
+    
     protected void addChildren() throws IOException {
         Utils.addChildren(this, treeNode, document.getRootElement(), new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
@@ -153,17 +141,16 @@ public class ThemeFile implements VirtualFile {
         operations.add(new CreateNewSimple(node, document.getRootElement(), "fontDef", "filename", "font.fnt", "color", "white"));
     }
 
-    public void registerAs(String fileName) {
-        this.fileName = fileName;
-        env.registerFile(fileName, this);
-    }
-
     void registerProperty(Property<?> property) {
         property.addValueChangedCallback(xmlChangedCB);
     }
     
     void fireCallbacks(CallbackReason reason) {
         CallbackSupport.fireCallbacks(callbacks, reason);
+    }
+
+    public String getVirtualFileName() {
+        return url.getFile();
     }
 
     @SuppressWarnings("unchecked")

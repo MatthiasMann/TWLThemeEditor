@@ -35,12 +35,19 @@ import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import java.io.IOException;
+import java.io.StringReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
 import org.jdom.Attribute;
+import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -260,6 +267,22 @@ public final class Utils {
         xpp.addStartTag(node, tagName, attributes);
         addToXPP(xpp, node);
         xpp.addEndTag(tagName);
+    }
+
+    public static Document loadDocument(URL url) throws IOException {
+        try {
+            SAXBuilder saxb = new SAXBuilder(false);
+            saxb.setEntityResolver(new EntityResolver() {
+                public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+                    return new InputSource(new StringReader(""));
+                }
+            });
+            return saxb.build(url);
+        } catch(IOException ex) {
+            throw ex;
+        } catch(Exception ex) {
+            throw new IOException(ex);
+        }
     }
 
     public static<T> int find(ListModel<T> list, T entry) {
