@@ -81,8 +81,9 @@ public class Include extends AbstractThemeTreeNode {
         return includedThemeFile;
     }
 
+    @Override
     public List<ThemeTreeOperation> getOperations() {
-        List<ThemeTreeOperation> operations = AbstractThemeTreeNode.getDefaultOperations(element, this);
+        List<ThemeTreeOperation> operations = super.getOperations();
         includedThemeFile.addCreateOperations(operations, this);
         return operations;
     }

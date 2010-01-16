@@ -52,7 +52,6 @@ import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import java.io.IOException;
-import java.util.List;
 import org.jdom.Element;
 
 /**
@@ -83,10 +82,6 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
 
     public void addToXPP(DomXPPParser xpp) {
         xpp.addElement(this, element);
-    }
-
-    public List<ThemeTreeOperation> getOperations() {
-        return AbstractThemeTreeNode.getDefaultOperations(element, this);
     }
 
     protected void addStandardProperties() {

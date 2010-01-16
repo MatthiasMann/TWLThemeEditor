@@ -143,12 +143,11 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
         setLeaf(getNumChildren() == 0);
     }
 
-
-    protected static List<ThemeTreeOperation> getDefaultOperations(Element element, ThemeTreeNode node) {
+    public List<ThemeTreeOperation> getOperations() {
         List<ThemeTreeOperation> result = new ArrayList<ThemeTreeOperation>();
-        result.add(new DeleteNodeOperation(element, node));
-        result.add(new MoveNodeOperations("opMoveNodeUp", element, node, -1));
-        result.add(new MoveNodeOperations("opMoveNodeDown", element, node, +1));
+        result.add(new DeleteNodeOperation(element, this));
+        result.add(new MoveNodeOperations("opMoveNodeUp", element, this, -1));
+        result.add(new MoveNodeOperations("opMoveNodeDown", element, this, +1));
         return result;
     }
 

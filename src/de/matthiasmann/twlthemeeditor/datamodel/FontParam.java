@@ -35,7 +35,6 @@ import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import java.io.IOException;
-import java.util.List;
 import org.jdom.Element;
 
 /**
@@ -73,9 +72,5 @@ public class FontParam extends AbstractThemeTreeNode implements HasProperties {
 
     public void addToXPP(DomXPPParser xpp) {
         xpp.addElement(this, element);
-    }
-
-    public List<ThemeTreeOperation> getOperations() {
-        return AbstractThemeTreeNode.getDefaultOperations(element, this);
     }
 }

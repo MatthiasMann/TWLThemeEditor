@@ -115,8 +115,9 @@ public class Theme extends AbstractThemeTreeNode implements HasProperties {
         Utils.addToXPP(xpp, element.getName(), this, element.getAttributes());
     }
 
+    @Override
     public List<ThemeTreeOperation> getOperations() {
-        List<ThemeTreeOperation> operations = AbstractThemeTreeNode.getDefaultOperations(element, this);
+        List<ThemeTreeOperation> operations = super.getOperations();
         Param.addCreateParam(operations, this, element);
         return operations;
     }

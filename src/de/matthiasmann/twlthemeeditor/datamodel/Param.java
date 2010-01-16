@@ -129,8 +129,9 @@ public class Param extends AbstractThemeTreeNode implements HasProperties {
         }
     }
 
+    @Override
     public List<ThemeTreeOperation> getOperations() {
-        List<ThemeTreeOperation> operations = AbstractThemeTreeNode.getDefaultOperations(element, this);
+        List<ThemeTreeOperation> operations = super.getOperations();
         if(isMap()) {
             addCreateParam(operations, this, valueElement);
         }
