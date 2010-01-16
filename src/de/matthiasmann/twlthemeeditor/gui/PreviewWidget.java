@@ -41,9 +41,10 @@ import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeLoadErrorTracker;
 import java.io.IOException;
+import java.nio.IntBuffer;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -51,6 +52,8 @@ import org.lwjgl.opengl.GL11;
  * @author Matthias Mann
  */
 public class PreviewWidget extends Widget {
+
+    private final IntBuffer viewPortBuffer;
 
     private TestEnv testEnv;
     private LWJGLRenderer render;
@@ -67,6 +70,7 @@ public class PreviewWidget extends Widget {
     private Object themeLoadErrorLocation;
 
     public PreviewWidget(TestEnv testEnv) {
+        this.viewPortBuffer = BufferUtils.createIntBuffer(16);
         this.testEnv = testEnv;
         setCanAcceptKeyboardFocus(true);
     }
@@ -134,10 +138,14 @@ public class PreviewWidget extends Widget {
     protected void paintWidget(GUI gui) {
         if(executeException == null && initException == null) {
             IOException prevThemeLoadException = themeLoadException;
-            
+
+            GL11.glGetInteger(GL11.GL_VIEWPORT, viewPortBuffer);
+            int viewPortTop = viewPortBuffer.get(1) + viewPortBuffer.get(3);
+
             GL11.glPushAttrib(GL11.GL_VIEWPORT_BIT);
-            GL11.glViewport(getInnerX(), Display.getDisplayMode().getHeight() -
-                    (getInnerY() + getInnerHeight()), getInnerWidth(), getInnerHeight());
+            GL11.glViewport(getInnerX(),
+                    viewPortTop - (getInnerY() + getInnerHeight()),
+                    getInnerWidth(), getInnerHeight());
 
             // CRITICAL REGION: GL STATE IS MODIFIED - DON'T CALL ANY APP CODE
             try {
