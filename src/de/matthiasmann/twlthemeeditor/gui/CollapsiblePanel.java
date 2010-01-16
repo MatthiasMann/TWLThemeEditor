@@ -182,7 +182,7 @@ public class CollapsiblePanel extends DialogLayout {
                 return super.getPreferredInnerWidth();
             }
             if(prefInnerSize < 0) {
-                prefInnerSize = computePrefferedInnerHeight();
+                prefInnerSize = computePreferredInnerSize();
             }
             return prefInnerSize;
         }
@@ -193,13 +193,13 @@ public class CollapsiblePanel extends DialogLayout {
                 return super.getPreferredInnerHeight();
             }
             if(prefInnerSize < 0) {
-                prefInnerSize = computePrefferedInnerHeight();
+                prefInnerSize = computePreferredInnerSize();
             }
             return prefInnerSize;
         }
 
         public void run() {
-            int pref = computePrefferedInnerHeight();
+            int pref = computePreferredInnerSize();
             if(pref == prefInnerSize) {
                 timer.stop();
             } else if(prefInnerSize < pref) {
@@ -211,7 +211,7 @@ public class CollapsiblePanel extends DialogLayout {
             checkSize();
         }
 
-        private int computePrefferedInnerHeight() {
+        private int computePreferredInnerSize() {
             if(!expanded) {
                 return 0;
             }
