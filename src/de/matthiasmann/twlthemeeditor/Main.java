@@ -39,7 +39,6 @@ import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Include;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.gui.Context;
@@ -149,11 +148,11 @@ public class Main {
             
             themeTreePane.addCallback(updatePropertyEditors);
 
-            ttm.getRootThemeFile().addCallback(new CallbackWithReason<ThemeFile.CallbackReason>() {
-                public void callback(ThemeFile.CallbackReason reason) {
+            ttm.addCallback(new CallbackWithReason<ThemeTreeModel.CallbackReason>() {
+                public void callback(ThemeTreeModel.CallbackReason reason) {
                     ttm.setErrorLocation(null);
                     previewPane.reloadTheme();
-                    if(reason == ThemeFile.CallbackReason.STRUCTURE_CHANGED) {
+                    if(reason == ThemeTreeModel.CallbackReason.STRUCTURE_CHANGED) {
                         updatePropertyEditors.run();
                     }
                 }

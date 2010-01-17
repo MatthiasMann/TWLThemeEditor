@@ -29,9 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile.CallbackReason;
 import java.io.IOException;
 import java.util.List;
 import org.jdom.Element;
@@ -47,13 +45,7 @@ public class Include extends AbstractThemeTreeNode {
     public Include(TreeTableNode parent, Element element, final ThemeFile themeFile) throws IOException {
         super(themeFile, parent, element);
 
-        this.includedThemeFile = new ThemeFile(themeFile.getEnv(), themeFile.getURL(getFileName()));
-
-        includedThemeFile.addCallback(new CallbackWithReason<ThemeFile.CallbackReason>() {
-            public void callback(CallbackReason reason) {
-                themeFile.fireCallbacks(reason);
-            }
-        });
+        this.includedThemeFile = themeFile.createThemeFile(getFileName());
     }
     
     @Override

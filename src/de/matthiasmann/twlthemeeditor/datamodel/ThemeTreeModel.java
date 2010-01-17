@@ -29,14 +29,14 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.model.AbstractTreeTableModel;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.TestEnv;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile.CallbackReason;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,12 +45,25 @@ import java.util.List;
  */
 public class ThemeTreeModel extends AbstractTreeTableModel {
 
+    public enum CallbackReason {
+        ATTRIBUTE_CHANGED,
+        STRUCTURE_CHANGED
+    }
+
+    private final Runnable xmlChangedCB;
     private final ThemeFile rootThemeFile;
     private final ThemeTreeRootNode rootNode;
     private ThemeTreeNode curErrorLocation;
 
+    private CallbackWithReason<?>[] callbacks;
+
     public ThemeTreeModel(TestEnv env, URL url) throws IOException {
-        rootThemeFile = new ThemeFile(env, url);
+        xmlChangedCB = new Runnable() {
+            public void run() {
+                fireCallbacks(CallbackReason.ATTRIBUTE_CHANGED);
+            }
+        };
+        rootThemeFile = new ThemeFile(env, url, xmlChangedCB);
         rootNode = new ThemeTreeRootNode(rootThemeFile, this);
 
         insertChild(rootNode, 0);
@@ -115,37 +128,32 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
         }
     }
 
-    public List<ThemeTreeOperation> getOperations() {
-        return Collections.<ThemeTreeOperation>emptyList();
-    }
-
     public void handleNodeRenamed(String from, String to, Kind kind) {
         rootNode.handleNodeRenamed(from, to, kind);
     }
 
-    void fireCallbacks(CallbackReason reason) {
-        rootThemeFile.fireCallbacks(reason);
+    public void addCallback(CallbackWithReason<CallbackReason> cb) {
+        callbacks = CallbackSupport.addCallbackToList(callbacks, cb, CallbackWithReason.class);
     }
 
-    private void structureModified() {
-        fireCallbacks(CallbackReason.STRUCTURE_CHANGED);
+    public void removeCallbacks(CallbackWithReason<CallbackReason> cb) {
+        callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
+    }
+
+    void fireCallbacks(CallbackReason reason) {
+        CallbackSupport.fireCallbacks(callbacks, reason);
     }
 
     @Override
     protected void fireNodesAdded(TreeTableNode parent, int idx, int count) {
         super.fireNodesAdded(parent, idx, count);
-        structureModified();
-    }
-
-    @Override
-    protected void fireNodesChanged(TreeTableNode parent, int idx, int count) {
-        super.fireNodesChanged(parent, idx, count);
+        fireCallbacks(CallbackReason.STRUCTURE_CHANGED);
     }
 
     @Override
     protected void fireNodesRemoved(TreeTableNode parent, int idx, int count) {
         super.fireNodesRemoved(parent, idx, count);
-        structureModified();
+        fireCallbacks(CallbackReason.STRUCTURE_CHANGED);
     }
 
 }

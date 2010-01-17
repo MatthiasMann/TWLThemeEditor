@@ -29,10 +29,8 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.XMLWriter;
@@ -56,11 +54,6 @@ import org.xmlpull.v1.XmlPullParser;
  */
 public class ThemeFile implements VirtualFile {
 
-    public enum CallbackReason {
-        ATTRIBUTE_CHANGED,
-        STRUCTURE_CHANGED
-    }
-
     private final TestEnv env;
     private final URL url;
     private final Document document;
@@ -68,16 +61,11 @@ public class ThemeFile implements VirtualFile {
 
     private ThemeTreeNode treeNode;
     private String fileName;
-    private CallbackWithReason<?>[] callbacks;
 
-    public ThemeFile(TestEnv env, URL url) throws IOException {
+    public ThemeFile(TestEnv env, URL url, Runnable xmlChangedCB) throws IOException {
         this.env = env;
         this.url = url;
-        this.xmlChangedCB = new Runnable() {
-            public void run() {
-                fireCallbacks(CallbackReason.ATTRIBUTE_CHANGED);
-            }
-        };
+        this.xmlChangedCB = xmlChangedCB;
         
         document = Utils.loadDocument(url);
         env.registerFile(this);
@@ -87,14 +75,6 @@ public class ThemeFile implements VirtualFile {
         Writer w = new XMLWriter(new OutputStreamWriter(out, "UTF8"));
         new XMLOutputter().output(document, w);
         w.flush();
-    }
-
-    public void addCallback(CallbackWithReason<CallbackReason> cb) {
-        callbacks = CallbackSupport.addCallbackToList(callbacks, cb, CallbackWithReason.class);
-    }
-
-    public void removeCallbacks(CallbackWithReason<CallbackReason> cb) {
-        callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
     }
 
     public TestEnv getEnv() {
@@ -107,6 +87,10 @@ public class ThemeFile implements VirtualFile {
     
     public URL getURL(String file) throws MalformedURLException {
         return new URL(url, file);
+    }
+
+    public ThemeFile createThemeFile(String file) throws IOException {
+        return new ThemeFile(env, getURL(file), xmlChangedCB);
     }
 
     public URL getVirtualURL() throws MalformedURLException {
@@ -143,10 +127,6 @@ public class ThemeFile implements VirtualFile {
 
     void registerProperty(Property<?> property) {
         property.addValueChangedCallback(xmlChangedCB);
-    }
-    
-    void fireCallbacks(CallbackReason reason) {
-        CallbackSupport.fireCallbacks(callbacks, reason);
     }
 
     public String getVirtualFileName() {
