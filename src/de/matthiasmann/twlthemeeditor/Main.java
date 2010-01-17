@@ -72,8 +72,6 @@ public class Main extends Frame implements WindowFocusListener, WindowListener, 
     private volatile boolean closeRequested;
     private volatile boolean canvasSizeChanged;
 
-    private ThemeTreeModel model;
-    
     public Main() {
         super("TWL Theme editor");
 
