@@ -336,7 +336,31 @@
         <theme name="" ref="*"/>
     </theme>
 
-    <theme name="editorarea" ref="-defaults">
+    <theme name="mainMenu-popupMenu" ref="-defaults">
+        <param name="background"><image>frame.background</image></param>
+        <param name="border"><border>5</border></param>
+        <theme name="menuitem" ref="popupMenuButton"/>
+        <theme name="spacer" ref="-defaults">
+            <param name="background"><image>panel.separator</image></param>
+            <param name="maxWidth"><int>32767</int></param>
+        </theme>
+    </theme>
+    
+    <theme name="mainui" ref="dialoglayout">
+        <param name=""><image>panel.*</image></param>
+        <param name="border"><border>background.border</border></param>
+        <theme name="mainmenu" ref="popupMenuButton">
+        </theme>
+        <theme name="editorarea" ref="-defaults">
+            <theme name="" ref="*"/>
+            <param name="maxWidth"><int>32767</int></param>
+            <param name="maxHeight"><int>32767</int></param>
+        </theme>
+    </theme>
+
+    <theme name="fileselector-popup" ref="-defaults">
+        <param name="background"><image>frame.background</image></param>
+        <param name="border"><border>20</border></param>
         <theme name="" ref="*"/>
     </theme>
 </themes>

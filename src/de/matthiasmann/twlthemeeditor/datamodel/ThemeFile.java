@@ -84,6 +84,10 @@ public class ThemeFile implements VirtualFile {
     public Element getRootElement() {
         return document.getRootElement();
     }
+
+    public URL getURL() {
+        return url;
+    }
     
     public URL getURL(String file) throws MalformedURLException {
         return new URL(url, file);

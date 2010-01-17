@@ -392,7 +392,6 @@
         <theme name="listbox" ref="listbox"/>
     </theme>
 
-    <!--
     <theme name="fileselector" ref="dialoglayout" allowWildcard="true">
         <theme name="label" ref="label"/>
         <theme name="currentFolder" ref="treecombobox">
@@ -486,7 +485,6 @@
             </theme>
         </theme>
     </theme>
-    -->
 
     <theme name="graph" ref="-defaults" allowWildcard="true">
         <param name="background"><image>-borderC</image></param>

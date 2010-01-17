@@ -180,9 +180,13 @@ public class ThemeTreePane extends DialogLayout {
     }
 
     public void setModel(ThemeTreeModel model) {
-        filteredModel = new FilteredModel(model);
         treeTable.setModel(model);
-        treeTable.setRowExpanded(0, true);
+        if(model == null) {
+            filteredModel = null;
+        } else {
+            treeTable.setRowExpanded(0, true);
+            filteredModel = new FilteredModel(model);
+        }
         table.setModel(filteredModel);
         updateFilter();
     }

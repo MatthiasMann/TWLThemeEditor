@@ -32,51 +32,82 @@ package de.matthiasmann.twlthemeeditor;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
-import de.matthiasmann.twlthemeeditor.datamodel.Include;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
-import de.matthiasmann.twlthemeeditor.gui.EditorArea;
-import java.io.FileOutputStream;
-import java.net.URL;
+import de.matthiasmann.twlthemeeditor.gui.MainUI;
+import java.awt.BorderLayout;
+import java.awt.Canvas;
+import java.awt.Frame;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowListener;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Main {
+public class Main extends Frame implements WindowFocusListener, WindowListener, ComponentListener {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) throws Exception {
         try {
             System.setProperty("org.lwjgl.input.Mouse.allowNegativeMouseCoords", "true");
-        } catch (Throwable unused) {
+        } catch (Throwable ignored) {
         }
-        
-        URL url = Main.class.getResource("gui.xml");
-        final ThemeTreeModel ttm = new ThemeTreeModel(url);
 
+        Main main = new Main();
+        main.setSize(
+                Display.getDesktopDisplayMode().getWidth()*4/5,
+                Display.getDesktopDisplayMode().getHeight()*4/5);
+        main.setLocationRelativeTo(null);
+        main.setVisible(true);
+        main.run();
+        main.dispose();
+    }
+
+    private final Canvas canvas;
+    
+    private volatile boolean closeRequested;
+    private volatile boolean canvasSizeChanged;
+
+    private ThemeTreeModel model;
+    
+    public Main() {
+        super("TWL Theme editor");
+
+        canvas = new Canvas();
+        canvas.addComponentListener(this);
+
+        add(canvas, BorderLayout.CENTER);
+        addWindowFocusListener(this);
+        addWindowListener(this);
+    }
+
+    public void run() {
         try {
-            Display.setDisplayMode(new DisplayMode(1000, 800));
+            Display.setParent(canvas);
             Display.create();
-            Display.setTitle("TWL Theme Editor");
             Display.setVSyncEnabled(true);
 
             LWJGLRenderer renderer = new LWJGLRenderer();
-            EditorArea root = new EditorArea();
+            MainUI root = new MainUI();
             GUI gui = new GUI(root, renderer);
 
             root.setFocusKeyEnabled(true);
-            root.setModel(ttm);
 
             ThemeManager theme = ThemeManager.createThemeManager(
                     Main.class.getResource("gui.xml"), renderer);
             gui.applyTheme(theme);
 
-            while(!Display.isCloseRequested()) {
+            while(!Display.isCloseRequested() && !closeRequested && !root.isCloseRequested()) {
+                if(canvasSizeChanged) {
+                    canvasSizeChanged = false;
+                    GL11.glViewport(0, 0, canvas.getWidth(), canvas.getHeight());
+                    renderer.syncViewportSize();
+                }
+                
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
                 gui.update();
@@ -89,24 +120,50 @@ public class Main {
             ex.printStackTrace();
         }
         Display.destroy();
+    }
 
-        FileOutputStream fos = new FileOutputStream("test.xml");
-        try {
-            ttm.getRootThemeFile().writeTo(fos);
-        } finally {
-            fos.close();
-        }
+    @Override
+    public void windowClosing(WindowEvent e) {
+        closeRequested = true;
+    }
+    
+    @Override
+    public void windowGainedFocus(WindowEvent e) {
+        canvas.requestFocusInWindow();
+    }
 
-        int i=1;
-        for(Include inc : ttm.getTopLevelNodes(Include.class)) {
-            fos = new FileOutputStream("test"+i+".xml");
-            try {
-                inc.getIncludedThemeFile().writeTo(fos);
-            } finally {
-                fos.close();
-            }
-            i++;
-        }
+    public void windowLostFocus(WindowEvent e) {
+    }
+
+    public void windowActivated(WindowEvent e) {
+    }
+
+    public void windowClosed(WindowEvent e) {
+    }
+
+    public void windowDeactivated(WindowEvent e) {
+    }
+
+    public void windowDeiconified(WindowEvent e) {
+    }
+
+    public void windowIconified(WindowEvent e) {
+    }
+
+    public void windowOpened(WindowEvent e) {
+    }
+
+    public void componentHidden(ComponentEvent e) {
+    }
+
+    public void componentMoved(ComponentEvent e) {
+    }
+
+    public void componentResized(ComponentEvent e) {
+        canvasSizeChanged = true;
+    }
+
+    public void componentShown(ComponentEvent e) {
     }
 
 }
