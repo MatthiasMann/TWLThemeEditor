@@ -69,10 +69,14 @@ public class PreviewWidget extends Widget {
     private IOException themeLoadException;
     private Object themeLoadErrorLocation;
 
-    public PreviewWidget(URL url) {
+    public PreviewWidget() {
         this.viewPortBuffer = BufferUtils.createIntBuffer(16);
-        this.url = url;
         setCanAcceptKeyboardFocus(true);
+    }
+
+    public void setURL(URL url) {
+        this.url = url;
+        this.reloadTheme = true;
     }
 
     public void reloadTheme() {
@@ -214,7 +218,7 @@ public class PreviewWidget extends Widget {
 
     private boolean loadTheme() {
         reloadTheme = false;
-        if(themeLoadException == null) {
+        if(themeLoadException == null && url != null) {
             ThemeLoadErrorTracker tracker = new ThemeLoadErrorTracker();
             ThemeLoadErrorTracker.push(tracker);
 

@@ -108,6 +108,10 @@ public class Context {
         return factory;
     }
 
+    public ThemeTreeModel getThemeTreeModel() {
+        return model;
+    }
+
     public TextureViewerPane getTextureViewerPane() {
         return textureViewerPane;
     }

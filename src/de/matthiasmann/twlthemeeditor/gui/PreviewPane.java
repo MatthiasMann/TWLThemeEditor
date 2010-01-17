@@ -53,8 +53,8 @@ public class PreviewPane extends DialogLayout {
     private final Button btnClearStackTrace;
     private final Button btnShowStackTrace;
 
-    public PreviewPane(URL url) {
-        this.previewWidget = new PreviewWidget(url);
+    public PreviewPane() {
+        this.previewWidget = new PreviewWidget();
         this.labelErrorDisplay = new Label() {
             @Override
             public int getMinWidth() {
@@ -91,6 +91,10 @@ public class PreviewPane extends DialogLayout {
                 showStackTrace();
             }
         });
+    }
+
+    public void setURL(URL url) {
+        previewWidget.setURL(url);
     }
 
     public void reloadTheme() {

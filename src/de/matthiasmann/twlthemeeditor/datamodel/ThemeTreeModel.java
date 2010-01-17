@@ -57,13 +57,13 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
 
     private CallbackWithReason<?>[] callbacks;
 
-    public ThemeTreeModel(TestEnv env, URL url) throws IOException {
+    public ThemeTreeModel(URL url) throws IOException {
         xmlChangedCB = new Runnable() {
             public void run() {
                 fireCallbacks(CallbackReason.ATTRIBUTE_CHANGED);
             }
         };
-        rootThemeFile = new ThemeFile(env, url, xmlChangedCB);
+        rootThemeFile = new ThemeFile(new TestEnv(), url, xmlChangedCB);
         rootNode = new ThemeTreeRootNode(rootThemeFile, this);
 
         insertChild(rootNode, 0);

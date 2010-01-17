@@ -34,7 +34,6 @@ import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
-import java.beans.IntrospectionException;
 
 /**
  *
@@ -44,7 +43,7 @@ public class PropertyPanel extends DialogLayout {
 
     protected final Context ctx;
 
-    public PropertyPanel(Context ctx, Property<?>[] properties) throws IntrospectionException {
+    public PropertyPanel(Context ctx, Property<?>[] properties) {
         this.ctx = ctx;
         
         setHorizontalGroup(createParallelGroup());

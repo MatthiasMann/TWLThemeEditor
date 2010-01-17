@@ -29,29 +29,14 @@
  */
 package de.matthiasmann.twlthemeeditor;
 
-import de.matthiasmann.twl.CallbackWithReason;
-import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.GUI;
-import de.matthiasmann.twl.ScrollPane;
-import de.matthiasmann.twl.SplitPane;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
-import de.matthiasmann.twlthemeeditor.properties.HasProperties;
-import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Include;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
-import de.matthiasmann.twlthemeeditor.gui.Context;
-import de.matthiasmann.twlthemeeditor.gui.PreviewPane;
-import de.matthiasmann.twlthemeeditor.gui.PropertyPanel;
-import de.matthiasmann.twlthemeeditor.gui.TextureViewerPane;
-import de.matthiasmann.twlthemeeditor.gui.ThemeTreePane;
-import java.beans.IntrospectionException;
+import de.matthiasmann.twlthemeeditor.gui.EditorArea;
 import java.io.FileOutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
@@ -71,11 +56,8 @@ public class Main {
         } catch (Throwable unused) {
         }
         
-        final TestEnv env = new TestEnv();
-
         URL url = Main.class.getResource("gui.xml");
-        final ThemeTreeModel ttm = new ThemeTreeModel(env, url);
-        final Context ctx = new Context(ttm);
+        final ThemeTreeModel ttm = new ThemeTreeModel(url);
 
         try {
             Display.setDisplayMode(new DisplayMode(1000, 800));
@@ -84,90 +66,11 @@ public class Main {
             Display.setVSyncEnabled(true);
 
             LWJGLRenderer renderer = new LWJGLRenderer();
-            SplitPane root = new SplitPane();
+            EditorArea root = new EditorArea();
             GUI gui = new GUI(root, renderer);
 
-            final ThemeTreePane themeTreePane = new ThemeTreePane();
-            themeTreePane.setTheme("/themetreepane");
-            themeTreePane.setModel(ttm);
-
-            final ScrollPane scrollPane = new ScrollPane();
-            scrollPane.setTheme("/propertyEditor");
-            scrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
-
-            SplitPane spTools = new SplitPane();
-            spTools.setTheme("/splitpane");
-            spTools.setDirection(SplitPane.Direction.VERTICAL);
-            spTools.add(themeTreePane);
-            spTools.add(scrollPane);
-
-            final PreviewPane previewPane = new PreviewPane(ttm.getRootThemeFile().getVirtualURL());
-            previewPane.setTheme("/previewpane");
-
-            TextureViewerPane tvp = new TextureViewerPane();
-            tvp.setTheme("/textureviewerpane");
-
-            SplitPane sp2 = new SplitPane();
-            sp2.setDirection(SplitPane.Direction.VERTICAL);
-            sp2.add(tvp);
-            sp2.add(previewPane);
-            
-            root.add(spTools);
-            root.add(sp2);
-            root.setSplitPosition(300);
             root.setFocusKeyEnabled(true);
-
-            ctx.setTextureViewerPane(tvp);
-
-            final Runnable updatePropertyEditors = new DelayedAction(gui, new Runnable() {
-                public void run() {
-                    Object obj = themeTreePane.getSelected();
-                    if(obj != null) {
-                        TextureViewerPane tvp = ctx.getTextureViewerPane();
-                        if(tvp != null && (obj instanceof Image)) {
-                            try {
-                                tvp.setUrl(((Image)obj).getTextures().getTextureURL());
-                            } catch(MalformedURLException ex) {
-                                tvp.setUrl(null);
-                            }
-                            tvp.setRect(null);
-                            tvp.setTintColor(Color.WHITE);
-                        }
-                        if(obj instanceof HasProperties) {
-                            try {
-                                PropertyPanel propertyPanel = new PropertyPanel(
-                                        ctx, ((HasProperties)obj).getProperties());
-                                scrollPane.setContent(propertyPanel);
-                            } catch (IntrospectionException ex) {
-                                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        }
-                    }
-                }
-            });
-            
-            themeTreePane.addCallback(updatePropertyEditors);
-
-            ttm.addCallback(new CallbackWithReason<ThemeTreeModel.CallbackReason>() {
-                public void callback(ThemeTreeModel.CallbackReason reason) {
-                    ttm.setErrorLocation(null);
-                    previewPane.reloadTheme();
-                    if(reason == ThemeTreeModel.CallbackReason.STRUCTURE_CHANGED) {
-                        updatePropertyEditors.run();
-                    }
-                }
-            });
-
-            previewPane.addCallback(new Runnable() {
-                public void run() {
-                    Object loc = previewPane.getThemeLoadErrorLocation();
-                    if(loc instanceof ThemeTreeNode) {
-                        ttm.setErrorLocation((ThemeTreeNode)loc);
-                    } else {
-                        ttm.setErrorLocation(null);
-                    }
-                }
-            });
+            root.setModel(ttm);
 
             ThemeManager theme = ThemeManager.createThemeManager(
                     Main.class.getResource("gui.xml"), renderer);

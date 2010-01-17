@@ -335,4 +335,8 @@
         </theme>
         <theme name="" ref="*"/>
     </theme>
+
+    <theme name="editorarea" ref="-defaults">
+        <theme name="" ref="*"/>
+    </theme>
 </themes>
