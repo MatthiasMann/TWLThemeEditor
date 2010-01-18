@@ -164,7 +164,7 @@ public class MainUI extends DialogLayout {
     public void saveProject() {
         if(model != null && projectDir != null) {
             saveThemeFile(model.getRootThemeFile());
-            for(Include inc : model.getTopLevelNodes(Include.class)) {
+            for(Include inc : model.getTopLevelNodes(Include.class, null)) {
                 saveThemeFile(inc.getIncludedThemeFile());
             }
         }

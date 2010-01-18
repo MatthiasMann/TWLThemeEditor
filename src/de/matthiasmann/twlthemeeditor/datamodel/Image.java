@@ -191,13 +191,8 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
             if("none".equals(name)) {
                 throw new IllegalArgumentException("\"none\" is a reserved name");
             }
-            for(Image img : getThemeTreeModel().getImages()) {
-                if(img != Image.this && img.getKind() == getKind()) {
-                    String imgName = img.getName();
-                    if(name.equals(imgName)) {
-                        throw new IllegalArgumentException("Name \"" + name + "\" already in use");
-                    }
-                }
+            if(getThemeTreeModel().findImage(getKind(), name, Image.this) != null) {
+                throw new IllegalArgumentException("Name \"" + name + "\" already in use");
             }
         }
     }

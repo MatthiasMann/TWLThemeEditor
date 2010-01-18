@@ -33,6 +33,7 @@ import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.utils.TypeMapping;
+import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
@@ -88,13 +89,14 @@ public class Context {
         SimpleChangableListModel<String> result = new SimpleChangableListModel<String>();
         if(kind == Kind.IMAGE) {
             result.addElement("none");
-        }
-        for(ThemeTreeNode node : model.getTopLevelNodes(ThemeTreeNode.class)) {
-            if(node == stopAt) {
-                break;
+            for(Image img : model.getImages(stopAt)) {
+                result.addElement(img.getName());
             }
-            if(node.getKind() == kind) {
-                result.addElement(node.getName());
+        } else {
+            for(ThemeTreeNode node : model.getTopLevelNodes(ThemeTreeNode.class, stopAt)) {
+                if(node.getKind() == kind) {
+                    result.addElement(node.getName());
+                }
             }
         }
         return result;

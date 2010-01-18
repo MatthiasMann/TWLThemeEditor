@@ -84,24 +84,40 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
         return rootThemeFile;
     }
 
-    public<E extends TreeTableNode> List<E> getTopLevelNodes(Class<E> clazz) {
+    public<E extends TreeTableNode> List<E> getTopLevelNodes(Class<E> clazz, TreeTableNode stopAt) {
+        TreeTablePath stopAtPath = TreeTablePath.create(stopAt);
         List<E> result = new ArrayList<E>();
-        processInclude(rootNode, clazz, result);
+        processInclude(rootNode, clazz, result, stopAtPath);
         return result;
     }
 
-    public List<Image> getImages() {
+    public List<Image> getImages(TreeTableNode stopAt) {
+        TreeTablePath stopAtPath = TreeTablePath.create(stopAt);
         ArrayList<Image> result = new ArrayList<Image>();
-        for(Textures t : getTopLevelNodes(Textures.class)) {
-            result.addAll(t.getChildren(Image.class));
+        outer: for(Textures t : getTopLevelNodes(Textures.class, null)) {
+            for(Image img : t.getChildren(Image.class)) {
+                if(stopAtPath != null && stopAtPath.compareTo(img) <= 0) {
+                    break outer;
+                }
+                result.add(img);
+            }
         }
         return result;
     }
 
     public<E extends ThemeTreeNode> E findTopLevelNodes(Class<E> clazz, String name, E exclude) {
-        for(E e : getTopLevelNodes(clazz)) {
+        for(E e : getTopLevelNodes(clazz, null)) {
             if(e != exclude && name.equals(e.getName())) {
                 return e;
+            }
+        }
+        return null;
+    }
+
+    public Image findImage(Kind kind, String name, Image exclude) {
+        for(Image img : getImages(null)) {
+            if(img != exclude && img.getKind() == kind && name.equals(img.getName())) {
+                return img;
             }
         }
         return null;
@@ -117,11 +133,14 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
         }
     }
 
-    private <E extends TreeTableNode> void processInclude(TreeTableNode node, Class<E> clazz, List<E> result) {
+    private <E extends TreeTableNode> void processInclude(TreeTableNode node, Class<E> clazz, List<E> result, TreeTablePath stopAtPath) {
         for(int i=0,n=node.getNumChildren() ; i<n ; i++) {
             TreeTableNode child = node.getChild(i);
+            if(stopAtPath != null && stopAtPath.compareTo(child) <= 0) {
+                break;
+            }
             if(child instanceof Include) {
-                processInclude((Include)child, clazz, result);
+                processInclude((Include)child, clazz, result, stopAtPath);
             } else if(clazz.isInstance(child)) {
                 result.add(clazz.cast(child));
             }
