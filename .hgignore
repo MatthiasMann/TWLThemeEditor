@@ -6,4 +6,7 @@
 ^src/de/matthiasmann/twlthemeeditor/Eforen\.png$
 ^src/de/matthiasmann/twlthemeeditor/EforenArrows\.png$
 ^src/de/matthiasmann/twlthemeeditor/Eforen\.xml$
-^test\.xml$
+^src/de/matthiasmann/twlthemeeditor/simple\.xml\.old$
+^src/de/matthiasmann/twlthemeeditor/gui_base\.xml\.old$
+^src/de/matthiasmann/twlthemeeditor/gui\.xml\.old$
+^hudson\.keystore$

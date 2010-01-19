@@ -10,6 +10,7 @@
 <project name="TWLThemeEditor" default="default" basedir=".">
     <description>Builds, tests, and runs the project TWLThemeEditor.</description>
     <import file="nbproject/build-impl.xml"/>
+    <import file="nbproject/profiler-build-impl.xml"/>
     <!--
 
     There exist several targets which are by default empty and which can be 
@@ -71,4 +72,64 @@
     nbproject/build-impl.xml file. 
 
     -->
+
+    <target name="makeNativeJars">
+        <echo message=""/>
+        <parallel>
+            <jar destfile="${dist.dir}/lwjgl-win.jar" basedir="${natives.lwjgl}" compress="true" level="9">
+                <include name="lwjgl*.dll"/>
+            </jar>
+            <jar destfile="${dist.dir}/lwjgl-linux.jar" basedir="${natives.lwjgl}" compress="true" level="9">
+                <include name="liblwjgl*.so"/>
+            </jar>
+            <jar destfile="${dist.dir}/lwjgl-mac.jar" basedir="${natives.lwjgl}" compress="true" level="9">
+                <include name="liblwjgl.jnilib"/>
+            </jar>
+        </parallel>
+    </target>
+
+    <target name="createWebStart" depends="makeNativeJars">
+        <taskdef name="p200ant"
+            classname="de.matthiasmann.p200ant.P200AntTask"
+            classpath="${libs.p200ant.classpath}"/>
+
+        <delete file="hudson.keystore"/>
+        <genkey validity="14" dname="CN=TWL Theme Editor" alias="TWLThemeEditor" storepass="hudson" keystore="hudson.keystore"/>
+
+        <copy file="${reference.TWL.jar}" todir="${dist.dir}"/>
+
+        <copy todir="${dist.dir}" flatten="true">
+            <path>
+                <pathelement path="${libs.LWJGL.classpath}"/>
+                <pathelement path="${libs.MXP1.classpath}"/>
+                <pathelement path="${libs.jdom.classpath}"/>
+                <fileset dir="." includes="*.jnlp"/>
+            </path>
+        </copy>
+
+        <fileset id="jars2pack" dir="${dist.dir}">
+            <include name="*.jar"/>
+            <exclude name="lwjgl-*.jar"/>
+        </fileset>
+
+        <p200ant repack="true" singlesegment="true">
+            <fileset refid="jars2pack"/>
+        </p200ant>
+
+        <signjar alias="TWLThemeEditor" storepass="hudson" keystore="hudson.keystore">
+            <fileset dir="${dist.dir}">
+                <include name="*.jar"/>
+            </fileset>
+        </signjar>
+
+        <p200ant destdir="${dist.dir}" singlesegment="true" gzip="true">
+            <fileset refid="jars2pack"/>
+        </p200ant>
+
+        <delete>
+            <fileset dir="${dist.dir}" includes="README.TXT"/>
+        </delete>
+    </target>
+
+    <target name="-post-jar" depends="createWebStart"/>
 </project>
