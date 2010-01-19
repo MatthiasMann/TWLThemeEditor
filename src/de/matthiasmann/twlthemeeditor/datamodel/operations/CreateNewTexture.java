@@ -44,12 +44,12 @@ public class CreateNewTexture extends CreateNewSimple {
     }
 
     @Override
-    protected void addChild(Element e) throws IOException {
+    protected ThemeTreeNode addChild(Element e) throws IOException {
         e.setAttribute("x", "0");
         e.setAttribute("y", "0");
         e.setAttribute("width", "1");
         e.setAttribute("height", "1");
-        super.addChild(e);
+        return super.addChild(e);
     }
     
 }

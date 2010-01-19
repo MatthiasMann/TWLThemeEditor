@@ -171,40 +171,44 @@ public class MainUI extends DialogLayout {
     }
 
     void saveThemeFile(ThemeFile themeFile) {
-        try {
-            String relative = projectDir.toURI().relativize(themeFile.getURL().toURI()).getPath();
-
-            File file = new File(projectDir, relative);
-            File oldFile = new File(projectDir, relative.concat(".old"));
-            File tmpFile = new File(projectDir, relative.concat(".tmp"));
+        if(themeFile.isModified()) {
             try {
-                FileOutputStream fos = new FileOutputStream(tmpFile);
-                try {
-                    themeFile.writeTo(fos);
-                } finally {
-                    fos.close();
-                }
-            } catch(IOException ex) {
-                Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE,
-                        "Can't write XML to file: " + tmpFile, ex);
-                return;
-            }
+                String relative = projectDir.toURI().relativize(themeFile.getURL().toURI()).getPath();
 
-            if(oldFile.exists() && !oldFile.delete()) {
-                Logger.getLogger(MainUI.class.getName()).log(Level.WARNING,
-                        "Can't delete old file: " + oldFile);
+                File file = new File(projectDir, relative);
+                File oldFile = new File(projectDir, relative.concat(".old"));
+                File tmpFile = new File(projectDir, relative.concat(".tmp"));
+                try {
+                    FileOutputStream fos = new FileOutputStream(tmpFile);
+                    try {
+                        themeFile.writeTo(fos);
+                    } finally {
+                        fos.close();
+                    }
+                } catch(IOException ex) {
+                    Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE,
+                            "Can't write XML to file: " + tmpFile, ex);
+                    return;
+                }
+
+                if(oldFile.exists() && !oldFile.delete()) {
+                    Logger.getLogger(MainUI.class.getName()).log(Level.WARNING,
+                            "Can't delete old file: " + oldFile);
+                }
+                if(!file.renameTo(oldFile)) {
+                    Logger.getLogger(MainUI.class.getName()).log(Level.WARNING,
+                            "Can't rename file: " + file + " to " + oldFile);
+                }
+                if(!tmpFile.renameTo(file)) {
+                    Logger.getLogger(MainUI.class.getName()).log(Level.WARNING,
+                            "Can't rename file: " + tmpFile + " to " + file);
+                }
+
+                themeFile.setModified(false);
+            } catch(URISyntaxException ex) {
+                Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE,
+                        "Can't determine file location for: " + themeFile.getURL(), ex);
             }
-            if(!file.renameTo(oldFile)) {
-                Logger.getLogger(MainUI.class.getName()).log(Level.WARNING,
-                        "Can't rename file: " + file + " to " + oldFile);
-            }
-            if(!tmpFile.renameTo(file)) {
-                Logger.getLogger(MainUI.class.getName()).log(Level.WARNING,
-                        "Can't rename file: " + tmpFile + " to " + file);
-            }
-        } catch(URISyntaxException ex) {
-            Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE,
-                    "Can't determine file location for: " + themeFile.getURL(), ex);
         }
     }
 

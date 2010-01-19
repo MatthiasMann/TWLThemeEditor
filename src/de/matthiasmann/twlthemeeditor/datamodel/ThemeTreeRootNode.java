@@ -63,6 +63,12 @@ public class ThemeTreeRootNode extends AbstractThemeTreeNode {
         return Kind.NONE;
     }
 
+    @Override
+    protected boolean isModified() {
+        return themeFile.isModified();
+    }
+
+    @Override
     public List<ThemeTreeOperation> getOperations() {
         ArrayList<ThemeTreeOperation> operations = new ArrayList<ThemeTreeOperation>();
         themeFile.addCreateOperations(operations, this);

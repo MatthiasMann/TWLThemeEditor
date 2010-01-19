@@ -57,6 +57,11 @@ public class Include extends AbstractThemeTreeNode {
         return Kind.NONE;
     }
 
+    @Override
+    protected boolean isModified() {
+        return includedThemeFile.isModified();
+    }
+
     public String getFileName() {
         return element.getAttributeValue("filename");
     }

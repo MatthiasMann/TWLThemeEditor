@@ -27,60 +27,45 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
-import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
-import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
-import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
-import de.matthiasmann.twlthemeeditor.properties.HasProperties;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import java.io.IOException;
-import java.util.List;
+import org.jdom.Content;
 import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public class FontParam extends AbstractThemeTreeNode implements HasProperties {
+public class CloneNodeOperation extends ElementOperation {
 
-    protected final ConditionProperty conditionProperty;
-
-    public FontParam(ThemeFile themeFile, TreeTableNode parent, Element element) {
-        super(themeFile, parent, element);
-
-        conditionProperty = new ConditionProperty(
-                new AttributeProperty(element, "if", "if", true),
-                new AttributeProperty(element, "unless", "unless", true),
-                "Condition");
-        addProperty(conditionProperty);
-        
-        addProperty(new ColorProperty(new AttributeProperty(element, "color", "Font color", true)));
+    public CloneNodeOperation(Element element, ThemeTreeNode node) {
+        super(null, "opCloneNode", element, node);
     }
 
     @Override
-    public String getName() {
-        Condition condition = conditionProperty.getPropertyValue();
-        return condition.getType() + " " + condition.getCondition();
-    }
+    public ThemeTreeNode execute() throws IOException {
+        int elementPos = getElementPosition();
+        int elementTextPos = getPrevSiblingPosition(elementPos) + 1;
 
-    public Kind getKind() {
-        return Kind.NONE;
-    }
+        Element cloneElement = null;
 
-    public void addChildren() throws IOException {
-    }
+        for(int i=elementPos ; i>=elementTextPos ; i--) {
+            Content content = parent.getContent(i);
+            Content clone = (Content)content.clone();
+            if(clone instanceof Element) {
+                cloneElement = (Element)clone;
+                String name = cloneElement.getAttributeValue("name");
+                if(name != null) {
+                    cloneElement.setAttribute("name", name+System.nanoTime());
+                }
+            }
+            parent.addContent(elementPos+1, clone);
+        }
 
-    public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(this, element);
-    }
-
-    @Override
-    public List<ThemeTreeOperation> getOperations() {
-        List<ThemeTreeOperation> operations = super.getOperations();
-        operations.add(new CloneNodeOperation(element, this));
-        return operations;
+        updateParent();
+        return CreateChildOperation.findChildInParent(getNodeParent(), cloneElement);
     }
 
 }

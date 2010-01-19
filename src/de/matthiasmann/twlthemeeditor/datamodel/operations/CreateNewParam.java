@@ -47,10 +47,12 @@ public class CreateNewParam extends CreateChildOperation {
         super("opNewParam" + Utils.capitalize(tagName), parent, element);
         this.tagName = tagName;
         this.initialText = initialText;
+
+        indentChildren = "map".equals(tagName);
     }
 
     @Override
-    public void execute() throws IOException {
+    public ThemeTreeNode execute() throws IOException {
         Element e = new Element("param");
         e.setAttribute("name", makeRandomName());
         if("enum".equals(tagName)) {
@@ -61,7 +63,6 @@ public class CreateNewParam extends CreateChildOperation {
         v.setText(initialText);
         e.addContent(v);
 
-        boolean isMap = "map".equals(tagName);
-        addChild(e, !isMap);
+        return addChild(e);
     }
 }

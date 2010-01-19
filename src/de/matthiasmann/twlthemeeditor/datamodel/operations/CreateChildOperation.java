@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
+import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
 import java.io.IOException;
@@ -47,6 +48,7 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
 
     protected final ThemeTreeNode parent;
     protected final Element element;
+    protected boolean indentChildren = true;
 
     public CreateChildOperation(String actionID, ThemeTreeNode parent, Element element) {
         super("opNewNode", actionID);
@@ -69,11 +71,7 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
         return new String(buf);
     }
 
-    protected void addChild(Element child) throws IOException {
-        addChild(child, false);
-    }
-
-    protected void addChild(Element child, boolean dontIndentChilds) throws IOException {
+    protected ThemeTreeNode addChild(Element child) throws IOException {
         int indentation = getBaseIndentation();
         int pos = element.getContentSize();
         if(pos>0 && element.getContent(pos-1) instanceof Text) {
@@ -81,10 +79,25 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
         }
         element.addContent(pos++, new Text(createIndentation(indentation)));
         element.addContent(pos, child);
-        if(!dontIndentChilds) {
+        if(indentChildren) {
             addIndentation(child, indentation);
         }
         parent.addChildren();
+        ElementOperation.setModified(element);
+        return findChildInParent(parent, child);
+    }
+    
+    protected static ThemeTreeNode findChildInParent(TreeTableNode parent, Element child) {
+        for(int i=0,n=parent.getNumChildren() ; i<n ; i++) {
+            TreeTableNode node = parent.getChild(i);
+            if(node instanceof ThemeTreeNode) {
+                ThemeTreeNode ttn = (ThemeTreeNode)node;
+                if(ttn.getDOMElement() == child) {
+                    return ttn;
+                }
+            }
+        }
+        return null;
     }
 
     protected void addIndentation(Element element, int indentation) {
@@ -112,7 +125,9 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
     }
 
     protected void addNameAttributeIfNeeded(Element e) {
-        if(element.isRootElement() || "textures".equals(element.getName())) {
+        if(element.isRootElement() ||
+                "textures".equals(element.getName()) ||
+                "theme".equals(element.getName())) {
             e.setAttribute("name", makeRandomName());
         }
     }

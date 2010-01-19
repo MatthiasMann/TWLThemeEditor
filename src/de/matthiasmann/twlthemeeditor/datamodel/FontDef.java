@@ -33,6 +33,7 @@ import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
@@ -119,6 +120,7 @@ public class FontDef extends AbstractThemeTreeNode implements HasProperties {
     @Override
     public List<ThemeTreeOperation> getOperations() {
         List<ThemeTreeOperation> operations = super.getOperations();
+        operations.add(new CloneNodeOperation(element, this));
         operations.add(new CreateNewSimple(this, element, "fontParam", "if", "hover"));
         return operations;
     }

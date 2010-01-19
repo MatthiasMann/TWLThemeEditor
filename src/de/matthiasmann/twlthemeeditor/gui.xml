@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE themes PUBLIC "-//www.matthiasmann.de//TWL-Theme//EN" "http://hg.l33tlabs.org/twl/raw-file/tip/src/de/matthiasmann/twl/theme/theme.dtd">
-
 <themes>
     <include filename="cursors.xml"/>
     <include filename="gui_base.xml"/>
@@ -11,7 +10,8 @@
         <texture name="-icon-moveup" x="74" y="19" width="12" height="8" center="true"/>
         <texture name="-icon-movedown" x="87" y="19" width="12" height="8" center="true"/>
         <texture name="-icon-apply" x="86" y="37" width="13" height="10" center="true" inset="0,1,0,-1"/>
-
+        <texture name="-icon-clone" x="84" y="48" width="11" height="12" center="true"/>
+        
         <alias name="textureviewer.background" ref="checkerboard" border="64" inset="64"/>
 
         <alias name="button.opDeleteNode.overlay" ref="removebutton.overlay"/>
@@ -31,6 +31,15 @@
                 <alias ref="-icon-movedown" if="disabled" tint="#6fff"/>
                 <alias ref="-icon-movedown" if="armed" inset="1,1,-1,-1"/>
                 <alias ref="-icon-movedown"/>
+            </select>
+            <alias ref="vbutton.overlay"/>
+        </composed>
+
+        <composed name="button.opCloneNode.overlay">
+            <select>
+                <alias ref="-icon-clone" if="disabled" tint="#6fff"/>
+                <alias ref="-icon-clone" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-clone"/>
             </select>
             <alias ref="vbutton.overlay"/>
         </composed>
@@ -94,6 +103,10 @@
                         <param name=""><image>button.opNewNode.*</image></param>
                         <param name="tooltip"><string>Creates a new child node</string></param>
                     </theme>
+                    <theme name="opCloneNode" ref="button">
+                        <param name=""><image>button.opCloneNode.*</image></param>
+                        <param name="tooltip"><string>Clones the current node</string></param>
+                    </theme>
                 </theme>
             </theme>
         </theme>
@@ -154,6 +167,15 @@
         </theme>
         <theme name="opNewParamInt" ref="popupMenuButton">
             <param name="text"><string>Create a new integer parameter</string></param>
+        </theme>
+        <theme name="opNewParamString" ref="popupMenuButton">
+            <param name="text"><string>Create a new string parameter</string></param>
+        </theme>
+        <theme name="opNewParamFont" ref="popupMenuButton">
+            <param name="text"><string>Create a new font parameter</string></param>
+        </theme>
+        <theme name="opNewParamCursor" ref="popupMenuButton">
+            <param name="text"><string>Create a new cursor parameter</string></param>
         </theme>
         <theme name="opNewParamBool" ref="popupMenuButton">
             <param name="text"><string>Create a new boolean parameter</string></param>

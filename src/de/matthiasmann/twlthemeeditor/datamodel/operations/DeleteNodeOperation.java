@@ -49,8 +49,9 @@ public class DeleteNodeOperation extends ElementOperation {
     }
 
     @Override
-    public void execute() throws IOException {
+    public ThemeTreeNode execute() throws IOException {
         element.detach();
-        getNodeParent().addChildren();
+        updateParent();
+        return null;
     }
 }

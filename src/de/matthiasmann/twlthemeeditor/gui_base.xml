@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE themes PUBLIC "-//www.matthiasmann.de//TWL-Theme//EN" "http://hg.l33tlabs.org/twl/raw-file/tip/src/de/matthiasmann/twl/theme/theme.dtd">
-
 <themes>
     <textures file="gui.png" format="RGBA">
         <texture name="white" x="66" y="66" width="1" height="1"/>
@@ -652,6 +651,7 @@
         <fontParam if="error" color="red"/>
         <fontParam if="disabled" color="#444"/>
         <fontParam if="textSelection" color="white"/>
+        <fontParam if="modified" color="#1000FF"/>
     </fontDef>
 
     <fontDef name="combobox" filename="font.fnt" color="black">
@@ -766,7 +766,7 @@
         <param name="width"><int>100</int></param>
         <param name="maxWidth"><int>32767</int></param>
         <param name="useMouseWheel"><bool>false</bool></param>
-        <param name="displayPrefix"><string></string></param>
+        <param name="displayPrefix"><string/></param>
     </theme>
 
     <theme name="vscrollbar" ref="-defaults" allowWildcard="true">

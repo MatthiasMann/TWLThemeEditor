@@ -139,10 +139,11 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
             if(stopAtPath != null && stopAtPath.compareTo(child) <= 0) {
                 break;
             }
+            if(clazz.isInstance(child)) {
+                result.add(clazz.cast(child));
+            }
             if(child instanceof Include) {
                 processInclude((Include)child, clazz, result, stopAtPath);
-            } else if(clazz.isInstance(child)) {
-                result.add(clazz.cast(child));
             }
         }
     }

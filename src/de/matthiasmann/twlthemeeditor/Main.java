@@ -32,7 +32,6 @@ package de.matthiasmann.twlthemeeditor;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.gui.MainUI;
 import java.awt.BorderLayout;
 import java.awt.Canvas;

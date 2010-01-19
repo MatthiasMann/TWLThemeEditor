@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
@@ -118,6 +119,8 @@ public class Theme extends AbstractThemeTreeNode implements HasProperties {
     @Override
     public List<ThemeTreeOperation> getOperations() {
         List<ThemeTreeOperation> operations = super.getOperations();
+        operations.add(new CloneNodeOperation(element, this));
+        ThemeFile.addCreateThemeOperation(operations, this, element);
         Param.addCreateParam(operations, this, element);
         return operations;
     }

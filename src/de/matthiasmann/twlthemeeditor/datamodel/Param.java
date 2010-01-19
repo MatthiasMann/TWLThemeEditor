@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParam;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
@@ -132,6 +133,7 @@ public class Param extends AbstractThemeTreeNode implements HasProperties {
     @Override
     public List<ThemeTreeOperation> getOperations() {
         List<ThemeTreeOperation> operations = super.getOperations();
+        operations.add(new CloneNodeOperation(element, this));
         if(isMap()) {
             addCreateParam(operations, this, valueElement);
         }

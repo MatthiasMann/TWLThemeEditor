@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import java.io.IOException;
+import org.jdom.Element;
 
 /**
  *
@@ -67,6 +68,6 @@ public abstract class ThemeTreeOperation {
         return false;
     }
 
-    public abstract void execute() throws IOException;
+    public abstract ThemeTreeNode execute() throws IOException;
     
 }

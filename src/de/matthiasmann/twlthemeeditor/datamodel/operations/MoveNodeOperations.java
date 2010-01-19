@@ -57,7 +57,7 @@ public class MoveNodeOperations extends ElementOperation {
     }
 
     @Override
-    public void execute() throws IOException {
+    public ThemeTreeNode execute() throws IOException {
         int elementPos = getElementPosition();
         int elementTextPos = getPrevSiblingPosition(elementPos) + 1;
 
@@ -65,18 +65,18 @@ public class MoveNodeOperations extends ElementOperation {
             int insertPos = getPrevSiblingPosition(elementTextPos - 1) + 1;
             if(insertPos >= 0 && insertPos < elementTextPos) {
                 moveContent(elementTextPos, insertPos, elementPos - elementTextPos + 1);
-                getNodeParent().addChildren();
             }
         } else {
             int insertPos = getNextSiblingPosition(elementPos);
             if(insertPos > elementPos && insertPos < element.getParent().getContentSize()) {
                 moveContent(elementTextPos, insertPos, elementPos - elementTextPos + 1);
-                getNodeParent().addChildren();
             }
         }
+
+        return node;
     }
 
-    protected void moveContent(int from, int to, int count) {
+    protected void moveContent(int from, int to, int count) throws IOException {
         Element parent = element.getParentElement();
         if(from < to) {
             for(; count > 0; count--) {
@@ -89,5 +89,6 @@ public class MoveNodeOperations extends ElementOperation {
                 parent.addContent(to++, c);
             }
         }
+        updateParent();
     }
 }

@@ -43,6 +43,7 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import org.jdom.Content;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
@@ -58,19 +59,43 @@ public class ThemeFile implements VirtualFile {
     private final URL url;
     private final Document document;
     private final Runnable xmlChangedCB;
+    private final Runnable propertyChangedCB;
 
     private ThemeTreeNode treeNode;
-    private String fileName;
+    private boolean modified;
 
     public ThemeFile(TestEnv env, URL url, Runnable xmlChangedCB) throws IOException {
         this.env = env;
         this.url = url;
         this.xmlChangedCB = xmlChangedCB;
+        this.propertyChangedCB = new Runnable() {
+            public void run() {
+                setModified(true);
+                ThemeFile.this.xmlChangedCB.run();
+            }
+        };
         
         document = Utils.loadDocument(url);
+        document.setProperty(ThemeFile.class.getName(), this);
         env.registerFile(this);
     }
 
+    public static ThemeFile getThemeFile(Content content) {
+        Document document = content.getDocument();
+        if(document != null) {
+            return (ThemeFile)document.getProperty(ThemeFile.class.getName());
+        }
+        return null;
+    }
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    public void setModified(boolean modified) {
+        this.modified = modified;
+    }
+    
     public void writeTo(OutputStream out) throws IOException {
         Writer w = new XMLWriter(new OutputStreamWriter(out, "UTF8"));
         new XMLOutputter().output(document, w);
@@ -125,12 +150,16 @@ public class ThemeFile implements VirtualFile {
     }
 
     protected void addCreateOperations(List<ThemeTreeOperation> operations, ThemeTreeNode node) {
-        operations.add(new CreateNewSimple(node, document.getRootElement(), "theme", "ref", "-defaults"));
+        addCreateThemeOperation(operations, node, document.getRootElement());
         operations.add(new CreateNewSimple(node, document.getRootElement(), "fontDef", "filename", "font.fnt", "color", "white"));
     }
 
+    static void addCreateThemeOperation(List<ThemeTreeOperation> operations, ThemeTreeNode node, Element parent) {
+        operations.add(new CreateNewSimple(node, parent, "theme", "ref", "-defaults"));
+    }
+
     void registerProperty(Property<?> property) {
-        property.addValueChangedCallback(xmlChangedCB);
+        property.addValueChangedCallback(propertyChangedCB);
     }
 
     public String getVirtualFileName() {
@@ -140,7 +169,7 @@ public class ThemeFile implements VirtualFile {
     @SuppressWarnings("unchecked")
     public Object getContent(Class<?> type) throws IOException {
         if(type == XmlPullParser.class && treeNode != null) {
-            DomXPPParser xpp = new DomXPPParser(fileName);
+            DomXPPParser xpp = new DomXPPParser(getVirtualFileName());
             ThemeLoadErrorTracker.register(xpp);
             Element rootElement = document.getRootElement();
             Utils.addToXPP(xpp, rootElement.getName(), treeNode, rootElement.getAttributes());

@@ -50,13 +50,13 @@ public class CreateNewSimple extends CreateChildOperation {
     }
 
     @Override
-    public void execute() throws IOException {
+    public ThemeTreeNode execute() throws IOException {
         Element e = new Element(tagName);
         addNameAttributeIfNeeded(e);
         for(int i=0 ; i<attributes.length ; i+=2) {
             e.setAttribute(attributes[i], attributes[i+1]);
         }
-        addChild(e);
+        return addChild(e);
     }
     
 }

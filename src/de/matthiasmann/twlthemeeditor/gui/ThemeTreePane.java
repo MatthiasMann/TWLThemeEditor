@@ -47,6 +47,7 @@ import de.matthiasmann.twl.model.TableSingleSelectionModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.datamodel.FilteredModel;
+import de.matthiasmann.twlthemeeditor.datamodel.NodeNameModified;
 import de.matthiasmann.twlthemeeditor.datamodel.NodeNameWithError;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
@@ -91,6 +92,10 @@ public class ThemeTreePane extends DialogLayout {
         StringCellRenderer errorRenderer = new StringCellRenderer();
         errorRenderer.getAnimationState().setAnimationState("error", true);
         treeTable.registerCellRenderer(NodeNameWithError.class, errorRenderer);
+
+        StringCellRenderer modifiedRenderer = new StringCellRenderer();
+        modifiedRenderer.getAnimationState().setAnimationState("modified", true);
+        treeTable.registerCellRenderer(NodeNameModified.class, modifiedRenderer);
 
         scrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
         treeTable.setSelectionManager(new TableRowSelectionManager(treeTableSelectionModel));
@@ -242,14 +247,14 @@ public class ThemeTreePane extends DialogLayout {
     }
 
     void executeOperation(ThemeTreeOperation operation) {
-        TreeTableNode curSel = selected;
+        TreeTableNode newSelection = null;
         try {
-            operation.execute();
+            newSelection = operation.execute();
         } catch(Throwable ex) {
             Logger.getLogger(ThemeTreePane.class.getName()).log(Level.SEVERE,
                     "Error while executing tree operation", ex);
         }
-        selectNode(curSel);
+        selectNode(newSelection);
     }
 
     void selectNode(TreeTableNode node) {

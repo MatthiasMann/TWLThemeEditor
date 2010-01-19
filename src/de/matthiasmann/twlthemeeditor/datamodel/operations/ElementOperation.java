@@ -29,8 +29,10 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
+import java.io.IOException;
 import org.jdom.Element;
 
 /**
@@ -40,11 +42,13 @@ import org.jdom.Element;
 abstract class ElementOperation extends ThemeTreeOperation {
 
     protected final Element element;
+    protected final Element parent;
     protected final ThemeTreeNode node;
 
     protected ElementOperation(String groupName, String actionName, Element element, ThemeTreeNode node) {
         super(groupName, actionName);
         this.element = element;
+        this.parent = element.getParentElement();
         this.node = node;
     }
 
@@ -53,7 +57,6 @@ abstract class ElementOperation extends ThemeTreeOperation {
     }
 
     protected int getElementPosition() {
-        Element parent = element.getParentElement();
         for(int i = 0, n = parent.getContentSize(); i < n; i++) {
             if(parent.getContent(i) == element) {
                 return i;
@@ -63,7 +66,6 @@ abstract class ElementOperation extends ThemeTreeOperation {
     }
 
     protected int getPrevSiblingPosition(int pos) {
-        Element parent = element.getParentElement();
         do {
             pos--;
         } while(pos >= 0 && !(parent.getContent(pos) instanceof Element));
@@ -71,11 +73,22 @@ abstract class ElementOperation extends ThemeTreeOperation {
     }
 
     protected int getNextSiblingPosition(int pos) {
-        Element parent = element.getParentElement();
         int count = parent.getContentSize();
         do {
             pos++;
         } while(pos < count && !(parent.getContent(pos) instanceof Element));
         return pos;
+    }
+
+    protected void updateParent() throws IOException {
+        getNodeParent().addChildren();
+        setModified(parent);
+    }
+
+    protected static void setModified(Element parent) {
+        ThemeFile themeFile = ThemeFile.getThemeFile(parent);
+        if(themeFile != null) {
+            themeFile.setModified(true);
+        }
     }
 }

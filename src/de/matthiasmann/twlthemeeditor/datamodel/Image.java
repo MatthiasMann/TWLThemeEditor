@@ -43,6 +43,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.images.HVSplit;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Select;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Texture;
 import de.matthiasmann.twlthemeeditor.datamodel.images.VSplit;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
@@ -52,6 +53,7 @@ import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import java.io.IOException;
+import java.util.List;
 import org.jdom.Element;
 
 /**
@@ -125,6 +127,13 @@ public abstract class Image extends AbstractThemeTreeNode implements HasProperti
 
     public void addChildren() throws IOException {
         addChildren(textures.getThemeFile(), element, getImageDomWrapper(textures));
+    }
+
+    @Override
+    public List<ThemeTreeOperation> getOperations() {
+        List<ThemeTreeOperation> operations = super.getOperations();
+        operations.add(new CloneNodeOperation(element, this));
+        return operations;
     }
 
     public static DomWrapper getImageDomWrapper(final Textures textures) {

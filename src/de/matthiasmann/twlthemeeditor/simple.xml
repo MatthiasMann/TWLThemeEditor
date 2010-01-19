@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE themes PUBLIC "-//www.matthiasmann.de//TWL-Theme//EN" "http://hg.l33tlabs.org/twl/raw-file/tip/src/de/matthiasmann/twl/theme/theme.dtd">
-
 <!--
     Document   : simple.xml
     Created on : November 22, 2007, 9:23 PM
     Author     : Matthias Mann
     Description:
         Contains image declarations for simple.png
--->
-
-<themes>
+--><themes>
     <textures file="simple.png" format="RGBA">
         <hvsplit name="-borderA" x="0" y="0" width="9" height="9" border="3"/>
         <hvsplit name="-borderB" x="10" y="0" width="9" height="9" border="3"/>
@@ -282,7 +279,7 @@
     <theme name="table" ref="-defaults" allowWildcard="true">
         <param name="rowHeight"><int>font.lineHeight + 6</int></param>
         <theme name="stringcellrenderer" ref="-defaults">
-            <param name="font"><font>listbox-display</font></param>
+            <param name="font"><font>normal</font></param>
             <param name="border"><border>0,3,0,0</border></param>
         </theme>
         <theme name="TreeLeafCellRenderer" ref="-treecellrenderer"/>
@@ -304,7 +301,7 @@
         <param name="columnDividerDragableDistance"><int>3</int></param>
         <param name="columnResizeCursor"><cursor>cursor.resizecolumn</cursor></param>
         <param name="columnDivider"><image>none</image></param>
-        <param name="columnWidths"><map></map></param>
+        <param name="columnWidths"><map/></param>
         <param name="row"><image>table.row.*</image></param>
         <param name="inputMap"><inputMapDef ref="-defaultInputMap">
             <action name="toggleSelectionOnLeadRow">ctrl SPACE</action>
@@ -454,7 +451,7 @@
             <action name="acceptSelection">RETURN</action>
         </inputMapDef></param>
         <param name="namedGaps"><map>
-            <param name="buttonBarLeft"><gap></gap></param>
+            <param name="buttonBarLeft"><gap/></param>
             <param name="buttonBarSpacer"><gap>20</gap></param>
             <param name="buttonBarRight"><gap>18</gap></param>
         </map></param>

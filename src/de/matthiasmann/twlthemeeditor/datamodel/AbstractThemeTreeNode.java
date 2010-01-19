@@ -50,6 +50,7 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
     protected final ThemeFile themeFile;
     protected final Element element;
     protected final ArrayList<Property<?>> properties;
+
     protected boolean error;
 
     protected AbstractThemeTreeNode(ThemeFile themeFile, TreeTableNode parent, Element element) {
@@ -74,6 +75,9 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
 
     public void setError(boolean hasError) {
         this.error = hasError;
+        if(getParent() instanceof ThemeTreeNode) {
+            ((ThemeTreeNode)getParent()).setError(hasError);
+        }
     }
 
     public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz) {
@@ -149,7 +153,13 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
         switch (column) {
             case 0: {
                 String displayName = getDisplayName();
-                return error ? new NodeNameWithError(displayName) : displayName;
+                if(error) {
+                    return new NodeNameWithError(displayName);
+                } else if(isModified()) {
+                    return new NodeNameModified(displayName);
+                } else {
+                    return displayName;
+                }
             }
             case 1:
                 return getType();
@@ -173,6 +183,10 @@ public abstract class AbstractThemeTreeNode extends AbstractTreeTableNode implem
 
     protected String getType() {
         return element.getName();
+    }
+
+    protected boolean isModified() {
+        return false;
     }
 
     public final void handleNodeRenamed(String from, String to, Kind kind) {
