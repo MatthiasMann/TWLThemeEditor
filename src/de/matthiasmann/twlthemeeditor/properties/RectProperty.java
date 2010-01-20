@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.Rect;
+import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.Property;
 
 /**
@@ -39,10 +40,10 @@ import de.matthiasmann.twl.model.Property;
  */
 public abstract class RectProperty implements Property<Rect> {
 
-    private final IntegerProperty baseX;
-    private final IntegerProperty baseY;
-    private final IntegerProperty baseW;
-    private final IntegerProperty baseH;
+    private final IntegerModel baseX;
+    private final IntegerModel baseY;
+    private final IntegerModel baseW;
+    private final IntegerModel baseH;
     private final String name;
 
     public RectProperty(Property<String> x, Property<String> y, Property<String> width, Property<String> height, String name) {
@@ -101,6 +102,14 @@ public abstract class RectProperty implements Property<Rect> {
         this.name = name;
     }
 
+    public RectProperty(IntegerModel baseX, IntegerModel baseY, IntegerModel baseW, IntegerModel baseH, String name) {
+        this.baseX = baseX;
+        this.baseY = baseY;
+        this.baseW = baseW;
+        this.baseH = baseH;
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }
@@ -133,32 +142,32 @@ public abstract class RectProperty implements Property<Rect> {
     }
 
     public void addValueChangedCallback(Runnable cb) {
-        baseX.addValueChangedCallback(cb);
-        baseY.addValueChangedCallback(cb);
-        baseW.addValueChangedCallback(cb);
-        baseH.addValueChangedCallback(cb);
+        baseX.addCallback(cb);
+        baseY.addCallback(cb);
+        baseW.addCallback(cb);
+        baseH.addCallback(cb);
     }
 
     public void removeValueChangedCallback(Runnable cb) {
-        baseX.removeValueChangedCallback(cb);
-        baseY.removeValueChangedCallback(cb);
-        baseW.removeValueChangedCallback(cb);
-        baseH.removeValueChangedCallback(cb);
+        baseX.removeCallback(cb);
+        baseY.removeCallback(cb);
+        baseW.removeCallback(cb);
+        baseH.removeCallback(cb);
     }
 
-    public IntegerProperty getXProperty() {
+    public IntegerModel getXProperty() {
         return baseX;
     }
 
-    public IntegerProperty getYProperty() {
+    public IntegerModel getYProperty() {
         return baseY;
     }
 
-    public IntegerProperty getWidthProperty() {
+    public IntegerModel getWidthProperty() {
         return baseW;
     }
 
-    public IntegerProperty getHeightProperty() {
+    public IntegerModel getHeightProperty() {
         return baseH;
     }
 

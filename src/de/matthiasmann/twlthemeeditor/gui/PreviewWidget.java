@@ -32,12 +32,10 @@ package de.matthiasmann.twlthemeeditor.gui;
 import de.matthiasmann.twl.DesktopArea;
 import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.GUI;
-import de.matthiasmann.twl.ResizableFrame;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.renderer.CacheContext;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
-import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeLoadErrorTracker;
 import java.io.IOException;
 import java.net.URL;
@@ -60,17 +58,25 @@ public class PreviewWidget extends Widget {
     private ThemeManager theme;
     private GUI testGUI;
     private boolean reloadTheme;
-    private boolean adjustSize;
-    private ResizableFrame frame;
-    private Runnable[] callbacks;
+    private Class<? extends Widget> widgetClass;
+    private Widget testWidget;
+    private Runnable testWidgetChangedCB;
 
-    private LWJGLException initException;
-    private Throwable executeException;
-    private IOException themeLoadException;
+    private final ExceptionHolder exceptionHolder;
     private Object themeLoadErrorLocation;
 
+    private static final int EXCEPTION_INIT    = 0;
+    private static final int EXCEPTION_WIDGET  = 1;
+    private static final int EXCEPTION_THEME   = 2;
+    private static final int EXCEPTION_EXECUTE = 3;
+    
     public PreviewWidget() {
         this.viewPortBuffer = BufferUtils.createIntBuffer(16);
+        this.exceptionHolder = new ExceptionHolder(
+                "Initialization",
+                "Widget creation",
+                "Theme load",
+                "Execution");
         setCanAcceptKeyboardFocus(true);
     }
 
@@ -79,69 +85,44 @@ public class PreviewWidget extends Widget {
         this.reloadTheme = true;
     }
 
+    public void setWidgetClass(Class<? extends Widget> widgetClass) {
+        this.widgetClass = widgetClass;
+        this.testWidget = null;
+    }
+
+    public Widget getTestWidget() {
+        return testWidget;
+    }
+
+    public void setTestWidgetChangedCB(Runnable testWidgetChangedCB) {
+        this.testWidgetChangedCB = testWidgetChangedCB;
+    }
+
     public void reloadTheme() {
         reloadTheme = true;
     }
 
-    public Throwable getExecuteException() {
-        return executeException;
-    }
-
-    public LWJGLException getInitException() {
-        return initException;
-    }
-
-    public IOException getThemeLoadException() {
-        return themeLoadException;
+    public ExceptionHolder getExceptionHolder() {
+        return exceptionHolder;
     }
 
     public Object getThemeLoadErrorLocation() {
         return themeLoadErrorLocation;
     }
 
-    public void clearThemeException() {
-        themeLoadException = null;
-        themeLoadErrorLocation = null;
-        reloadTheme = true;
-    }
-
-    public void clearExecuteException() {
-        executeException = null;
-    }
-
-    public void addCallback(Runnable cb) {
-        callbacks = CallbackSupport.addCallbackToList(callbacks, cb, Runnable.class);
-    }
-
-    public void removeCallback(Runnable cb) {
-        callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
-    }
-
-    private void fireCallbacks() {
-        CallbackSupport.fireCallbacks(callbacks);
-    }
-
-    protected Widget createRootPane() {
-        DesktopArea area = new DesktopArea();
-        area.setTheme("");
-
-        PreviewWidgets previewWidgets = new PreviewWidgets();
-        previewWidgets.setTheme("/previewwidgets");
-
-        frame = new ResizableFrame();
-        frame.add(previewWidgets);
-        frame.setTitle("Test");
-        frame.setTheme("resizableframe-resizeHandle");
-        
-        area.add(frame);
-
-        return area;
+    public void clearException(int nr) {
+        if(nr == EXCEPTION_THEME) {
+            themeLoadErrorLocation = null;
+            reloadTheme = true;
+        }
+        exceptionHolder.setException(nr, null);
     }
     
     @Override
     protected void paintWidget(GUI gui) {
-        if(executeException == null && initException == null) {
-            IOException prevThemeLoadException = themeLoadException;
+        if(!exceptionHolder.hasException()) {
+            // don't execute callbacks in critical section
+            exceptionHolder.setDeferCallbacks(true);
 
             GL11.glGetInteger(GL11.GL_VIEWPORT, viewPortBuffer);
             int viewPortTop = viewPortBuffer.get(1) + viewPortBuffer.get(3);
@@ -153,25 +134,20 @@ public class PreviewWidget extends Widget {
 
             // CRITICAL REGION: GL STATE IS MODIFIED - DON'T CALL ANY APP CODE
             try {
-                executeTestEnv();
+                executeTestEnv(gui);
             } catch (Throwable ex) {
                 // don't let anything escape !
-                executeException = ex;
+                exceptionHolder.setException(EXCEPTION_EXECUTE, ex);
             } finally {
                 GL11.glPopAttrib();
                 // END OF CRITICAL REGION
             }
 
-            if(initException != null ||
-                    executeException != null ||
-                    prevThemeLoadException != themeLoadException) {
-                // make sure to call this outside the push/pop attrib region
-                fireCallbacks();
-            }
+            exceptionHolder.setDeferCallbacks(false);
         }
     }
 
-    private void executeTestEnv() {
+    private void executeTestEnv(GUI gui) {
         if(render == null && !initRenderer()) {
             return;
         }
@@ -179,15 +155,28 @@ public class PreviewWidget extends Widget {
         render.syncViewportSize();
 
         if(testGUI == null) {
-            testGUI = new GUI(createRootPane(), render);
+            DesktopArea area = new DesktopArea();
+            area.setTheme("");
+            testGUI = new GUI(area, render);
         }
 
         if((theme == null || reloadTheme) && !loadTheme()) {
             return;
         }
 
-        if(adjustSize && frame != null) {
-            frame.adjustSize();
+        if(testWidget == null && widgetClass != null) {
+            testGUI.getRootPane().removeAllChildren();
+            try {
+                testWidget = widgetClass.newInstance();
+                testGUI.getRootPane().add(testWidget);
+
+                if(testWidgetChangedCB != null) {
+                    gui.invokeLater(testWidgetChangedCB);
+                }
+                testWidget.adjustSize();
+            } catch (Throwable ex) {
+                exceptionHolder.setException(EXCEPTION_WIDGET, ex);
+            }
         }
 
         testGUI.setSize();
@@ -203,14 +192,13 @@ public class PreviewWidget extends Widget {
 
     private boolean initRenderer() {
         assert(render == null);
-        assert(initException == null);
 
         try {
             render = new LWJGLRenderer();
             render.setUseSWMouseCursors(true);
             return true;
         } catch(LWJGLException ex) {
-            initException = ex;
+            exceptionHolder.setException(EXCEPTION_INIT, ex);
             render = null;
             return false;
         }
@@ -218,7 +206,7 @@ public class PreviewWidget extends Widget {
 
     private boolean loadTheme() {
         reloadTheme = false;
-        if(themeLoadException == null && url != null) {
+        if(url != null) {
             ThemeLoadErrorTracker tracker = new ThemeLoadErrorTracker();
             ThemeLoadErrorTracker.push(tracker);
 
@@ -238,7 +226,7 @@ public class PreviewWidget extends Widget {
                 testGUI.destroy();
                 return true;
             } catch (IOException ex) {
-                themeLoadException = ex;
+                exceptionHolder.setException(EXCEPTION_THEME, ex);
                 render.setActiveCacheContext(oldCacheContext);
                 newCacheContext.destroy();
                 themeLoadErrorLocation = tracker.findErrorLocation();

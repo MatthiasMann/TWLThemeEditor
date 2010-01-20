@@ -30,7 +30,6 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import java.io.IOException;
-import org.jdom.Element;
 
 /**
  *

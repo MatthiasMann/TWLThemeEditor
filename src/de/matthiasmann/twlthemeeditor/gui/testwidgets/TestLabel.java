@@ -27,45 +27,19 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
+package de.matthiasmann.twlthemeeditor.gui.testwidgets;
 
-import de.matthiasmann.twl.ToggleButton;
-import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.BooleanModel;
-import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twl.Label;
 
 /**
  *
  * @author Matthias Mann
  */
-public class BooleanEditorFactory implements PropertyEditorFactory<Boolean, Property<Boolean>> {
+public class TestLabel extends Label {
 
-    public Widget create(final PropertyAccessor<Boolean, Property<Boolean>> pa) {
-        Property<Boolean> property = pa.getProperty();
-        ToggleButton btn = new ToggleButton((property instanceof BooleanModel)
-                ? (BooleanModel)property
-                : new PropertyBooleanModel(property));
-        btn.setText(pa.getDisplayName());
-        btn.setTheme("boolean");
-        return btn;
+    public TestLabel() {
+        setTheme("label");
+        setText("This is a test label");
     }
 
-    static class PropertyBooleanModel implements BooleanModel {
-        final Property<Boolean> property;
-        public PropertyBooleanModel(Property<Boolean> property) {
-            this.property = property;
-        }
-        public void addCallback(Runnable callback) {
-            property.addValueChangedCallback(callback);
-        }
-        public void removeCallback(Runnable callback) {
-            property.removeValueChangedCallback(callback);
-        }
-        public boolean getValue() {
-            return property.getPropertyValue();
-        }
-        public void setValue(boolean value) {
-            property.setPropertyValue(value);
-        }
-    }
 }

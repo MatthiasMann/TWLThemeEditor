@@ -320,6 +320,21 @@
         <theme name="errorDisplay" ref="label">
             <param name="maxWidth"><int>32767</int></param>
         </theme>
+        <theme name="collapsiblepanel" ref="dialoglayout">
+            <param name="border"><border>5,0</border></param>
+            <theme name="arrow" ref="-defaults">
+                <param name=""><image>collapsiblepanel.arrowH.*</image></param>
+                <param name="tooltip"><string>Toggle tree editing buttons</string></param>
+                <param name="minWidth"><int>12</int></param>
+                <param name="maxHeight"><int>32767</int></param>
+            </theme>
+            <param name="namedGaps"><map>
+                <param name="title-content"><gap>0</gap></param>
+            </map></param>
+            <theme name="contentcontainer" ref="-defaults">
+                <theme name="propertyEditor" ref="propertyEditor"/>
+            </theme>
+        </theme>
         <theme name="" ref="*"/>
     </theme>
 

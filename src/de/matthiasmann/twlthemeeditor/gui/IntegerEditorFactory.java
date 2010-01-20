@@ -31,19 +31,47 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
+import de.matthiasmann.twl.model.IntegerModel;
+import de.matthiasmann.twl.model.Property;
 
 /**
  *
  * @author Matthias Mann
  */
-public class IntegerEditorFactory implements PropertyEditorFactory<Integer, IntegerProperty> {
+public class IntegerEditorFactory implements PropertyEditorFactory<Integer, Property<Integer>> {
 
-    public Widget create(final PropertyAccessor<Integer, IntegerProperty> pa) {
-        ValueAdjusterInt va = new ValueAdjusterInt(pa.getProperty());
+    public Widget create(final PropertyAccessor<Integer, Property<Integer>> pa) {
+        Property<Integer> property = pa.getProperty();
+        ValueAdjusterInt va = new ValueAdjusterInt((property instanceof IntegerModel)
+                ? (IntegerModel)property
+                : new PropertyIntegerModel(property));
         pa.setWidgetsToEnable(va);
 
         return va;
     }
 
+    static class PropertyIntegerModel implements IntegerModel {
+        final Property<Integer> property;
+        public PropertyIntegerModel(Property<Integer> property) {
+            this.property = property;
+        }
+        public void addCallback(Runnable callback) {
+            property.addValueChangedCallback(callback);
+        }
+        public void removeCallback(Runnable callback) {
+            property.removeValueChangedCallback(callback);
+        }
+        public int getValue() {
+            return property.getPropertyValue();
+        }
+        public void setValue(int value) {
+            property.setPropertyValue(value);
+        }
+        public int getMaxValue() {
+            return Short.MAX_VALUE;
+        }
+        public int getMinValue() {
+            return Short.MIN_VALUE;
+        }
+    }
 }

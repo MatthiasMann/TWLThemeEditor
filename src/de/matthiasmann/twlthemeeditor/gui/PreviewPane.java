@@ -29,18 +29,40 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twlthemeeditor.gui.testwidgets.PreviewWidgets;
+import de.matthiasmann.twl.Dimension;
+import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestFrameWithWidgets;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.ScrollPane;
+import de.matthiasmann.twl.Scrollbar;
 import de.matthiasmann.twl.TextArea;
+import de.matthiasmann.twl.ToggleButton;
+import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.AbstractProperty;
+import de.matthiasmann.twl.model.IntegerModel;
+import de.matthiasmann.twl.model.OptionBooleanModel;
+import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twl.model.SimpleIntegerModel;
 import de.matthiasmann.twl.model.SimpleTextAreaModel;
 import de.matthiasmann.twl.model.TextAreaModel;
+import de.matthiasmann.twl.utils.ClassUtils;
+import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestLabel;
+import de.matthiasmann.twlthemeeditor.properties.BoundProperty;
+import de.matthiasmann.twlthemeeditor.properties.RectProperty;
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -48,11 +70,37 @@ import java.net.URL;
  */
 public class PreviewPane extends DialogLayout {
 
+    static class WidgetEntry {
+        final Class<? extends Widget> clazz;
+        final String name;
+
+        public WidgetEntry(Class<? extends Widget> clazz, String name) {
+            this.clazz = clazz;
+            this.name = name;
+        }
+    }
+
     private final PreviewWidget previewWidget;
     private final Label labelErrorDisplay;
     private final Button btnClearStackTrace;
     private final Button btnShowStackTrace;
+    private final SimpleIntegerModel testWidgetModel;
+    private final CollapsiblePanel collapsiblePanel;
+    private final ScrollPane widgetPropertiesScrollPane;
 
+    private Context ctx;
+
+    private static final WidgetEntry[] TEST_WIDGET_CLASSES = {
+        new WidgetEntry(Widget.class, "Widget"),
+        new WidgetEntry(TestLabel.class, "Label"),
+        new WidgetEntry(Button.class, "Button"),
+        new WidgetEntry(ToggleButton.class, "ToggleButton"),
+        new WidgetEntry(EditField.class, "EditField"),
+        new WidgetEntry(Scrollbar.class, "Scrollbar"),
+        new WidgetEntry(PreviewWidgets.class, "Widgets"),
+        new WidgetEntry(TestFrameWithWidgets.class, "Frame with Widgets"),
+    };
+    
     public PreviewPane() {
         this.previewWidget = new PreviewWidget();
         this.labelErrorDisplay = new Label() {
@@ -64,19 +112,35 @@ public class PreviewPane extends DialogLayout {
         this.btnClearStackTrace = new Button("Clear");
         this.btnShowStackTrace = new Button("Stack Trace");
 
+        ToggleButton[] testWidgetButtons = new ToggleButton[TEST_WIDGET_CLASSES.length];
+        testWidgetModel = new SimpleIntegerModel(0, testWidgetButtons.length-1, 0);
+        for(int i=0 ; i<testWidgetButtons.length ; i++) {
+            ToggleButton button = new ToggleButton(new OptionBooleanModel(testWidgetModel, i));
+            button.setTheme("radiobutton");
+            button.setText(TEST_WIDGET_CLASSES[i].name);
+            testWidgetButtons[i] = button;
+        }
+
         labelErrorDisplay.setTheme("errorDisplay");
         labelErrorDisplay.setClip(true);
         btnClearStackTrace.setEnabled(false);
         btnShowStackTrace.setEnabled(false);
 
+        widgetPropertiesScrollPane = new ScrollPane();
+        widgetPropertiesScrollPane.setTheme("propertyEditor");
+        widgetPropertiesScrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
+        collapsiblePanel = new CollapsiblePanel(CollapsiblePanel.Direction.HORIZONTAL, "", widgetPropertiesScrollPane, null);
+        
         setHorizontalGroup(createParallelGroup()
-                .addWidget(previewWidget)
+                .addGroup(createSequentialGroup().addGap().addWidgetsWithGap("radiobutton", testWidgetButtons).addGap())
+                .addGroup(createSequentialGroup(previewWidget, collapsiblePanel))
                 .addGroup(createSequentialGroup(labelErrorDisplay, btnClearStackTrace, btnShowStackTrace).addGap(SMALL_GAP)));
         setVerticalGroup(createSequentialGroup()
-                .addWidget(previewWidget)
+                .addGroup(createParallelGroup(testWidgetButtons))
+                .addGroup(createParallelGroup(previewWidget, collapsiblePanel))
                 .addGroup(createParallelGroup(labelErrorDisplay, btnClearStackTrace, btnShowStackTrace)));
 
-        previewWidget.addCallback(new Runnable() {
+        previewWidget.getExceptionHolder().addCallback(new Runnable() {
             public void run() {
                 updateException();
             }
@@ -89,6 +153,16 @@ public class PreviewPane extends DialogLayout {
         btnShowStackTrace.addCallback(new Runnable() {
             public void run() {
                 showStackTrace();
+            }
+        });
+        testWidgetModel.addCallback(new Runnable() {
+            public void run() {
+                changeTestWidget();
+            }
+        });
+        previewWidget.setTestWidgetChangedCB(new Runnable() {
+            public void run() {
+                updateTestWidgetProperties();
             }
         });
     }
@@ -106,45 +180,49 @@ public class PreviewPane extends DialogLayout {
     }
 
     public void removeCallback(Runnable cb) {
-        previewWidget.removeCallback(cb);
+        previewWidget.getExceptionHolder().removeCallback(cb);
     }
 
     public void addCallback(Runnable cb) {
-        previewWidget.addCallback(cb);
+        previewWidget.getExceptionHolder().addCallback(cb);
+    }
+
+    public void setContext(Context ctx) {
+        this.ctx = ctx;
     }
 
     void updateException() {
-        Throwable ex = selectException();
-        if(ex == null) {
+        int nr = selectException();
+        if(nr >= 0) {
+            ExceptionHolder exceptionHolder = previewWidget.getExceptionHolder();
+            Throwable ex = exceptionHolder.getException(nr);
+            labelErrorDisplay.setText(exceptionHolder.getExceptionName(nr) + " exception: " + ex.getMessage());
+            btnClearStackTrace.setEnabled(true);
+            btnShowStackTrace.setEnabled(true);
+        } else {
             labelErrorDisplay.setText("");
             btnClearStackTrace.setEnabled(false);
             btnShowStackTrace.setEnabled(false);
-        } else {
-            labelErrorDisplay.setText(ex.getMessage());
-            btnClearStackTrace.setEnabled(ex != previewWidget.getInitException());
-            btnShowStackTrace.setEnabled(true);
         }
     }
 
     void clearException() {
-        Throwable ex = selectException();
-        clearException(ex);
+        clearException(selectException());
     }
 
-    void clearException(Throwable ex) {
-        if(ex == previewWidget.getExecuteException()) {
-            previewWidget.clearExecuteException();
-        } else if(ex == previewWidget.getThemeLoadException()) {
-            previewWidget.clearThemeException();
+    void clearException(int nr) {
+        if(nr >= 0) {
+            previewWidget.clearException(nr);
         }
-        updateException();
     }
 
     void showStackTrace() {
-        final Throwable ex = selectException();
-        if(ex == null) {
+        final int nr = selectException();
+        if(nr < 0) {
             return;
         }
+        
+        final Throwable ex = previewWidget.getExceptionHolder().getException(nr);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -160,8 +238,6 @@ public class PreviewPane extends DialogLayout {
         Button btnClear = new Button("Clear Exception and Close");
         Button btnClose = new Button("Close");
 
-        btnClear.setEnabled(ex != previewWidget.getInitException());
-        
         DialogLayout layout = new DialogLayout();
         layout.setHorizontalGroup(layout.createParallelGroup()
                 .addWidget(scrollPane)
@@ -178,7 +254,7 @@ public class PreviewPane extends DialogLayout {
 
         btnClear.addCallback(new Runnable() {
             public void run() {
-                clearException(ex);
+                clearException(nr);
                 popupWindow.closePopup();
             }
         });
@@ -196,15 +272,128 @@ public class PreviewPane extends DialogLayout {
         popupWindow.openPopup();
     }
 
-    private Throwable selectException() {
-        Throwable ex = previewWidget.getInitException();
-        if(ex == null) {
-            ex = previewWidget.getExecuteException();
-            if(ex == null) {
-                ex = previewWidget.getThemeLoadException();
-            }
-        }
-        return ex;
+    private int selectException() {
+        return previewWidget.getExceptionHolder().getHighestPriority();
     }
 
+    void changeTestWidget() {
+        previewWidget.setWidgetClass(TEST_WIDGET_CLASSES[testWidgetModel.getValue()].clazz);
+    }
+
+    void updateTestWidgetProperties() {
+        final Widget testWidget = previewWidget.getTestWidget();
+        if(testWidget == null || ctx == null) {
+            widgetPropertiesScrollPane.setContent(null);
+            return;
+        }
+        ArrayList<Property<?>> properties = new ArrayList<Property<?>>();
+        properties.add(new WidgetRectProperty(testWidget));
+        properties.add(new AbstractProperty<String>() {
+            public boolean canBeNull() {
+                return false;
+            }
+            public String getName() {
+                return "Theme name";
+            }
+            public String getPropertyValue() {
+                return testWidget.getTheme();
+            }
+            public Class<String> getType() {
+                return String.class;
+            }
+            public boolean isReadOnly() {
+                return false;
+            }
+            public void setPropertyValue(String value) throws IllegalArgumentException {
+                testWidget.setTheme(value);
+                testWidget.reapplyTheme();
+            }
+        });
+        addBeanProperties(testWidget, properties);
+        
+        PropertyPanel panel = new PropertyPanel(ctx, properties.toArray(new Property<?>[properties.size()]));
+        widgetPropertiesScrollPane.setContent(panel);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addBeanProperties(final Widget testWidget, ArrayList<Property<?>> properties) {
+        try {
+            BeanInfo beanInfo = Introspector.getBeanInfo(testWidget.getClass());
+            for(PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+                if(pd.getReadMethod() != null && pd.getWriteMethod() != null) {
+                    if(pd.getReadMethod().getDeclaringClass() != Widget.class) {
+                        properties.add(new BoundProperty(testWidget, pd,
+                                ClassUtils.mapPrimitiveToWrapper(pd.getPropertyType())));
+                    }
+                }
+            }
+        } catch(Throwable ex) {
+            Logger.getLogger(PreviewPane.class.getName()).log(Level.SEVERE, "can't collect bean properties", ex);
+        }
+    }
+
+    static abstract class BoundIntegerProperty extends BoundProperty<Integer> implements IntegerModel {
+        public BoundIntegerProperty(Object bean, String name) {
+            super(bean, name, Integer.class);
+        }
+        public void addCallback(Runnable callback) {
+            addValueChangedCallback(callback);
+        }
+        public void removeCallback(Runnable callback) {
+            removeValueChangedCallback(callback);
+        }
+        public int getMinValue() {
+            return 0;
+        }
+        public int getValue() {
+            return getPropertyValue();
+        }
+        @Override
+        public boolean isReadOnly() {
+            return false;
+        }
+    }
+
+    static class WidgetRectProperty extends RectProperty {
+        final Widget widget;
+        public WidgetRectProperty(final Widget widget) {
+            super(new BoundIntegerProperty(widget, "x") {
+                public int getMaxValue() {
+                    return widget.getParent().getInnerWidth()-1;
+                }
+                public void setValue(int value) {
+                    widget.setPosition(value, widget.getY());
+                }
+            }, new BoundIntegerProperty(widget, "y") {
+                public int getMaxValue() {
+                    return widget.getParent().getInnerHeight()-1;
+                }
+                public void setValue(int value) {
+                    widget.setPosition(widget.getX(), value);
+                }
+            }, new BoundIntegerProperty(widget, "width") {
+                public int getMaxValue() {
+                    return widget.getParent().getInnerWidth();
+                }
+                public void setValue(int value) {
+                    widget.setSize(value, widget.getHeight());
+                }
+            }, new BoundIntegerProperty(widget, "height") {
+                public int getMaxValue() {
+                    return widget.getParent().getInnerHeight();
+                }
+                public void setValue(int value) {
+                    widget.setSize(widget.getWidth(), value);
+                }
+            }, "Widget position & size");
+            this.widget = widget;
+        }
+
+        @Override
+        public Dimension getLimit() {
+            Widget parent = widget.getParent();
+            return new Dimension(parent.getInnerWidth(), parent.getInnerHeight());
+        }
+    }
+    
 }

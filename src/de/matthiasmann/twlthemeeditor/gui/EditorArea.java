@@ -118,6 +118,7 @@ public class EditorArea extends Widget {
         textureViewerPane.setUrl(null);
         propertiesScrollPane.setContent(null);
         themeTreePane.setModel(model);
+        previewPane.setContext(ctx);
     }
 
     public void setLayout(Layout layout) {

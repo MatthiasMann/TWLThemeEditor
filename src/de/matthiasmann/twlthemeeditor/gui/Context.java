@@ -37,14 +37,12 @@ import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
-import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
 import de.matthiasmann.twlthemeeditor.properties.DimensionProperty;
 import de.matthiasmann.twlthemeeditor.properties.GapProperty;
 import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
-import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
@@ -67,8 +65,6 @@ public class Context {
         this.model = model;
         
         factories1 = new TypeMapping<PropertyEditorFactory<?,?>>();
-        factories1.put(IntegerProperty.class, new IntegerEditorFactory());
-        factories1.put(BooleanProperty.class, new BooleanEditorFactory());
         factories1.put(ColorProperty.class, new ColorEditor(this));
         factories1.put(RectProperty.class, new RectEditorFactory(this));
         factories1.put(ConditionProperty.class, new ConditionEditor());
@@ -83,21 +79,29 @@ public class Context {
 
         factories2 = new TypeMapping<PropertyEditorFactory<?,?>>();
         factories2.put(String.class, new StringEditorFactory());
+        factories2.put(Integer.class, new IntegerEditorFactory());
+        factories2.put(Boolean.class, new BooleanEditorFactory());
     }
 
     public ListModel<String> getRefableNodes(ThemeTreeNode stopAt, Kind kind) {
         SimpleChangableListModel<String> result = new SimpleChangableListModel<String>();
-        if(kind == Kind.IMAGE) {
-            result.addElement("none");
-            for(Image img : model.getImages(stopAt)) {
-                result.addElement(img.getName());
-            }
-        } else {
-            for(ThemeTreeNode node : model.getTopLevelNodes(ThemeTreeNode.class, stopAt)) {
-                if(node.getKind() == kind) {
-                    result.addElement(node.getName());
+        switch (kind) {
+            case IMAGE:
+                result.addElement("none");
+                // fall through
+            case CURSOR:
+                for(Image img : model.getImages(stopAt)) {
+                    if(img.getKind() == kind) {
+                        result.addElement(img.getName());
+                    }
                 }
-            }
+                break;
+            default:
+                for(ThemeTreeNode node : model.getTopLevelNodes(ThemeTreeNode.class, stopAt)) {
+                    if(node.getKind() == kind) {
+                        result.addElement(node.getName());
+                    }
+                }
         }
         return result;
     }

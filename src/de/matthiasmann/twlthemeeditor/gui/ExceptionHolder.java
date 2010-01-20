@@ -29,43 +29,63 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twl.ToggleButton;
-import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.BooleanModel;
-import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twl.model.HasCallback;
 
 /**
  *
  * @author Matthias Mann
  */
-public class BooleanEditorFactory implements PropertyEditorFactory<Boolean, Property<Boolean>> {
+public class ExceptionHolder extends HasCallback {
 
-    public Widget create(final PropertyAccessor<Boolean, Property<Boolean>> pa) {
-        Property<Boolean> property = pa.getProperty();
-        ToggleButton btn = new ToggleButton((property instanceof BooleanModel)
-                ? (BooleanModel)property
-                : new PropertyBooleanModel(property));
-        btn.setText(pa.getDisplayName());
-        btn.setTheme("boolean");
-        return btn;
+    private final String[] exceptionNames;
+    private final Throwable[] exceptions;
+
+    private boolean deferCallbacks;
+    private boolean hasDeferredCallbacks;
+    
+    public ExceptionHolder(String ... exceptionNames) {
+        this.exceptionNames = exceptionNames;
+        this.exceptions = new Throwable[exceptionNames.length];
     }
 
-    static class PropertyBooleanModel implements BooleanModel {
-        final Property<Boolean> property;
-        public PropertyBooleanModel(Property<Boolean> property) {
-            this.property = property;
-        }
-        public void addCallback(Runnable callback) {
-            property.addValueChangedCallback(callback);
-        }
-        public void removeCallback(Runnable callback) {
-            property.removeValueChangedCallback(callback);
-        }
-        public boolean getValue() {
-            return property.getPropertyValue();
-        }
-        public void setValue(boolean value) {
-            property.setPropertyValue(value);
+    public void setException(int nr, Throwable ex) {
+        if(exceptions[nr] != ex) {
+            exceptions[nr] = ex;
+            if(deferCallbacks) {
+                hasDeferredCallbacks = true;
+            } else {
+                doCallback();
+            }
         }
     }
+
+    public Throwable getException(int nr) {
+        return exceptions[nr];
+    }
+
+    public String getExceptionName(int nr) {
+        return exceptionNames[nr];
+    }
+    
+    public int getHighestPriority() {
+        for(int i=0 ; i<exceptions.length ; i++) {
+            if(exceptions[i] != null) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public boolean hasException() {
+        return getHighestPriority() >= 0;
+    }
+
+    public void setDeferCallbacks(boolean deferCallbacks) {
+        this.deferCallbacks = deferCallbacks;
+        if(!deferCallbacks && hasDeferredCallbacks) {
+            hasDeferredCallbacks = false;
+            doCallback();
+        }
+    }
+
 }
