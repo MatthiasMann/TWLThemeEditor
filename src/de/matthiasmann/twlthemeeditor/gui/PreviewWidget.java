@@ -155,7 +155,29 @@ public class PreviewWidget extends Widget {
         render.syncViewportSize();
 
         if(testGUI == null) {
-            DesktopArea area = new DesktopArea();
+            DesktopArea area = new DesktopArea() {
+                @Override
+                protected void restrictChildrenToInnerArea() {
+                    final int top = getInnerY();
+                    final int left = getInnerX();
+                    final int right = getInnerRight();
+                    final int bottom = getInnerBottom();
+                    final int width = Math.max(0, right-left);
+                    final int height = Math.max(0, bottom-top);
+
+                    for(int i=0,n=getNumChildren() ; i<n ; i++) {
+                        Widget w = getChild(i);
+                        int minWidth = w.getMinWidth();
+                        int minHeight = w.getMinHeight();
+                        w.setSize(
+                                Math.min(Math.max(width, minWidth), Math.max(w.getWidth(), minWidth)),
+                                Math.min(Math.max(height, minHeight), Math.max(w.getHeight(), minHeight)));
+                        w.setPosition(
+                                Math.max(left, Math.min(right - w.getWidth(), w.getX())),
+                                Math.max(top, Math.min(bottom - w.getHeight(), w.getY())));
+                    }
+                }
+            };
             area.setTheme("");
             testGUI = new GUI(area, render);
         }
