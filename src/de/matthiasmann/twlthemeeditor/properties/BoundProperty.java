@@ -136,7 +136,8 @@ public class BoundProperty<T> extends AbstractProperty<T> {
                 propertyChanged();
             }
         } catch(Exception ex) {
-            throw new RuntimeException("Can't invoke writeMethod", ex);
+            Logger.getLogger(BoundProperty.class.getName()).log(Level.SEVERE,
+                    "Can't invoke writeMethod", ex);
         }
     }
 
