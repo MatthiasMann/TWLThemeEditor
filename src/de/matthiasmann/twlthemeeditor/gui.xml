@@ -370,6 +370,9 @@
         <theme name="zoomadjuster" ref="valueadjuster">
             <param name="maxWidth"><int>0</int></param>
         </theme>
+        <theme name="mousePositionDisplay" ref="label">
+            <param name="minWidth"><int>80</int></param>
+        </theme>
         <theme name="" ref="*"/>
     </theme>
 

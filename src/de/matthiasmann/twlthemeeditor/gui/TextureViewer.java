@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.DraggableButton;
+import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.renderer.CacheContext;
@@ -48,6 +49,11 @@ import java.net.URL;
  */
 public class TextureViewer extends DraggableButton {
 
+    public interface MouseOverListener {
+        public void mousePosition(int x, int y);
+        public void mouseExited();
+    }
+    
     private URL url;
     private Rect rect;
     private Color tintColor = Color.WHITE;
@@ -55,6 +61,7 @@ public class TextureViewer extends DraggableButton {
     private float zoomX;
     private float zoomY;
     private Runnable[] exceptionCallbacks;
+    private MouseOverListener mouseOverListener;
 
     private CacheContext cacheContext;
     private Texture texture;
@@ -63,6 +70,7 @@ public class TextureViewer extends DraggableButton {
 
     private boolean reloadTexture;
     private boolean changeImage;
+    private boolean mouseInside;
 
     public TextureViewer() {
     }
@@ -139,6 +147,10 @@ public class TextureViewer extends DraggableButton {
 
     public void removeExceptionCallback(Runnable cb) {
         exceptionCallbacks = CallbackSupport.removeCallbackFromList(exceptionCallbacks, cb);
+    }
+
+    public void setMouseOverListener(MouseOverListener mouseOverListener) {
+        this.mouseOverListener = mouseOverListener;
     }
 
     @Override
@@ -220,6 +232,37 @@ public class TextureViewer extends DraggableButton {
         } finally {
             renderer.setActiveCacheContext(prevCacheContext);
         }
+    }
+
+    @Override
+    public boolean handleEvent(Event evt) {
+        if(mouseOverListener != null && evt.isMouseEvent()) {
+            boolean isInside = false;
+            int x = 0;
+            int y = 0;
+
+            if(image != null && evt.getType() != Event.Type.MOUSE_EXITED) {
+                if(evt.getMouseX() >= getInnerX() && evt.getMouseY() >= getInnerY()) {
+                    x = (int)((evt.getMouseX() - getInnerX()) / zoomX);
+                    y = (int)((evt.getMouseY() - getInnerY()) / zoomY);
+                    isInside = (x >= 0 && y >= 0 && x < image.getWidth() && y < image.getHeight());
+                }
+            }
+
+            if(isInside) {
+                if(rect != null) {
+                    x += rect.getX();
+                    y += rect.getY();
+                }
+                mouseOverListener.mousePosition(x, y);
+                mouseInside = true;
+            } else if(mouseInside) {
+                mouseOverListener.mouseExited();
+                mouseInside = false;
+            }
+        }
+        
+        return super.handleEvent(evt);
     }
 
 }

@@ -52,6 +52,7 @@ public class TextureViewerPane extends DialogLayout {
     private final ScrollPane scrollPane;
     private final Label labelErrorDisplay;
     private final ToggleButton btnShowCompleteTexture;
+    private final Label mousePositionDisplay;
     
     private final SimpleFloatModel zoomFactorX;
     private final SimpleFloatModel zoomFactorY;
@@ -65,8 +66,11 @@ public class TextureViewerPane extends DialogLayout {
         this.scrollPane = new ScrollPane(textureViewer);
         this.labelErrorDisplay = new Label();
         
-        this.zoomFactorX = new SimpleFloatModel(0.1f, 10.0f, 1.0f);
-        this.zoomFactorY = new SimpleFloatModel(0.1f, 10.0f, 1.0f);
+        mousePositionDisplay = new Label();
+        mousePositionDisplay.setTheme("mousePositionDisplay");
+        
+        this.zoomFactorX = new SimpleFloatModel(0.1f, 20.0f, 1.0f);
+        this.zoomFactorY = new SimpleFloatModel(0.1f, 20.0f, 1.0f);
         this.linkZoomFactors = new SimpleBooleanModel(true);
         this.showCompleteTexture = new SimpleBooleanModel(false);
 
@@ -84,12 +88,14 @@ public class TextureViewerPane extends DialogLayout {
         btnShowCompleteTexture.setTheme("showCompleteTexture");
 
         Group horzCtrls = createSequentialGroup()
+                .addWidget(mousePositionDisplay)
                 .addGap()
                 .addWidgets(adjusterZoomX, btnLinkZoomFactors, adjusterZoomY)
                 .addGap()
                 .addWidget(btnShowCompleteTexture)
                 .addGap();
-        Group vertCtrls = createParallelGroup(adjusterZoomX, btnLinkZoomFactors,
+        Group vertCtrls = createParallelGroup(mousePositionDisplay,
+                adjusterZoomX, btnLinkZoomFactors,
                 adjusterZoomY, btnShowCompleteTexture);
 
         setHorizontalGroup(createParallelGroup()
@@ -142,6 +148,14 @@ public class TextureViewerPane extends DialogLayout {
                 scrollPane.setScrollPositionY(scrollStartY - deltaY);
             }
             public void dragStopped() {
+            }
+        });
+        textureViewer.setMouseOverListener(new TextureViewer.MouseOverListener() {
+            public void mousePosition(int x, int y) {
+                mousePositionDisplay.setText("X:"+x+" Y:"+y);
+            }
+            public void mouseExited() {
+                mousePositionDisplay.setText("");
             }
         });
 
