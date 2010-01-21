@@ -327,7 +327,7 @@
         <alias name="editfield.selection" ref="white" tint="#444"/>
 
 
-        <texture name="-icon.combobox" x="10" y="19" width="6" height="7" center="true"/>
+        <texture name="-icon.combobox" x="10" y="19" width="6" height="8" center="true"/>
         <select name="combobox.background">
             <alias ref="area3X" if="armed"/>
             <alias ref="area2X" if="hover"/>
@@ -640,6 +640,12 @@
             <texture x="90" y="28" width="5" height="8" if="expanded"/>
             <texture x="94" y="28" width="5" height="8"/>
         </select>
+        
+        <texture name="splitpane.hsplitter.background" x="4" y="24" width="5" height="1"/>
+        <alias name="splitpane.hsplitter.overlay" ref="none"/>
+        
+        <texture name="splitpane.vsplitter.background" x="1" y="21" width="1" height="5"/>
+        <alias name="splitpane.vsplitter.overlay" ref="none"/>
     </textures>
 
     <fontDef name="button-font" filename="font.fnt" color="white">
@@ -827,5 +833,19 @@
             </map></param>
         </theme>
     </theme>
-    
+
+    <theme name="splitpane" ref="-defaults" allowWildcard="true">
+        <theme name="" ref="*"/>
+        <theme name="splitterHorizontal" ref="-defaults">
+            <param name=""><image>splitpane.hsplitter.*</image></param>
+            <param name="border"><border>background.border</border></param>
+            <param name="mouseCursor"><cursor>cursor.resizecolumn</cursor></param>
+        </theme>
+        <theme name="splitterVertical" ref="-defaults">
+            <param name=""><image>splitpane.vsplitter.*</image></param>
+            <param name="border"><border>background.border</border></param>
+            <param name="mouseCursor"><cursor>cursor.resizerow</cursor></param>
+        </theme>
+    </theme>
+
 </themes>

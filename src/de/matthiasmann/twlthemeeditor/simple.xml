@@ -94,15 +94,6 @@
         <alias name="-icon.leftbutton" ref="-iconE" inset="3,4,4,6"/>
         <alias name="-icon.rightbutton" ref="-iconF" inset="3,4,4,6"/>
 
-        <composed name="splitpane.splitter.background" sizeOverwriteH="9" sizeOverwriteV="9" border="0">
-            <alias ref="button.background"/>
-            <alias ref="-iconM" center="true" inset="0,-1,0,1"/>
-        </composed>
-        <composed name="splitpane.vsplitter.background" sizeOverwriteH="9" sizeOverwriteV="9" border="0">
-            <alias ref="button.background"/>
-            <alias ref="-iconQ" center="true" inset="-1,0,1,0"/>
-        </composed>
-
         <alias name="listbox.display.background" ref="-gradC" if="selected"/>
 
 
@@ -247,20 +238,6 @@
         <param name="hasDragButton"><bool>false</bool></param>
     </theme>
 
-    <theme name="splitpane" ref="-defaults" allowWildcard="true">
-        <theme name="" ref="*"/>
-        <theme name="splitterHorizontal" ref="button">
-            <param name=""><image>splitpane.splitter.*</image></param>
-            <param name="border"><border>background.border</border></param>
-            <param name="mouseCursor"><cursor>cursor.resizecolumn</cursor></param>
-        </theme>
-        <theme name="splitterVertical" ref="button">
-            <param name=""><image>splitpane.vsplitter.*</image></param>
-            <param name="border"><border>background.border</border></param>
-            <param name="mouseCursor"><cursor>cursor.resizerow</cursor></param>
-        </theme>
-    </theme>
-
     <theme name="textarea" ref="-defaults" allowWildcard="true">
         <param name="background"><image>-borderC</image></param>
         <param name="border"><border>background.border</border></param>
@@ -358,12 +335,6 @@
             <param name="minWidth"><int>50</int></param>
             <theme name="pathbox" merge="true">
                 <param name="border"><border>3</border></param>
-                <theme name="node" merge="true">
-                    <param name="font"><font>combobox</font></param>
-                </theme>
-                <theme name="separator" merge="true">
-                    <param name="font"><font>combobox</font></param>
-                </theme>
             </theme>
         </theme>
         <theme name="button" ref="-defaults">

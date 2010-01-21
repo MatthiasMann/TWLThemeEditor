@@ -310,7 +310,7 @@
 
     <theme name="previewpane" ref="dialoglayout">
         <param name=""><image>panel.*</image></param>
-        <param name="border"><border>0</border></param>
+        <param name="border"><border>0,5</border></param>
         <theme name="previewwidget" ref="-defaults">
             <param name="background"><image>black</image></param>
 <!--        <param name="mouseCursor"><cursor>cursor.none</cursor></param> -->
