@@ -165,6 +165,8 @@ public class PreviewPane extends DialogLayout {
                 updateTestWidgetProperties();
             }
         });
+        
+        changeTestWidget();
     }
 
     public void setURL(URL url) {
