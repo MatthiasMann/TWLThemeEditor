@@ -27,46 +27,62 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
+package de.matthiasmann.twlthemeeditor.gui.editors;
 
-import de.matthiasmann.twl.ComboBox;
+import de.matthiasmann.twl.Color;
+import de.matthiasmann.twl.ColorSelector;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.ListModel;
-import de.matthiasmann.twlthemeeditor.datamodel.Kind;
-import de.matthiasmann.twlthemeeditor.datamodel.NodeReference;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Utils;
-import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
+import de.matthiasmann.twl.model.ColorSpaceHSL;
+import de.matthiasmann.twlthemeeditor.gui.Context;
+import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
+import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.TextureViewerPane;
+import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeReference, NodeReferenceProperty> {
+public class ColorEditorFactory implements PropertyEditorFactory<Color, ColorProperty> {
 
     private final Context ctx;
 
-    public NodeReferenceEditorFactory(Context ctx) {
+    public ColorEditorFactory(Context ctx) {
         this.ctx = ctx;
     }
 
-    public Widget create(final PropertyAccessor<NodeReference, NodeReferenceProperty> pa) {
-        ThemeTreeNode limit = pa.getProperty().getLimit();
-        final Kind kind = pa.getProperty().getKind();
-        final NodeReference ref = pa.getValue(null);
-        final ListModel<String> refableNodes = ctx.getRefableNodes(limit, kind);
-        final ComboBox<String> cb = new ComboBox<String>(refableNodes);
-        cb.setSelected((ref != null) ? Utils.find(refableNodes, ref.getName()) : -1);
-        cb.addCallback(new Runnable() {
+    public Widget create(final PropertyAccessor<Color, ColorProperty> pa) {
+        final ColorSelector cs = new ColorSelector(new ColorSpaceHSL());
+        cs.setUseLabels(false);
+        cs.setShowPreview(true);
+        cs.setColor(pa.getValue(Color.WHITE));
+        cs.addCallback(new Runnable() {
             public void run() {
-                int selected = cb.getSelected();
-                if(selected >= 0) {
-                    pa.setValue(new NodeReference(refableNodes.getEntry(selected), kind));
+                Color color = cs.getColor();
+                pa.setValue(color);
+                setTextureViewerTint(color);
+            }
+        });
+
+        pa.setWidgetsToEnable(cs);
+        pa.addActiveCallback(new Runnable() {
+            public void run() {
+                TextureViewerPane tvp = ctx.getTextureViewerPane();
+                if(tvp != null) {
+                    tvp.setTintColor(pa.isActive() ? cs.getColor() : Color.WHITE);
                 }
             }
         });
 
-        return cb;
+        setTextureViewerTint(cs.getColor());
+
+        return cs;
     }
 
+    void setTextureViewerTint(Color color) {
+        TextureViewerPane tvp = ctx.getTextureViewerPane();
+        if(tvp != null) {
+            tvp.setTintColor(color);
+        }
+    }
 }

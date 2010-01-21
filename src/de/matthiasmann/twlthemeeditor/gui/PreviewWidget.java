@@ -58,7 +58,7 @@ public class PreviewWidget extends Widget {
     private ThemeManager theme;
     private GUI testGUI;
     private boolean reloadTheme;
-    private Class<? extends Widget> widgetClass;
+    private TestWidgetFactory widgetFactory;
     private Widget testWidget;
     private Runnable testWidgetChangedCB;
 
@@ -85,8 +85,8 @@ public class PreviewWidget extends Widget {
         this.reloadTheme = true;
     }
 
-    public void setWidgetClass(Class<? extends Widget> widgetClass) {
-        this.widgetClass = widgetClass;
+    public void setWidgetFactory(TestWidgetFactory factory) {
+        this.widgetFactory = factory;
         this.testWidget = null;
     }
 
@@ -186,10 +186,10 @@ public class PreviewWidget extends Widget {
             return;
         }
 
-        if(testWidget == null && widgetClass != null) {
+        if(testWidget == null && widgetFactory != null) {
             testGUI.getRootPane().removeAllChildren();
             try {
-                testWidget = widgetClass.newInstance();
+                testWidget = widgetFactory.getOrCreate();
                 testGUI.getRootPane().add(testWidget);
 
                 if(testWidgetChangedCB != null) {

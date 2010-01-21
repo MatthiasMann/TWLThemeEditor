@@ -29,43 +29,49 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.BooleanModel;
-import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twl.utils.ClassUtils;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  *
  * @author Matthias Mann
  */
-public class BooleanEditorFactory implements PropertyEditorFactory<Boolean, Property<Boolean>> {
+public class TestWidgetFactory {
+    private final Class<? extends Widget> clazz;
+    private final String name;
+    private final Object[] params;
 
-    public Widget create(final PropertyAccessor<Boolean, Property<Boolean>> pa) {
-        Property<Boolean> property = pa.getProperty();
-        ToggleButton btn = new ToggleButton((property instanceof BooleanModel)
-                ? (BooleanModel)property
-                : new PropertyBooleanModel(property));
-        btn.setText(pa.getDisplayName());
-        btn.setTheme("boolean");
-        return btn;
+    private Widget widget;
+
+    public TestWidgetFactory(Class<? extends Widget> clazz, String name, Object ... params) {
+        this.clazz = clazz;
+        this.name = name;
+        this.params = params;
     }
 
-    static class PropertyBooleanModel implements BooleanModel {
-        final Property<Boolean> property;
-        public PropertyBooleanModel(Property<Boolean> property) {
-            this.property = property;
+    public String getName() {
+        return name;
+    }
+
+    public Widget getOrCreate() throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        if(widget == null) {
+            if(params.length == 0) {
+                widget = clazz.newInstance();
+            } else {
+                for(Constructor<?> c : clazz.getConstructors()) {
+                    Class<?>[] parameterTypes = c.getParameterTypes();
+                    if(ClassUtils.isParamsCompatible(parameterTypes, params)) {
+                        widget = clazz.cast(c.newInstance(params));
+                    }
+                }
+            }
         }
-        public void addCallback(Runnable callback) {
-            property.addValueChangedCallback(callback);
-        }
-        public void removeCallback(Runnable callback) {
-            property.removeValueChangedCallback(callback);
-        }
-        public boolean getValue() {
-            return property.getPropertyValue();
-        }
-        public void setValue(boolean value) {
-            property.setPropertyValue(value);
-        }
+        return widget;
+    }
+
+    public void clearCache() {
+        widget = null;
     }
 }

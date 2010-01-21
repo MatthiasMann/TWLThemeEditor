@@ -27,27 +27,53 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
+package de.matthiasmann.twlthemeeditor.gui.editors;
 
-import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
+import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 
 /**
  *
  * @author Matthias Mann
  */
-public class StringEditorFactory implements PropertyEditorFactory<String, Property<String>> {
+public class IntegerEditorFactory implements PropertyEditorFactory<Integer, Property<Integer>> {
 
-    public Widget create(final PropertyAccessor<String, Property<String>> pa) {
-        final EditField ef = new EditField();
-        ef.setText(pa.getValue(""));
-        ef.addCallback(new EditField.Callback() {
-            public void callback(int key) {
-                pa.setValue(ef.getText());
-            }
-        });
+    public Widget create(final PropertyAccessor<Integer, Property<Integer>> pa) {
+        Property<Integer> property = pa.getProperty();
+        ValueAdjusterInt va = new ValueAdjusterInt((property instanceof IntegerModel)
+                ? (IntegerModel)property
+                : new PropertyIntegerModel(property));
+        pa.setWidgetsToEnable(va);
 
-        return ef;
+        return va;
+    }
+
+    static class PropertyIntegerModel implements IntegerModel {
+        final Property<Integer> property;
+        public PropertyIntegerModel(Property<Integer> property) {
+            this.property = property;
+        }
+        public void addCallback(Runnable callback) {
+            property.addValueChangedCallback(callback);
+        }
+        public void removeCallback(Runnable callback) {
+            property.removeValueChangedCallback(callback);
+        }
+        public int getValue() {
+            return property.getPropertyValue();
+        }
+        public void setValue(int value) {
+            property.setPropertyValue(value);
+        }
+        public int getMaxValue() {
+            return Short.MAX_VALUE;
+        }
+        public int getMinValue() {
+            return Short.MIN_VALUE;
+        }
     }
 }

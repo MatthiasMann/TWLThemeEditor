@@ -27,51 +27,49 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
+package de.matthiasmann.twlthemeeditor.gui.editors;
 
-import de.matthiasmann.twl.ValueAdjusterInt;
+import de.matthiasmann.twl.ComboBox;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.IntegerModel;
-import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twl.model.ListModel;
+import de.matthiasmann.twlthemeeditor.datamodel.Kind;
+import de.matthiasmann.twlthemeeditor.datamodel.NodeReference;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.datamodel.Utils;
+import de.matthiasmann.twlthemeeditor.gui.Context;
+import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
+import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
+import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class IntegerEditorFactory implements PropertyEditorFactory<Integer, Property<Integer>> {
+public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeReference, NodeReferenceProperty> {
 
-    public Widget create(final PropertyAccessor<Integer, Property<Integer>> pa) {
-        Property<Integer> property = pa.getProperty();
-        ValueAdjusterInt va = new ValueAdjusterInt((property instanceof IntegerModel)
-                ? (IntegerModel)property
-                : new PropertyIntegerModel(property));
-        pa.setWidgetsToEnable(va);
+    private final Context ctx;
 
-        return va;
+    public NodeReferenceEditorFactory(Context ctx) {
+        this.ctx = ctx;
     }
 
-    static class PropertyIntegerModel implements IntegerModel {
-        final Property<Integer> property;
-        public PropertyIntegerModel(Property<Integer> property) {
-            this.property = property;
-        }
-        public void addCallback(Runnable callback) {
-            property.addValueChangedCallback(callback);
-        }
-        public void removeCallback(Runnable callback) {
-            property.removeValueChangedCallback(callback);
-        }
-        public int getValue() {
-            return property.getPropertyValue();
-        }
-        public void setValue(int value) {
-            property.setPropertyValue(value);
-        }
-        public int getMaxValue() {
-            return Short.MAX_VALUE;
-        }
-        public int getMinValue() {
-            return Short.MIN_VALUE;
-        }
+    public Widget create(final PropertyAccessor<NodeReference, NodeReferenceProperty> pa) {
+        ThemeTreeNode limit = pa.getProperty().getLimit();
+        final Kind kind = pa.getProperty().getKind();
+        final NodeReference ref = pa.getValue(null);
+        final ListModel<String> refableNodes = ctx.getRefableNodes(limit, kind);
+        final ComboBox<String> cb = new ComboBox<String>(refableNodes);
+        cb.setSelected((ref != null) ? Utils.find(refableNodes, ref.getName()) : -1);
+        cb.addCallback(new Runnable() {
+            public void run() {
+                int selected = cb.getSelected();
+                if(selected >= 0) {
+                    pa.setValue(new NodeReference(refableNodes.getEntry(selected), kind));
+                }
+            }
+        });
+
+        return cb;
     }
+
 }

@@ -27,58 +27,37 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
+package de.matthiasmann.twlthemeeditor.gui.editors;
 
-import de.matthiasmann.twl.Color;
-import de.matthiasmann.twl.ColorSelector;
+import de.matthiasmann.twl.ComboBox;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.ColorSpaceHSL;
-import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
+import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twl.model.SimpleChangableListModel;
+import de.matthiasmann.twlthemeeditor.datamodel.Utils;
+import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
+import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ColorEditor implements PropertyEditorFactory<Color, ColorProperty> {
+public class EnumEditorFactory<E extends Enum<E>> implements PropertyEditorFactory<E, Property<E>> {
 
-    private final Context ctx;
-
-    public ColorEditor(Context ctx) {
-        this.ctx = ctx;
-    }
-
-    public Widget create(final PropertyAccessor<Color, ColorProperty> pa) {
-        final ColorSelector cs = new ColorSelector(new ColorSpaceHSL());
-        cs.setUseLabels(false);
-        cs.setShowPreview(true);
-        cs.setColor(pa.getValue(Color.WHITE));
-        cs.addCallback(new Runnable() {
+    public Widget create(PropertyAccessor<E, Property<E>> pa) {
+        final Property<E> property = pa.getProperty();
+        final SimpleChangableListModel<E> model = new SimpleChangableListModel<E>(
+                property.getType().getEnumConstants());
+        final ComboBox<E> comboBox = new ComboBox<E>(model);
+        comboBox.setSelected(Utils.find(model, property.getPropertyValue()));
+        comboBox.addCallback(new Runnable() {
             public void run() {
-                Color color = cs.getColor();
-                pa.setValue(color);
-                setTextureViewerTint(color);
-            }
-        });
-
-        pa.setWidgetsToEnable(cs);
-        pa.addActiveCallback(new Runnable() {
-            public void run() {
-                TextureViewerPane tvp = ctx.getTextureViewerPane();
-                if(tvp != null) {
-                    tvp.setTintColor(pa.isActive() ? cs.getColor() : Color.WHITE);
+                int idx = comboBox.getSelected();
+                if(idx >= 0) {
+                    property.setPropertyValue(model.getEntry(idx));
                 }
             }
         });
-
-        setTextureViewerTint(cs.getColor());
-
-        return cs;
+        return comboBox;
     }
 
-    void setTextureViewerTint(Color color) {
-        TextureViewerPane tvp = ctx.getTextureViewerPane();
-        if(tvp != null) {
-            tvp.setTintColor(color);
-        }
-    }
 }

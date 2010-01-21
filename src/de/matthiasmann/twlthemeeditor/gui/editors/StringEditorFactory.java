@@ -27,67 +27,29 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
+package de.matthiasmann.twlthemeeditor.gui.editors;
 
-import de.matthiasmann.twl.Button;
-import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twlthemeeditor.properties.NameProperty;
-import org.lwjgl.input.Keyboard;
+import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
+import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 
 /**
  *
  * @author Matthias Mann
  */
-public class NameEditorFactory implements PropertyEditorFactory<String, NameProperty> {
+public class StringEditorFactory implements PropertyEditorFactory<String, Property<String>> {
 
-    public Widget create(final PropertyAccessor<String, NameProperty> pa) {
-        final Button applyBtn = new Button();
+    public Widget create(final PropertyAccessor<String, Property<String>> pa) {
         final EditField ef = new EditField();
-
-        final Runnable applyCB = new Runnable() {
-            public void run() {
-                try {
-                    pa.setValue(ef.getText());
-                    ef.setErrorMessage(null);
-                    applyBtn.setEnabled(false);
-                } catch(IllegalArgumentException ex) {
-                    ef.setErrorMessage(ex.getMessage());
-                }
-            }
-        };
-
-        applyBtn.setTheme("applybutton");
-        applyBtn.addCallback(applyCB);
-        applyBtn.setEnabled(false);
-
         ef.setText(pa.getValue(""));
         ef.addCallback(new EditField.Callback() {
             public void callback(int key) {
-                if(key == Keyboard.KEY_RETURN) {
-                    if(applyBtn.isEnabled()) {
-                        applyCB.run();
-                    }
-                } else {
-                    String name = ef.getText();
-                    try {
-                        pa.getProperty().validateName(name);
-                        ef.setErrorMessage(null);
-                        applyBtn.setEnabled(!pa.getValue("").equals(name));
-                    } catch(IllegalArgumentException ex) {
-                        ef.setErrorMessage(ex.getMessage());
-                        applyBtn.setEnabled(false);
-                    }
-                }
+                pa.setValue(ef.getText());
             }
         });
 
-        DialogLayout l = new DialogLayout();
-        l.setTheme("nameeditor");
-        l.setHorizontalGroup(l.createSequentialGroup(ef, applyBtn));
-        l.setVerticalGroup(l.createParallelGroup(ef, applyBtn));
-        return l;
+        return ef;
     }
-
 }

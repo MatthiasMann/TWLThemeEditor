@@ -52,6 +52,7 @@ import de.matthiasmann.twl.model.SimpleTextAreaModel;
 import de.matthiasmann.twl.model.TextAreaModel;
 import de.matthiasmann.twl.utils.ClassUtils;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestLabel;
+import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollbar;
 import de.matthiasmann.twlthemeeditor.properties.BoundProperty;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import java.beans.BeanInfo;
@@ -70,16 +71,6 @@ import java.util.logging.Logger;
  */
 public class PreviewPane extends DialogLayout {
 
-    static class WidgetEntry {
-        final Class<? extends Widget> clazz;
-        final String name;
-
-        public WidgetEntry(Class<? extends Widget> clazz, String name) {
-            this.clazz = clazz;
-            this.name = name;
-        }
-    }
-
     private final PreviewWidget previewWidget;
     private final Label labelErrorDisplay;
     private final Button btnClearStackTrace;
@@ -87,19 +78,19 @@ public class PreviewPane extends DialogLayout {
     private final SimpleIntegerModel testWidgetModel;
     private final CollapsiblePanel collapsiblePanel;
     private final ScrollPane widgetPropertiesScrollPane;
+    private final TestWidgetFactory[] testWidgetFactories = {
+        new TestWidgetFactory(Widget.class, "Widget"),
+        new TestWidgetFactory(TestLabel.class, "Label"),
+        new TestWidgetFactory(Button.class, "Button", "Press me !"),
+        new TestWidgetFactory(ToggleButton.class, "ToggleButton", "Toggle me !"),
+        new TestWidgetFactory(EditField.class, "EditField"),
+        new TestWidgetFactory(TestScrollbar.class, "HScrollbar", Scrollbar.Orientation.HORIZONTAL),
+        new TestWidgetFactory(TestScrollbar.class, "VScrollbar", Scrollbar.Orientation.VERTICAL),
+        new TestWidgetFactory(PreviewWidgets.class, "Widgets"),
+        new TestWidgetFactory(TestFrameWithWidgets.class, "Frame with Widgets"),
+    };
 
     private Context ctx;
-
-    private static final WidgetEntry[] TEST_WIDGET_CLASSES = {
-        new WidgetEntry(Widget.class, "Widget"),
-        new WidgetEntry(TestLabel.class, "Label"),
-        new WidgetEntry(Button.class, "Button"),
-        new WidgetEntry(ToggleButton.class, "ToggleButton"),
-        new WidgetEntry(EditField.class, "EditField"),
-        new WidgetEntry(Scrollbar.class, "Scrollbar"),
-        new WidgetEntry(PreviewWidgets.class, "Widgets"),
-        new WidgetEntry(TestFrameWithWidgets.class, "Frame with Widgets"),
-    };
     
     public PreviewPane() {
         this.previewWidget = new PreviewWidget();
@@ -112,14 +103,22 @@ public class PreviewPane extends DialogLayout {
         this.btnClearStackTrace = new Button("Clear");
         this.btnShowStackTrace = new Button("Stack Trace");
 
-        ToggleButton[] testWidgetButtons = new ToggleButton[TEST_WIDGET_CLASSES.length];
+        ToggleButton[] testWidgetButtons = new ToggleButton[testWidgetFactories.length];
         testWidgetModel = new SimpleIntegerModel(0, testWidgetButtons.length-1, 0);
         for(int i=0 ; i<testWidgetButtons.length ; i++) {
             ToggleButton button = new ToggleButton(new OptionBooleanModel(testWidgetModel, i));
             button.setTheme("radiobutton");
-            button.setText(TEST_WIDGET_CLASSES[i].name);
+            button.setText(testWidgetFactories[i].getName());
             testWidgetButtons[i] = button;
         }
+
+        Button btnRecreateTestWidgets = new Button("Recreate Widgets");
+        btnRecreateTestWidgets.setTooltipContent("Clears widget cache and recreates current widget");
+        btnRecreateTestWidgets.addCallback(new Runnable() {
+            public void run() {
+                recreateTestWidgets();
+            }
+        });
 
         labelErrorDisplay.setTheme("errorDisplay");
         labelErrorDisplay.setClip(true);
@@ -132,11 +131,11 @@ public class PreviewPane extends DialogLayout {
         collapsiblePanel = new CollapsiblePanel(CollapsiblePanel.Direction.HORIZONTAL, "", widgetPropertiesScrollPane, null);
         
         setHorizontalGroup(createParallelGroup()
-                .addGroup(createSequentialGroup().addGap().addWidgetsWithGap("radiobutton", testWidgetButtons).addGap())
+                .addGroup(createSequentialGroup().addGap().addWidgetsWithGap("radiobutton", testWidgetButtons).addGap().addWidget(btnRecreateTestWidgets))
                 .addGroup(createSequentialGroup(previewWidget, collapsiblePanel))
                 .addGroup(createSequentialGroup(labelErrorDisplay, btnClearStackTrace, btnShowStackTrace).addGap(SMALL_GAP)));
         setVerticalGroup(createSequentialGroup()
-                .addGroup(createParallelGroup(testWidgetButtons))
+                .addGroup(createParallelGroup(testWidgetButtons).addWidget(btnRecreateTestWidgets))
                 .addGroup(createParallelGroup(previewWidget, collapsiblePanel))
                 .addGroup(createParallelGroup(labelErrorDisplay, btnClearStackTrace, btnShowStackTrace)));
 
@@ -279,7 +278,14 @@ public class PreviewPane extends DialogLayout {
     }
 
     void changeTestWidget() {
-        previewWidget.setWidgetClass(TEST_WIDGET_CLASSES[testWidgetModel.getValue()].clazz);
+        previewWidget.setWidgetFactory(testWidgetFactories[testWidgetModel.getValue()]);
+    }
+
+    void recreateTestWidgets() {
+        for(TestWidgetFactory factory : testWidgetFactories) {
+            factory.clearCache();
+        }
+        changeTestWidget();
     }
 
     void updateTestWidgetProperties() {

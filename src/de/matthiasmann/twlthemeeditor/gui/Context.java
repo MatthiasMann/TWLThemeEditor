@@ -29,6 +29,19 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twlthemeeditor.gui.editors.ColorEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.GapEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.WeightsEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.SplitEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.NameEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.DimensionEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.BorderEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.RectEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.HotSpotEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.StringEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.NodeReferenceEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.IntegerEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.BooleanEditorFactory;
 import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
@@ -37,6 +50,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.gui.editors.EnumEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
@@ -65,7 +79,7 @@ public class Context {
         this.model = model;
         
         factories1 = new TypeMapping<PropertyEditorFactory<?,?>>();
-        factories1.put(ColorProperty.class, new ColorEditor(this));
+        factories1.put(ColorProperty.class, new ColorEditorFactory(this));
         factories1.put(RectProperty.class, new RectEditorFactory(this));
         factories1.put(ConditionProperty.class, new ConditionEditor());
         factories1.put(NodeReferenceProperty.class, new NodeReferenceEditorFactory(this));
@@ -81,6 +95,7 @@ public class Context {
         factories2.put(String.class, new StringEditorFactory());
         factories2.put(Integer.class, new IntegerEditorFactory());
         factories2.put(Boolean.class, new BooleanEditorFactory());
+        factories2.put(Enum.class, new EnumEditorFactory());
     }
 
     public ListModel<String> getRefableNodes(ThemeTreeNode stopAt, Kind kind) {
