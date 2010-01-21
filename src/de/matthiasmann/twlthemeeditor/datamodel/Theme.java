@@ -44,7 +44,7 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Theme extends AbstractThemeTreeNode implements HasProperties {
+public class Theme extends ThemeTreeNode implements HasProperties {
 
     protected final NameProperty nameProperty;
 

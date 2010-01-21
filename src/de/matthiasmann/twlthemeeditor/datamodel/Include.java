@@ -38,7 +38,7 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Include extends AbstractThemeTreeNode {
+public class Include extends ThemeTreeNode {
 
     private final ThemeFile includedThemeFile;
 

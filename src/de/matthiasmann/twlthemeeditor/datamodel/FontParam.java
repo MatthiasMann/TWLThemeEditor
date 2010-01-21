@@ -43,7 +43,7 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class FontParam extends AbstractThemeTreeNode implements HasProperties {
+public class FontParam extends ThemeTreeNode implements HasProperties {
 
     protected final ConditionProperty conditionProperty;
 

@@ -52,7 +52,7 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Param extends AbstractThemeTreeNode implements HasProperties {
+public class Param extends ThemeTreeNode implements HasProperties {
 
     protected final Theme theme;
     protected final NameProperty nameProperty;

@@ -47,7 +47,7 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Textures extends AbstractThemeTreeNode {
+public class Textures extends ThemeTreeNode {
 
     private Dimension textureDimensions;
 

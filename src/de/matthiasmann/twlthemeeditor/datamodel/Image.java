@@ -60,7 +60,7 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public abstract class Image extends AbstractThemeTreeNode implements HasProperties {
+public abstract class Image extends ThemeTreeNode implements HasProperties {
 
     protected final Textures textures;
     protected final NameProperty nameProperty;

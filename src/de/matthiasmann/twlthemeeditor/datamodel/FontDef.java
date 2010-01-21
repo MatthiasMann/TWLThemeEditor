@@ -51,7 +51,7 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class FontDef extends AbstractThemeTreeNode implements HasProperties {
+public class FontDef extends ThemeTreeNode implements HasProperties {
 
     protected final ArrayList<VirtualFile> virtualFontFiles;
     protected final NameProperty nameProperty;

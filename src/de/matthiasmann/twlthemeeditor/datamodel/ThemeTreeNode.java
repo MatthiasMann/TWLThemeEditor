@@ -29,8 +29,15 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twl.model.AbstractTreeTableNode;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.DeleteNodeOperation;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.MoveNodeOperations;
+import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 import org.jdom.Element;
 
@@ -38,23 +45,174 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public interface ThemeTreeNode extends TreeTableNode {
+public abstract class ThemeTreeNode extends AbstractTreeTableNode {
 
-    public void addChildren() throws IOException;
+    protected final ThemeFile themeFile;
+    protected final Element element;
+    protected final ArrayList<Property<?>> properties;
 
-    public Element getDOMElement();
+    protected boolean error;
 
-    public Kind getKind();
+    protected ThemeTreeNode(ThemeFile themeFile, TreeTableNode parent, Element element) {
+        super(parent);
+        this.themeFile = themeFile;
+        this.element = element;
+        this.properties = new ArrayList<Property<?>>();
+        setLeaf(true);
+    }
+
+    public final ThemeTreeModel getThemeTreeModel() {
+        return (ThemeTreeModel)getTreeTableModel();
+    }
+
+    public final ThemeFile getThemeFile() {
+        return themeFile;
+    }
+
+    public final Element getDOMElement() {
+        return element;
+    }
+
+    public void setError(boolean hasError) {
+        this.error = hasError;
+        if(getParent() instanceof ThemeTreeNode) {
+            ((ThemeTreeNode)getParent()).setError(hasError);
+        }
+    }
+
+    public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz) {
+        ArrayList<E> result = new ArrayList<E>();
+        for(int i=0,n=getNumChildren() ; i<n ; i++) {
+            TreeTableNode child = getChild(i);
+            if(clazz.isInstance(child)) {
+                result.add(clazz.cast(child));
+            }
+        }
+        return result;
+    }
+
+    public abstract Kind getKind();
     
-    public String getName();
+    public abstract void addToXPP(DomXPPParser xpp);
     
-    public <E extends TreeTableNode> List<E> getChildren(Class<E> clazz);
+    public abstract void addChildren() throws IOException;
 
-    public void addToXPP(DomXPPParser xpp);
-    
-    public List<ThemeTreeOperation> getOperations();
+    protected void addChildren(ThemeFile themeFile, Element node, DomWrapper wrapper) throws IOException {
+        IdentityHashMap<Element, TreeTableNode> existingNodes = new IdentityHashMap<Element, TreeTableNode>();
+        for(int i=0,n=getNumChildren() ; i<n ; i++) {
+            TreeTableNode ttn = getChild(i);
+            if(ttn instanceof ThemeTreeNode) {
+                Element e = ((ThemeTreeNode)ttn).getDOMElement();
+                if(e != null) {
+                    existingNodes.put(e, ttn);
+                }
+            }
+        }
 
-    public void setError(boolean hasError);
+        int pos = 0;
+        for(Object child : node.getChildren()) {
+            if(child instanceof Element) {
+                Element e = (Element)child;
+                TreeTableNode ttn = existingNodes.remove(e);
+                if(ttn != null) {
+                    if(getChild(pos) != ttn) {
+                        removeChild(ttn);
+                        insertChild(ttn, pos);
+                    }
+                } else {
+                    ttn = wrapper.wrap(themeFile, this, e);
+                    if(ttn == null) {
+                        ttn = new Unknown(this, e, themeFile);
+                    }
+                    if(ttn instanceof ThemeTreeNode) {
+                        ((ThemeTreeNode)ttn).addChildren();
+                    }
+                    insertChild(ttn, pos);
+                }
+                pos++;
+            }
+        }
 
-    public void handleNodeRenamed(String from, String to, Kind kind);
+        for(TreeTableNode ttn : existingNodes.values()) {
+            removeChild(ttn);
+        }
+
+        setLeaf(getNumChildren() == 0);
+    }
+
+    private void removeChild(TreeTableNode ttn) {
+        int childIndex = super.getChildIndex(ttn);
+        if(childIndex >= 0) {
+            super.removeChild(childIndex);
+        }
+    }
+
+    public List<ThemeTreeOperation> getOperations() {
+        List<ThemeTreeOperation> result = new ArrayList<ThemeTreeOperation>();
+        result.add(new DeleteNodeOperation(element, this));
+        result.add(new MoveNodeOperations("opMoveNodeUp", element, this, -1));
+        result.add(new MoveNodeOperations("opMoveNodeDown", element, this, +1));
+        return result;
+    }
+
+    public Object getData(int column) {
+        switch (column) {
+            case 0: {
+                String displayName = getDisplayName();
+                if(error) {
+                    return new NodeNameWithError(displayName);
+                } else if(isModified()) {
+                    return new NodeNameModified(displayName);
+                } else {
+                    return displayName;
+                }
+            }
+            case 1:
+                return getType();
+            default:
+                return "";
+        }
+    }
+
+    public String getDisplayName() {
+        String name = getName();
+        if(name == null && (getParent() instanceof NameGenerator)) {
+            name = ((NameGenerator)getParent()).generateName(this);
+        }
+        if(name == null) {
+            name = "Unnamed #" + (1+getParent().getChildIndex(this));
+        }
+        return name;
+    }
+
+    public abstract String getName();
+
+    protected String getType() {
+        return element.getName();
+    }
+
+    protected boolean isModified() {
+        return false;
+    }
+
+    public final void handleNodeRenamed(String from, String to, Kind kind) {
+        for(Property<?> property : properties) {
+            if(property instanceof NodeReferenceProperty) {
+                ((NodeReferenceProperty)property).handleNodeRenamed(from, to, kind);
+            }
+        }
+        for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
+            node.handleNodeRenamed(from, to, kind);
+        }
+    }
+
+    public Property<?>[] getProperties() {
+        return properties.toArray(new Property[properties.size()]);
+    }
+
+    protected final void addProperty(Property<?> property) {
+        themeFile.registerProperty(property);
+        properties.add(property);
+    }
+
 }

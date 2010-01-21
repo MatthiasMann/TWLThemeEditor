@@ -37,7 +37,7 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Unknown extends AbstractThemeTreeNode {
+public class Unknown extends ThemeTreeNode {
 
     public Unknown(TreeTableNode parent, Element element, ThemeFile themeFile) {
         super(themeFile, parent, element);

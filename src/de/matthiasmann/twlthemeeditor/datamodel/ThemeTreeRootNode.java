@@ -38,7 +38,7 @@ import java.util.List;
  *
  * @author Matthias Mann
  */
-public class ThemeTreeRootNode extends AbstractThemeTreeNode {
+public class ThemeTreeRootNode extends ThemeTreeNode {
 
     public ThemeTreeRootNode(ThemeFile themeFile, TreeTableNode parent) {
         super(themeFile, parent, themeFile.getRootElement());
