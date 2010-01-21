@@ -51,9 +51,11 @@ import de.matthiasmann.twl.model.SimpleIntegerModel;
 import de.matthiasmann.twl.model.SimpleTextAreaModel;
 import de.matthiasmann.twl.model.TextAreaModel;
 import de.matthiasmann.twl.utils.ClassUtils;
+import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestLabel;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollbar;
 import de.matthiasmann.twlthemeeditor.properties.BoundProperty;
+import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -296,7 +298,7 @@ public class PreviewPane extends DialogLayout {
         }
         ArrayList<Property<?>> properties = new ArrayList<Property<?>>();
         properties.add(new WidgetRectProperty(testWidget));
-        properties.add(new AbstractProperty<String>() {
+        properties.add(new NodeReferenceProperty(new AbstractProperty<String>() {
             public boolean canBeNull() {
                 return false;
             }
@@ -316,7 +318,7 @@ public class PreviewPane extends DialogLayout {
                 testWidget.setTheme(value);
                 testWidget.reapplyTheme();
             }
-        });
+        }, null, Kind.THEME));
         addBeanProperties(testWidget, properties);
         
         PropertyPanel panel = new PropertyPanel(ctx, properties.toArray(new Property<?>[properties.size()]));

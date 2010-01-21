@@ -55,4 +55,8 @@ public class NodeReference {
     public String toString() {
         return name;
     }
+
+    public boolean isNone() {
+        return kind == Kind.IMAGE && "none".equals(name);
+    }
 }

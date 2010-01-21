@@ -206,6 +206,19 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
         }
     }
 
+    public final ThemeTreeNode findNode(String name, Kind kind) {
+        if(getKind() == kind && name.equals(getName())) {
+            return this;
+        }
+        for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
+            ThemeTreeNode result = node.findNode(name, kind);
+            if(result != null) {
+                return result;
+            }
+        }
+        return null;
+    }
+
     public Property<?>[] getProperties() {
         return properties.toArray(new Property[properties.size()]);
     }
@@ -213,6 +226,18 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
     protected final void addProperty(Property<?> property) {
         themeFile.registerProperty(property);
         properties.add(property);
+    }
+
+    @Override
+    public String toString() {
+        String name = getName();
+        if(name != null) {
+            return getKind() + " " + name;
+        } else if(getParent() != null) {
+            return getParent().toString() + "/" + element.getName();
+        } else {
+            return "<"+element.getName()+">";
+        }
     }
 
 }

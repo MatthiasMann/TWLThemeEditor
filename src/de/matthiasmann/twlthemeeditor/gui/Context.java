@@ -48,6 +48,7 @@ import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.utils.TypeMapping;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
+import de.matthiasmann.twlthemeeditor.datamodel.NodeReference;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.gui.editors.EnumEditorFactory;
@@ -74,6 +75,7 @@ public class Context {
     private final TypeMapping<PropertyEditorFactory<?,?>> factories2;
 
     private TextureViewerPane textureViewerPane;
+    private ThemeTreePane themeTreePane;
 
     public Context(ThemeTreeModel model) {
         this.model = model;
@@ -121,6 +123,15 @@ public class Context {
         return result;
     }
 
+    public void selectTarget(NodeReference ref) {
+        if(ref != null && themeTreePane != null) {
+            ThemeTreeNode node = model.findNode(ref.getName(), ref.getKind());
+            if(node != null) {
+                themeTreePane.selectNode(node);
+            }
+        }
+    }
+
     public PropertyEditorFactory<?,?> getFactory(Property<?> property) {
         PropertyEditorFactory<?,?> factory = factories1.get(property.getClass());
         if(factory == null) {
@@ -139,6 +150,14 @@ public class Context {
 
     public void setTextureViewerPane(TextureViewerPane textureViewerPane) {
         this.textureViewerPane = textureViewerPane;
+    }
+
+    public ThemeTreePane getThemeTreePane() {
+        return themeTreePane;
+    }
+
+    public void setThemeTreePane(ThemeTreePane themeTreePane) {
+        this.themeTreePane = themeTreePane;
     }
     
 }

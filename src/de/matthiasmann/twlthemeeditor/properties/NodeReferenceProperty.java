@@ -55,7 +55,7 @@ public class NodeReferenceProperty extends DerivedProperty<NodeReference> {
     }
 
     public void setPropertyValue(NodeReference value) throws IllegalArgumentException {
-        if(value.getKind() == kind) {
+        if(value == null || value.getKind() == kind) {
             base.setPropertyValue((value != null) ? value.getName() : null);
         }
     }

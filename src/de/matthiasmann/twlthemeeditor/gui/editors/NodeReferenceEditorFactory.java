@@ -29,7 +29,9 @@
  */
 package de.matthiasmann.twlthemeeditor.gui.editors;
 
+import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.ComboBox;
+import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
@@ -59,17 +61,32 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
         final NodeReference ref = pa.getValue(null);
         final ListModel<String> refableNodes = ctx.getRefableNodes(limit, kind);
         final ComboBox<String> cb = new ComboBox<String>(refableNodes);
+        final Button btnJump = new Button();
         cb.setSelected((ref != null) ? Utils.find(refableNodes, ref.getName()) : -1);
         cb.addCallback(new Runnable() {
             public void run() {
                 int selected = cb.getSelected();
                 if(selected >= 0) {
-                    pa.setValue(new NodeReference(refableNodes.getEntry(selected), kind));
+                    NodeReference newRef = new NodeReference(refableNodes.getEntry(selected), kind);
+                    pa.setValue(newRef);
+                    btnJump.setEnabled(!newRef.isNone());
                 }
             }
         });
+        btnJump.setTheme("jumpbutton");
+        btnJump.setEnabled(ref != null && !ref.isNone());
+        btnJump.addCallback(new Runnable() {
+            public void run() {
+                ctx.selectTarget(pa.getValue(null));
+            }
+        });
 
-        return cb;
+        DialogLayout l = new DialogLayout();
+        l.setTheme("nodereferenceeditor");
+        l.setHorizontalGroup(l.createSequentialGroup(cb, btnJump));
+        l.setVerticalGroup(l.createParallelGroup(cb, btnJump));
+
+        return l;
     }
 
 }

@@ -290,6 +290,7 @@ public class ThemeTreePane extends DialogLayout {
         private String str = "";
 
         boolean setString(String str) {
+            str = str.toLowerCase();
             if(!this.str.equals(str)) {
                 this.str = str;
                 return true;
@@ -300,7 +301,12 @@ public class ThemeTreePane extends DialogLayout {
             return str.length() > 0;
         }
         public boolean isVisible(TreeTableNode node) {
-            return String.valueOf(node.getData(0)).contains(str);
+            if(node instanceof ThemeTreeNode) {
+                ThemeTreeNode ttn = (ThemeTreeNode)node;
+                String name = ttn.getName();
+                return (name != null) && name.toLowerCase().contains(str);
+            }
+            return false;
         }
     }
 }

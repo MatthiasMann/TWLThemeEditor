@@ -11,6 +11,7 @@
         <texture name="-icon-movedown" x="87" y="19" width="12" height="8" center="true"/>
         <texture name="-icon-apply" x="86" y="37" width="13" height="10" center="true" inset="0,1,0,-1"/>
         <texture name="-icon-clone" x="84" y="48" width="11" height="12" center="true"/>
+        <texture name="-icon-jump" x="83" y="61" width="14" height="9" center="true"/>
         
         <alias name="textureviewer.background" ref="checkerboard" border="64" inset="64"/>
 
@@ -49,6 +50,15 @@
                 <alias ref="-icon-apply" if="disabled" tint="#6fff"/>
                 <alias ref="-icon-apply" if="armed" inset="1,1,-1,-1"/>
                 <alias ref="-icon-apply"/>
+            </select>
+            <alias ref="vbutton.overlay"/>
+        </composed>
+
+        <composed name="jumpbutton.overlay">
+            <select>
+                <alias ref="-icon-jump" if="disabled" tint="#6fff"/>
+                <alias ref="-icon-jump" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-jump"/>
             </select>
             <alias ref="vbutton.overlay"/>
         </composed>
@@ -301,6 +311,16 @@
                             <param name="tooltip"><string>Change name of this element</string></param>
                         </theme>
                         <theme name="" ref="*"/>
+                    </theme>
+
+                    <theme name="nodereferenceeditor" ref="dialoglayout">
+                        <theme name="jumpbutton" ref="vbutton">
+                            <param name=""><image>jumpbutton.*</image></param>
+                            <param name="tooltip"><string>Jump to the referenced element</string></param>
+                        </theme>
+                        <theme name="combobox" ref="combobox">
+                            <param name="maxWidth"><int>32767</int></param>
+                        </theme>
                     </theme>
                 </theme>
             </theme>

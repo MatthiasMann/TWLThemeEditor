@@ -119,11 +119,6 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         }
         return limit;
     }
-    
-    @Override
-    public String toString() {
-        return getName();
-    }
 
     public void addChildren() throws IOException {
         addChildren(textures.getThemeFile(), element, getImageDomWrapper(textures));

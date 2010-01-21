@@ -105,6 +105,7 @@ public class EditorArea extends Widget {
         } else {
             ctx = new Context(model);
             ctx.setTextureViewerPane(textureViewerPane);
+            ctx.setThemeTreePane(themeTreePane);
 
             model.addCallback(modelChangedCB);
             

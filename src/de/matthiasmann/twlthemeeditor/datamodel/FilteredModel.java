@@ -115,11 +115,6 @@ public class FilteredModel extends AbstractTableModel {
         return -1;
     }
 
-    void addRow(int pos, TreeTableNode node) {
-        rows.add(pos, node);
-        fireRowsInserted(pos, 1);
-    }
-
     void updateList() {
         rows.clear();
         updateList(model);

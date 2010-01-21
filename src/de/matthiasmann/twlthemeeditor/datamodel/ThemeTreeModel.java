@@ -152,6 +152,10 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
         rootNode.handleNodeRenamed(from, to, kind);
     }
 
+    public ThemeTreeNode findNode(String name, Kind kind) {
+        return rootNode.findNode(name, kind);
+    }
+
     public void addCallback(CallbackWithReason<CallbackReason> cb) {
         callbacks = CallbackSupport.addCallbackToList(callbacks, cb, CallbackWithReason.class);
     }

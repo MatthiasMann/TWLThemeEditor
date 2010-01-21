@@ -98,7 +98,10 @@ public class PropertyAccessor<T, P extends Property<T>> {
 
     void setPropertyValue() {
         try {
-            property.setPropertyValue(isActive() ? value : null);
+            T effectiveValue = isActive() ? value : null;
+            if(effectiveValue != null || property.canBeNull()) {
+                property.setPropertyValue(effectiveValue);
+            }
         } catch (Exception ex) {
             Logger.getLogger(PropertyAccessor.class.getName()).log(Level.SEVERE,
                     "Could not set property value", ex);
