@@ -324,7 +324,7 @@
             <param name="border"><border>5,0</border></param>
             <theme name="arrow" ref="-defaults">
                 <param name=""><image>collapsiblepanel.arrowH.*</image></param>
-                <param name="tooltip"><string>Toggle tree editing buttons</string></param>
+                <param name="tooltip"><string>Toggle widget properties</string></param>
                 <param name="minWidth"><int>12</int></param>
                 <param name="maxHeight"><int>32767</int></param>
             </theme>
