@@ -31,7 +31,9 @@ package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import java.io.IOException;
+import org.jdom.Content;
 import org.jdom.Element;
+import org.jdom.Text;
 
 /**
  *
@@ -50,6 +52,13 @@ public class DeleteNodeOperation extends ElementOperation {
 
     @Override
     public ThemeTreeNode execute() throws IOException {
+        int idx = getElementPosition();
+        if(idx > 0) {
+            Content ctx = parent.getContent(idx-1);
+            if(ctx instanceof Text) {
+                ctx.detach();
+            }
+        }
         element.detach();
         updateParent();
         return null;
