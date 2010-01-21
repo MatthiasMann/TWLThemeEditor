@@ -66,7 +66,9 @@ public class NameEditorFactory implements PropertyEditorFactory<String, NameProp
         ef.addCallback(new EditField.Callback() {
             public void callback(int key) {
                 if(key == Keyboard.KEY_RETURN) {
-                    applyCB.run();
+                    if(applyBtn.isEnabled()) {
+                        applyCB.run();
+                    }
                 } else {
                     String name = ef.getText();
                     try {
