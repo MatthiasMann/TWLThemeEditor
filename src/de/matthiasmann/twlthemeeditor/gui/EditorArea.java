@@ -35,11 +35,14 @@ import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.DelayedAction;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
+import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import java.net.MalformedURLException;
 
 /**
@@ -59,9 +62,12 @@ public class EditorArea extends Widget {
     private final ScrollPane propertiesScrollPane;
 
     private final CallbackWithReason<ThemeTreeModel.CallbackReason> modelChangedCB;
+    private final Runnable boundPropertyCB;
 
     private DelayedAction updatePropertyEditors;
     private Context ctx;
+    private RectProperty boundRectProperty;
+    private ColorProperty boundColorProperty;
     private Layout layout = Layout.SPLIT_HV;
 
     public EditorArea() {
@@ -91,6 +97,12 @@ public class EditorArea extends Widget {
             }
         };
 
+        boundPropertyCB = new Runnable() {
+            public void run() {
+                updateTextureViewerPane();
+            }
+        };
+
         recreateLayout();
     }
 
@@ -104,7 +116,6 @@ public class EditorArea extends Widget {
             previewPane.setURL(null);
         } else {
             ctx = new Context(model);
-            ctx.setTextureViewerPane(textureViewerPane);
             ctx.setThemeTreePane(themeTreePane);
 
             model.addCallback(modelChangedCB);
@@ -174,6 +185,15 @@ public class EditorArea extends Widget {
     }
 
     void updateProperties() {
+        if(boundRectProperty != null) {
+            boundRectProperty.removeValueChangedCallback(boundPropertyCB);
+            boundRectProperty = null;
+        }
+        if(boundColorProperty != null) {
+            boundColorProperty.removeCallback(boundPropertyCB);
+            boundColorProperty = null;
+        }
+        
         Object obj = themeTreePane.getSelected();
         if(obj != null) {
             if(obj instanceof Image) {
@@ -182,17 +202,36 @@ public class EditorArea extends Widget {
                 } catch(MalformedURLException ex) {
                     textureViewerPane.setUrl(null);
                 }
-                textureViewerPane.setRect(null);
-                textureViewerPane.setTintColor(Color.WHITE);
             }
             if(obj instanceof HasProperties) {
-                PropertyPanel propertyPanel = new PropertyPanel(
-                        ctx, ((HasProperties)obj).getProperties());
+                Property<?>[] properties = ((HasProperties)obj).getProperties();
+                PropertyPanel propertyPanel = new PropertyPanel(ctx, properties);
                 propertiesScrollPane.setContent(propertyPanel);
+                for(Property<?> property : properties) {
+                    if(boundRectProperty == null && (property instanceof RectProperty)) {
+                        boundRectProperty = (RectProperty)property;
+                        boundRectProperty.addValueChangedCallback(boundPropertyCB);
+                    }
+                    if(boundColorProperty == null && (property instanceof ColorProperty)) {
+                        boundColorProperty = (ColorProperty)property;
+                        boundColorProperty.addValueChangedCallback(boundPropertyCB);
+                    }
+                }
             }
         } else {
             propertiesScrollPane.setContent(null);
         }
+        updateTextureViewerPane();
+    }
+
+    void updateTextureViewerPane() {
+        if(boundRectProperty != null) {
+            textureViewerPane.setRect(boundRectProperty.getPropertyValue());
+        } else {
+            textureViewerPane.setRect(null);
+        }
+        Color color = (boundColorProperty != null) ? boundColorProperty.getPropertyValue() : Color.WHITE;
+        textureViewerPane.setTintColor((color != null) ? color : Color.WHITE);
     }
 
     void updateErrorLocation() {

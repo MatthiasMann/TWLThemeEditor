@@ -33,10 +33,8 @@ import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twlthemeeditor.gui.Context;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.TextureViewerPane;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 
 /**
@@ -45,24 +43,12 @@ import de.matthiasmann.twlthemeeditor.properties.RectProperty;
  */
 public class RectEditorFactory implements PropertyEditorFactory<Rect, RectProperty> {
 
-    private final Context ctx;
-
-    public RectEditorFactory(Context ctx) {
-        this.ctx = ctx;
-    }
-
     public Widget create(final PropertyAccessor<Rect, RectProperty> pa) {
-        return new RectEditor(ctx, pa);
+        return new RectEditor(pa);
     }
 
-    static class RectEditor extends DialogLayout implements Runnable {
-        private final Context ctx;
-        private final PropertyAccessor<Rect, RectProperty> pa;
-
-        public RectEditor(Context ctx, PropertyAccessor<Rect, RectProperty> pa) {
-            this.ctx = ctx;
-            this.pa = pa;
-
+    static class RectEditor extends DialogLayout {
+        public RectEditor(PropertyAccessor<Rect, RectProperty> pa) {
             ValueAdjusterInt adjusterX = new ValueAdjusterInt(pa.getProperty().getXProperty());
             ValueAdjusterInt adjusterY = new ValueAdjusterInt(pa.getProperty().getYProperty());
             ValueAdjusterInt adjusterW = new ValueAdjusterInt(pa.getProperty().getWidthProperty());
@@ -80,21 +66,6 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect, RectProper
 
             setHorizontalGroup(createParallelGroup(adjusterX, adjusterY, adjusterW, adjusterH));
             setVerticalGroup(createSequentialGroup().addWidgetsWithGap("adjuster", adjusterX, adjusterY, adjusterW, adjusterH));
-
-            pa.getProperty().addValueChangedCallback(this);
-            
-            updateTextureViewerPane();
-        }
-
-        public void run() {
-            updateTextureViewerPane();
-        }
-
-        void updateTextureViewerPane() {
-            TextureViewerPane tvp = ctx.getTextureViewerPane();
-            if(tvp != null) {
-                tvp.setRect(pa.getProperty().getPropertyValue());
-            }
         }
     }
 }

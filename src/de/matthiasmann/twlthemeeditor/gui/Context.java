@@ -83,8 +83,8 @@ public class Context {
         this.model = model;
         
         factories1 = new TypeMapping<PropertyEditorFactory<?,?>>();
-        factories1.put(ColorProperty.class, new ColorEditorFactory(this));
-        factories1.put(RectProperty.class, new RectEditorFactory(this));
+        factories1.put(ColorProperty.class, new ColorEditorFactory());
+        factories1.put(RectProperty.class, new RectEditorFactory());
         factories1.put(ConditionProperty.class, new ConditionEditor());
         factories1.put(NodeReferenceProperty.class, new NodeReferenceEditorFactory(this));
         factories1.put(WeightsProperty.class, new WeightsEditorFactory());
@@ -145,14 +145,6 @@ public class Context {
 
     public ThemeTreeModel getThemeTreeModel() {
         return model;
-    }
-
-    public TextureViewerPane getTextureViewerPane() {
-        return textureViewerPane;
-    }
-
-    public void setTextureViewerPane(TextureViewerPane textureViewerPane) {
-        this.textureViewerPane = textureViewerPane;
     }
 
     public ThemeTreePane getThemeTreePane() {

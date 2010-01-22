@@ -33,10 +33,8 @@ import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.ColorSelector;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.ColorSpaceHSL;
-import de.matthiasmann.twlthemeeditor.gui.Context;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.TextureViewerPane;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 
 /**
@@ -44,12 +42,6 @@ import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
  * @author Matthias Mann
  */
 public class ColorEditorFactory implements PropertyEditorFactory<Color, ColorProperty> {
-
-    private final Context ctx;
-
-    public ColorEditorFactory(Context ctx) {
-        this.ctx = ctx;
-    }
 
     public Widget create(final PropertyAccessor<Color, ColorProperty> pa) {
         final ColorSelector cs = new ColorSelector(new ColorSpaceHSL());
@@ -60,29 +52,10 @@ public class ColorEditorFactory implements PropertyEditorFactory<Color, ColorPro
             public void run() {
                 Color color = cs.getColor();
                 pa.setValue(color);
-                setTextureViewerTint(color);
             }
         });
 
         pa.setWidgetsToEnable(cs);
-        pa.addActiveCallback(new Runnable() {
-            public void run() {
-                TextureViewerPane tvp = ctx.getTextureViewerPane();
-                if(tvp != null) {
-                    tvp.setTintColor(pa.isActive() ? cs.getColor() : Color.WHITE);
-                }
-            }
-        });
-
-        setTextureViewerTint(cs.getColor());
-
         return cs;
-    }
-
-    void setTextureViewerTint(Color color) {
-        TextureViewerPane tvp = ctx.getTextureViewerPane();
-        if(tvp != null) {
-            tvp.setTintColor(color);
-        }
     }
 }
