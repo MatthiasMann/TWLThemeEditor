@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.PreviewWidgets;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestFrameWithWidgets;
@@ -319,6 +320,26 @@ public class PreviewPane extends DialogLayout {
                 testWidget.reapplyTheme();
             }
         }, null, Kind.THEME));
+        properties.add(new AbstractProperty<AnimationState>() {
+            public boolean canBeNull() {
+                return false;
+            }
+            public String getName() {
+                return "Animation state";
+            }
+            public AnimationState getPropertyValue() {
+                return testWidget.getAnimationState();
+            }
+            public Class<AnimationState> getType() {
+                return AnimationState.class;
+            }
+            public boolean isReadOnly() {
+                return true;
+            }
+            public void setPropertyValue(AnimationState value) throws IllegalArgumentException {
+                throw new UnsupportedOperationException("Not supported");
+            }
+        });
         addBeanProperties(testWidget, properties);
         
         PropertyPanel panel = new PropertyPanel(ctx, properties.toArray(new Property<?>[properties.size()]));

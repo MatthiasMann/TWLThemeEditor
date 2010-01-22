@@ -533,9 +533,54 @@
         <texture name="-vbuttonSelBM" x="127" y="34" width="1" height="18"/>
         <texture name="-vbuttonSelBR" x="127" y="34" width="4" height="18"/>
 
+        <texture name="-vbutton4TL" x="132" y="0" width="4" height="17"/>
+        <texture name="-vbutton4TM" x="135" y="0" width="1" height="17"/>
+        <texture name="-vbutton4TR" x="135" y="0" width="4" height="17"/>
+        <texture name="-vbutton4ML" x="132" y="17" width="4" height="17"/>
+        <texture name="-vbutton4MM" x="135" y="17" width="1" height="17"/>
+        <texture name="-vbutton4MR" x="135" y="17" width="4" height="17"/>
+        <texture name="-vbutton4BL" x="132" y="34" width="4" height="18"/>
+        <texture name="-vbutton4BM" x="135" y="34" width="1" height="18"/>
+        <texture name="-vbutton4BR" x="135" y="34" width="4" height="18"/>
+
+        <texture name="-vbutton5TL" x="140" y="0" width="4" height="17"/>
+        <texture name="-vbutton5TM" x="143" y="0" width="1" height="17"/>
+        <texture name="-vbutton5TR" x="143" y="0" width="4" height="17"/>
+        <texture name="-vbutton5ML" x="140" y="17" width="4" height="17"/>
+        <texture name="-vbutton5MM" x="143" y="17" width="1" height="17"/>
+        <texture name="-vbutton5MR" x="143" y="17" width="4" height="17"/>
+        <texture name="-vbutton5BL" x="140" y="34" width="4" height="18"/>
+        <texture name="-vbutton5BM" x="143" y="34" width="1" height="18"/>
+        <texture name="-vbutton5BR" x="143" y="34" width="4" height="18"/>
+
+        <texture name="-vbutton6TL" x="148" y="0" width="4" height="17"/>
+        <texture name="-vbutton6TM" x="151" y="0" width="1" height="17"/>
+        <texture name="-vbutton6TR" x="151" y="0" width="4" height="17"/>
+        <texture name="-vbutton6ML" x="148" y="17" width="4" height="17"/>
+        <texture name="-vbutton6MM" x="151" y="17" width="1" height="17"/>
+        <texture name="-vbutton6MR" x="151" y="17" width="4" height="17"/>
+        <texture name="-vbutton6BL" x="148" y="34" width="4" height="18"/>
+        <texture name="-vbutton6BM" x="151" y="34" width="1" height="18"/>
+        <texture name="-vbutton6BR" x="151" y="34" width="4" height="18"/>
+
         <select name="vbutton.background">
             <alias ref="button.background" if="!vbuttonNotFirst + !vbuttonNotLast"/>
             <select if="!vbuttonNotFirst">
+                <grid if="selected + armed" weightsX="0,1,0" weightsY="1">
+                    <alias ref="-vbutton6TL"/>
+                    <alias ref="-vbutton6TM"/>
+                    <alias ref="-vbutton6TR"/>
+                </grid>
+                <grid if="selected + hover + !disabled" weightsX="0,1,0" weightsY="1">
+                    <alias ref="-vbutton5TL"/>
+                    <alias ref="-vbutton5TM"/>
+                    <alias ref="-vbutton5TR"/>
+                </grid>
+                <grid if="selected" weightsX="0,1,0" weightsY="1">
+                    <alias ref="-vbutton4TL"/>
+                    <alias ref="-vbutton4TM"/>
+                    <alias ref="-vbutton4TR"/>
+                </grid>
                 <grid if="armed" weightsX="0,1,0" weightsY="1">
                     <alias ref="-vbutton3TL"/>
                     <alias ref="-vbutton3TM"/>
@@ -553,6 +598,21 @@
                 </grid>
             </select>
             <select if="!vbuttonNotLast">
+                <grid if="selected + armed" weightsX="0,1,0" weightsY="1">
+                    <alias ref="-vbutton6BL"/>
+                    <alias ref="-vbutton6BM"/>
+                    <alias ref="-vbutton6BR"/>
+                </grid>
+                <grid if="selected + hover + !disabled" weightsX="0,1,0" weightsY="1">
+                    <alias ref="-vbutton5BL"/>
+                    <alias ref="-vbutton5BM"/>
+                    <alias ref="-vbutton5BR"/>
+                </grid>
+                <grid if="selected" weightsX="0,1,0" weightsY="1">
+                    <alias ref="-vbutton4BL"/>
+                    <alias ref="-vbutton4BM"/>
+                    <alias ref="-vbutton4BR"/>
+                </grid>
                 <grid if="armed" weightsX="0,1,0" weightsY="1">
                     <alias ref="-vbutton3BL"/>
                     <alias ref="-vbutton3BM"/>
@@ -569,6 +629,21 @@
                     <alias ref="-vbutton1BR"/>
                 </grid>
             </select>
+            <grid if="selected + armed" weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbutton6ML"/>
+                <alias ref="-vbutton6MM"/>
+                <alias ref="-vbutton6MR"/>
+            </grid>
+            <grid if="selected + hover + !disabled" weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbutton5ML"/>
+                <alias ref="-vbutton5MM"/>
+                <alias ref="-vbutton5MR"/>
+            </grid>
+            <grid if="selected" weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbutton4ML"/>
+                <alias ref="-vbutton4MM"/>
+                <alias ref="-vbutton4MR"/>
+            </grid>
             <grid if="armed" weightsX="0,1,0" weightsY="1">
                 <alias ref="-vbutton3ML"/>
                 <alias ref="-vbutton3MM"/>

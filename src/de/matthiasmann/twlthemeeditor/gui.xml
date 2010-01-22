@@ -274,6 +274,15 @@
                         <theme name="" ref="*"/>
                     </theme>
 
+                    <theme name="animstateeditor" ref="dialoglayout">
+                        <theme name="addbutton" ref="button">
+                            <param name=""><image>addbutton.*</image></param>
+                            <param name="tooltip"><string>Add this state name to the list</string></param>
+                        </theme>
+                        <theme name="statebutton" ref="vbutton"/>
+                        <theme name="" ref="*"/>
+                    </theme>
+
                     <theme name="spliteditor" ref="dialoglayout">
                         <theme name="removebutton" ref="vbutton">
                             <param name=""><image>removebutton.*</image></param>

@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twlthemeeditor.gui.editors.ColorEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.GapEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.WeightsEditorFactory;
@@ -51,6 +52,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.NodeReference;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.gui.editors.AnimStateEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.EnumEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
@@ -98,6 +100,7 @@ public class Context {
         factories2.put(Integer.class, new IntegerEditorFactory());
         factories2.put(Boolean.class, new BooleanEditorFactory());
         factories2.put(Enum.class, new EnumEditorFactory());
+        factories2.put(AnimationState.class, new AnimStateEditorFactory());
     }
 
     public ListModel<String> getRefableNodes(ThemeTreeNode stopAt, Kind kind) {
