@@ -8,6 +8,8 @@
         <texture name="panel.separator" x="6" y="19" width="1" height="2"/>
 
         <hvsplit name="frame.background" x="0" y="121" width="7" height="7" border="3"/>
+
+        <hvsplit name="popup.background" x="66" y="104" width="10" height="10" border="4" tint="#E0FFFFFF"/>
         
         <texture name="-area1L" x="0" y="0" width="4" height="18"/>
         <texture name="-area1F" x="3" y="0" width="1" height="18"/>
@@ -312,11 +314,11 @@
         </select>
         <alias name="button.overlay" ref="-selectionX"/>
 
+        <hsplit name="-popupmenubutton.hover" x="83" y="82" width="6" height="18" border="2,0"/>
         <select name="popupmenubutton.background" border="4,1">
-            <alias ref="area9X" if="armed"/>
-            <alias ref="area8X" if="hover + !disabled"/>
+            <alias ref="-popupmenubutton.hover" if="hover + !disabled"/>
         </select>
-        <alias name="popupmenubutton.overlay" ref="-selectionX"/>
+        <alias name="popupmenubutton.overlay" ref="none"/>
 
         <select name="editfield.background" border="4,1">
             <alias ref="area8X" if="hover"/>
@@ -728,6 +730,11 @@
         <fontParam if="selected" color="black"/>
     </fontDef>
 
+    <fontDef name="popupmenu-font" filename="font.fnt" color="white">
+        <fontParam if="disabled" color="#ccc"/>
+        <fontParam if="hover" color="black"/>
+    </fontDef>
+
     <fontDef name="normal" filename="font.fnt" color="black" default="true">
         <fontParam if="error" color="red"/>
         <fontParam if="disabled" color="#444"/>
@@ -789,6 +796,7 @@
         <param name=""><image>popupmenubutton.*</image></param>
         <param name="border"><border>background.border</border></param>
         <param name="textAlignment"><enum type="alignment">left</enum></param>
+        <param name="font"><font>popupmenu-font</font></param>
     </theme>
 
     <theme name="editfield" ref="label" allowWildcard="true">

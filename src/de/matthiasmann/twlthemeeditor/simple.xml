@@ -112,7 +112,7 @@
             </select>
 
         <alias name="popupmenu.button.background" ref="-gradC" if="hover | armed"/>
-        <texture name="popupmenu.separator" x="14" y="41" width="1" height="2" inset="2"/>
+        <texture name="popupmenu.separator" x="14" y="41" width="1" height="2" inset="2,3"/>
         
         <alias name="buttonBox.background" ref="-borderA" inset="0,-2,-2,-2"/>
 
@@ -550,17 +550,14 @@
     <theme name="resizableframe-resizeHandle" ref="resizableframe-title" allowWildcard="true">
         <param name="hasResizeHandle"><bool>true</bool></param>
     </theme>
-
-    <fontDef name="popupmenu-button" filename="font.fnt" color="black">
-        <fontParam if="hover | armed" color="white"/>
-    </fontDef>
+    
     <theme name="popupmenu-button" ref="-defaults">
         <param name=""><image>popupmenu.button.*</image></param>
-        <param name="font"><font>popupmenu-button</font></param>
+        <param name="font"><font>popupmenu-font</font></param>
         <param name="border"><border>5,2</border></param>
     </theme>
     <theme name="popupmenu" ref="-defaults">
-        <param name="background"><image>-borderA</image></param>
+        <param name="background"><image>popup.background</image></param>
         <param name="border"><border>background.border</border></param>
         <theme name="button" ref="popupmenu-button"/>
         <theme name="submenu" ref="popupmenu-button"/>
