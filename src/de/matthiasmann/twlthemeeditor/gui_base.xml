@@ -2,284 +2,279 @@
 <!DOCTYPE themes PUBLIC "-//www.matthiasmann.de//TWL-Theme//EN" "http://hg.l33tlabs.org/twl/raw-file/tip/src/de/matthiasmann/twl/theme/theme.dtd">
 <themes>
     <textures file="gui.png" format="RGBA">
-        <texture name="-area1L" x="0" y="0" width="4" height="18"/>
-        <texture name="-area1F" x="3" y="0" width="1" height="18"/>
-        <texture name="-area1M" x="4" y="0" width="1" height="18"/>
-        <texture name="-area1R" x="5" y="0" width="4" height="18"/>
+        <texture name="--area1L" x="0" y="0" width="4" height="18"/>
+        <texture name="--area1F" x="3" y="0" width="1" height="18"/>
+        <texture name="--area1M" x="4" y="0" width="1" height="18"/>
+        <texture name="--area1R" x="5" y="0" width="4" height="18"/>
 
-        <texture name="-area2L" x="10" y="0" width="4" height="18"/>
-        <texture name="-area2F" x="13" y="0" width="1" height="18"/>
-        <texture name="-area2M" x="14" y="0" width="1" height="18"/>
-        <texture name="-area2R" x="15" y="0" width="4" height="18"/>
+        <texture name="--area2L" x="10" y="0" width="4" height="18"/>
+        <texture name="--area2F" x="13" y="0" width="1" height="18"/>
+        <texture name="--area2M" x="14" y="0" width="1" height="18"/>
+        <texture name="--area2R" x="15" y="0" width="4" height="18"/>
 
-        <texture name="-area3L" x="20" y="0" width="4" height="18"/>
-        <texture name="-area3F" x="23" y="0" width="1" height="18"/>
-        <texture name="-area3M" x="24" y="0" width="1" height="18"/>
-        <texture name="-area3R" x="25" y="0" width="4" height="18"/>
+        <texture name="--area3L" x="20" y="0" width="4" height="18"/>
+        <texture name="--area3F" x="23" y="0" width="1" height="18"/>
+        <texture name="--area3M" x="24" y="0" width="1" height="18"/>
+        <texture name="--area3R" x="25" y="0" width="4" height="18"/>
 
-        <texture name="-area4L" x="30" y="0" width="4" height="18"/>
-        <texture name="-area4F" x="33" y="0" width="1" height="18"/>
-        <texture name="-area4M" x="34" y="0" width="1" height="18"/>
-        <texture name="-area4R" x="35" y="0" width="4" height="18"/>
+        <texture name="--area4L" x="30" y="0" width="4" height="18"/>
+        <texture name="--area4F" x="33" y="0" width="1" height="18"/>
+        <texture name="--area4M" x="34" y="0" width="1" height="18"/>
+        <texture name="--area4R" x="35" y="0" width="4" height="18"/>
 
-        <texture name="-area5L" x="40" y="0" width="4" height="18"/>
-        <texture name="-area5F" x="43" y="0" width="1" height="18"/>
-        <texture name="-area5M" x="44" y="0" width="1" height="18"/>
-        <texture name="-area5R" x="45" y="0" width="4" height="18"/>
+        <texture name="--area5L" x="40" y="0" width="4" height="18"/>
+        <texture name="--area5F" x="43" y="0" width="1" height="18"/>
+        <texture name="--area5M" x="44" y="0" width="1" height="18"/>
+        <texture name="--area5R" x="45" y="0" width="4" height="18"/>
 
-        <texture name="-area6L" x="50" y="0" width="4" height="18"/>
-        <texture name="-area6F" x="53" y="0" width="1" height="18"/>
-        <texture name="-area6M" x="54" y="0" width="1" height="18"/>
-        <texture name="-area6R" x="55" y="0" width="4" height="18"/>
+        <texture name="--area6L" x="50" y="0" width="4" height="18"/>
+        <texture name="--area6F" x="53" y="0" width="1" height="18"/>
+        <texture name="--area6M" x="54" y="0" width="1" height="18"/>
+        <texture name="--area6R" x="55" y="0" width="4" height="18"/>
 
-        <texture name="-area7L" x="60" y="0" width="4" height="18"/>
-        <texture name="-area7F" x="63" y="0" width="1" height="18"/>
-        <texture name="-area7M" x="64" y="0" width="1" height="18"/>
-        <texture name="-area7R" x="65" y="0" width="4" height="18"/>
+        <texture name="--area7L" x="60" y="0" width="4" height="18"/>
+        <texture name="--area7F" x="63" y="0" width="1" height="18"/>
+        <texture name="--area7M" x="64" y="0" width="1" height="18"/>
+        <texture name="--area7R" x="65" y="0" width="4" height="18"/>
 
-        <texture name="-area8L" x="70" y="0" width="4" height="18"/>
-        <texture name="-area8F" x="73" y="0" width="1" height="18"/>
-        <texture name="-area8M" x="74" y="0" width="1" height="18"/>
-        <texture name="-area8R" x="75" y="0" width="4" height="18"/>
+        <texture name="--area8L" x="70" y="0" width="4" height="18"/>
+        <texture name="--area8F" x="73" y="0" width="1" height="18"/>
+        <texture name="--area8M" x="74" y="0" width="1" height="18"/>
+        <texture name="--area8R" x="75" y="0" width="4" height="18"/>
 
-        <texture name="-area9L" x="80" y="0" width="4" height="18"/>
-        <texture name="-area9F" x="83" y="0" width="1" height="18"/>
-        <texture name="-area9M" x="84" y="0" width="1" height="18"/>
-        <texture name="-area9R" x="85" y="0" width="4" height="18"/>
+        <texture name="--area9L" x="80" y="0" width="4" height="18"/>
+        <texture name="--area9F" x="83" y="0" width="1" height="18"/>
+        <texture name="--area9M" x="84" y="0" width="1" height="18"/>
+        <texture name="--area9R" x="85" y="0" width="4" height="18"/>
 
-        <texture name="-outlineL" x="90" y="0" width="4" height="18"/>
-        <texture name="-outlineF" x="93" y="0" width="1" height="18"/>
-        <texture name="-outlineM" x="94" y="0" width="1" height="18"/>
-        <texture name="-outlineR" x="95" y="0" width="4" height="18"/>
+        <texture name="--outlineL" x="90" y="0" width="4" height="18"/>
+        <texture name="--outlineF" x="93" y="0" width="1" height="18"/>
+        <texture name="--outlineM" x="94" y="0" width="1" height="18"/>
+        <texture name="--outlineR" x="95" y="0" width="4" height="18"/>
 
-        <grid name="area1L" weightsX="0,1" weightsY="1">
-            <alias ref="-area1L"/>
-            <alias ref="-area1F"/>
+        <grid name="-area1L" weightsX="0,1" weightsY="1">
+            <alias ref="--area1L"/>
+            <alias ref="--area1F"/>
         </grid>
-        <grid name="area1C" weightsX="0,1" weightsY="1">
-            <alias ref="-area1M"/>
-            <alias ref="-area1F"/>
+        <grid name="-area1C" weightsX="0,1" weightsY="1">
+            <alias ref="--area1M"/>
+            <alias ref="--area1F"/>
         </grid>
-        <grid name="area1R" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area1M"/>
-            <alias ref="-area1F"/>
-            <alias ref="-area1R"/>
+        <grid name="-area1R" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area1M"/>
+            <alias ref="--area1F"/>
+            <alias ref="--area1R"/>
         </grid>
-        <grid name="area1X" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area1L"/>
-            <alias ref="-area1F"/>
-            <alias ref="-area1R"/>
-        </grid>
-
-        <grid name="area2L" weightsX="0,1" weightsY="1">
-            <alias ref="-area2L"/>
-            <alias ref="-area2F"/>
-        </grid>
-        <grid name="area2C" weightsX="0,1" weightsY="1">
-            <alias ref="-area2M"/>
-            <alias ref="-area2F"/>
-        </grid>
-        <grid name="area2R" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area2M"/>
-            <alias ref="-area2F"/>
-            <alias ref="-area2R"/>
-        </grid>
-        <grid name="area2X" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area2L"/>
-            <alias ref="-area2F"/>
-            <alias ref="-area2R"/>
+        <grid name="-area1X" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area1L"/>
+            <alias ref="--area1F"/>
+            <alias ref="--area1R"/>
         </grid>
 
-        <grid name="area3L" weightsX="0,1" weightsY="1">
-            <alias ref="-area3L"/>
-            <alias ref="-area3F"/>
+        <grid name="-area2L" weightsX="0,1" weightsY="1">
+            <alias ref="--area2L"/>
+            <alias ref="--area2F"/>
         </grid>
-        <grid name="area3C" weightsX="0,1" weightsY="1">
-            <alias ref="-area3M"/>
-            <alias ref="-area3F"/>
+        <grid name="-area2C" weightsX="0,1" weightsY="1">
+            <alias ref="--area2M"/>
+            <alias ref="--area2F"/>
         </grid>
-        <grid name="area3R" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area3M"/>
-            <alias ref="-area3F"/>
-            <alias ref="-area3R"/>
+        <grid name="-area2R" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area2M"/>
+            <alias ref="--area2F"/>
+            <alias ref="--area2R"/>
         </grid>
-        <grid name="area3X" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area3L"/>
-            <alias ref="-area3F"/>
-            <alias ref="-area3R"/>
-        </grid>
-
-        <grid name="area4L" weightsX="0,1" weightsY="1">
-            <alias ref="-area4L"/>
-            <alias ref="-area4F"/>
-        </grid>
-        <grid name="area4C" weightsX="0,1" weightsY="1">
-            <alias ref="-area4M"/>
-            <alias ref="-area4F"/>
-        </grid>
-        <grid name="area4R" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area4M"/>
-            <alias ref="-area4F"/>
-            <alias ref="-area4R"/>
-        </grid>
-        <grid name="area4X" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area4L"/>
-            <alias ref="-area4F"/>
-            <alias ref="-area4R"/>
+        <grid name="-area2X" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area2L"/>
+            <alias ref="--area2F"/>
+            <alias ref="--area2R"/>
         </grid>
 
-        <grid name="area5L" weightsX="0,1" weightsY="1">
-            <alias ref="-area5L"/>
-            <alias ref="-area5F"/>
+        <grid name="-area3L" weightsX="0,1" weightsY="1">
+            <alias ref="--area3L"/>
+            <alias ref="--area3F"/>
         </grid>
-        <grid name="area5C" weightsX="0,1" weightsY="1">
-            <alias ref="-area5M"/>
-            <alias ref="-area5F"/>
+        <grid name="-area3C" weightsX="0,1" weightsY="1">
+            <alias ref="--area3M"/>
+            <alias ref="--area3F"/>
         </grid>
-        <grid name="area5R" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area5M"/>
-            <alias ref="-area5F"/>
-            <alias ref="-area5R"/>
+        <grid name="-area3R" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area3M"/>
+            <alias ref="--area3F"/>
+            <alias ref="--area3R"/>
         </grid>
-        <grid name="area5X" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area5L"/>
-            <alias ref="-area5F"/>
-            <alias ref="-area5R"/>
+        <grid name="-area3X" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area3L"/>
+            <alias ref="--area3F"/>
+            <alias ref="--area3R"/>
+        </grid>
+
+        <grid name="-area4L" weightsX="0,1" weightsY="1">
+            <alias ref="--area4L"/>
+            <alias ref="--area4F"/>
+        </grid>
+        <grid name="-area4C" weightsX="0,1" weightsY="1">
+            <alias ref="--area4M"/>
+            <alias ref="--area4F"/>
+        </grid>
+        <grid name="-area4R" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area4M"/>
+            <alias ref="--area4F"/>
+            <alias ref="--area4R"/>
+        </grid>
+        <grid name="-area4X" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area4L"/>
+            <alias ref="--area4F"/>
+            <alias ref="--area4R"/>
+        </grid>
+
+        <grid name="-area5L" weightsX="0,1" weightsY="1">
+            <alias ref="--area5L"/>
+            <alias ref="--area5F"/>
+        </grid>
+        <grid name="-area5C" weightsX="0,1" weightsY="1">
+            <alias ref="--area5M"/>
+            <alias ref="--area5F"/>
+        </grid>
+        <grid name="-area5R" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area5M"/>
+            <alias ref="--area5F"/>
+            <alias ref="--area5R"/>
+        </grid>
+        <grid name="-area5X" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area5L"/>
+            <alias ref="--area5F"/>
+            <alias ref="--area5R"/>
         </grid>
         
-        <grid name="area6L" weightsX="0,1" weightsY="1">
-            <alias ref="-area6L"/>
-            <alias ref="-area6F"/>
+        <grid name="-area6L" weightsX="0,1" weightsY="1">
+            <alias ref="--area6L"/>
+            <alias ref="--area6F"/>
         </grid>
-        <grid name="area6C" weightsX="0,1" weightsY="1">
-            <alias ref="-area6M"/>
-            <alias ref="-area6F"/>
+        <grid name="-area6C" weightsX="0,1" weightsY="1">
+            <alias ref="--area6M"/>
+            <alias ref="--area6F"/>
         </grid>
-        <grid name="area6R" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area6M"/>
-            <alias ref="-area6F"/>
-            <alias ref="-area6R"/>
+        <grid name="-area6R" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area6M"/>
+            <alias ref="--area6F"/>
+            <alias ref="--area6R"/>
         </grid>
-        <grid name="area6X" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area6L"/>
-            <alias ref="-area6F"/>
-            <alias ref="-area6R"/>
-        </grid>
-
-        <grid name="area7L" weightsX="0,1" weightsY="1">
-            <alias ref="-area7L"/>
-            <alias ref="-area7F"/>
-        </grid>
-        <grid name="area7C" weightsX="0,1" weightsY="1">
-            <alias ref="-area7M"/>
-            <alias ref="-area7F"/>
-        </grid>
-        <grid name="area7R" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area7M"/>
-            <alias ref="-area7F"/>
-            <alias ref="-area7R"/>
-        </grid>
-        <grid name="area7X" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area7L"/>
-            <alias ref="-area7F"/>
-            <alias ref="-area7R"/>
+        <grid name="-area6X" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area6L"/>
+            <alias ref="--area6F"/>
+            <alias ref="--area6R"/>
         </grid>
 
-        <grid name="area8L" weightsX="0,1" weightsY="1">
-            <alias ref="-area8L"/>
-            <alias ref="-area8F"/>
+        <grid name="-area7L" weightsX="0,1" weightsY="1">
+            <alias ref="--area7L"/>
+            <alias ref="--area7F"/>
         </grid>
-        <grid name="area8C" weightsX="0,1" weightsY="1">
-            <alias ref="-area8M"/>
-            <alias ref="-area8F"/>
+        <grid name="-area7C" weightsX="0,1" weightsY="1">
+            <alias ref="--area7M"/>
+            <alias ref="--area7F"/>
         </grid>
-        <grid name="area8R" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area8M"/>
-            <alias ref="-area8F"/>
-            <alias ref="-area8R"/>
+        <grid name="-area7R" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area7M"/>
+            <alias ref="--area7F"/>
+            <alias ref="--area7R"/>
         </grid>
-        <grid name="area8X" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area8L"/>
-            <alias ref="-area8F"/>
-            <alias ref="-area8R"/>
+        <grid name="-area7X" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area7L"/>
+            <alias ref="--area7F"/>
+            <alias ref="--area7R"/>
+        </grid>
+
+        <grid name="-area8L" weightsX="0,1" weightsY="1">
+            <alias ref="--area8L"/>
+            <alias ref="--area8F"/>
+        </grid>
+        <grid name="-area8C" weightsX="0,1" weightsY="1">
+            <alias ref="--area8M"/>
+            <alias ref="--area8F"/>
+        </grid>
+        <grid name="-area8R" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area8M"/>
+            <alias ref="--area8F"/>
+            <alias ref="--area8R"/>
+        </grid>
+        <grid name="-area8X" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area8L"/>
+            <alias ref="--area8F"/>
+            <alias ref="--area8R"/>
         </grid>
         
-        <grid name="area9L" weightsX="0,1" weightsY="1">
-            <alias ref="-area9L"/>
-            <alias ref="-area9F"/>
+        <grid name="-area9L" weightsX="0,1" weightsY="1">
+            <alias ref="--area9L"/>
+            <alias ref="--area9F"/>
         </grid>
-        <grid name="area9C" weightsX="0,1" weightsY="1">
-            <alias ref="-area9M"/>
-            <alias ref="-area9F"/>
+        <grid name="-area9C" weightsX="0,1" weightsY="1">
+            <alias ref="--area9M"/>
+            <alias ref="--area9F"/>
         </grid>
-        <grid name="area9R" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area9M"/>
-            <alias ref="-area9F"/>
-            <alias ref="-area9R"/>
+        <grid name="-area9R" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area9M"/>
+            <alias ref="--area9F"/>
+            <alias ref="--area9R"/>
         </grid>
-        <grid name="area9X" weightsX="0,1,0" weightsY="1">
-            <alias ref="-area9L"/>
-            <alias ref="-area9F"/>
-            <alias ref="-area9R"/>
-        </grid>
-
-        <grid name="outlineL" weightsX="0,1,0" weightsY="1">
-            <alias ref="-outlineL"/>
-            <alias ref="-outlineF"/>
-            <alias ref="-outlineM"/>
-        </grid>
-        <grid name="outlineC" weightsX="0,1,0" weightsY="1">
-            <alias ref="-outlineM"/>
-            <alias ref="-outlineF"/>
-            <alias ref="-outlineM"/>
-        </grid>
-        <grid name="outlineR" weightsX="0,1,0" weightsY="1">
-            <alias ref="-outlineM"/>
-            <alias ref="-outlineF"/>
-            <alias ref="-outlineR"/>
-        </grid>
-        <grid name="outlineX" weightsX="0,1,0" weightsY="1">
-            <alias ref="-outlineL"/>
-            <alias ref="-outlineF"/>
-            <alias ref="-outlineR"/>
+        <grid name="-area9X" weightsX="0,1,0" weightsY="1">
+            <alias ref="--area9L"/>
+            <alias ref="--area9F"/>
+            <alias ref="--area9R"/>
         </grid>
 
-        <alias name="-selectionL" ref="outlineL" tint="#cc0" if="keyboardFocus"/>
-        <alias name="-selectionC" ref="outlineC" tint="#cc0" if="keyboardFocus"/>
-        <alias name="-selectionR" ref="outlineR" tint="#cc0" if="keyboardFocus"/>
-        <alias name="-selectionX" ref="outlineX" tint="#cc0" if="keyboardFocus"/>
+        <grid name="-outlineL" weightsX="0,1,0" weightsY="1">
+            <alias ref="--outlineL"/>
+            <alias ref="--outlineF"/>
+            <alias ref="--outlineM"/>
+        </grid>
+        <grid name="-outlineC" weightsX="0,1,0" weightsY="1">
+            <alias ref="--outlineM"/>
+            <alias ref="--outlineF"/>
+            <alias ref="--outlineM"/>
+        </grid>
+        <grid name="-outlineR" weightsX="0,1,0" weightsY="1">
+            <alias ref="--outlineM"/>
+            <alias ref="--outlineF"/>
+            <alias ref="--outlineR"/>
+        </grid>
+        <grid name="-outlineX" weightsX="0,1,0" weightsY="1">
+            <alias ref="--outlineL"/>
+            <alias ref="--outlineF"/>
+            <alias ref="--outlineR"/>
+        </grid>
 
         <select name="radiobuttonL.background">
-            <alias ref="area6L" if="selected + armed"/>
-            <alias ref="area5L" if="selected + hover + !disabled"/>
-            <alias ref="area4L" if="selected"/>
-            <alias ref="area3L" if="armed"/>
-            <alias ref="area2L" if="hover + !disabled"/>
-            <alias ref="area1L"/>
+            <alias ref="-area6L" if="selected + armed"/>
+            <alias ref="-area5L" if="selected + hover + !disabled"/>
+            <alias ref="-area4L" if="selected"/>
+            <alias ref="-area3L" if="armed"/>
+            <alias ref="-area2L" if="hover + !disabled"/>
+            <alias ref="-area1L"/>
         </select>
         <select name="radiobuttonC.background">
-            <alias ref="area6C" if="selected + armed"/>
-            <alias ref="area5C" if="selected + hover + !disabled"/>
-            <alias ref="area4C" if="selected"/>
-            <alias ref="area3C" if="armed"/>
-            <alias ref="area2C" if="hover + !disabled"/>
-            <alias ref="area1C"/>
+            <alias ref="-area6C" if="selected + armed"/>
+            <alias ref="-area5C" if="selected + hover + !disabled"/>
+            <alias ref="-area4C" if="selected"/>
+            <alias ref="-area3C" if="armed"/>
+            <alias ref="-area2C" if="hover + !disabled"/>
+            <alias ref="-area1C"/>
         </select>
         <select name="radiobuttonR.background">
-            <alias ref="area6R" if="selected + armed"/>
-            <alias ref="area5R" if="selected + hover + !disabled"/>
-            <alias ref="area4R" if="selected"/>
-            <alias ref="area3R" if="armed"/>
-            <alias ref="area2R" if="hover + !disabled"/>
-            <alias ref="area1R"/>
+            <alias ref="-area6R" if="selected + armed"/>
+            <alias ref="-area5R" if="selected + hover + !disabled"/>
+            <alias ref="-area4R" if="selected"/>
+            <alias ref="-area3R" if="armed"/>
+            <alias ref="-area2R" if="hover + !disabled"/>
+            <alias ref="-area1R"/>
         </select>
         <select name="radiobuttonX.background">
-            <alias ref="area6X" if="selected + armed"/>
-            <alias ref="area5X" if="selected + hover + !disabled"/>
-            <alias ref="area4X" if="selected"/>
-            <alias ref="area3X" if="armed"/>
-            <alias ref="area2X" if="hover + !disabled"/>
-            <alias ref="area1X"/>
+            <alias ref="-area6X" if="selected + armed"/>
+            <alias ref="-area5X" if="selected + hover + !disabled"/>
+            <alias ref="-area4X" if="selected"/>
+            <alias ref="-area3X" if="armed"/>
+            <alias ref="-area2X" if="hover + !disabled"/>
+            <alias ref="-area1X"/>
         </select>
 
         <select name="radiobutton.background" border="4,1">
@@ -288,22 +283,22 @@
             <alias ref="radiobuttonR.background" if="!radiobuttonNotLast"/>
             <alias ref="radiobuttonC.background"/>
         </select>
-        <select name="radiobutton.overlay">
-            <alias ref="-selectionX" if="!radiobuttonNotFirst + !radiobuttonNotLast"/>
-            <alias ref="-selectionL" if="!radiobuttonNotFirst"/>
-            <alias ref="-selectionR" if="!radiobuttonNotLast"/>
-            <alias ref="-selectionC"/>
+        <select name="radiobutton.overlay" tint="#cc0" if="keyboardFocus">
+            <alias ref="-outlineX" if="!radiobuttonNotFirst + !radiobuttonNotLast"/>
+            <alias ref="-outlineL" if="!radiobuttonNotFirst"/>
+            <alias ref="-outlineR" if="!radiobuttonNotLast"/>
+            <alias ref="-outlineC"/>
         </select>
 
         <alias name="togglebutton.background" ref="radiobuttonX.background" border="4,1"/>
-        <alias name="togglebutton.overlay" ref="-selectionX"/>
+        <alias name="togglebutton.overlay" ref="radiobutton.overlay"/>
 
         <select name="button.background" border="4,1">
-            <alias ref="area9X" if="armed"/>
-            <alias ref="area8X" if="hover + !disabled"/>
-            <alias ref="area7X"/>
+            <alias ref="-area9X" if="armed"/>
+            <alias ref="-area8X" if="hover + !disabled"/>
+            <alias ref="-area7X"/>
         </select>
-        <alias name="button.overlay" ref="-selectionX"/>
+        <alias name="button.overlay" ref="-outlineX" tint="#cc0" if="keyboardFocus"/>
     </textures>
 
     <textures file="gui.png" format="RGBA">
@@ -650,8 +645,8 @@
         <alias name="popupmenubutton.overlay" ref="none"/>
 
         <select name="editfield.background" border="4,1">
-            <alias ref="area8X" if="hover"/>
-            <alias ref="area7X"/>
+            <alias ref="-area8X" if="hover"/>
+            <alias ref="-area7X"/>
         </select>
         <alias name="editfield.overlay" ref="none"/>
         <alias name="editfield.cursor" ref="white" sizeOverwriteH="2" inset="0,-1,0,1" tint="#cc0"/>
@@ -659,16 +654,16 @@
 
         <texture name="-icon.combobox" x="10" y="19" width="6" height="8" center="true"/>
         <select name="combobox.background">
-            <alias ref="area3X" if="armed"/>
-            <alias ref="area2X" if="hover"/>
-            <alias ref="area1X"/>
+            <alias ref="-area3X" if="armed"/>
+            <alias ref="-area2X" if="hover"/>
+            <alias ref="-area1X"/>
         </select>
         <select name="combobox.button.background">
             <alias ref="-icon.combobox" inset="1,1,-1,-1" if="armed"/>
             <alias ref="-icon.combobox"/>
         </select>
         <alias name="combobox.display.background" ref="none"/>
-        <alias name="combobox.overlay" ref="-selectionX"/>
+        <alias name="combobox.overlay" ref="-outlineX" tint="#cc0" if="keyboardFocus"/>
 
         <vsplit name="vscrollbar.background" x="0" y="104" width="13" height="16" splity="7,9"/>
         <select name="vscrollbar.thumb.background">
