@@ -2,15 +2,6 @@
 <!DOCTYPE themes PUBLIC "-//www.matthiasmann.de//TWL-Theme//EN" "http://hg.l33tlabs.org/twl/raw-file/tip/src/de/matthiasmann/twl/theme/theme.dtd">
 <themes>
     <textures file="gui.png" format="RGBA">
-        <texture name="white" x="66" y="66" width="1" height="1"/>
-
-        <texture name="panel.background" x="0" y="19" width="1" height="1"/>
-        <texture name="panel.separator" x="6" y="19" width="1" height="2"/>
-
-        <hvsplit name="frame.background" x="0" y="121" width="7" height="7" border="3"/>
-
-        <hvsplit name="popup.background" x="66" y="104" width="10" height="10" border="4" tint="#E0FFFFFF"/>
-        
         <texture name="-area1L" x="0" y="0" width="4" height="18"/>
         <texture name="-area1F" x="3" y="0" width="1" height="18"/>
         <texture name="-area1M" x="4" y="0" width="1" height="18"/>
@@ -313,36 +304,9 @@
             <alias ref="area7X"/>
         </select>
         <alias name="button.overlay" ref="-selectionX"/>
+    </textures>
 
-        <hsplit name="-popupmenubutton.hover" x="83" y="82" width="6" height="18" border="2,0"/>
-        <select name="popupmenubutton.background" border="4,1">
-            <alias ref="-popupmenubutton.hover" if="(hover | hasOpenPopups) + !disabled"/>
-        </select>
-        <alias name="popupmenubutton.overlay" ref="none"/>
-
-        <select name="editfield.background" border="4,1">
-            <alias ref="area8X" if="hover"/>
-            <alias ref="area7X"/>
-        </select>
-        <alias name="editfield.overlay" ref="none"/>
-        <alias name="editfield.cursor" ref="white" sizeOverwriteH="2" inset="0,-1,0,1" tint="#cc0"/>
-        <alias name="editfield.selection" ref="white" tint="#444"/>
-
-
-        <texture name="-icon.combobox" x="10" y="19" width="6" height="8" center="true"/>
-        <select name="combobox.background">
-            <alias ref="area3X" if="armed"/>
-            <alias ref="area2X" if="hover"/>
-            <alias ref="area1X"/>
-        </select>
-        <select name="combobox.button.background">
-            <alias ref="-icon.combobox" inset="1,1,-1,-1" if="armed"/>
-            <alias ref="-icon.combobox"/>
-        </select>
-        <alias name="combobox.display.background" ref="none"/>
-        <alias name="combobox.overlay" ref="-selectionX"/>
-
-
+    <textures file="gui.png" format="RGBA">
         <texture name="-adjuster1TL" x="0" y="28" width="12" height="17"/>
         <texture name="-adjuster1TM" x="8" y="28" width="4" height="17"/>
         <texture name="-adjuster1TR" x="8" y="28" width="12" height="17"/>
@@ -479,22 +443,9 @@
         </select>
         <alias name="valueadjuster.edit.background" ref="valueadjuster.display.background"/>
         <alias name="valueadjuster.edit.overlay" ref="none"/>
+    </textures>
 
-        <vsplit name="vscrollbar.background" x="0" y="104" width="13" height="16" splity="7,9"/>
-        <select name="vscrollbar.thumb.background">
-            <vsplit x="42" y="104" width="13" height="24" splity="10,14" if="pressed"/>
-            <vsplit x="28" y="104" width="13" height="24" splity="10,14" if="hover + !disabled"/>
-            <vsplit x="14" y="104" width="13" height="24" splity="10,14"/>
-        </select>
-
-        <hsplit name="hscrollbar.background" x="83" y="101" width="16" height="13" splitx="7,9"/>
-        <select name="hscrollbar.thumb.background">
-            <hsplit x="106" y="115" width="24" height="13" splitx="10,14" if="pressed"/>
-            <hsplit x="81" y="115" width="24" height="13" splitx="10,14" if="hover + !disabled"/>
-            <hsplit x="56" y="115" width="24" height="13" splitx="10,14"/>
-        </select>
-
-
+    <textures file="gui.png" format="RGBA">
         <texture name="-vbutton1TL" x="100" y="0" width="4" height="17"/>
         <texture name="-vbutton1TM" x="103" y="0" width="1" height="17"/>
         <texture name="-vbutton1TR" x="103" y="0" width="4" height="17"/>
@@ -680,28 +631,59 @@
                 <alias ref="-vbuttonSelMR" tint="#cc0"/>
             </grid>
         </select>
+    </textures>
 
-        <texture name="-icon-add" x="48" y="19" width="12" height="12" center="true"/>
-        <texture name="-icon-remove" x="61" y="19" width="12" height="12" center="true"/>
+    <textures file="gui.png" format="RGBA">
+        <texture name="white" x="66" y="66" width="1" height="1"/>
 
-        <composed name="addbutton.overlay">
-            <select>
-                <alias ref="-icon-add" if="disabled" tint="#6fff"/>
-                <alias ref="-icon-add" if="armed" inset="1,1,-1,-1"/>
-                <alias ref="-icon-add"/>
-            </select>
-            <alias ref="button.overlay"/>
-        </composed>
+        <texture name="panel.background" x="0" y="19" width="1" height="1"/>
+        <texture name="panel.separator" x="6" y="19" width="1" height="2"/>
 
+        <hvsplit name="frame.background" x="0" y="121" width="7" height="7" border="3"/>
 
-        <composed name="removebutton.overlay">
-            <select>
-                <alias ref="-icon-remove" if="disabled" tint="#6fff"/>
-                <alias ref="-icon-remove" if="armed" inset="1,1,-1,-1"/>
-                <alias ref="-icon-remove"/>
-            </select>
-            <alias ref="vbutton.overlay"/>
-        </composed>
+        <hvsplit name="popup.background" x="66" y="104" width="10" height="10" border="4" tint="#E0FFFFFF"/>
+        
+        <hsplit name="-popupmenubutton.hover" x="83" y="82" width="6" height="18" border="2,0"/>
+        <select name="popupmenubutton.background" border="4,1">
+            <alias ref="-popupmenubutton.hover" if="(hover | hasOpenPopups) + !disabled"/>
+        </select>
+        <alias name="popupmenubutton.overlay" ref="none"/>
+
+        <select name="editfield.background" border="4,1">
+            <alias ref="area8X" if="hover"/>
+            <alias ref="area7X"/>
+        </select>
+        <alias name="editfield.overlay" ref="none"/>
+        <alias name="editfield.cursor" ref="white" sizeOverwriteH="2" inset="0,-1,0,1" tint="#cc0"/>
+        <alias name="editfield.selection" ref="white" tint="#444"/>
+
+        <texture name="-icon.combobox" x="10" y="19" width="6" height="8" center="true"/>
+        <select name="combobox.background">
+            <alias ref="area3X" if="armed"/>
+            <alias ref="area2X" if="hover"/>
+            <alias ref="area1X"/>
+        </select>
+        <select name="combobox.button.background">
+            <alias ref="-icon.combobox" inset="1,1,-1,-1" if="armed"/>
+            <alias ref="-icon.combobox"/>
+        </select>
+        <alias name="combobox.display.background" ref="none"/>
+        <alias name="combobox.overlay" ref="-selectionX"/>
+
+        <vsplit name="vscrollbar.background" x="0" y="104" width="13" height="16" splity="7,9"/>
+        <select name="vscrollbar.thumb.background">
+            <vsplit x="42" y="104" width="13" height="24" splity="10,14" if="pressed"/>
+            <vsplit x="28" y="104" width="13" height="24" splity="10,14" if="hover + !disabled"/>
+            <vsplit x="14" y="104" width="13" height="24" splity="10,14"/>
+        </select>
+
+        <hsplit name="hscrollbar.background" x="83" y="101" width="16" height="13" splitx="7,9"/>
+        <select name="hscrollbar.thumb.background">
+            <hsplit x="106" y="115" width="24" height="13" splitx="10,14" if="pressed"/>
+            <hsplit x="81" y="115" width="24" height="13" splitx="10,14" if="hover + !disabled"/>
+            <hsplit x="56" y="115" width="24" height="13" splitx="10,14"/>
+        </select>
+
 
         <grid name="collapsiblepanel.background" weightsX="1" weightsY="1,0" border="0,0,5,0">
             <alias ref="none"/>
