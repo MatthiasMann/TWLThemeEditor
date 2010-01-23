@@ -64,6 +64,8 @@ public class Main extends Frame implements WindowFocusListener, WindowListener, 
         main.setVisible(true);
         main.run();
         main.dispose();
+        
+        System.exit(0);
     }
 
     private final Canvas canvas;
