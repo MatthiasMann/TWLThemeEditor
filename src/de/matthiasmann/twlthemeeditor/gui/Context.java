@@ -29,7 +29,14 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twlthemeeditor.gui.editors.ConditionEditorFactory;
 import de.matthiasmann.twl.AnimationState;
+import de.matthiasmann.twl.Button;
+import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.TableBase;
+import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.AutoCompletionDataSource;
+import de.matthiasmann.twl.model.AutoCompletionResult;
 import de.matthiasmann.twlthemeeditor.gui.editors.ColorEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.GapEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.WeightsEditorFactory;
@@ -45,6 +52,7 @@ import de.matthiasmann.twlthemeeditor.gui.editors.IntegerEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.BooleanEditorFactory;
 import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twl.model.SimpleAutoCompletionResult;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.utils.TypeMapping;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
@@ -65,6 +73,13 @@ import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -75,8 +90,8 @@ public class Context {
     private final ThemeTreeModel model;
     private final TypeMapping<PropertyEditorFactory<?,?>> factories1;
     private final TypeMapping<PropertyEditorFactory<?,?>> factories2;
+    private final Set<String> standardStates;
 
-    private TextureViewerPane textureViewerPane;
     private ThemeTreePane themeTreePane;
 
     public Context(ThemeTreeModel model) {
@@ -85,7 +100,7 @@ public class Context {
         factories1 = new TypeMapping<PropertyEditorFactory<?,?>>();
         factories1.put(ColorProperty.class, new ColorEditorFactory());
         factories1.put(RectProperty.class, new RectEditorFactory());
-        factories1.put(ConditionProperty.class, new ConditionEditor());
+        factories1.put(ConditionProperty.class, new ConditionEditorFactory(this));
         factories1.put(NodeReferenceProperty.class, new NodeReferenceEditorFactory(this));
         factories1.put(WeightsProperty.class, new WeightsEditorFactory());
         factories1.put(SplitProperty.class, new SplitEditorFactory());
@@ -100,7 +115,13 @@ public class Context {
         factories2.put(Integer.class, new IntegerEditorFactory());
         factories2.put(Boolean.class, new BooleanEditorFactory());
         factories2.put(Enum.class, new EnumEditorFactory());
-        factories2.put(AnimationState.class, new AnimStateEditorFactory());
+        factories2.put(AnimationState.class, new AnimStateEditorFactory(this));
+
+        standardStates = new TreeSet<String>();
+        collectStandardStates(Widget.class);
+        collectStandardStates(Button.class);
+        collectStandardStates(TableBase.class);
+        collectStandardStates(EditField.class);
     }
 
     public ListModel<String> getRefableNodes(ThemeTreeNode stopAt, Kind kind) {
@@ -124,6 +145,39 @@ public class Context {
                 }
         }
         return result;
+    }
+
+    public AutoCompletionDataSource collectAllStates() {
+        Set<String> statesSet = new TreeSet<String>(standardStates);
+        for(Image img : model.getImages(null)) {
+            collectStates(img, statesSet);
+        }
+        final String[] states = statesSet.toArray(new String[statesSet.size()]);
+        return new AutoCompletionDataSource() {
+            public AutoCompletionResult collectSuggestions(String text, AutoCompletionResult prev) {
+                int prefixLength = text.length();
+                while(prefixLength > 0 && Character.isJavaIdentifierPart(text.charAt(prefixLength-1))) {
+                    prefixLength--;
+                }
+                if(prefixLength == text.length()) {
+                    return null;
+                }
+                String searchText = text.substring(prefixLength).toLowerCase();
+                String prefixText = text.substring(0, prefixLength);
+                ArrayList<String> answers = new ArrayList<String>();
+                ArrayList<String> answers2 = new ArrayList<String>();
+                for(String state : states) {
+                    int idx = state.toLowerCase().indexOf(searchText);
+                    if(idx == 0) {
+                        answers.add(prefixText.concat(state));
+                    } else if(idx > 0) {
+                        answers2.add(prefixText.concat(state));
+                    }
+                }
+                answers.addAll(answers2);
+                return new SimpleAutoCompletionResult(text, prefixLength, answers);
+            }
+        };
     }
 
     public void selectTarget(NodeReference ref) {
@@ -154,5 +208,39 @@ public class Context {
     public void setThemeTreePane(ThemeTreePane themeTreePane) {
         this.themeTreePane = themeTreePane;
     }
-    
+
+    private void collectStates(Image img, Set<String> states) {
+        String cond = img.getCondition().getCondition();
+        for(int i=0,n=cond.length() ; i<n ;) {
+            while(i<n && !Character.isJavaIdentifierStart(cond.charAt(i))) {
+                i++;
+            }
+            int start = i;
+            while(i<n && Character.isJavaIdentifierPart(cond.charAt(i))) {
+                i++;
+            }
+            String state = cond.substring(start, i);
+            states.add(state);
+        }
+
+        for(Image child : img.getChildren(Image.class)) {
+            collectStates(child, states);
+        }
+    }
+
+    private void collectStandardStates(Class<? extends Widget> clazz) {
+        for(Field f : clazz.getDeclaredFields()) {
+            int m = f.getModifiers();
+            if(Modifier.isPublic(m) && Modifier.isStatic(m) && Modifier.isFinal(m) &&
+                    f.getType() == String.class && f.getName().startsWith("STATE_")) {
+                try {
+                    String state = (String)f.get(null);
+                    standardStates.add(state);
+                } catch(Throwable ex) {
+                    Logger.getLogger(Context.class.getName()).log(Level.SEVERE,
+                            "Can't read state constant", ex);
+                }
+            }
+        }
+    }
 }

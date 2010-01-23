@@ -33,6 +33,7 @@ import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.EditFieldAutoCompletionWindow;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Timer;
 import de.matthiasmann.twl.ToggleButton;
@@ -41,6 +42,7 @@ import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.utils.HashEntry;
+import de.matthiasmann.twlthemeeditor.gui.Context;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import java.lang.reflect.Field;
@@ -56,8 +58,14 @@ import org.lwjgl.input.Keyboard;
  */
 public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationState, Property<AnimationState>>{
 
+    private final Context ctx;
+
+    public AnimStateEditorFactory(Context ctx) {
+        this.ctx = ctx;
+    }
+
     public Widget create(PropertyAccessor<AnimationState, Property<AnimationState>> pa) {
-        return new AnimStateEditor(pa.getProperty());
+        return new AnimStateEditor(ctx, pa.getProperty());
     }
 
     static class AnimStateEditor extends DialogLayout implements Runnable, EditField.Callback {
@@ -69,7 +77,7 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
         private final Button addStateNameButton;
         private Timer timer;
 
-        public AnimStateEditor(Property<AnimationState> property) {
+        public AnimStateEditor(Context ctx, Property<AnimationState> property) {
             this.animationState = property.getPropertyValue();
 
             Class<AnimationState> clazz = AnimationState.class;
@@ -88,6 +96,8 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
                 }
             });
 
+            new EditFieldAutoCompletionWindow(stateNameField, ctx.collectAllStates());
+            
             createLayout();
         }
 

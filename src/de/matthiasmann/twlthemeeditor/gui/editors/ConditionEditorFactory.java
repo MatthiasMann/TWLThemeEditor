@@ -27,17 +27,21 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
+package de.matthiasmann.twlthemeeditor.gui.editors;
 
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.EditFieldAutoCompletionWindow;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.utils.StateExpression;
 import de.matthiasmann.twlthemeeditor.datamodel.Condition;
+import de.matthiasmann.twlthemeeditor.gui.Context;
+import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
+import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
 import java.text.ParseException;
 
@@ -45,10 +49,16 @@ import java.text.ParseException;
  *
  * @author Matthias Mann
  */
-public class ConditionEditor implements PropertyEditorFactory<Condition, ConditionProperty> {
+public class ConditionEditorFactory implements PropertyEditorFactory<Condition, ConditionProperty> {
+
+    final Context ctx;
+
+    public ConditionEditorFactory(Context ctx) {
+        this.ctx = ctx;
+    }
 
     public Widget create(PropertyAccessor<Condition, ConditionProperty> pa) {
-        final ConditionModifier cm = new ConditionModifier(pa);
+        final ConditionModifier cm = new ConditionModifier(ctx, pa);
 
         ToggleButton btnNone = new ToggleButton(cm.new TypeBooleanModel(Condition.Type.NONE));
         btnNone.setTheme("condition-none");
@@ -77,7 +87,7 @@ public class ConditionEditor implements PropertyEditorFactory<Condition, Conditi
         final EditField ef;
         Condition.Type conditionType;
 
-        protected ConditionModifier(PropertyAccessor<Condition, ConditionProperty> pa) {
+        protected ConditionModifier(Context ctx, PropertyAccessor<Condition, ConditionProperty> pa) {
             this.pa = pa;
 
             Condition condition = pa.getValue(Condition.NONE);
@@ -87,6 +97,8 @@ public class ConditionEditor implements PropertyEditorFactory<Condition, Conditi
             ef = new EditField();
             ef.setText(condition.getCondition());
             ef.addCallback(this);
+
+            new EditFieldAutoCompletionWindow(ef, ctx.collectAllStates());
             setEnable();
         }
 
