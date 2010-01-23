@@ -82,7 +82,6 @@
             </select>
             <alias ref="vbutton.overlay"/>
         </composed>
-
     </textures>
 
     <theme name="themetreepane" ref="dialoglayout">
@@ -451,5 +450,15 @@
         <param name="background"><image>frame.background</image></param>
         <param name="border"><border>20</border></param>
         <theme name="" ref="*"/>
+    </theme>
+
+    <theme name="errorMsgDialog" ref="simpledialog">
+        <theme name="content" merge="true">
+            <theme name="scrollpane" ref="scrollpane">
+                <theme name="textarea" ref="textarea">
+                    <param name="minWidth"><int>600</int></param>
+                </theme>
+            </theme>
+        </theme>
     </theme>
 </themes>

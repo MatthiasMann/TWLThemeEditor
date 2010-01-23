@@ -33,10 +33,14 @@ import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.FileSelector;
 import de.matthiasmann.twl.PopupWindow;
+import de.matthiasmann.twl.ScrollPane;
+import de.matthiasmann.twl.SimpleDialog;
 import de.matthiasmann.twl.SubMenu;
+import de.matthiasmann.twl.TextArea;
 import de.matthiasmann.twl.model.FileSystemModel;
 import de.matthiasmann.twl.model.FileSystemModel.FileFilter;
 import de.matthiasmann.twl.model.JavaFileSystemModel;
+import de.matthiasmann.twl.model.SimpleTextAreaModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Include;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
@@ -44,6 +48,8 @@ import de.matthiasmann.twlthemeeditor.gui.EditorArea.Layout;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -156,8 +162,7 @@ public class MainUI extends DialogLayout {
             projectDir = file.getParentFile();
             editorArea.setModel(model);
         } catch(IOException ex) {
-            Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE,
-                    "Can't load project", ex);
+            showErrorMessage("Can't load project", ex);
         }
     }
 
@@ -210,6 +215,23 @@ public class MainUI extends DialogLayout {
                         "Can't determine file location for: " + themeFile.getURL(), ex);
             }
         }
+    }
+
+    void showErrorMessage(String msg, Throwable ex) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        ex.printStackTrace(pw);
+        pw.flush();
+
+        TextArea textArea = new TextArea(new SimpleTextAreaModel(sw.toString()));
+        ScrollPane scrollPane = new ScrollPane(textArea);
+        scrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
+
+        SimpleDialog dlg = new SimpleDialog();
+        dlg.setTheme("errorMsgDialog");
+        dlg.setMessage(scrollPane);
+        dlg.setTitle(msg);
+        dlg.showDialog(this);
     }
 
     void setLayout(Layout layout) {

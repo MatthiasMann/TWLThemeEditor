@@ -655,7 +655,7 @@
         <texture name="-icon.combobox" x="10" y="19" width="6" height="8" center="true"/>
         <select name="combobox.background">
             <alias ref="-area3X" if="armed"/>
-            <alias ref="-area2X" if="hover"/>
+            <alias ref="-area2X" if="hover + !disabled"/>
             <alias ref="-area1X"/>
         </select>
         <select name="combobox.button.background">
@@ -664,6 +664,25 @@
         </select>
         <alias name="combobox.display.background" ref="none"/>
         <alias name="combobox.overlay" ref="-outlineX" tint="#cc0" if="keyboardFocus"/>
+
+
+        <texture name="-icon.checkbox" x="35" y="19" width="12" height="9" inset="0,2,5,0"/>
+        <grid name="checkbox.background" weightsX="0,1" weightsY="1" border="0,18,0,0">
+            <select center="true">
+                <texture x="128" y="53" width="14" height="14" if="armed"/>
+                <texture x="113" y="53" width="14" height="14" if="hover + !disabled"/>
+                <texture x="98" y="53" width="14" height="14"/>
+            </select>
+            <alias ref="none"/>
+        </grid>
+        <grid name="checkbox.overlay" weightsX="0,1" weightsY="1">
+            <composed center="true">
+                <texture x="143" y="53" width="14" height="14" tint="#cc0" if="keyboardFocus"/>
+                <alias ref="-icon.checkbox" if="selected"/>
+            </composed>
+            <alias ref="none"/>
+        </grid>
+
 
         <vsplit name="vscrollbar.background" x="0" y="104" width="13" height="16" splity="7,9"/>
         <select name="vscrollbar.thumb.background">

@@ -96,21 +96,6 @@
 
         <alias name="listbox.display.background" ref="-gradC" if="selected"/>
 
-
-        <alias name="-icon.checkbox" ref="-iconG" center="true"/>
-        <select name="checkbox.background">
-            <composed if="selected + armed">
-                    <alias ref="-borderE"/>
-                    <alias ref="-icon.checkbox"/>
-                </composed>
-                <composed if="selected">
-                    <alias ref="-borderC"/>
-                    <alias ref="-icon.checkbox"/>
-                </composed>
-                <alias ref="-borderE" if="armed"/>
-                <alias ref="-borderC"/>
-            </select>
-
         <alias name="popupmenu.button.background" ref="-gradC" if="hover | armed"/>
         <texture name="popupmenu.separator" x="14" y="41" width="1" height="2" inset="2,3"/>
         
@@ -180,6 +165,7 @@
         <param name=""><image>checkbox.*</image></param>
         <param name="minWidth"><int>13</int></param>
         <param name="minHeight"><int>13</int></param>
+        <param name="border"><border>background.border</border></param>
     </theme>
 
     <theme name="editfield-errorinfowindow" ref="-defaults">
