@@ -54,6 +54,7 @@ import de.matthiasmann.twl.model.TextAreaModel;
 import de.matthiasmann.twl.utils.ClassUtils;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestLabel;
+import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollPane;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollbar;
 import de.matthiasmann.twlthemeeditor.properties.BoundProperty;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
@@ -91,6 +92,7 @@ public class PreviewPane extends DialogLayout {
         new TestWidgetFactory(TestScrollbar.class, "VScrollbar", Scrollbar.Orientation.VERTICAL),
         new TestWidgetFactory(PreviewWidgets.class, "Widgets"),
         new TestWidgetFactory(TestFrameWithWidgets.class, "Frame with Widgets"),
+        new TestWidgetFactory(TestScrollPane.class, "TextArea")
     };
 
     private Context ctx;
