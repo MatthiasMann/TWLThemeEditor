@@ -150,7 +150,9 @@ public class BoundProperty<T> extends AbstractProperty<T> {
         try {
             String prefix = (type == Boolean.class) ? "is" : "get";
             return bean.getClass().getMethod(prefix.concat(Utils.capitalize(name)));
-        } catch(Exception ex) {
+        } catch(NoSuchMethodException unused) {
+            return null;
+        } catch(SecurityException unused) {
             return null;
         }
     }
@@ -158,7 +160,9 @@ public class BoundProperty<T> extends AbstractProperty<T> {
     private static Method getWriteMethod(Object bean, String name, Class<?> type) {
         try {
             return bean.getClass().getMethod("set".concat(Utils.capitalize(name)), type);
-        } catch(Exception ex) {
+        } catch(NoSuchMethodException unused) {
+            return null;
+        } catch(SecurityException unused) {
             return null;
         }
     }

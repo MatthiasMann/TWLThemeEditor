@@ -57,7 +57,6 @@ public class Param extends ThemeTreeNode implements HasProperties {
     protected final Theme theme;
     protected final NameProperty nameProperty;
     protected final Element valueElement;
-    protected final Property<?> property;
 
     public Param(Theme theme, TreeTableNode parent, Element element) {
         super(theme.getThemeFile(), parent, element);
@@ -70,19 +69,12 @@ public class Param extends ThemeTreeNode implements HasProperties {
         };
         addProperty(nameProperty);
 
-        Element e = null;
-        for(int i=0,n=element.getContentSize() ; i<n ; i++) {
-            Content content = element.getContent(i);
-            if(content instanceof Element) {
-                e = (Element)content;
-                break;
+        valueElement = getFirstChildElement(element);
+        if(valueElement != null) {
+            Property<?> property = createProperty(valueElement, this, theme.getLimit());
+            if(property != null) {
+                addProperty(property);
             }
-        }
-        valueElement = e;
-
-        property = createProperty(valueElement, this, theme.getLimit());
-        if(property != null) {
-            addProperty(property);
         }
     }
     
@@ -181,6 +173,16 @@ public class Param extends ThemeTreeNode implements HasProperties {
         }
         if("cursor".equals(tagName)) {
             return new NodeReferenceProperty(new ElementTextProperty(e, "cursor reference"), limit, Kind.CURSOR);
+        }
+        return null;
+    }
+
+    private static Element getFirstChildElement(Element parent) {
+        for(int i=0,n=parent.getContentSize() ; i<n ; i++) {
+            Content content = parent.getContent(i);
+            if(content instanceof Element) {
+                return (Element)content;
+            }
         }
         return null;
     }

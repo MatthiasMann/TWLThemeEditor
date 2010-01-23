@@ -35,7 +35,7 @@ import de.matthiasmann.twl.model.TreeTableNode;
  *
  * @author Matthias Mann
  */
-public class TreeTablePath {
+public class TreeTablePath implements Comparable<TreeTablePath> {
 
     final TreeTableNode node;
     final TreeTablePath next;
@@ -73,6 +73,28 @@ public class TreeTablePath {
         return compareTo(TreeTablePath.create(node));
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj != null && obj.getClass() == getClass()) {
+            TreeTablePath other = (TreeTablePath)obj;
+            return getNode() == other.getNode();
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(getNode());
+    }
+
+    public TreeTableNode getNode() {
+        TreeTablePath path = this;
+        while(path.next != null) {
+            path = path.next;
+        }
+        return path.node;
+    }
+    
     private int getIndexInParent() {
         TreeTableNode parent = node.getParent();
         return (parent != null) ? parent.getChildIndex(node) : 0;

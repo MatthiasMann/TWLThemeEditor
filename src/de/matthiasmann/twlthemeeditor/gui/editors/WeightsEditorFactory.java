@@ -41,15 +41,15 @@ import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
  */
 public class WeightsEditorFactory implements PropertyEditorFactory<Weights, WeightsProperty> {
 
-    private static final Weights DEFAULT_WEIGHTS = new Weights(1);
-    
     public Widget create(final PropertyAccessor<Weights, WeightsProperty> pa) {
         return new WeightsEditor(pa);
     }
 
-    class WeightsEditor extends IntegerArrayEditor {
+    static class WeightsEditor extends IntegerArrayEditor {
         private final PropertyAccessor<Weights, WeightsProperty> pa;
 
+        private static final Weights DEFAULT_WEIGHTS = new Weights(1);
+    
         public WeightsEditor(PropertyAccessor<Weights, WeightsProperty> pa) {
             this.pa = pa;
             init(pa.getValue(DEFAULT_WEIGHTS).getWeights());
