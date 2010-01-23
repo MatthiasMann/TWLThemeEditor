@@ -358,7 +358,7 @@
 
     <theme name="previewpane" ref="dialoglayout">
         <param name=""><image>panel.*</image></param>
-        <param name="border"><border>0,5</border></param>
+        <param name="border"><border>5</border></param>
         <theme name="previewwidget" ref="-defaults">
             <param name="background"><image>black</image></param>
 <!--        <param name="mouseCursor"><cursor>cursor.none</cursor></param> -->
@@ -383,7 +383,18 @@
                 <theme name="propertyEditor" ref="propertyEditor"/>
             </theme>
         </theme>
+        <theme name="testWidgetButtonsScrollPane" ref="scrollpane">
+            <theme name="dialoglayout" ref="dialoglayout">
+                <theme name="radiobutton" ref="radiobutton"/>
+                <param name="maxHeight"><int>18</int></param>
+            </theme>
+            <param name="minHeight"><int>31</int></param>
+            <param name="maxHeight"><int>31</int></param>
+        </theme>
         <theme name="" ref="*"/>
+        <param name="namedGaps"><map>
+            <param name="hscrollbar-height"><gap>13</gap></param>
+        </map></param>
     </theme>
 
     <theme name="previewExceptionPopup" ref="-defaults">

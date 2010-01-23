@@ -36,6 +36,7 @@ import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestFrameWithWidgets;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.FileSelector;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.PopupWindow;
@@ -46,6 +47,7 @@ import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractProperty;
 import de.matthiasmann.twl.model.IntegerModel;
+import de.matthiasmann.twl.model.JavaFileSystemModel;
 import de.matthiasmann.twl.model.OptionBooleanModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
@@ -53,6 +55,7 @@ import de.matthiasmann.twl.model.SimpleTextAreaModel;
 import de.matthiasmann.twl.model.TextAreaModel;
 import de.matthiasmann.twl.utils.ClassUtils;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
+import de.matthiasmann.twlthemeeditor.gui.MainUI.ExtFilter;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestLabel;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollPane;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollbar;
@@ -62,12 +65,21 @@ import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 /**
  *
@@ -79,23 +91,13 @@ public class PreviewPane extends DialogLayout {
     private final Label labelErrorDisplay;
     private final Button btnClearStackTrace;
     private final Button btnShowStackTrace;
-    private final SimpleIntegerModel testWidgetModel;
     private final CollapsiblePanel collapsiblePanel;
     private final ScrollPane widgetPropertiesScrollPane;
-    private final TestWidgetFactory[] testWidgetFactories = {
-        new TestWidgetFactory(Widget.class, "Widget"),
-        new TestWidgetFactory(TestLabel.class, "Label"),
-        new TestWidgetFactory(Button.class, "Button", "Press me !"),
-        new TestWidgetFactory(ToggleButton.class, "ToggleButton", "Toggle me !"),
-        new TestWidgetFactory(EditField.class, "EditField"),
-        new TestWidgetFactory(TestScrollbar.class, "HScrollbar", Scrollbar.Orientation.HORIZONTAL),
-        new TestWidgetFactory(TestScrollbar.class, "VScrollbar", Scrollbar.Orientation.VERTICAL),
-        new TestWidgetFactory(PreviewWidgets.class, "Widgets"),
-        new TestWidgetFactory(TestFrameWithWidgets.class, "Frame with Widgets"),
-        new TestWidgetFactory(TestScrollPane.class, "TextArea")
-    };
+    private final ArrayList<TestWidgetFactory> testWidgetFactories;
+    private final ScrollPane testWidgetButtonsScrollPane;
 
     private Context ctx;
+    private SimpleIntegerModel testWidgetModel;
     
     public PreviewPane() {
         this.previewWidget = new PreviewWidget();
@@ -108,20 +110,35 @@ public class PreviewPane extends DialogLayout {
         this.btnClearStackTrace = new Button("Clear");
         this.btnShowStackTrace = new Button("Stack Trace");
 
-        ToggleButton[] testWidgetButtons = new ToggleButton[testWidgetFactories.length];
-        testWidgetModel = new SimpleIntegerModel(0, testWidgetButtons.length-1, 0);
-        for(int i=0 ; i<testWidgetButtons.length ; i++) {
-            ToggleButton button = new ToggleButton(new OptionBooleanModel(testWidgetModel, i));
-            button.setTheme("radiobutton");
-            button.setText(testWidgetFactories[i].getName());
-            testWidgetButtons[i] = button;
-        }
+        testWidgetFactories = new ArrayList<TestWidgetFactory>();
+        testWidgetFactories.add(new TestWidgetFactory(Widget.class, "Widget"));
+        testWidgetFactories.add(new TestWidgetFactory(TestLabel.class, "Label"));
+        testWidgetFactories.add(new TestWidgetFactory(Button.class, "Button", "Press me !"));
+        testWidgetFactories.add(new TestWidgetFactory(ToggleButton.class, "ToggleButton", "Toggle me !"));
+        testWidgetFactories.add(new TestWidgetFactory(EditField.class, "EditField"));
+        testWidgetFactories.add(new TestWidgetFactory(TestScrollbar.class, "HScrollbar", Scrollbar.Orientation.HORIZONTAL));
+        testWidgetFactories.add(new TestWidgetFactory(TestScrollbar.class, "VScrollbar", Scrollbar.Orientation.VERTICAL));
+        testWidgetFactories.add(new TestWidgetFactory(PreviewWidgets.class, "Widgets"));
+        testWidgetFactories.add(new TestWidgetFactory(TestFrameWithWidgets.class, "Frame with Widgets"));
+        testWidgetFactories.add(new TestWidgetFactory(TestScrollPane.class, "TextArea"));
+
+        testWidgetButtonsScrollPane = new ScrollPane();
+        testWidgetButtonsScrollPane.setTheme("testWidgetButtonsScrollPane");
+        testWidgetButtonsScrollPane.setFixed(ScrollPane.Fixed.VERTICAL);
 
         Button btnRecreateTestWidgets = new Button("Recreate Widgets");
         btnRecreateTestWidgets.setTooltipContent("Clears widget cache and recreates current widget");
         btnRecreateTestWidgets.addCallback(new Runnable() {
             public void run() {
                 recreateTestWidgets();
+            }
+        });
+
+        Button btnLoadUserWidget = new Button("Load Widget");
+        btnLoadUserWidget.setTooltipContent("Load a Widget from a user supplied JAR file");
+        btnLoadUserWidget.addCallback(new Runnable() {
+            public void run() {
+                loadUserWidget();
             }
         });
 
@@ -134,13 +151,17 @@ public class PreviewPane extends DialogLayout {
         widgetPropertiesScrollPane.setTheme("propertyEditor");
         widgetPropertiesScrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
         collapsiblePanel = new CollapsiblePanel(CollapsiblePanel.Direction.HORIZONTAL, "", widgetPropertiesScrollPane, null);
-        
+
+        Group vertWidgetControl = createSequentialGroup()
+                .addGroup(createParallelGroup(btnRecreateTestWidgets, btnLoadUserWidget))
+                .addGap("hscrollbar-height");
+
         setHorizontalGroup(createParallelGroup()
-                .addGroup(createSequentialGroup().addGap().addWidgetsWithGap("radiobutton", testWidgetButtons).addGap().addWidget(btnRecreateTestWidgets))
+                .addGroup(createSequentialGroup(testWidgetButtonsScrollPane).addWidgets(btnRecreateTestWidgets, btnLoadUserWidget))
                 .addGroup(createSequentialGroup(previewWidget, collapsiblePanel))
-                .addGroup(createSequentialGroup(labelErrorDisplay, btnClearStackTrace, btnShowStackTrace).addGap(SMALL_GAP)));
+                .addGroup(createSequentialGroup(labelErrorDisplay, btnClearStackTrace, btnShowStackTrace)));
         setVerticalGroup(createSequentialGroup()
-                .addGroup(createParallelGroup(testWidgetButtons).addWidget(btnRecreateTestWidgets))
+                .addGroup(createParallelGroup(testWidgetButtonsScrollPane).addGroup(vertWidgetControl))
                 .addGroup(createParallelGroup(previewWidget, collapsiblePanel))
                 .addGroup(createParallelGroup(labelErrorDisplay, btnClearStackTrace, btnShowStackTrace)));
 
@@ -159,17 +180,13 @@ public class PreviewPane extends DialogLayout {
                 showStackTrace();
             }
         });
-        testWidgetModel.addCallback(new Runnable() {
-            public void run() {
-                changeTestWidget();
-            }
-        });
         previewWidget.setTestWidgetChangedCB(new Runnable() {
             public void run() {
                 updateTestWidgetProperties();
             }
         });
-        
+
+        createTestWidgetButtons();
         changeTestWidget();
     }
 
@@ -195,6 +212,29 @@ public class PreviewPane extends DialogLayout {
 
     public void setContext(Context ctx) {
         this.ctx = ctx;
+    }
+
+    void createTestWidgetButtons() {
+        int curSelected = (testWidgetModel != null) ? testWidgetModel.getValue() : 0;
+        ToggleButton[] testWidgetButtons = new ToggleButton[testWidgetFactories.size()];
+        testWidgetModel = new SimpleIntegerModel(0, testWidgetButtons.length-1, curSelected);
+        for(int i=0 ; i<testWidgetButtons.length ; i++) {
+            ToggleButton button = new ToggleButton(new OptionBooleanModel(testWidgetModel, i));
+            button.setTheme("radiobutton");
+            button.setText(testWidgetFactories.get(i).getName());
+            testWidgetButtons[i] = button;
+        }
+        DialogLayout l = new DialogLayout();
+        l.setHorizontalGroup(l.createSequentialGroup().addWidgetsWithGap("radiobutton", testWidgetButtons));
+        l.setVerticalGroup(l.createSequentialGroup()
+                .addGroup(l.createParallelGroup(testWidgetButtons))
+                .addGap());
+        testWidgetButtonsScrollPane.setContent(l);
+        testWidgetModel.addCallback(new Runnable() {
+            public void run() {
+                changeTestWidget();
+            }
+        });
     }
 
     void updateException() {
@@ -283,7 +323,7 @@ public class PreviewPane extends DialogLayout {
     }
 
     void changeTestWidget() {
-        previewWidget.setWidgetFactory(testWidgetFactories[testWidgetModel.getValue()]);
+        previewWidget.setWidgetFactory(testWidgetFactories.get(testWidgetModel.getValue()));
     }
 
     void recreateTestWidgets() {
@@ -291,6 +331,103 @@ public class PreviewPane extends DialogLayout {
             factory.clearCache();
         }
         changeTestWidget();
+    }
+
+    void loadUserWidget() {
+        final PopupWindow popupWindow = new PopupWindow(this);
+        JavaFileSystemModel fsm = new JavaFileSystemModel();
+        FileSelector.NamedFileFilter filter = new FileSelector.NamedFileFilter(
+                "JAR files", new ExtFilter(".jar"));
+        FileSelector fileSelector = new FileSelector(
+                Preferences.userNodeForPackage(PreviewPane.class),
+                "userWidgetJARs");
+        fileSelector.setFileSystemModel(fsm);
+        fileSelector.addFileFilter(FileSelector.AllFilesFilter);
+        fileSelector.addFileFilter(filter);
+        fileSelector.setFileFilter(filter);
+        fileSelector.setAllowMultiSelection(true);
+        fileSelector.addCallback(new FileSelector.Callback() {
+            public void filesSelected(Object[] files) {
+                ArrayList<File> jarFiles = new ArrayList<File>(files.length);
+                for(Object o : files) {
+                    if(o instanceof File) {
+                        jarFiles.add((File)o);
+                    }
+                }
+                if(jarFiles.size() > 0) {
+                    loadUserWidget(jarFiles);
+                }
+                popupWindow.closePopup();
+            }
+            public void canceled() {
+                popupWindow.closePopup();
+            }
+        });
+        popupWindow.setTheme("fileselector-popup");
+        popupWindow.add(fileSelector);
+        popupWindow.setSize(getWidth()*4/5, getHeight()*4/5);
+        popupWindow.setPosition(
+                getWidth()/2 - popupWindow.getWidth()/2,
+                getHeight()/2 - popupWindow.getHeight()/2);
+        popupWindow.openPopup();
+    }
+
+    void loadUserWidget(ArrayList<File> files) {
+        try {
+            URL[] urls = new URL[files.size()];
+            for(int i=0,n=urls.length ; i<n ; i++) {
+                urls[i] = files.get(i).toURI().toURL();
+            }
+            URLClassLoader classLoader = new URLClassLoader(urls);
+            for(File f : files) {
+                scanJARFile(classLoader, f);
+            }
+        } catch (Throwable ex) {
+            Logger.getLogger(PreviewPane.class.getName()).log(Level.SEVERE,
+                    "Can't load user classes", ex);
+        }
+        createTestWidgetButtons();
+    }
+
+    private void scanJARFile(ClassLoader classLoader, File file) {
+        try {
+            JarFile jarFile = new JarFile(file);
+            try {
+                Enumeration<JarEntry> entries = jarFile.entries();
+                while(entries.hasMoreElements()) {
+                    JarEntry e = entries.nextElement();
+                    String name = e.getName();
+                    if(name.endsWith(".class") && !name.startsWith("de/matthiasmann/twl/")) {
+                        name = name.substring(0, name.length()-6).replace('/', '.');
+                        testClass(classLoader, name);
+                    }
+                }
+            } finally {
+                jarFile.close();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(PreviewPane.class.getName()).log(Level.SEVERE,
+                    "Can't scan JAR file: " + file, ex);
+        }
+    }
+
+    private void testClass(ClassLoader classLoader, String name) {
+        try {
+            Class<?> clazz = Class.forName(name, false, classLoader);
+            if(Widget.class.isAssignableFrom(clazz) && !clazz.isMemberClass() && !clazz.isLocalClass()) {
+                @SuppressWarnings("unchecked")
+                Class<? extends Widget> widgetClazz = (Class<? extends Widget>)clazz;
+                Constructor<?> c = clazz.getConstructor();
+                if(Modifier.isPublic(c.getModifiers())) {
+                    testWidgetFactories.add(new TestWidgetFactory(
+                            widgetClazz, clazz.getSimpleName()));
+                }
+            }
+        } catch(NoSuchMethodException ignore) {
+        } catch(Throwable ex) {
+            Logger.getLogger(PreviewPane.class.getName()).log(Level.SEVERE,
+                    "Can't check class: " + name, ex);
+        }
     }
 
     void updateTestWidgetProperties() {
