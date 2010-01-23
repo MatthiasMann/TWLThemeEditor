@@ -132,6 +132,13 @@ public class ThemeTreePane extends DialogLayout {
             public void columnHeaderClicked(int column) {
             }
         });
+        table.addCallback(new Callback() {
+            public void mouseDoubleClicked(int row, int column) {
+                clearFilterAndJumpToRow(row);
+            }
+            public void columnHeaderClicked(int column) {
+            }
+        });
 
         setHorizontalGroup(createParallelGroup()
                 .addWidget(scrollPane)
@@ -271,6 +278,13 @@ public class ThemeTreePane extends DialogLayout {
         }
 
         updateOperationButtons();
+    }
+
+    void clearFilterAndJumpToRow(int row) {
+        if(row >= 0 && row < filteredModel.getNumRows()) {
+            selectNode(filteredModel.getRow(row));
+            filterEditField.setText("");
+        }
     }
 
     void confirmOperation(final ThemeTreeOperation operation) {
