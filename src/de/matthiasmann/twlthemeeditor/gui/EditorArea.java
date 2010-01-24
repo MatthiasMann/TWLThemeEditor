@@ -38,6 +38,7 @@ import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.DelayedAction;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
+import de.matthiasmann.twlthemeeditor.datamodel.Textures;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
@@ -196,12 +197,11 @@ public class EditorArea extends Widget {
         
         Object obj = themeTreePane.getSelected();
         if(obj != null) {
-            if(obj instanceof Image) {
-                try {
-                    textureViewerPane.setUrl(((Image)obj).getTextures().getTextureURL());
-                } catch(MalformedURLException ex) {
-                    textureViewerPane.setUrl(null);
-                }
+            Textures textures = getTextures(obj);
+            try {
+                textureViewerPane.setUrl((textures != null) ? textures.getTextureURL() : null);
+            } catch(MalformedURLException ignored) {
+                textureViewerPane.setUrl(null);
             }
             if(obj instanceof HasProperties) {
                 Property<?>[] properties = ((HasProperties)obj).getProperties();
@@ -228,7 +228,24 @@ public class EditorArea extends Widget {
         if(boundRectProperty != null) {
             textureViewerPane.setRect(boundRectProperty.getPropertyValue());
         } else {
-            textureViewerPane.setRect(null);
+            de.matthiasmann.twl.renderer.Image renderImage = null;
+            Object obj = themeTreePane.getSelected();
+            if(obj instanceof Image) {
+                Image image = (Image)obj;
+                String name = image.getName();
+                while(name == null && (image.getParent() instanceof Image)) {
+                    image = (Image)image.getParent();
+                    name = image.getName();
+                }
+                if(name != null) {
+                    renderImage = previewPane.getImage(name);
+                }
+            }
+            if(renderImage != null) {
+                textureViewerPane.setImage(renderImage);
+            } else {
+                textureViewerPane.setRect(null);
+            }
         }
         Color color = (boundColorProperty != null) ? boundColorProperty.getPropertyValue() : Color.WHITE;
         textureViewerPane.setTintColor((color != null) ? color : Color.WHITE);
@@ -248,6 +265,16 @@ public class EditorArea extends Widget {
     private void removeFromParent(Widget w) {
         if(w.getParent() != null) {
             w.getParent().removeChild(w);
+        }
+    }
+
+    private Textures getTextures(Object node) {
+        if(node instanceof Textures) {
+            return (Textures)node;
+        } else if(node instanceof Image) {
+            return ((Image)node).getTextures();
+        } else {
+            return null;
         }
     }
 

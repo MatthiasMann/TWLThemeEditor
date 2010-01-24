@@ -34,6 +34,7 @@ import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.renderer.CacheContext;
+import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeLoadErrorTracker;
@@ -116,6 +117,10 @@ public class PreviewWidget extends Widget {
             reloadTheme = true;
         }
         exceptionHolder.setException(nr, null);
+    }
+
+    public Image getImage(String name) {
+        return (theme != null) ? theme.getImageNoWarning(name) : null;
     }
     
     @Override

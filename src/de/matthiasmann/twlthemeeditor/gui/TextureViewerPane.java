@@ -40,6 +40,7 @@ import de.matthiasmann.twl.ValueAdjusterFloat;
 import de.matthiasmann.twl.model.FloatModel;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.model.SimpleFloatModel;
+import de.matthiasmann.twl.renderer.Image;
 import java.net.URL;
 
 /**
@@ -60,6 +61,7 @@ public class TextureViewerPane extends DialogLayout {
     private final SimpleBooleanModel showCompleteTexture;
 
     private Rect rect;
+    private boolean showMousePosition;
 
     public TextureViewerPane() {
         this.textureViewer = new TextureViewer();
@@ -152,10 +154,14 @@ public class TextureViewerPane extends DialogLayout {
         });
         textureViewer.setMouseOverListener(new TextureViewer.MouseOverListener() {
             public void mousePosition(int x, int y) {
-                mousePositionDisplay.setText("X:"+x+" Y:"+y);
+                if(showMousePosition) {
+                    mousePositionDisplay.setText("X:"+x+" Y:"+y);
+                }
             }
             public void mouseExited() {
-                mousePositionDisplay.setText("");
+                if(showMousePosition) {
+                    mousePositionDisplay.setText("");
+                }
             }
         });
 
@@ -168,8 +174,18 @@ public class TextureViewerPane extends DialogLayout {
 
     public void setRect(Rect rect) {
         this.rect = rect;
+        this.showMousePosition = true;
         btnShowCompleteTexture.setEnabled(rect != null);
+        mousePositionDisplay.setText("");
         updateRect();
+    }
+
+    public void setImage(Image image) {
+        this.rect = null;
+        this.showMousePosition = false;
+        textureViewer.setImage(image);
+        btnShowCompleteTexture.setEnabled(false);
+        mousePositionDisplay.setText("Preview");
     }
 
     public void setTintColor(Color tintColor) {

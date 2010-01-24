@@ -42,6 +42,9 @@ import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -57,15 +60,16 @@ public class TextureViewer extends DraggableButton {
     private URL url;
     private Rect rect;
     private Color tintColor = Color.WHITE;
-    private boolean tiled;
     private float zoomX;
     private float zoomY;
     private Runnable[] exceptionCallbacks;
     private MouseOverListener mouseOverListener;
 
+    private long lastModified;
     private CacheContext cacheContext;
     private Texture texture;
     private Image image;
+    private Image specialImage;
     private IOException loadException;
 
     private boolean reloadTexture;
@@ -80,23 +84,16 @@ public class TextureViewer extends DraggableButton {
     }
 
     public void setUrl(URL url) {
-        if(!Utils.equals(this.url, url)) {
+        if(!Utils.equals(this.url, url) || checkModified()) {
             this.url = url;
             reloadTexture = true;
         }
     }
 
-    public Rect getRect() {
-        return rect;
-    }
-
     public void setRect(Rect rect) {
         this.rect = rect;
+        this.specialImage = null;
         changeImage = true;
-    }
-
-    public Color getTintColor() {
-        return tintColor;
     }
 
     public void setTintColor(Color tintColor) {
@@ -107,15 +104,6 @@ public class TextureViewer extends DraggableButton {
         changeImage = true;
     }
 
-    public boolean isTiled() {
-        return tiled;
-    }
-
-    public void setTiled(boolean tiled) {
-        this.tiled = tiled;
-        changeImage = true;
-    }
-
     public Rect getTextureRect() {
         if(texture == null) {
             return new Rect();
@@ -123,18 +111,16 @@ public class TextureViewer extends DraggableButton {
         return new Rect(0, 0, texture.getWidth(), texture.getHeight());
     }
 
-    public float getZoomX() {
-        return zoomX;
-    }
-
-    public float getZoomY() {
-        return zoomY;
-    }
-
     public void setZoom(float zoomX, float zoomY) {
         this.zoomX = zoomX;
         this.zoomY = zoomY;
         invalidateLayoutTree();
+    }
+
+    public void setImage(Image image) {
+        this.specialImage = image;
+        this.image = image;
+        this.rect = (image != null) ? new Rect(0, 0, image.getWidth(), image.getHeight()) : null;
     }
 
     public IOException getLoadException() {
@@ -200,7 +186,12 @@ public class TextureViewer extends DraggableButton {
         // this prevents jumpy image scaling when the rectangle size is changed
         Image prevImage = image;
 
-        if(texture != null && (image == null || changeImage)) {
+        if(specialImage != null) {
+            if(image != specialImage) {
+                image = specialImage;
+                invalidateLayoutTree();
+            }
+        } else if(texture != null && (image == null || changeImage)) {
             if(rect == null) {
                 rect = getTextureRect();
             } else {
@@ -208,10 +199,12 @@ public class TextureViewer extends DraggableButton {
                 rect.intersect(getTextureRect());
             }
             image = texture.getImage(rect.getX(), rect.getY(),
-                    rect.getWidth(), rect.getHeight(), tintColor, tiled);
+                    rect.getWidth(), rect.getHeight(), tintColor, false);
 
             invalidateLayoutTree();
             changeImage = false;
+        } else if(texture == null) {
+            invalidateLayoutTree();
         }
 
         if(prevImage == null) {
@@ -224,6 +217,13 @@ public class TextureViewer extends DraggableButton {
     }
 
     protected void loadTexture(Renderer renderer) throws IOException {
+        try {
+            lastModified = getLastModified();
+        } catch(IOException ex) {
+            lastModified = System.currentTimeMillis();
+            Logger.getLogger(TextureViewer.class.getName()).log(Level.SEVERE,
+                    "Can't determine last modified date", ex);
+        }
         CacheContext prevCacheContext = renderer.getActiveCacheContext();
         cacheContext = renderer.createNewCacheContext();
         renderer.setActiveCacheContext(cacheContext);
@@ -231,6 +231,20 @@ public class TextureViewer extends DraggableButton {
             texture = renderer.loadTexture(url, "RGBA", "NEAREST");
         } finally {
             renderer.setActiveCacheContext(prevCacheContext);
+        }
+    }
+
+    protected long getLastModified() throws IOException {
+        URLConnection connection = url.openConnection();
+        connection.setAllowUserInteraction(false);
+        return connection.getLastModified();
+    }
+
+    protected boolean checkModified() {
+        try {
+            return (url != null) && lastModified != getLastModified();
+        } catch(IOException ignore) {
+            return false;
         }
     }
 

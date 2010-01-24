@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.AnimationState;
+import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.PreviewWidgets;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestFrameWithWidgets;
@@ -196,6 +197,10 @@ public class PreviewPane extends DialogLayout {
 
     public void reloadTheme() {
         previewWidget.reloadTheme();
+    }
+
+    public Image getImage(String name) {
+        return previewWidget.getImage(name);
     }
 
     public Object getThemeLoadErrorLocation() {
