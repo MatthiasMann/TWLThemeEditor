@@ -644,6 +644,15 @@
         </select>
         <alias name="popupmenubutton.overlay" ref="none"/>
 
+        <alias name="popupmenusubmenubutton.background" ref="popupmenubutton.background" border="1,4,1,12"/>
+        <grid name="popupmenusubmenubutton.overlay" weightsX="1,0" weightsY="1">
+            <alias ref="none"/>
+            <select>
+                <texture x="23" y="19" width="5" height="9" sizeOverwriteH="9" center="true" inset="1,0,-1,0" if="(hover | hasOpenPopups) + !disabled"/>
+                <texture x="17" y="19" width="5" height="9" sizeOverwriteH="9" center="true" inset="1,0,-1,0"/>
+            </select>
+        </grid>
+
         <select name="editfield.background" border="4,1">
             <alias ref="-area8X" if="hover"/>
             <alias ref="-area7X"/>
@@ -705,8 +714,8 @@
         </grid>
 
         <select name="collapsiblepanel.arrow.background" center="true">
-            <texture x="26" y="19" width="8" height="8" unless="expanded"/>
-            <texture x="17" y="19" width="8" height="8"/>
+            <texture x="94" y="71" width="10" height="10" unless="expanded"/>
+            <texture x="83" y="71" width="10" height="10"/>
         </select>
 
         <select name="collapsiblepanel.arrowH.background" center="true">
@@ -790,6 +799,13 @@
 
     <theme name="popupMenuButton" ref="button">
         <param name=""><image>popupmenubutton.*</image></param>
+        <param name="border"><border>background.border</border></param>
+        <param name="textAlignment"><enum type="alignment">left</enum></param>
+        <param name="font"><font>popupmenu-font</font></param>
+    </theme>
+
+    <theme name="popupMenuSubMenuButton" ref="button">
+        <param name=""><image>popupmenusubmenubutton.*</image></param>
         <param name="border"><border>background.border</border></param>
         <param name="textAlignment"><enum type="alignment">left</enum></param>
         <param name="font"><font>popupmenu-font</font></param>

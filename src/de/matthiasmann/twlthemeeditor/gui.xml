@@ -439,6 +439,7 @@
         <param name="background"><image>popup.background</image></param>
         <param name="border"><border>5</border></param>
         <theme name="menuitem" ref="popupMenuButton"/>
+        <theme name="submenu" ref="popupMenuSubMenuButton"/>
         <theme name="spacer" ref="-defaults">
             <param name="background"><image>popupmenu.separator</image></param>
             <param name="maxWidth"><int>32767</int></param>
