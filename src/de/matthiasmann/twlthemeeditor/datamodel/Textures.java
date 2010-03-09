@@ -131,9 +131,9 @@ public class Textures extends ThemeTreeNode {
 
     public static void addCreateImageOperations(List<ThemeTreeOperation> operations, ThemeTreeNode parent) {
         operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "texture"));
-        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "hsplit", "hsplit", "0,0"));
-        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "vsplit", "vsplit", "0,0"));
-        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "hvsplit", "hsplit", "0,0", "vsplit", "0,0"));
+        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "hsplit", "splitx", "0,0"));
+        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "vsplit", "splity", "0,0"));
+        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "hvsplit", "splitx", "0,0", "splity", "0,0"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "select"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "composed"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "grid", "weightsX", "0,1,0", "weightsY", "0,1,0"));
