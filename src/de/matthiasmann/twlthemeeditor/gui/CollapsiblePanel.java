@@ -225,7 +225,7 @@ public class CollapsiblePanel extends DialogLayout {
         private void checkSize() {
             int size = (direction == Direction.VERTICAL) ? getInnerHeight() : getInnerWidth();
             if(size != prefInnerSize) {
-                invalidateLayoutTree();
+                super.invalidateLayoutTree();
             }
         }
 
@@ -236,6 +236,11 @@ public class CollapsiblePanel extends DialogLayout {
 
         @Override
         protected void childChangedSize(Widget child) {
+            startAnimate();
+        }
+
+        @Override
+        public void invalidateLayoutTree() {
             startAnimate();
         }
 
