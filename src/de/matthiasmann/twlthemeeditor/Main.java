@@ -41,6 +41,8 @@ import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
@@ -111,6 +113,7 @@ public class Main extends Frame implements WindowFocusListener, WindowListener, 
 
                 gui.update();
                 Display.update();
+                reduceInputLag();
             }
 
             gui.destroy();
@@ -119,6 +122,18 @@ public class Main extends Frame implements WindowFocusListener, WindowListener, 
             ex.printStackTrace();
         }
         Display.destroy();
+    }
+
+    /**
+     * reduce input lag by polling input devices after waiting for vsync
+     *
+     * Call after Display.update()
+     */
+    private static void reduceInputLag() {
+        GL11.glGetError();          // this call will burn the time between vsyncs
+        Display.processMessages();  // process new native messages since Display.update();
+        Mouse.poll();               // now update Mouse events
+        Keyboard.poll();            // and Keyboard too
     }
 
     @Override

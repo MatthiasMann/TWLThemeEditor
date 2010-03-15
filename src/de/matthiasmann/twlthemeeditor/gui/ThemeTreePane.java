@@ -31,18 +31,16 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.SimpleDialog;
 import de.matthiasmann.twl.BoxLayout;
-import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
-import de.matthiasmann.twl.PopupMenu;
+import de.matthiasmann.twl.Menu;
+import de.matthiasmann.twl.MenuAction;
 import de.matthiasmann.twl.ScrollPane;
-import de.matthiasmann.twl.SubMenu;
 import de.matthiasmann.twl.Table;
 import de.matthiasmann.twl.TableBase.Callback;
 import de.matthiasmann.twl.TableBase.StringCellRenderer;
 import de.matthiasmann.twl.TableRowSelectionManager;
 import de.matthiasmann.twl.TreeTable;
-import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.TableSingleSelectionModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.CallbackSupport;
@@ -183,7 +181,8 @@ public class ThemeTreePane extends DialogLayout {
         buttons.removeAllChildren();
         if(selected instanceof ThemeTreeNode) {
             List<ThemeTreeOperation> operations = ((ThemeTreeNode)selected).getOperations();
-            createButtons(operations, buttons);
+            Menu m = createButtons(operations);
+            m.createMenuBar(buttons);
         }
     }
 
@@ -206,41 +205,34 @@ public class ThemeTreePane extends DialogLayout {
     void showNodeOperations(int x, int y) {
         List<ThemeTreeOperation> operations = ((ThemeTreeNode)selected).getOperations();
         if(!operations.isEmpty()) {
-            PopupMenu popupMenu = new PopupMenu(this);
-            createButtons(operations, popupMenu);
-            popupMenu.showPopup(x, y);
+            Menu menu = createButtons(operations);
+            menu.openPopupMenu(table, x, y);
         }
     }
 
-    private void createButtons(List<ThemeTreeOperation> operations, Widget container) {
-        HashMap<String, PopupMenu> submenus = new HashMap<String, PopupMenu>();
+    private Menu createButtons(List<ThemeTreeOperation> operations) {
+        Menu menu = new Menu();
+        HashMap<String, Menu> submenus = new HashMap<String, Menu>();
         for(final ThemeTreeOperation operation : operations) {
             String groupID = operation.getGroupID();
 
-            PopupMenu subPopupMenu = null;
+            Menu subPopupMenu = null;
             if(groupID != null) {
                 subPopupMenu = submenus.get(groupID);
                 if(subPopupMenu == null) {
-                     SubMenu subMenuBtn = new SubMenu();
-                     subMenuBtn.setTheme(groupID);
-                     subPopupMenu = subMenuBtn.getPopupMenu();
-                     subPopupMenu.setTheme(groupID + "-popupMenu");
+                     subPopupMenu = new Menu();
+                     subPopupMenu.setTheme(groupID);
+                     subPopupMenu.setPopupTheme(groupID + "-popupMenu");
                      submenus.put(groupID, subPopupMenu);
-                     container.add(subMenuBtn);
+                     menu.add(subPopupMenu);
                 }
             }
 
-            final PopupMenu menuToClose = (container instanceof PopupMenu) ?
-                ((PopupMenu)container) : subPopupMenu;
-
-            Button btn = new Button();
-            btn.setTheme(operation.getActionID());
-            btn.setEnabled(operation.isEnabled());
-            btn.addCallback(new Runnable() {
+            MenuAction action = new MenuAction();
+            action.setTheme(operation.getActionID());
+            action.setEnabled(operation.isEnabled());
+            action.setCallback(new Runnable() {
                 public void run() {
-                    if(menuToClose != null) {
-                        menuToClose.closePopup();
-                    }
                     if(operation.needConfirm()) {
                         confirmOperation(operation);
                     } else {
@@ -249,8 +241,9 @@ public class ThemeTreePane extends DialogLayout {
                 }
             });
 
-            ((subPopupMenu != null) ? subPopupMenu : container).add(btn);
+            ((subPopupMenu != null) ? subPopupMenu : menu).add(action);
         }
+        return menu;
     }
 
     void executeOperation(ThemeTreeOperation operation) {

@@ -640,7 +640,7 @@
         
         <hsplit name="-popupmenubutton.hover" x="83" y="82" width="6" height="18" border="2,0"/>
         <select name="popupmenubutton.background" border="4,1">
-            <alias ref="-popupmenubutton.hover" if="(hover | hasOpenPopups) + !disabled"/>
+            <alias ref="-popupmenubutton.hover" if="(hover | hasOpenPopups | hasOpenMenus) + !disabled"/>
         </select>
         <alias name="popupmenubutton.overlay" ref="none"/>
 

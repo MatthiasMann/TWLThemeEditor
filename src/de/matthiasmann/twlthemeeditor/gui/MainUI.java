@@ -29,14 +29,15 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.FileSelector;
+import de.matthiasmann.twl.Menu;
+import de.matthiasmann.twl.MenuAction;
 import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SimpleDialog;
-import de.matthiasmann.twl.SubMenu;
 import de.matthiasmann.twl.TextArea;
+import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.FileSystemModel;
 import de.matthiasmann.twl.model.FileSystemModel.FileFilter;
 import de.matthiasmann.twl.model.JavaFileSystemModel;
@@ -70,7 +71,7 @@ public class MainUI extends DialogLayout {
 
     private final Preferences prefs;
     private final EditorArea editorArea;
-    private final Button btnSaveProject;
+    private final MenuAction btnSaveProject;
     private final Menu recentProjectsMenu;
     private final MRUListModel<String> recentProjectsModel;
 
@@ -82,46 +83,53 @@ public class MainUI extends DialogLayout {
         this.prefs = Preferences.userNodeForPackage(MainUI.class);
         this.editorArea = new EditorArea();
 
-        MainMenu menuFile = new MainMenu("File");
-        menuFile.createMenuItem("Open project", new Runnable() {
+        Menu menuFile = new Menu("File");
+        menuFile.add("Open project", new Runnable() {
             public void run() {
                 openProject();
             }
         });
-        recentProjectsMenu = menuFile.createSubMenu("Open recent Project");
-        btnSaveProject = menuFile.createMenuItem("Save project", new Runnable() {
+        menuFile.add(recentProjectsMenu = new Menu("Open recent Project"));
+        menuFile.add(btnSaveProject = new MenuAction("Save project", new Runnable() {
             public void run() {
                 saveProject();
             }
-        });
+        }));
+        
         menuFile.addSpacer();
-        menuFile.createMenuItem("Exit", new Runnable() {
+        menuFile.add("Exit", new Runnable() {
             public void run() {
                 exit();
             }
         });
 
-        MainMenu menuView = new MainMenu("View");
-        menuView.createMenuItem("Layout 1", new Runnable() {
+        Menu menuView = new Menu("View");
+        menuView.add("Layout 1", new Runnable() {
             public void run() {
                 setLayout(EditorArea.Layout.SPLIT_HV);
             }
         });
-        menuView.createMenuItem("Layout 2", new Runnable() {
+        menuView.add("Layout 2", new Runnable() {
             public void run() {
                 setLayout(EditorArea.Layout.SPLIT_HHV);
             }
         });
+
+        Menu mainMenu = new Menu();
+        mainMenu.setTheme("mainmenu");
+        mainMenu.add(menuFile);
+        mainMenu.add(menuView);
+        Widget menuBar = mainMenu.createMenuBar();
 
         recentProjectsModel = new PersistentMRUListModel<String>(5, String.class, prefs, KEY_RECENT_PROJECTS);
 
         btnSaveProject.setEnabled(false);
         
         setHorizontalGroup(createParallelGroup()
-                .addGroup(createSequentialGroup(menuFile, menuView).addGap())
+                .addWidget(menuBar)
                 .addWidget(editorArea));
         setVerticalGroup(createSequentialGroup()
-                .addGroup(createParallelGroup(menuFile, menuView))
+                .addWidget(menuBar)
                 .addWidget(editorArea));
 
         popuplateRecentProjectsMenu();
@@ -263,11 +271,11 @@ public class MainUI extends DialogLayout {
     }
 
     void popuplateRecentProjectsMenu() {
-        recentProjectsMenu.getPopupMenu().removeAllChildren();
+        recentProjectsMenu.clear();
         int numEntries = recentProjectsModel.getNumEntries();
         for(int i=0 ; i<numEntries ; i++) {
             final String entry = recentProjectsModel.getEntry(i);
-            recentProjectsMenu.createMenuItem(entry, new Runnable() {
+            recentProjectsMenu.add(entry, new Runnable() {
                 public void run() {
                     openProject(new File(entry));
                 }
@@ -300,37 +308,4 @@ public class MainUI extends DialogLayout {
         }
     }
 
-    static class Menu extends SubMenu {
-        public Menu(String text) {
-            super(text);
-            getPopupMenu().setTheme("mainMenu-popupMenu");
-        }
-
-        public Button createMenuItem(String text, Runnable cb) {
-            Button btn = new Button(text);
-            btn.setTheme("menuitem");
-            btn.addCallback(cb);
-            getPopupMenu().add(btn);
-            return btn;
-        }
-        public Menu createSubMenu(String text) {
-            Menu subMenu = new Menu(text);
-            subMenu.setTheme("submenu");
-            getPopupMenu().add(subMenu);
-            return subMenu;
-        }
-        public void addSpacer() {
-            getPopupMenu().addSpacer();
-        }
-    }
-
-    static class MainMenu extends Menu {
-        public MainMenu(String text) {
-            super(text);
-        }
-        @Override
-        protected void buttonAction() {
-            getPopupMenu().showPopup(getX(), getBottom());
-        }
-    }
 }
