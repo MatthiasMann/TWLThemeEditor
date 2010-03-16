@@ -64,28 +64,28 @@ import java.util.logging.Logger;
  */
 public class TestWidgetManager {
 
-    private final ArrayList<TestWidgetFactory> buildInWidgets;
+    private final ArrayList<TestWidgetFactory> builtinWidgets;
     private final HashMap<ArrayList<String>, ArrayList<TestWidgetFactory>> userWidgets;
 
     private Runnable callback;
     private TestWidgetFactory currentTestWidgetFactory;
 
     public TestWidgetManager() {
-        this.buildInWidgets = new ArrayList<TestWidgetFactory>();
+        this.builtinWidgets = new ArrayList<TestWidgetFactory>();
         this.userWidgets = new LinkedHashMap<ArrayList<String>, ArrayList<TestWidgetFactory>>();
 
-        buildInWidgets.add(new TestWidgetFactory(Widget.class, "Widget"));
-        buildInWidgets.add(new TestWidgetFactory(TestLabel.class, "Label"));
-        buildInWidgets.add(new TestWidgetFactory(Button.class, "Button", "Press me !"));
-        buildInWidgets.add(new TestWidgetFactory(ToggleButton.class, "ToggleButton", "Toggle me !"));
-        buildInWidgets.add(new TestWidgetFactory(EditField.class, "EditField"));
-        buildInWidgets.add(new TestWidgetFactory(TestScrollbar.class, "HScrollbar", Scrollbar.Orientation.HORIZONTAL));
-        buildInWidgets.add(new TestWidgetFactory(TestScrollbar.class, "VScrollbar", Scrollbar.Orientation.VERTICAL));
-        buildInWidgets.add(new TestWidgetFactory(PreviewWidgets.class, "Widgets"));
-        buildInWidgets.add(new TestWidgetFactory(TestFrameWithWidgets.class, "Frame with Widgets"));
-        buildInWidgets.add(new TestWidgetFactory(TestScrollPane.class, "TextArea"));
+        builtinWidgets.add(new TestWidgetFactory(Widget.class, "Widget"));
+        builtinWidgets.add(new TestWidgetFactory(TestLabel.class, "Label"));
+        builtinWidgets.add(new TestWidgetFactory(Button.class, "Button", "Press me !"));
+        builtinWidgets.add(new TestWidgetFactory(ToggleButton.class, "ToggleButton", "Toggle me !"));
+        builtinWidgets.add(new TestWidgetFactory(EditField.class, "EditField"));
+        builtinWidgets.add(new TestWidgetFactory(TestScrollbar.class, "HScrollbar", Scrollbar.Orientation.HORIZONTAL));
+        builtinWidgets.add(new TestWidgetFactory(TestScrollbar.class, "VScrollbar", Scrollbar.Orientation.VERTICAL));
+        builtinWidgets.add(new TestWidgetFactory(PreviewWidgets.class, "Widgets"));
+        builtinWidgets.add(new TestWidgetFactory(TestFrameWithWidgets.class, "Frame with Widgets"));
+        builtinWidgets.add(new TestWidgetFactory(TestScrollPane.class, "TextArea"));
 
-        currentTestWidgetFactory = buildInWidgets.get(0);
+        currentTestWidgetFactory = builtinWidgets.get(0);
     }
 
     public Runnable getCallback() {
@@ -101,7 +101,7 @@ public class TestWidgetManager {
     }
 
     public void clearCache() {
-        clearCache(buildInWidgets);
+        clearCache(builtinWidgets);
         for(ArrayList<TestWidgetFactory> factories : userWidgets.values()) {
             clearCache(factories);
         }
@@ -127,7 +127,7 @@ public class TestWidgetManager {
     }
 
     public void updateMenu(Menu menu) {
-        addMenu(menu, "build in widgets", buildInWidgets);
+        addMenu(menu, "built-in widgets", builtinWidgets);
         for(Map.Entry<ArrayList<String>, ArrayList<TestWidgetFactory>> entry : userWidgets.entrySet()) {
             String name = entry.getKey().get(0);
             name = name.substring(name.lastIndexOf('/') + 1);
