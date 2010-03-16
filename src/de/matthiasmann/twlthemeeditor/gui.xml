@@ -353,6 +353,8 @@
                             <param name="maxWidth"><int>32767</int></param>
                         </theme>
                     </theme>
+
+                    <theme name="themetree" ref="table"/>
                 </theme>
             </theme>
         </theme>
@@ -362,37 +364,18 @@
     <theme name="previewpane" ref="dialoglayout">
         <param name=""><image>panel.*</image></param>
         <param name="border"><border>5</border></param>
-        <theme name="previewwidget" ref="-defaults">
-            <param name="background"><image>black</image></param>
-<!--        <param name="mouseCursor"><cursor>cursor.none</cursor></param> -->
-            <param name="maxWidth"><int>32767</int></param>
+        <theme name="splitpane" ref="splitpane">
+            <theme name="previewwidget" ref="-defaults">
+                <param name="background"><image>black</image></param>
+<!--            <param name="mouseCursor"><cursor>cursor.none</cursor></param> -->
+                <param name="maxWidth"><int>32767</int></param>
+                <param name="maxHeight"><int>32767</int></param>
+            </theme>
+            <theme name="propertyEditor" ref="propertyEditor"/>
             <param name="maxHeight"><int>32767</int></param>
         </theme>
         <theme name="errorDisplay" ref="label">
             <param name="maxWidth"><int>32767</int></param>
-        </theme>
-        <theme name="collapsiblepanel" ref="dialoglayout">
-            <param name="border"><border>5,0</border></param>
-            <theme name="arrow" ref="-defaults">
-                <param name=""><image>collapsiblepanel.arrowH.*</image></param>
-                <param name="tooltip"><string>Toggle widget properties</string></param>
-                <param name="minWidth"><int>12</int></param>
-                <param name="maxHeight"><int>32767</int></param>
-            </theme>
-            <param name="namedGaps"><map>
-                <param name="title-content"><gap>0</gap></param>
-            </map></param>
-            <theme name="contentcontainer" ref="-defaults">
-                <theme name="propertyEditor" ref="propertyEditor"/>
-            </theme>
-        </theme>
-        <theme name="testWidgetButtonsScrollPane" ref="scrollpane">
-            <theme name="dialoglayout" ref="dialoglayout">
-                <theme name="radiobutton" ref="radiobutton"/>
-                <param name="maxHeight"><int>18</int></param>
-            </theme>
-            <param name="minHeight"><int>31</int></param>
-            <param name="maxHeight"><int>31</int></param>
         </theme>
         <theme name="" ref="*"/>
         <param name="namedGaps"><map>
@@ -443,13 +426,14 @@
             <param name="background"><image>popup.background</image></param>
             <param name="border"><border>5</border></param>
             <theme name="button" ref="popupMenuButton"/>
+            <theme name="checkbox" ref="popupMenuCheckbox"/>
             <theme name="submenu" ref="popupMenuSubMenuButton"/>
             <theme name="spacer" ref="-defaults">
                 <param name="background"><image>popupmenu.separator</image></param>
                 <param name="maxWidth"><int>32767</int></param>
             </theme>
             <param name="namedGaps"><map>
-                <param name="menuitem"><gap>5</gap></param>
+                <param name="menuitem"><gap>3</gap></param>
             </map></param>
         </theme>
         <theme name="opNewNode-popupMenu" ref="opNewNode-popupMenu"/>

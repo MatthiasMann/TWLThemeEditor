@@ -32,9 +32,12 @@ package de.matthiasmann.twlthemeeditor.gui;
 import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.GUI;
+import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.BooleanModel;
+import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.DelayedAction;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
@@ -134,11 +137,17 @@ public class EditorArea extends Widget {
         previewPane.setContext(ctx);
     }
 
-    public void setLayout(Layout layout) {
+    public boolean setLayout(Layout layout) {
         if(this.layout != layout) {
             this.layout = layout;
             recreateLayout();
+            return true;
         }
+        return false;
+    }
+
+    public void addMenus(Menu menu) {
+        menu.add(previewPane.getTestWidgetMenu());
     }
 
     void recreateLayout() {
@@ -302,5 +311,22 @@ public class EditorArea extends Widget {
         themeTreePane.removeCallback(updatePropertyEditors);
         updatePropertyEditors = null;
     }
-    
+
+    public class LayoutModel extends HasCallback implements BooleanModel {
+        private final Layout layout;
+
+        public LayoutModel(Layout layout) {
+            this.layout = layout;
+        }
+
+        public boolean getValue() {
+            return EditorArea.this.layout == layout;
+        }
+
+        public void setValue(boolean value) {
+            if(setLayout(layout)) {
+                doCallback();
+            }
+        }
+    }
 }

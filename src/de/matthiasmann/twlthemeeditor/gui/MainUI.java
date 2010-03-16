@@ -104,25 +104,20 @@ public class MainUI extends DialogLayout {
         });
 
         Menu menuView = new Menu("View");
-        menuView.add("Layout 1", new Runnable() {
-            public void run() {
-                setLayout(EditorArea.Layout.SPLIT_HV);
-            }
-        });
-        menuView.add("Layout 2", new Runnable() {
-            public void run() {
-                setLayout(EditorArea.Layout.SPLIT_HHV);
-            }
-        });
-
+        menuView.add("Layout 1", editorArea.new LayoutModel(EditorArea.Layout.SPLIT_HV));
+        menuView.add("Layout 2", editorArea.new LayoutModel(EditorArea.Layout.SPLIT_HHV));
+        
         Menu mainMenu = new Menu();
         mainMenu.setTheme("mainmenu");
         mainMenu.add(menuFile);
         mainMenu.add(menuView);
+
+        editorArea.addMenus(mainMenu);
+        
         Widget menuBar = mainMenu.createMenuBar();
 
         recentProjectsModel = new PersistentMRUListModel<String>(5, String.class, prefs, KEY_RECENT_PROJECTS);
-
+        
         btnSaveProject.setEnabled(false);
         
         setHorizontalGroup(createParallelGroup()
