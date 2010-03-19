@@ -138,5 +138,6 @@ public class Textures extends ThemeTreeNode {
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "composed"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "grid", "weightsX", "0,1,0", "weightsY", "0,1,0"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "animation", "timeSource", "hover"));
+        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "cursor", "hotSpotX", "0", "hotSpotY", "0"));
     }
 }

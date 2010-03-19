@@ -185,6 +185,9 @@
         <theme name="opNewNodeFontDef" ref="popupMenuButton">
             <param name="text"><string>Create a new "fontDef" node</string></param>
         </theme>
+        <theme name="opNewNodeCursor" ref="popupMenuButton">
+            <param name="text"><string>Create a new "cursor" node</string></param>
+        </theme>
         <theme name="opNewNodeFontParam" ref="popupMenuButton">
             <param name="text"><string>Create a new font parameter</string></param>
         </theme>
