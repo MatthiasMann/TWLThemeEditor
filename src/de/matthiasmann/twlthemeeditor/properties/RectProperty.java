@@ -55,8 +55,8 @@ public abstract class RectProperty implements Property<Rect> {
             @Override
             public void setValue(int value) {
                 if(getValue() != value) {
-                    baseW.setValue(Math.min(getLimit().getX() - value, baseW.getValue()));
                     super.setValue(value);
+                    baseW.setValue(Math.min(getLimit().getX() - value, baseW.getValue()));
                 }
             }
         };
@@ -68,8 +68,8 @@ public abstract class RectProperty implements Property<Rect> {
             @Override
             public void setValue(int value) {
                 if(getValue() != value) {
-                    baseH.setValue(Math.min(getLimit().getY() - value, baseH.getValue()));
                     super.setValue(value);
+                    baseH.setValue(Math.min(getLimit().getY() - value, baseH.getValue()));
                 }
             }
         };
@@ -81,8 +81,8 @@ public abstract class RectProperty implements Property<Rect> {
             @Override
             public void setValue(int value) {
                 if(getValue() != value) {
-                    baseX.setValue(Math.min(getLimit().getX() - value, baseX.getValue()));
                     super.setValue(value);
+                    baseX.setValue(Math.min(getLimit().getX() - value, baseX.getValue()));
                 }
             }
         };
@@ -94,8 +94,8 @@ public abstract class RectProperty implements Property<Rect> {
             @Override
             public void setValue(int value) {
                 if(getValue() != value) {
-                    baseY.setValue(Math.min(getLimit().getY() - value, baseY.getValue()));
                     super.setValue(value);
+                    baseY.setValue(Math.min(getLimit().getY() - value, baseY.getValue()));
                 }
             }
         };

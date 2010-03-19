@@ -198,8 +198,12 @@ public class TextureViewer extends DraggableButton {
                 rect = new Rect(rect);
                 rect.intersect(getTextureRect());
             }
-            image = texture.getImage(rect.getX(), rect.getY(),
-                    rect.getWidth(), rect.getHeight(), tintColor, false);
+            try {
+                image = texture.getImage(rect.getX(), rect.getY(),
+                        rect.getWidth(), rect.getHeight(), tintColor, false);
+            } catch (IllegalArgumentException ex) {
+                image = null;
+            }
 
             invalidateLayoutTree();
             changeImage = false;
