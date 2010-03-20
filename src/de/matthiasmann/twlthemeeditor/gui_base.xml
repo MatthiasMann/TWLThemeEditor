@@ -283,7 +283,7 @@
             <alias ref="radiobuttonR.background" if="!radiobuttonNotLast"/>
             <alias ref="radiobuttonC.background"/>
         </select>
-        <select name="radiobutton.overlay" tint="#cc0" if="keyboardFocus">
+        <select name="radiobutton.overlay" tint="#6f97df" if="keyboardFocus">
             <alias ref="-outlineX" if="!radiobuttonNotFirst + !radiobuttonNotLast"/>
             <alias ref="-outlineL" if="!radiobuttonNotFirst"/>
             <alias ref="-outlineR" if="!radiobuttonNotLast"/>
@@ -298,7 +298,7 @@
             <alias ref="-area8X" if="hover + !disabled"/>
             <alias ref="-area7X"/>
         </select>
-        <alias name="button.overlay" ref="-outlineX" tint="#cc0" if="keyboardFocus"/>
+        <alias name="button.overlay" ref="-outlineX" tint="#6f97df" if="keyboardFocus"/>
     </textures>
 
     <textures file="gui.png" format="RGBA">
@@ -414,26 +414,26 @@
         </select>
         <alias name="valueadjuster.inc.overlay" ref="none"/>
         <alias name="valueadjuster.background" ref="none"/>
-        <select name="valueadjuster.overlay" inset="1,0">
+        <select name="valueadjuster.overlay" inset="1,0" tint="#6f97df">
             <grid if="keyboardFocus + !adjusterNotFirst + !adjusterNotLast" weightsX="0,1,0" weightsY="1">
-                <alias ref="-adjusterSelXL" tint="#cc0"/>
-                <alias ref="-adjusterSelXM" tint="#cc0"/>
-                <alias ref="-adjusterSelXR" tint="#cc0"/>
+                <alias ref="-adjusterSelXL"/>
+                <alias ref="-adjusterSelXM"/>
+                <alias ref="-adjusterSelXR"/>
             </grid>
             <grid if="keyboardFocus + !adjusterNotFirst" weightsX="0,1,0" weightsY="1">
-                <alias ref="-adjusterSelTL" tint="#cc0"/>
-                <alias ref="-adjusterSelTM" tint="#cc0"/>
-                <alias ref="-adjusterSelTR" tint="#cc0"/>
+                <alias ref="-adjusterSelTL"/>
+                <alias ref="-adjusterSelTM"/>
+                <alias ref="-adjusterSelTR"/>
             </grid>
             <grid if="keyboardFocus + !adjusterNotLast" weightsX="0,1,0" weightsY="1">
-                <alias ref="-adjusterSelBL" tint="#cc0"/>
-                <alias ref="-adjusterSelBM" tint="#cc0"/>
-                <alias ref="-adjusterSelBR" tint="#cc0"/>
+                <alias ref="-adjusterSelBL"/>
+                <alias ref="-adjusterSelBM"/>
+                <alias ref="-adjusterSelBR"/>
             </grid>
             <grid if="keyboardFocus" weightsX="0,1,0" weightsY="1">
-                <alias ref="-adjusterSelML" tint="#cc0"/>
-                <alias ref="-adjusterSelMM" tint="#cc0"/>
-                <alias ref="-adjusterSelMR" tint="#cc0"/>
+                <alias ref="-adjusterSelML"/>
+                <alias ref="-adjusterSelMM"/>
+                <alias ref="-adjusterSelMR"/>
             </grid>
         </select>
         <alias name="valueadjuster.edit.background" ref="valueadjuster.display.background"/>
@@ -610,20 +610,20 @@
         </select>
         <select name="vbutton.overlay">
             <alias ref="button.overlay" if="keyboardFocus + !vbuttonNotFirst + !vbuttonNotLast"/>
-            <grid if="keyboardFocus + !vbuttonNotFirst" weightsX="0,1,0" weightsY="1">
-                <alias ref="-vbuttonSelTL" tint="#cc0"/>
-                <alias ref="-vbuttonSelTM" tint="#cc0"/>
-                <alias ref="-vbuttonSelTR" tint="#cc0"/>
+            <grid if="keyboardFocus + !vbuttonNotFirst" weightsX="0,1,0" weightsY="1" tint="#6f97df">
+                <alias ref="-vbuttonSelTL"/>
+                <alias ref="-vbuttonSelTM"/>
+                <alias ref="-vbuttonSelTR"/>
             </grid>
-            <grid if="keyboardFocus + !vbuttonNotLast" weightsX="0,1,0" weightsY="1">
-                <alias ref="-vbuttonSelBL" tint="#cc0"/>
-                <alias ref="-vbuttonSelBM" tint="#cc0"/>
-                <alias ref="-vbuttonSelBR" tint="#cc0"/>
+            <grid if="keyboardFocus + !vbuttonNotLast" weightsX="0,1,0" weightsY="1" tint="#6f97df">
+                <alias ref="-vbuttonSelBL"/>
+                <alias ref="-vbuttonSelBM"/>
+                <alias ref="-vbuttonSelBR"/>
             </grid>
             <grid if="keyboardFocus" weightsX="0,1,0" weightsY="1">
-                <alias ref="-vbuttonSelML" tint="#cc0"/>
-                <alias ref="-vbuttonSelMM" tint="#cc0"/>
-                <alias ref="-vbuttonSelMR" tint="#cc0"/>
+                <alias ref="-vbuttonSelML"/>
+                <alias ref="-vbuttonSelMM"/>
+                <alias ref="-vbuttonSelMR"/>
             </grid>
         </select>
     </textures>
@@ -639,8 +639,10 @@
         <hvsplit name="popup.background" x="66" y="104" width="10" height="10" border="4" tint="#E0FFFFFF"/>
         
         <hsplit name="-popupmenubutton.hover" x="83" y="82" width="6" height="18" border="2,0"/>
+        <hsplit name="-popupmenubutton.selected" x="83" y="82" width="6" height="18" border="2,0" tint="#808080"/>
         <select name="popupmenubutton.background" border="4,1">
-            <alias ref="-popupmenubutton.hover" if="(hover | hasOpenPopups | hasOpenMenus) + !disabled"/>
+            <alias ref="-popupmenubutton.hover" if="(hover | hasOpenMenus) + !disabled"/>
+            <alias ref="-popupmenubutton.selected" if="selected + !disabled"/>
         </select>
         <alias name="popupmenubutton.overlay" ref="none"/>
 
@@ -668,7 +670,7 @@
             <alias ref="-area7X"/>
         </select>
         <alias name="editfield.overlay" ref="none"/>
-        <alias name="editfield.cursor" ref="white" sizeOverwriteH="2" inset="0,-1,0,1" tint="#cc0"/>
+        <alias name="editfield.cursor" ref="white" sizeOverwriteH="2" inset="0,-1,0,1" tint="#6f97df"/>
         <alias name="editfield.selection" ref="white" tint="#444"/>
 
         <texture name="-icon.combobox" x="10" y="19" width="6" height="8" center="true"/>
@@ -682,7 +684,7 @@
             <alias ref="-icon.combobox"/>
         </select>
         <alias name="combobox.display.background" ref="none"/>
-        <alias name="combobox.overlay" ref="-outlineX" tint="#cc0" if="keyboardFocus"/>
+        <alias name="combobox.overlay" ref="-outlineX" tint="#6f97df" if="keyboardFocus"/>
 
 
         <texture name="-icon.checkbox" x="35" y="19" width="12" height="9" inset="0,2,5,0"/>
@@ -696,7 +698,7 @@
         </grid>
         <grid name="checkbox.overlay" weightsX="0,1" weightsY="1">
             <composed center="true">
-                <texture x="143" y="53" width="14" height="14" tint="#cc0" if="keyboardFocus"/>
+                <texture x="143" y="53" width="14" height="14" tint="#6f97df" if="keyboardFocus"/>
                 <alias ref="-icon.checkbox" if="selected"/>
             </composed>
             <alias ref="none"/>

@@ -456,6 +456,9 @@
             <param name="maxWidth"><int>32767</int></param>
             <param name="maxHeight"><int>32767</int></param>
         </theme>
+        <param name="namedGaps"><map>
+            <param name="menubar-editorarea"><gap>0</gap></param>
+        </map></param>
     </theme>
 
     <theme name="fileselector-popup" ref="-defaults">

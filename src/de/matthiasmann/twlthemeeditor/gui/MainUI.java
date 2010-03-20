@@ -125,6 +125,7 @@ public class MainUI extends DialogLayout {
                 .addWidget(editorArea));
         setVerticalGroup(createSequentialGroup()
                 .addWidget(menuBar)
+                .addGap("menubar-editorarea")
                 .addWidget(editorArea));
 
         popuplateRecentProjectsMenu();
