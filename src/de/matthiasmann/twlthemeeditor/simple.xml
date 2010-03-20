@@ -205,11 +205,14 @@
 
 
     <theme name="comboboxPopup" ref="-defaults">
-        <param name="background"><image>-borderH</image></param>
+        <param name="background"><image>popup.background</image></param>
         <param name="border"><border>2</border></param>
         <theme name="listbox" ref="listbox">
             <param name="background"><image>none</image></param>
         <param name="border"><border>0</border></param>
+            <theme name="display" ref="popupMenuButton">
+                <param name="fontX"><font>popupmenu-font</font></param>
+            </theme>
         </theme>
         <param name="maxHeight"><int>150</int></param>
     </theme>

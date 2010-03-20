@@ -747,7 +747,7 @@
 
     <fontDef name="popupmenu-font" filename="font.fnt" color="white">
         <fontParam if="disabled" color="#ccc"/>
-        <fontParam if="hover" color="black"/>
+        <fontParam if="hoverX" color="black"/>
     </fontDef>
 
     <fontDef name="normal" filename="font.fnt" color="black" default="true">
