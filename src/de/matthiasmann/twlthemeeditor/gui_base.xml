@@ -620,7 +620,7 @@
                 <alias ref="-vbuttonSelBM"/>
                 <alias ref="-vbuttonSelBR"/>
             </grid>
-            <grid if="keyboardFocus" weightsX="0,1,0" weightsY="1">
+            <grid if="keyboardFocus" weightsX="0,1,0" weightsY="1" tint="#6f97df">
                 <alias ref="-vbuttonSelML"/>
                 <alias ref="-vbuttonSelMM"/>
                 <alias ref="-vbuttonSelMR"/>
@@ -765,9 +765,13 @@
 
     <inputMapDef name="-defaultInputMap">
         <action name="selectAll">ctrl A</action>
+        <action name="selectAll">cmd A</action>
         <action name="cut">ctrl X</action>
+        <action name="cut">cmd X</action>
         <action name="copy">ctrl C</action>
+        <action name="copy">cmd C</action>
         <action name="paste">ctrl V</action>
+        <action name="paste">cmd V</action>
     </inputMapDef>
 
     <theme name="-defaults">
