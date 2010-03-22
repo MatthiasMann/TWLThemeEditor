@@ -38,6 +38,7 @@ import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.PreviewWidgets;
+import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestComboBox;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestFrameWithWidgets;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestLabel;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollPane;
@@ -81,6 +82,7 @@ public class TestWidgetManager {
         builtinWidgets.add(new TestWidgetFactory(EditField.class, "EditField"));
         builtinWidgets.add(new TestWidgetFactory(TestScrollbar.class, "HScrollbar", Scrollbar.Orientation.HORIZONTAL));
         builtinWidgets.add(new TestWidgetFactory(TestScrollbar.class, "VScrollbar", Scrollbar.Orientation.VERTICAL));
+        builtinWidgets.add(new TestWidgetFactory(TestComboBox.class, "ComboBox"));
         builtinWidgets.add(new TestWidgetFactory(PreviewWidgets.class, "Widgets"));
         builtinWidgets.add(new TestWidgetFactory(TestFrameWithWidgets.class, "Frame with Widgets"));
         builtinWidgets.add(new TestWidgetFactory(TestScrollPane.class, "TextArea"));
