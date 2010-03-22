@@ -381,6 +381,16 @@ public class PreviewPane extends DialogLayout {
                 throw new UnsupportedOperationException("Not supported");
             }
         });
+        properties.add(new BoundProperty<Boolean>(testWidget, "locallyEnabled",
+                BoundProperty.getReadMethod(testWidget, "locallyEnabled", Boolean.class),
+                BoundProperty.getWriteMethod(testWidget, "enabled", boolean.class),
+                Boolean.class) {
+
+            @Override
+            public String getName() {
+                return "Enabled";
+            }
+        });
         addBeanProperties(testWidget, properties);
         
         PropertyPanel panel = new PropertyPanel(ctx, properties.toArray(new Property<?>[properties.size()]));

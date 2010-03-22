@@ -146,7 +146,7 @@ public class BoundProperty<T> extends AbstractProperty<T> {
         fireValueChangedCallback();
     }
 
-    private static Method getReadMethod(Object bean, String name, Class<?> type) {
+    public static Method getReadMethod(Object bean, String name, Class<?> type) {
         try {
             String prefix = (type == Boolean.class) ? "is" : "get";
             return bean.getClass().getMethod(prefix.concat(Utils.capitalize(name)));
@@ -157,7 +157,7 @@ public class BoundProperty<T> extends AbstractProperty<T> {
         }
     }
     
-    private static Method getWriteMethod(Object bean, String name, Class<?> type) {
+    public static Method getWriteMethod(Object bean, String name, Class<?> type) {
         try {
             return bean.getClass().getMethod("set".concat(Utils.capitalize(name)), type);
         } catch(NoSuchMethodException unused) {
