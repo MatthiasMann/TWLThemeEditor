@@ -666,7 +666,7 @@
         </grid>
 
         <select name="editfield.background" border="4,1">
-            <alias ref="-area8X" if="hover"/>
+            <alias ref="-area8X" if="hover + !disabled"/>
             <alias ref="-area7X"/>
         </select>
         <alias name="editfield.overlay" ref="none"/>
