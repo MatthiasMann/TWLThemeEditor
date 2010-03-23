@@ -436,7 +436,7 @@
                 <param name="maxWidth"><int>32767</int></param>
             </theme>
             <param name="namedGaps"><map>
-                <param name="menuitem"><gap>3</gap></param>
+                <param name="menuitem"><gap>0</gap></param>
             </map></param>
         </theme>
         <theme name="opNewNode-popupMenu" ref="opNewNode-popupMenu"/>
