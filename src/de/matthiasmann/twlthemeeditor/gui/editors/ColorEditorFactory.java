@@ -47,6 +47,7 @@ public class ColorEditorFactory implements PropertyEditorFactory<Color, ColorPro
         final ColorSelector cs = new ColorSelector(new ColorSpaceHSL());
         cs.setUseLabels(false);
         cs.setShowPreview(true);
+        cs.setShowHexEditField(true);
         cs.setColor(pa.getValue(Color.WHITE));
         cs.addCallback(new Runnable() {
             public void run() {

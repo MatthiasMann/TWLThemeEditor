@@ -494,6 +494,9 @@
                 <param name="background"><image>white</image></param>
             </theme>
         </theme>
+        <theme name="hexColorEditField" ref="editfield">
+            <param name="tooltip"><string>Current color in ARGB hex format</string></param>
+        </theme>
     </theme>
 
     <theme name="resizableframe-title" ref="-defaults" allowWildcard="true">
