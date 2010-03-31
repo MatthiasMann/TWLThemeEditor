@@ -33,7 +33,6 @@ import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
-import de.matthiasmann.twl.EditFieldAutoCompletionWindow;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Timer;
 import de.matthiasmann.twl.ToggleButton;
@@ -45,6 +44,7 @@ import de.matthiasmann.twl.utils.HashEntry;
 import de.matthiasmann.twlthemeeditor.gui.Context;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.StateEditField;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -86,18 +86,18 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
             buttons = new TreeMap<String, ToggleButton>();
             models = new ArrayList<StateBooleanModel>();
 
-            stateNameField = new EditField();
+            stateNameField = new StateEditField();
             stateNameField.addCallback(this);
+            stateNameField.setAutoCompletion(ctx.collectAllStates());
             addStateNameButton = new Button();
             addStateNameButton.setTheme("addbutton");
+            addStateNameButton.setEnabled(false);
             addStateNameButton.addCallback(new Runnable() {
                 public void run() {
                     addState();
                 }
             });
 
-            new EditFieldAutoCompletionWindow(stateNameField, ctx.collectAllStates());
-            
             createLayout();
         }
 

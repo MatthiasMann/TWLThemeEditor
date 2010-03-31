@@ -154,28 +154,42 @@ public class Context {
         }
         final String[] states = statesSet.toArray(new String[statesSet.size()]);
         return new AutoCompletionDataSource() {
-            public AutoCompletionResult collectSuggestions(String text, AutoCompletionResult prev) {
-                int prefixLength = text.length();
+            public AutoCompletionResult collectSuggestions(String text, int cursorPos, AutoCompletionResult prev) {
+                int prefixLength = cursorPos;
                 while(prefixLength > 0 && Character.isJavaIdentifierPart(text.charAt(prefixLength-1))) {
                     prefixLength--;
                 }
-                if(prefixLength == text.length()) {
+                if(prefixLength == cursorPos) {
                     return null;
                 }
-                String searchText = text.substring(prefixLength).toLowerCase();
+                int postfixStart = cursorPos;
+                while(postfixStart < text.length() && Character.isJavaIdentifierPart(text.charAt(postfixStart))) {
+                    ++postfixStart;
+                }
+                String searchText = text.substring(prefixLength, cursorPos).toLowerCase();
                 String prefixText = text.substring(0, prefixLength);
+                String postfixText = text.substring(postfixStart);
                 ArrayList<String> answers = new ArrayList<String>();
                 ArrayList<String> answers2 = new ArrayList<String>();
                 for(String state : states) {
                     int idx = state.toLowerCase().indexOf(searchText);
-                    if(idx == 0) {
-                        answers.add(prefixText.concat(state));
-                    } else if(idx > 0) {
-                        answers2.add(prefixText.concat(state));
+                    if(idx >= 0) {
+                        String completion = prefixText + state + postfixText;
+                        if(idx == 0) {
+                            answers.add(completion);
+                        } else {
+                            answers2.add(completion);
+                        }
                     }
                 }
                 answers.addAll(answers2);
-                return new SimpleAutoCompletionResult(text, prefixLength, answers);
+                final int postfixLength = postfixText.length();
+                return new SimpleAutoCompletionResult(text, prefixLength, answers) {
+                    @Override
+                    public int getCursorPosForResult(int idx) {
+                        return super.getResult(idx).length() - postfixLength;
+                    }
+                };
             }
         };
     }

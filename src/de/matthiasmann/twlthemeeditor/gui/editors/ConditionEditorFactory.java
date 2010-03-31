@@ -32,7 +32,6 @@ package de.matthiasmann.twlthemeeditor.gui.editors;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.EditField;
-import de.matthiasmann.twl.EditFieldAutoCompletionWindow;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.HasCallback;
@@ -42,6 +41,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.Condition;
 import de.matthiasmann.twlthemeeditor.gui.Context;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.StateEditField;
 import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
 import java.text.ParseException;
 
@@ -94,11 +94,11 @@ public class ConditionEditorFactory implements PropertyEditorFactory<Condition, 
 
             conditionType = condition.getType();
 
-            ef = new EditField();
+            ef = new StateEditField();
             ef.setText(condition.getCondition());
             ef.addCallback(this);
-
-            new EditFieldAutoCompletionWindow(ef, ctx.collectAllStates());
+            ef.setAutoCompletion(ctx.collectAllStates());
+            
             setEnable();
         }
 
