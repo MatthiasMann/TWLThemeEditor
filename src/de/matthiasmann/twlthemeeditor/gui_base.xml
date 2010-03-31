@@ -664,6 +664,9 @@
                 <texture x="17" y="19" width="5" height="9" sizeOverwriteH="9" center="true" inset="1,0,-1,0"/>
             </select>
         </grid>
+        <select name="autocompletion.listbox.display.background" border="4,1">
+            <alias ref="-popupmenubutton.hover" if="(selected | hasOpenMenus) + !disabled + !empty"/>
+        </select>
 
         <select name="editfield.background" border="4,1">
             <alias ref="-area8X" if="hover + !disabled"/>
@@ -749,7 +752,6 @@
 
     <fontDef name="popupmenu-font" filename="font.fnt" color="white">
         <fontParam if="disabled" color="#ccc"/>
-        <fontParam if="hoverX" color="black"/>
     </fontDef>
 
     <fontDef name="normal" filename="font.fnt" color="black" default="true">
@@ -963,6 +965,54 @@
             <param name=""><image>splitpane.vsplitter.*</image></param>
             <param name="border"><border>background.border</border></param>
             <param name="mouseCursor"><cursor>cursor.resizerow</cursor></param>
+        </theme>
+    </theme>
+
+    <theme name="scrollpane" ref="-defaults" allowWildcard="true">
+        <theme name="hscrollbar" ref="hscrollbar"/>
+        <theme name="vscrollbar" ref="vscrollbar"/>
+        <param name="minWidth"><int>100</int></param>
+        <param name="minHeight"><int>100</int></param>
+        <param name="maxWidth"><int>32767</int></param>
+        <param name="maxHeight"><int>32767</int></param>
+        <param name="hasDragButton"><bool>false</bool></param>
+    </theme>
+
+    <theme name="listbox" ref="-defaults" allowWildcard="true">
+        <param name="background"><image>none</image></param>
+        <param name="border"><border>background.border</border></param>
+        <param name="cellHeight"><int>font.lineHeight + 4</int></param>
+        <param name="cellWidth"><constant>SINGLE_COLUMN</constant></param>
+        <param name="rowMajor"><bool>true</bool></param>
+        <param name="fixedCellWidth"><bool>false</bool></param>
+        <param name="fixedCellHeight"><bool>false</bool></param>
+        <param name="maxHeight"><int>8000</int></param>
+        <param name="maxWidth"><int>8000</int></param>
+        <theme name="vscrollbar" ref="vscrollbar"/>
+        <theme name="display" ref="label">
+            <param name=""><image>listbox.display.*</image></param>
+            <param name="font"><font>popupmenu-font</font></param>
+            <param name="border"><border>2</border></param>
+        </theme>
+    </theme>
+
+    <theme name="comboboxPopup" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>2</border></param>
+        <theme name="listbox" ref="listbox">
+            <param name="background"><image>none</image></param>
+            <param name="border"><border>0</border></param>
+            <theme name="display" ref="popupMenuButton"/>
+        </theme>
+        <param name="maxHeight"><int>150</int></param>
+    </theme>
+
+    <theme name="editfieldautocompletionwindow" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <theme name="listbox" ref="listbox">
+            <theme name="display" ref="popupMenuButton">
+                <param name="background"><image>autocompletion.listbox.display.background</image></param>
+            </theme>
         </theme>
     </theme>
 
