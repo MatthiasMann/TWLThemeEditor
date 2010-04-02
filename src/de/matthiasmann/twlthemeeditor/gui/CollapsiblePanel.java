@@ -140,7 +140,7 @@ public class CollapsiblePanel extends DialogLayout {
                 toggleExpand();
                 return true;
             }
-            return evt.isMouseEvent() && evt.getType() != Event.Type.MOUSE_WHEEL;
+            return evt.isMouseEventNoWheel();
         }
     }
 
