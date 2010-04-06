@@ -98,6 +98,7 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
                 }
             });
 
+            createStateButtons();
             createLayout();
         }
 

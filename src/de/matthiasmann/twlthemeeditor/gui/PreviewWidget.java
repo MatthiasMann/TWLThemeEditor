@@ -285,6 +285,10 @@ public class PreviewWidget extends Widget {
                             evt.getType() == Event.Type.MOUSE_BTNDOWN);
                     return true;
 
+                case MOUSE_WHEEL:
+                    testGUI.handleMouseWheel(evt.getMouseWheelDelta());
+                    return true;
+
                 case KEY_PRESSED:
                 case KEY_RELEASED:
                     testGUI.handleKey(translateKeyCode(evt.getKeyCode()),

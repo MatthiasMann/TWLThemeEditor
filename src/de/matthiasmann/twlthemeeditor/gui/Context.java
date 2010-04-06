@@ -54,14 +54,17 @@ import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleAutoCompletionResult;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
+import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.TypeMapping;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.NodeReference;
+import de.matthiasmann.twlthemeeditor.datamodel.Theme;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.gui.editors.AnimStateEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.EnumEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.WidgetThemeEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
@@ -73,6 +76,7 @@ import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
+import de.matthiasmann.twlthemeeditor.properties.WidgetThemeProperty;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -109,6 +113,7 @@ public class Context {
         factories1.put(HotSpotProperty.class, new HotSpotEditorFactory());
         factories1.put(BorderProperty.class, new BorderEditorFactory());
         factories1.put(NameProperty.class, new NameEditorFactory());
+        factories1.put(WidgetThemeProperty.class, new WidgetThemeEditorFactory(this));
 
         factories2 = new TypeMapping<PropertyEditorFactory<?,?>>();
         factories2.put(String.class, new StringEditorFactory());
@@ -145,6 +150,110 @@ public class Context {
                 }
         }
         return result;
+    }
+
+    public Theme findTheme(String[] themePath) {
+        for(ThemeTreeNode node : model.getTopLevelNodes(ThemeTreeNode.class, null)) {
+            if(checkThemeName(node, themePath[0])) {
+                Theme theme = (Theme)node;
+                for(int idx=1 ; idx<themePath.length && theme!=null; ++idx) {
+                    theme = findTheme(theme, themePath[idx]);
+                }
+                return theme;
+            }
+        }
+        return null;
+    }
+    
+    public ListModel<String> getRefableThemes(String[] themePath) {
+        if(themePath.length == 0) {
+            return getRefableNodes(null, Kind.THEME);
+        }
+        SimpleChangableListModel<String> result = new SimpleChangableListModel<String>();
+        Theme theme = findTheme(themePath);
+        if(theme != null) {
+            TreeSet<String> foundThemes = new TreeSet<String>();
+            boolean hasWildcard = collectThemes(theme, foundThemes);
+            result.addElements(foundThemes);
+            if(hasWildcard) {
+                TreeSet<String> wildcardThemes = new TreeSet<String>();
+                for(ThemeTreeNode node : model.getTopLevelNodes(ThemeTreeNode.class, null)) {
+                    if(node instanceof Theme) {
+                        Theme toplevelTheme = (Theme)node;
+                        if(toplevelTheme.isAllowWildcard()) {
+                            String name = toplevelTheme.getName();
+                            // don't add themes which are hidden by local themes
+                            if(!foundThemes.contains(name)) {
+                                wildcardThemes.add(name);
+                            }
+                        }
+                    }
+                }
+                result.addElements(wildcardThemes);
+            }
+            // add absolute themes
+            foundThemes.clear();
+            for(ThemeTreeNode node : model.getTopLevelNodes(ThemeTreeNode.class, null)) {
+                if(node instanceof Theme) {
+                    foundThemes.add("/".concat(((Theme)node).getName()));
+                }
+            }
+            result.addElements(foundThemes);
+        }
+        return result;
+    }
+
+    private boolean collectThemes(Theme parent, TreeSet<String> result) {
+        boolean hasWildcard = false;
+        ThemeTreeNode refNode = resolveReference(parent.getRef());
+        if(refNode instanceof Theme) {
+            hasWildcard = collectThemes((Theme)refNode, result);
+        }
+        for(int i=0,n=parent.getNumChildren() ; i<n ; ++i) {
+            TreeTableNode child = parent.getChild(i);
+            if(child instanceof Theme) {
+                Theme childTheme = (Theme)child;
+                if(childTheme.isWildcard()) {
+                    hasWildcard = true;
+                } else {
+                    String name = childTheme.getName();
+                    result.add(name);
+                }
+            }
+        }
+        return hasWildcard;
+    }
+    
+    private boolean checkThemeName(TreeTableNode node, String name) {
+        return (node instanceof Theme) && ((Theme)node).matchName(name);
+    }
+
+    private Theme findTheme(TreeTableNode parent, String name) {
+        for(int i=0,n=parent.getNumChildren() ; i<n ; ++i) {
+            TreeTableNode child = parent.getChild(i);
+            if(checkThemeName(child, name)) {
+                return (Theme)child;
+            }
+        }
+        if(parent instanceof Theme) {
+            Theme parentTheme = (Theme)parent;
+            parent = resolveReference(parentTheme.getRef());
+            if(parent != null) {
+                Theme result = findTheme(parent, name);
+                if(result != null) {
+                    return result;
+                }
+            }
+            if(parentTheme.isAllowWildcard()) {
+                TreeTableNode node = resolveReference(new NodeReference(name, Kind.THEME));
+                if(node instanceof Theme) {
+                    if(((Theme)node).isAllowWildcard()) {
+                        return (Theme)node;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public AutoCompletionDataSource collectAllStates() {
@@ -195,10 +304,26 @@ public class Context {
     }
 
     public void selectTarget(NodeReference ref) {
-        if(ref != null && themeTreePane != null) {
-            ThemeTreeNode node = model.findNode(ref.getName(), ref.getKind());
+        if(themeTreePane != null) {
+            ThemeTreeNode node = resolveReference(ref);
             if(node != null) {
                 themeTreePane.selectNode(node);
+            }
+        }
+    }
+
+    private ThemeTreeNode resolveReference(NodeReference ref) {
+        if(ref != null && !ref.isNone()) {
+            return model.findNode(ref.getName(), ref.getKind());
+        }
+        return null;
+    }
+
+    public void selectTheme(String[] themePath) {
+        if(themeTreePane != null) {
+            Theme theme = findTheme(themePath);
+            if(theme != null) {
+                themeTreePane.selectNode(theme);
             }
         }
     }

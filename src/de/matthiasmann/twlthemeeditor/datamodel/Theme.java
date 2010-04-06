@@ -47,6 +47,8 @@ import org.jdom.Element;
 public class Theme extends ThemeTreeNode implements HasProperties {
 
     protected final NameProperty nameProperty;
+    protected final BooleanProperty allowWildcardProperty;
+    protected final NodeReferenceProperty refProperty;
 
     public Theme(ThemeFile themeFile, TreeTableNode parent, Element element) {
         super(themeFile, parent, element);
@@ -64,11 +66,16 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         };
         addProperty(nameProperty);
 
-        if(!element.getParentElement().isRootElement()) {
+        if(element.getParentElement().isRootElement()) {
+            allowWildcardProperty = new BooleanProperty(
+                    new AttributeProperty(element, "allowWildcard", "Allow Wildcard", true), false);
+            addProperty(allowWildcardProperty);
+        } else {
+            allowWildcardProperty = null;
             addProperty(new BooleanProperty(new AttributeProperty(element, "merge", "Merge", true), false));
         }
 
-        addProperty(new NodeReferenceProperty(
+        addProperty(refProperty = new NodeReferenceProperty(
                 new AttributeProperty(element, "ref", "Base theme reference", true),
                 this, Kind.THEME));
     }
@@ -84,6 +91,22 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         return name;
     }
 
+    public boolean isWildcard() {
+        return (nameProperty != null) && nameProperty.getPropertyValue().isEmpty();
+    }
+
+    public boolean isAllowWildcard() {
+        return allowWildcardProperty != null && allowWildcardProperty.getValue();
+    }
+
+    public boolean matchName(String name) {
+        return nameProperty != null && nameProperty.getPropertyValue().equals(name);
+    }
+
+    public NodeReference getRef() {
+        return refProperty.getPropertyValue();
+    }
+    
     public Kind getKind() {
         return Kind.THEME;
     }

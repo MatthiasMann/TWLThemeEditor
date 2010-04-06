@@ -17,6 +17,12 @@
         
         <alias name="textureviewer.background" ref="checkerboard" border="64" inset="64" sizeOverwriteH="0" sizeOverwriteV="0"/>
 
+        <grid name="mainmenu.background" weightsX="1" weightsY="1,0,0" border="0,0,4,0">
+            <alias ref="none"/>
+            <alias ref="panel.separator"/>
+            <alias ref="none" sizeOverwriteV="1"/>
+        </grid>
+
         <composed name="addbutton.overlay">
             <select>
                 <alias ref="-icon-add" if="disabled" tint="#6fff"/>
@@ -357,24 +363,35 @@
                         </theme>
                     </theme>
 
-                    <theme name="themetree" ref="table"/>
+                    <theme name="widgetthemeeditor" ref="dialoglayout">
+                        <theme name="jumpbutton" ref="vbutton">
+                            <param name=""><image>jumpbutton.*</image></param>
+                            <param name="tooltip"><string>Jump to the referenced theme element</string></param>
+                        </theme>
+                        <theme name="combobox" ref="combobox">
+                            <param name="maxWidth"><int>32767</int></param>
+                        </theme>
+                        <theme name="themepath" ref="editfield">
+                            <param name="background"><image>none</image></param>
+                            <param name="tooltip"><string>Effective theme path for this widget</string></param>
+                        </theme>
+                    </theme>
                 </theme>
             </theme>
         </theme>
     </theme>
 
+    <theme name="widgetTree" ref="scrollpane">
+        <theme name="themetree" ref="table"/>
+    </theme>
 
     <theme name="previewpane" ref="dialoglayout">
         <param name=""><image>panel.*</image></param>
         <param name="border"><border>5</border></param>
-        <theme name="splitpane" ref="splitpane">
-            <theme name="previewwidget" ref="-defaults">
-                <param name="background"><image>black</image></param>
+        <theme name="previewwidget" ref="-defaults">
+            <param name="background"><image>black</image></param>
 <!--            <param name="mouseCursor"><cursor>cursor.none</cursor></param> -->
-                <param name="maxWidth"><int>32767</int></param>
-                <param name="maxHeight"><int>32767</int></param>
-            </theme>
-            <theme name="propertyEditor" ref="propertyEditor"/>
+            <param name="maxWidth"><int>32767</int></param>
             <param name="maxHeight"><int>32767</int></param>
         </theme>
         <theme name="errorDisplay" ref="label">
@@ -446,6 +463,8 @@
         <param name=""><image>panel.*</image></param>
         <param name="border"><border>background.border</border></param>
         <theme name="mainmenu" ref="dialoglayout">
+            <param name="background"><image>mainmenu.background</image></param>
+            <param name="border"><border>background.border</border></param>
             <theme name="submenu" ref="popupMenuButton"/>
             <param name="namedGaps"><map>
                 <param name="menuitem"><gap>5</gap></param>

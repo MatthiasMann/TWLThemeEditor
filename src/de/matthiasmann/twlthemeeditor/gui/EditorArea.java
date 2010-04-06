@@ -31,23 +31,29 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.Color;
+import de.matthiasmann.twl.FileSelector;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Menu;
+import de.matthiasmann.twl.MenuAction;
+import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.HasCallback;
+import de.matthiasmann.twl.model.JavaFileSystemModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.DelayedAction;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.gui.MainUI.ExtFilter;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import java.net.MalformedURLException;
+import java.util.prefs.Preferences;
 
 /**
  *
@@ -60,10 +66,14 @@ public class EditorArea extends Widget {
         SPLIT_HHV
     }
 
+    private final TestWidgetManager testWidgetManager;
+    private final Menu testWidgetMenu;
     private final ThemeTreePane themeTreePane;
     private final PreviewPane previewPane;
     private final TextureViewerPane textureViewerPane;
     private final ScrollPane propertiesScrollPane;
+    private final WidgetTree widgetTree;
+    private final WidgetPropertyEditor widgetPropertyEditor;
 
     private final CallbackWithReason<ThemeTreeModel.CallbackReason> modelChangedCB;
     private final Runnable boundPropertyCB;
@@ -75,6 +85,8 @@ public class EditorArea extends Widget {
     private Layout layout = Layout.SPLIT_HV;
 
     public EditorArea() {
+        testWidgetManager = new TestWidgetManager();
+        testWidgetMenu = new Menu("Widgets");
         themeTreePane = new ThemeTreePane();
         themeTreePane.setTheme("/themetreepane");
         previewPane = new PreviewPane();
@@ -84,10 +96,19 @@ public class EditorArea extends Widget {
         propertiesScrollPane = new ScrollPane();
         propertiesScrollPane.setTheme("/propertyEditor");
         propertiesScrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
+        widgetTree = new WidgetTree();
+        widgetTree.setTheme("/widgetTree");
+        widgetPropertyEditor = new WidgetPropertyEditor();
+        widgetPropertyEditor.setTheme("/propertyEditor");
 
         previewPane.addCallback(new Runnable() {
             public void run() {
                 updateErrorLocation();
+            }
+        });
+        previewPane.setTestWidgetChangedCB(new Runnable() {
+            public void run() {
+                updateTestWidget();
             }
         });
 
@@ -107,7 +128,21 @@ public class EditorArea extends Widget {
             }
         };
 
+        widgetTree.addSelectionChangeListener(new Runnable() {
+            public void run() {
+                updateTestWidgetProperties();
+            }
+        });
+
+        testWidgetManager.setCallback(new Runnable() {
+            public void run() {
+                changeTestWidget();
+            }
+        });
+
         recreateLayout();
+        updateTestWidgetMenu();
+        changeTestWidget();
     }
 
     public void setModel(ThemeTreeModel model) {
@@ -134,7 +169,7 @@ public class EditorArea extends Widget {
         textureViewerPane.setUrl(null);
         propertiesScrollPane.setContent(null);
         themeTreePane.setModel(model);
-        previewPane.setContext(ctx);
+        widgetPropertyEditor.setContext(ctx);
     }
 
     public boolean setLayout(Layout layout) {
@@ -147,7 +182,7 @@ public class EditorArea extends Widget {
     }
 
     public void addMenus(Menu menu) {
-        menu.add(previewPane.getTestWidgetMenu());
+        menu.add(testWidgetMenu);
     }
 
     void recreateLayout() {
@@ -156,38 +191,58 @@ public class EditorArea extends Widget {
         removeFromParent(previewPane);
         removeFromParent(textureViewerPane);
         removeFromParent(propertiesScrollPane);
+        removeFromParent(widgetPropertyEditor);
+        removeFromParent(widgetTree);
 
         switch(layout) {
             case SPLIT_HV: {
-                SplitPane spH = new SplitPane();
+                SplitPane spH1 = new SplitPane();
+                SplitPane spH2 = new SplitPane();
                 SplitPane spV1 = new SplitPane();
                 SplitPane spV2 = new SplitPane();
-                spH.setSplitPosition(300);
-                spH.add(spV1);
-                spH.add(spV2);
+                SplitPane spV3 = new SplitPane();
+                spH1.setSplitPosition(300);
+                spH1.add(spV1);
+                spH1.add(spH2);
+                spH2.setReverseSplitPosition(true);
+                spH2.setSplitPosition(300);
+                spH2.add(spV2);
+                spH2.add(spV3);
                 spV1.setDirection(SplitPane.Direction.VERTICAL);
                 spV1.add(themeTreePane);
                 spV1.add(propertiesScrollPane);
                 spV2.setDirection(SplitPane.Direction.VERTICAL);
                 spV2.add(textureViewerPane);
                 spV2.add(previewPane);
-                add(spH);
+                spV3.setDirection(SplitPane.Direction.VERTICAL);
+                spV3.add(widgetTree);
+                spV3.add(widgetPropertyEditor);
+                add(spH1);
                 break;
             }
 
             case SPLIT_HHV: {
                 SplitPane spH1 = new SplitPane();
                 SplitPane spH2 = new SplitPane();
-                SplitPane spV = new SplitPane();
+                SplitPane spH3 = new SplitPane();
+                SplitPane spV1 = new SplitPane();
+                SplitPane spV2 = new SplitPane();
                 spH1.setSplitPosition(300);
                 spH1.add(themeTreePane);
                 spH1.add(spH2);
                 spH2.setSplitPosition(300);
                 spH2.add(propertiesScrollPane);
-                spH2.add(spV);
-                spV.setDirection(SplitPane.Direction.VERTICAL);
-                spV.add(textureViewerPane);
-                spV.add(previewPane);
+                spH2.add(spH3);
+                spH3.setReverseSplitPosition(true);
+                spH3.setSplitPosition(300);
+                spH3.add(spV1);
+                spH3.add(spV2);
+                spV1.setDirection(SplitPane.Direction.VERTICAL);
+                spV1.add(textureViewerPane);
+                spV1.add(previewPane);
+                spV2.setDirection(SplitPane.Direction.VERTICAL);
+                spV2.add(widgetTree);
+                spV2.add(widgetPropertyEditor);
                 add(spH1);
                 break;
             }
@@ -271,6 +326,81 @@ public class EditorArea extends Widget {
         }
     }
 
+    void updateTestWidget() {
+        Widget testWidget = previewPane.getTestWidget();
+        widgetTree.setRootWidget(testWidget);
+        widgetPropertyEditor.setWidget(testWidget);
+    }
+
+    void updateTestWidgetProperties() {
+        Widget widget = widgetTree.getSelectedWidget();
+        widgetPropertyEditor.setWidget(widget);
+    }
+    
+    void changeTestWidget() {
+        previewPane.setWidgetFactory(testWidgetManager.getCurrentTestWidgetFactory());
+    }
+
+    void recreateTestWidgets() {
+        testWidgetManager.clearCache();
+        changeTestWidget();
+    }
+
+    void loadUserWidget() {
+        final PopupWindow popupWindow = new PopupWindow(this);
+        JavaFileSystemModel fsm = new JavaFileSystemModel();
+        FileSelector.NamedFileFilter filter = new FileSelector.NamedFileFilter(
+                "JAR files", new ExtFilter(".jar"));
+        FileSelector fileSelector = new FileSelector(
+                Preferences.userNodeForPackage(PreviewPane.class),
+                "userWidgetJARs");
+        fileSelector.setFileSystemModel(fsm);
+        fileSelector.addFileFilter(FileSelector.AllFilesFilter);
+        fileSelector.addFileFilter(filter);
+        fileSelector.setFileFilter(filter);
+        fileSelector.setAllowMultiSelection(true);
+        fileSelector.addCallback(new FileSelector.Callback() {
+            public void filesSelected(Object[] files) {
+                if(testWidgetManager.loadUserWidgets(files)) {
+                    updateTestWidgetMenu();
+                }
+                popupWindow.closePopup();
+            }
+            public void canceled() {
+                popupWindow.closePopup();
+            }
+        });
+        popupWindow.setTheme("fileselector-popup");
+        popupWindow.add(fileSelector);
+        popupWindow.setSize(getWidth()*4/5, getHeight()*4/5);
+        popupWindow.setPosition(
+                getWidth()/2 - popupWindow.getWidth()/2,
+                getHeight()/2 - popupWindow.getHeight()/2);
+        popupWindow.openPopup();
+    }
+
+    void updateTestWidgetMenu() {
+        MenuAction maRecreateTestWidgets = new MenuAction("Recreate Widgets", new Runnable() {
+            public void run() {
+                recreateTestWidgets();
+            }
+        });
+        maRecreateTestWidgets.setTooltipContent("Clears widget cache and recreates current widget");
+
+        MenuAction maLoadUserWidget = new MenuAction("Load Widget", new Runnable() {
+            public void run() {
+                loadUserWidget();
+            }
+        });
+        maLoadUserWidget.setTooltipContent("Load a Widget from a user supplied JAR file");
+
+        testWidgetMenu.clear();
+        testWidgetManager.updateMenu(testWidgetMenu);
+        testWidgetMenu.addSpacer();
+        testWidgetMenu.add(maRecreateTestWidgets);
+        testWidgetMenu.add(maLoadUserWidget);
+    }
+    
     private void removeFromParent(Widget w) {
         if(w.getParent() != null) {
             w.getParent().removeChild(w);

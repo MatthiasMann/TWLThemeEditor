@@ -100,6 +100,7 @@ public class TextureViewerPane extends DialogLayout {
                 adjusterZoomX, btnLinkZoomFactors,
                 adjusterZoomY, btnShowCompleteTexture);
 
+        setClip(true);
         setHorizontalGroup(createParallelGroup()
                 .addWidget(scrollPane)
                 .addGroup(horzCtrls)

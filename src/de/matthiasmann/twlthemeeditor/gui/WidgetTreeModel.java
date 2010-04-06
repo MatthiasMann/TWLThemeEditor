@@ -59,28 +59,37 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
         insertChild(createNode(this, w), 0);
     }
 
+    public Widget getWidget(TreeTableNode node) {
+        if(node instanceof Node) {
+            return ((Node)node).widget;
+        } else {
+            return null;
+        }
+    }
+
     private Node createNode(TreeTableNode parent, Widget w) {
         Node node = new Node(parent, w);
         for(int i=0,n=w.getNumChildren() ; i<n ; i++) {
             node.add(createNode(node, w.getChild(i)));
         }
+        node.checkLeaf();
         return node;
     }
 
     public static class Node extends AbstractTreeTableNode {
-        private final String theme;
-        private final String className;
+        final Widget widget;
+        final String className;
 
         public Node(TreeTableNode parent, Widget w) {
             super(parent);
-            this.theme = w.getTheme();
+            this.widget = w;
             this.className = w.getClass().getSimpleName();
         }
 
         public Object getData(int column) {
             switch (column) {
                 case 0:
-                    return theme;
+                    return widget.getTheme();
                 case 1:
                     return className;
                 default:
@@ -88,17 +97,12 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
             }
         }
 
-        public void getThemePath(Collection<String> path) {
-            if(!theme.startsWith("/") && (getParent() instanceof Node)) {
-                ((Node)getParent()).getThemePath(path);
-            }
-            if(theme.length() > 0) {
-                path.add(theme);
-            }
-        }
-
         void add(Node n) {
             insertChild(n, getNumChildren());
+        }
+
+        void checkLeaf() {
+            setLeaf(getNumChildren() == 0);
         }
     }
 }
