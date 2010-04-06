@@ -114,7 +114,7 @@ public class TextureViewer extends DraggableButton {
     public void setZoom(float zoomX, float zoomY) {
         this.zoomX = zoomX;
         this.zoomY = zoomY;
-        invalidateLayoutTree();
+        invalidateLayout();
     }
 
     public void setImage(Image image) {
@@ -189,7 +189,7 @@ public class TextureViewer extends DraggableButton {
         if(specialImage != null) {
             if(image != specialImage) {
                 image = specialImage;
-                invalidateLayoutTree();
+                invalidateLayout();
             }
         } else if(texture != null && (image == null || changeImage)) {
             if(rect == null) {
@@ -205,10 +205,10 @@ public class TextureViewer extends DraggableButton {
                 image = null;
             }
 
-            invalidateLayoutTree();
+            invalidateLayout();
             changeImage = false;
         } else if(texture == null) {
-            invalidateLayoutTree();
+            invalidateLayout();
         }
 
         if(prevImage == null) {
