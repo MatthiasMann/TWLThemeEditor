@@ -54,6 +54,7 @@ public class PreviewWidget extends Widget {
 
     private final IntBuffer viewPortBuffer;
 
+    private Context ctx;
     private URL url;
     private LWJGLRenderer render;
     private ThemeManager theme;
@@ -81,7 +82,8 @@ public class PreviewWidget extends Widget {
         setCanAcceptKeyboardFocus(true);
     }
 
-    public void setURL(URL url) {
+    public void setURL(Context ctx, URL url) {
+        this.ctx = ctx;
         this.url = url;
         this.reloadTheme = true;
     }
@@ -125,15 +127,17 @@ public class PreviewWidget extends Widget {
     
     @Override
     protected void paintWidget(GUI gui) {
-        if(!exceptionHolder.hasException()) {
+        if(!exceptionHolder.hasException() && ctx != null) {
             // don't execute callbacks in critical section
             exceptionHolder.setDeferCallbacks(true);
+            ctx.installDebugHook();
 
             GL11.glGetInteger(GL11.GL_VIEWPORT, viewPortBuffer);
             int viewPortTop = viewPortBuffer.get(1) + viewPortBuffer.get(3);
 
             GL11.glPushAttrib(GL11.GL_VIEWPORT_BIT);
-            GL11.glViewport(getInnerX(),
+            GL11.glViewport(
+                    viewPortBuffer.get(0) + getInnerX(),
                     viewPortTop - (getInnerY() + getInnerHeight()),
                     getInnerWidth(), getInnerHeight());
 
@@ -148,6 +152,7 @@ public class PreviewWidget extends Widget {
                 // END OF CRITICAL REGION
             }
 
+            ctx.uninstallDebugHook();
             exceptionHolder.setDeferCallbacks(false);
         }
     }
@@ -269,32 +274,43 @@ public class PreviewWidget extends Widget {
     @Override
     protected boolean handleEvent(Event evt) {
         if(testGUI != null) {
-            switch (evt.getType()) {
-                case MOUSE_MOVED:
-                case MOUSE_DRAGED:
-                case MOUSE_ENTERED:
-                case MOUSE_EXITED:
-                    testGUI.handleMouse(evt.getMouseX() - getInnerX(),
-                            evt.getMouseY() - getInnerY(), -1, false);
-                    return true;
+            boolean handled = false;
+            try {
+                switch (evt.getType()) {
+                    case MOUSE_MOVED:
+                    case MOUSE_DRAGED:
+                    case MOUSE_ENTERED:
+                    case MOUSE_EXITED:
+                        handled = true;
+                        testGUI.handleMouse(evt.getMouseX() - getInnerX(),
+                                evt.getMouseY() - getInnerY(), -1, false);
+                        break;
 
-                case MOUSE_BTNDOWN:
-                case MOUSE_BTNUP:
-                    testGUI.handleMouse(evt.getMouseX() - getInnerX(),
-                            evt.getMouseY() - getInnerY(), evt.getMouseButton(),
-                            evt.getType() == Event.Type.MOUSE_BTNDOWN);
-                    return true;
+                    case MOUSE_BTNDOWN:
+                    case MOUSE_BTNUP:
+                        handled = true;
+                        testGUI.handleMouse(evt.getMouseX() - getInnerX(),
+                                evt.getMouseY() - getInnerY(), evt.getMouseButton(),
+                                evt.getType() == Event.Type.MOUSE_BTNDOWN);
+                        break;
 
-                case MOUSE_WHEEL:
-                    testGUI.handleMouseWheel(evt.getMouseWheelDelta());
-                    return true;
+                    case MOUSE_WHEEL:
+                        handled = true;
+                        testGUI.handleMouseWheel(evt.getMouseWheelDelta());
+                        break;
 
-                case KEY_PRESSED:
-                case KEY_RELEASED:
-                    testGUI.handleKey(translateKeyCode(evt.getKeyCode()),
-                            evt.getKeyChar(), evt.getType() == Event.Type.KEY_PRESSED);
-                    return true;
+                    case KEY_PRESSED:
+                    case KEY_RELEASED:
+                        handled = true;
+                        testGUI.handleKey(translateKeyCode(evt.getKeyCode()),
+                                evt.getKeyChar(), evt.getType() == Event.Type.KEY_PRESSED);
+                        break;
+                }
+            } catch(Throwable ex) {
+                // don't let anything escape !
+                exceptionHolder.setException(EXCEPTION_EXECUTE, ex);
             }
+            return handled;
         }
         return super.handleEvent(evt);
     }

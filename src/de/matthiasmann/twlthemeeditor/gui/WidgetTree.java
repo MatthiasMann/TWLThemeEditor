@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.ScrollPane;
+import de.matthiasmann.twl.TableBase.StringCellRenderer;
 import de.matthiasmann.twl.TableRowSelectionManager;
 import de.matthiasmann.twl.TreeTable;
 import de.matthiasmann.twl.Widget;
@@ -47,20 +48,23 @@ public class WidgetTree extends ScrollPane {
 
     private Widget rootWidget;
 
-    public WidgetTree() {
-        treeModel = new WidgetTreeModel();
+    public WidgetTree(WidgetTreeModel treeModel) {
+        this.treeModel = treeModel;
+
         selectionModel = new TableSingleSelectionModel();
         treeTable = new TreeTable(treeModel);
         treeTable.setTheme("themetree");
         treeTable.setSelectionManager(new TableRowSelectionManager(selectionModel));
 
+        DecoratedTextRenderer.install(treeTable);
+
         setFixed(Fixed.HORIZONTAL);
         setContent(treeTable);
     }
 
-    public void setRootWidget(Widget rootWidget) {
+    public void setRootWidget(Context ctx, Widget rootWidget) {
         this.rootWidget = rootWidget;
-        treeModel.createTreeFromWidget(rootWidget);
+        treeModel.createTreeFromWidget(ctx, rootWidget);
         if(treeModel.getNumChildren() > 0) {
             selectionModel.setSelection(0, 0);
             treeTable.setRowExpanded(0, true);

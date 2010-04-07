@@ -756,6 +756,7 @@
 
     <fontDef name="normal" filename="font.fnt" color="black" default="true">
         <fontParam if="error" color="red"/>
+        <fontParam if="warning" color="orange"/>
         <fontParam if="disabled" color="#444"/>
         <fontParam if="textSelection" color="white"/>
         <fontParam if="modified" color="#1000FF"/>

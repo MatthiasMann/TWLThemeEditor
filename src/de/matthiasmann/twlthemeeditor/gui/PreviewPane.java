@@ -95,8 +95,8 @@ public class PreviewPane extends DialogLayout {
         });
     }
 
-    public void setURL(URL url) {
-        previewWidget.setURL(url);
+    public void setURL(Context ctx, URL url) {
+        previewWidget.setURL(ctx, url);
     }
 
     public void reloadTheme() {

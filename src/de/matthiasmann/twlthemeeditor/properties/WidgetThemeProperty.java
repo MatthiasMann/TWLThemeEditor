@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractProperty;
+import de.matthiasmann.twlthemeeditor.gui.Context;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -41,9 +42,11 @@ import java.util.Collections;
 public class WidgetThemeProperty extends AbstractProperty<String> {
 
     private final Widget widget;
+    private final Context ctx;
 
-    public WidgetThemeProperty(Widget widget) {
+    public WidgetThemeProperty(Widget widget, Context ctx) {
         this.widget = widget;
+        this.ctx = ctx;
     }
 
     public boolean canBeNull() {
@@ -67,8 +70,15 @@ public class WidgetThemeProperty extends AbstractProperty<String> {
     }
 
     public void setPropertyValue(String value) throws IllegalArgumentException {
-        widget.setTheme(value);
-        widget.reapplyTheme();
+        ctx.installDebugHook();
+        try {
+            widget.setTheme(value);
+            widget.reapplyTheme();
+        } catch(Throwable ex) {
+            ex.printStackTrace();
+        } finally {
+            ctx.uninstallDebugHook();
+        }
     }
 
     public String getThemePath() {

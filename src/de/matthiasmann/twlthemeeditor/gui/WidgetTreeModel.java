@@ -33,13 +33,15 @@ import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractTreeTableModel;
 import de.matthiasmann.twl.model.AbstractTreeTableNode;
 import de.matthiasmann.twl.model.TreeTableNode;
-import java.util.Collection;
+import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 
 /**
  *
  * @author Matthias Mann
  */
 public class WidgetTreeModel extends AbstractTreeTableModel {
+
+    Context ctx;
 
     public WidgetTreeModel() {
     }
@@ -54,7 +56,8 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
         return COLUMN_NAMES.length;
     }
 
-    public void createTreeFromWidget(Widget w) {
+    public void createTreeFromWidget(Context ctx, Widget w) {
+        this.ctx = ctx;
         removeAllChildren();
         insertChild(createNode(this, w), 0);
     }
@@ -76,7 +79,7 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
         return node;
     }
 
-    public static class Node extends AbstractTreeTableNode {
+    public class Node extends AbstractTreeTableNode {
         final Widget widget;
         final String className;
 
@@ -88,13 +91,27 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
 
         public Object getData(int column) {
             switch (column) {
-                case 0:
-                    return widget.getTheme();
+                case 0: {
+                    String theme = widget.getTheme();
+                    if(ctx != null) {
+                        return DecoratedText.apply(theme,ctx.getWidgetFlags(widget));
+                    } else {
+                        return theme;
+                    }
+                }
                 case 1:
                     return className;
                 default:
                     return "";
             }
+        }
+
+        @Override
+        public Object getTooltipContent(int column) {
+            if(ctx != null) {
+                return ctx.getTooltipForWidget(widget);
+            }
+            return null;
         }
 
         void add(Node n) {

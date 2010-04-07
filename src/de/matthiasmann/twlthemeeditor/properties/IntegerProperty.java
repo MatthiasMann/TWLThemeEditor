@@ -58,6 +58,9 @@ public class IntegerProperty extends DerivedProperty<Integer> implements Integer
             return null;
         }
         try {
+            if(value.startsWith("0x")) {
+                return Integer.valueOf(value.substring(2), 16);
+            }
             return Integer.valueOf(value, 10);
         } catch (Throwable ex) {
             Logger.getLogger(IntegerProperty.class.getName()).log(Level.SEVERE,

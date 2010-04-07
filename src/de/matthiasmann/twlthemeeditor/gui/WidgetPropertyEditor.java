@@ -71,7 +71,7 @@ public class WidgetPropertyEditor extends ScrollPane {
         }
         ArrayList<Property<?>> properties = new ArrayList<Property<?>>();
         properties.add(new WidgetRectProperty(testWidget));
-        properties.add(new WidgetThemeProperty(testWidget));
+        properties.add(new WidgetThemeProperty(testWidget, ctx));
         properties.add(new AbstractProperty<AnimationState>() {
             public boolean canBeNull() {
                 return false;

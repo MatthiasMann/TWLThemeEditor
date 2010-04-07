@@ -45,8 +45,6 @@ import de.matthiasmann.twl.model.TableSingleSelectionModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.datamodel.FilteredModel;
-import de.matthiasmann.twlthemeeditor.datamodel.NodeNameModified;
-import de.matthiasmann.twlthemeeditor.datamodel.NodeNameWithError;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
@@ -87,13 +85,7 @@ public class ThemeTreePane extends DialogLayout {
         CollapsiblePanel collapsibleButtons = new CollapsiblePanel(
                 CollapsiblePanel.Direction.HORIZONTAL, "", buttons, null);
 
-        StringCellRenderer errorRenderer = new StringCellRenderer();
-        errorRenderer.getAnimationState().setAnimationState("error", true);
-        treeTable.registerCellRenderer(NodeNameWithError.class, errorRenderer);
-
-        StringCellRenderer modifiedRenderer = new StringCellRenderer();
-        modifiedRenderer.getAnimationState().setAnimationState("modified", true);
-        treeTable.registerCellRenderer(NodeNameModified.class, modifiedRenderer);
+        DecoratedTextRenderer.install(treeTable);
 
         scrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
         treeTable.setSelectionManager(new TableRowSelectionManager(treeTableSelectionModel));

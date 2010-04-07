@@ -72,6 +72,7 @@ public class EditorArea extends Widget {
     private final PreviewPane previewPane;
     private final TextureViewerPane textureViewerPane;
     private final ScrollPane propertiesScrollPane;
+    private final WidgetTreeModel widgetTreeModel;
     private final WidgetTree widgetTree;
     private final WidgetPropertyEditor widgetPropertyEditor;
 
@@ -96,7 +97,8 @@ public class EditorArea extends Widget {
         propertiesScrollPane = new ScrollPane();
         propertiesScrollPane.setTheme("/propertyEditor");
         propertiesScrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
-        widgetTree = new WidgetTree();
+        this.widgetTreeModel = new WidgetTreeModel();
+        widgetTree = new WidgetTree(widgetTreeModel);
         widgetTree.setTheme("/widgetTree");
         widgetPropertyEditor = new WidgetPropertyEditor();
         widgetPropertyEditor.setTheme("/propertyEditor");
@@ -152,17 +154,17 @@ public class EditorArea extends Widget {
 
         if(model == null) {
             ctx = null;
-            previewPane.setURL(null);
+            previewPane.setURL(null, null);
         } else {
             ctx = new Context(model);
             ctx.setThemeTreePane(themeTreePane);
 
             model.addCallback(modelChangedCB);
-            
+
             try {
-                previewPane.setURL(model.getRootThemeFile().getVirtualURL());
+                previewPane.setURL(ctx, model.getRootThemeFile().getVirtualURL());
             } catch(MalformedURLException ex) {
-                previewPane.setURL(null);
+                previewPane.setURL(null, null);
             }
         }
         
@@ -328,7 +330,7 @@ public class EditorArea extends Widget {
 
     void updateTestWidget() {
         Widget testWidget = previewPane.getTestWidget();
-        widgetTree.setRootWidget(testWidget);
+        widgetTree.setRootWidget(ctx, testWidget);
         widgetPropertyEditor.setWidget(testWidget);
     }
 

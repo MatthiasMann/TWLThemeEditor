@@ -159,13 +159,14 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
         switch (column) {
             case 0: {
                 String displayName = getDisplayName();
+                int flags = 0;
                 if(error) {
-                    return new NodeNameWithError(displayName);
-                } else if(isModified()) {
-                    return new NodeNameModified(displayName);
-                } else {
-                    return displayName;
+                    flags |= DecoratedText.ERROR;
                 }
+                if(isModified()) {
+                    flags |= DecoratedText.MODIFIED;
+                }
+                return DecoratedText.apply(displayName, flags);
             }
             case 1:
                 return getType();

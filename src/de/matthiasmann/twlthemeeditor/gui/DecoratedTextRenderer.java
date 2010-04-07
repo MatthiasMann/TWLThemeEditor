@@ -27,23 +27,36 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.gui;
+
+import de.matthiasmann.twl.AnimationState;
+import de.matthiasmann.twl.TableBase;
+import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 
 /**
  *
  * @author Matthias Mann
  */
-public class NodeNameModified {
+public class DecoratedTextRenderer extends TableBase.StringCellRenderer {
 
-    private final String name;
-
-    public NodeNameModified(String name) {
-        this.name = name;
+    public DecoratedTextRenderer() {
+        setTheme("stringcellrenderer");
     }
 
     @Override
-    public String toString() {
-        return name;
+    public void setCellData(int row, int column, Object data) {
+        int flags = 0;
+        if(data instanceof DecoratedText) {
+            flags = ((DecoratedText)data).getFlags();
+        }
+        AnimationState as = getAnimationState();
+        as.setAnimationState("error", (flags & DecoratedText.ERROR) != 0);
+        as.setAnimationState("warning", (flags & DecoratedText.WARNING) != 0);
+        as.setAnimationState("modified", (flags & DecoratedText.MODIFIED) != 0);
+        super.setCellData(row, column, data);
     }
 
+    public static void install(TableBase tableBase) {
+        tableBase.registerCellRenderer(DecoratedText.class, new DecoratedTextRenderer());
+    }
 }

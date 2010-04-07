@@ -33,17 +33,30 @@ package de.matthiasmann.twlthemeeditor.datamodel;
  *
  * @author Matthias Mann
  */
-public class NodeNameWithError {
+public class DecoratedText {
 
-    private final String name;
+    public static final int ERROR = 1;
+    public static final int WARNING = 2;
+    public static final int MODIFIED = 4;
 
-    public NodeNameWithError(String name) {
-        this.name = name;
+    private final String text;
+    private final int flags;
+
+    public DecoratedText(String text, int flags) {
+        this.text = text;
+        this.flags = flags;
     }
 
     @Override
     public String toString() {
-        return name;
+        return text;
     }
 
+    public int getFlags() {
+        return flags;
+    }
+
+    public static Object apply(String text, int flags) {
+        return (flags == 0) ? text : new DecoratedText(text, flags);
+    }
 }

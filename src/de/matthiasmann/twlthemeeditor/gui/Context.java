@@ -56,6 +56,7 @@ import de.matthiasmann.twl.model.SimpleAutoCompletionResult;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.TypeMapping;
+import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.NodeReference;
@@ -80,7 +81,10 @@ import de.matthiasmann.twlthemeeditor.properties.WidgetThemeProperty;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -92,14 +96,16 @@ import java.util.logging.Logger;
 public class Context {
 
     private final ThemeTreeModel model;
+    private final PreviewDebugHook debugHook;
     private final TypeMapping<PropertyEditorFactory<?,?>> factories1;
     private final TypeMapping<PropertyEditorFactory<?,?>> factories2;
     private final Set<String> standardStates;
 
     private ThemeTreePane themeTreePane;
 
-    public Context(ThemeTreeModel model) {
-        this.model = model;
+    public Context(ThemeTreeModel themeTreeModel) {
+        this.model = themeTreeModel;
+        this.debugHook = new PreviewDebugHook();
         
         factories1 = new TypeMapping<PropertyEditorFactory<?,?>>();
         factories1.put(ColorProperty.class, new ColorEditorFactory());
@@ -153,13 +159,10 @@ public class Context {
     }
 
     public Theme findTheme(String[] themePath) {
-        for(ThemeTreeNode node : model.getTopLevelNodes(ThemeTreeNode.class, null)) {
-            if(checkThemeName(node, themePath[0])) {
-                Theme theme = (Theme)node;
-                for(int idx=1 ; idx<themePath.length && theme!=null; ++idx) {
-                    theme = findTheme(theme, themePath[idx]);
-                }
-                return theme;
+        if(themePath != null && themePath.length > 0) {
+            ThemeData td = findThemeData(themePath);
+            if(td != null) {
+                return td.themeNode;
             }
         }
         return null;
@@ -170,12 +173,10 @@ public class Context {
             return getRefableNodes(null, Kind.THEME);
         }
         SimpleChangableListModel<String> result = new SimpleChangableListModel<String>();
-        Theme theme = findTheme(themePath);
-        if(theme != null) {
-            TreeSet<String> foundThemes = new TreeSet<String>();
-            boolean hasWildcard = collectThemes(theme, foundThemes);
-            result.addElements(foundThemes);
-            if(hasWildcard) {
+        ThemeData td = findThemeData(themePath);
+        if(td != null) {
+            result.addElements(td.children.keySet());
+            if(td.hasWildcard) {
                 TreeSet<String> wildcardThemes = new TreeSet<String>();
                 for(ThemeTreeNode node : model.getTopLevelNodes(ThemeTreeNode.class, null)) {
                     if(node instanceof Theme) {
@@ -183,7 +184,7 @@ public class Context {
                         if(toplevelTheme.isAllowWildcard()) {
                             String name = toplevelTheme.getName();
                             // don't add themes which are hidden by local themes
-                            if(!foundThemes.contains(name)) {
+                            if(!td.children.containsKey(name)) {
                                 wildcardThemes.add(name);
                             }
                         }
@@ -192,68 +193,81 @@ public class Context {
                 result.addElements(wildcardThemes);
             }
             // add absolute themes
-            foundThemes.clear();
+            TreeSet<String> toplevelThemes = new TreeSet<String>();
             for(ThemeTreeNode node : model.getTopLevelNodes(ThemeTreeNode.class, null)) {
                 if(node instanceof Theme) {
-                    foundThemes.add("/".concat(((Theme)node).getName()));
+                    toplevelThemes.add("/".concat(((Theme)node).getName()));
                 }
             }
-            result.addElements(foundThemes);
+            result.addElements(toplevelThemes);
         }
         return result;
     }
 
-    private boolean collectThemes(Theme parent, TreeSet<String> result) {
-        boolean hasWildcard = false;
-        ThemeTreeNode refNode = resolveReference(parent.getRef());
-        if(refNode instanceof Theme) {
-            hasWildcard = collectThemes((Theme)refNode, result);
+    private ThemeData findThemeData(String[] themePath) {
+        HashMap<String, ThemeData> toplevelThemes = new HashMap<String, ThemeData>();
+        ThemeData td = parseTheme(themePath[0], toplevelThemes);
+        for(int idx = 1; idx < themePath.length && td != null; ++idx) {
+            td = getChildTheme(td, themePath[idx], toplevelThemes);
         }
-        for(int i=0,n=parent.getNumChildren() ; i<n ; ++i) {
-            TreeTableNode child = parent.getChild(i);
-            if(child instanceof Theme) {
-                Theme childTheme = (Theme)child;
-                if(childTheme.isWildcard()) {
-                    hasWildcard = true;
-                } else {
-                    String name = childTheme.getName();
-                    result.add(name);
-                }
-            }
-        }
-        return hasWildcard;
-    }
-    
-    private boolean checkThemeName(TreeTableNode node, String name) {
-        return (node instanceof Theme) && ((Theme)node).matchName(name);
+        return td;
     }
 
-    private Theme findTheme(TreeTableNode parent, String name) {
-        for(int i=0,n=parent.getNumChildren() ; i<n ; ++i) {
-            TreeTableNode child = parent.getChild(i);
-            if(checkThemeName(child, name)) {
-                return (Theme)child;
+    private ThemeData getChildTheme(ThemeData td, String name, HashMap<String, ThemeData> toplevelThemes) {
+        ThemeData tdChild = td.children.get(name);
+        if(tdChild == null && td.hasWildcard) {
+            return parseTheme(name, toplevelThemes);
+        }
+        return tdChild;
+    }
+
+    private ThemeData parseTheme(String name, HashMap<String, ThemeData> toplevelThemes) {
+        ThemeData td = toplevelThemes.get(name);
+        if(td == null && model != null) {
+            TreeTableNode refNode = model.findNode(name, Kind.THEME);
+            if(refNode instanceof Theme) {
+                Theme refTheme = (Theme)refNode;
+                td = parseTheme(null, refTheme, toplevelThemes);
             }
         }
-        if(parent instanceof Theme) {
-            Theme parentTheme = (Theme)parent;
-            parent = resolveReference(parentTheme.getRef());
-            if(parent != null) {
-                Theme result = findTheme(parent, name);
-                if(result != null) {
-                    return result;
-                }
+        return td;
+    }
+
+    private ThemeData parseTheme(ThemeData parent, Theme themeNode, HashMap<String, ThemeData> toplevelThemes) {
+        ThemeData td = new ThemeData(themeNode);
+        if(parent == null) {
+            toplevelThemes.put(td.name, td);
+        }
+
+        // this logic should match ThemeManager !!
+        if(themeNode.isMerge() && parent != null) {
+            ThemeData tdPrev = parent.children.get(td.name);
+            if(tdPrev != null) {
+                td.copy(tdPrev);
             }
-            if(parentTheme.isAllowWildcard()) {
-                TreeTableNode node = resolveReference(new NodeReference(name, Kind.THEME));
-                if(node instanceof Theme) {
-                    if(((Theme)node).isAllowWildcard()) {
-                        return (Theme)node;
-                    }
+        }
+        NodeReference ref = themeNode.getRef();
+        if(ref != null) {
+            ThemeData tdRef = parseTheme(ref.getName(), toplevelThemes);
+            if(tdRef != null) {
+                td.copy(tdRef);
+            }
+        }
+        
+        for(int i=0,n=themeNode.getNumChildren() ; i<n ; i++) {
+            TreeTableNode childNode = themeNode.getChild(i);
+            if(childNode instanceof Theme) {
+                Theme childTheme = (Theme)childNode;
+                if(childTheme.isWildcard()) {
+                    td.hasWildcard = true;
+                } else {
+                    ThemeData tdChild = parseTheme(td, childTheme, toplevelThemes);
+                    td.children.put(tdChild.name, tdChild);
                 }
             }
         }
-        return null;
+
+        return td;
     }
 
     public AutoCompletionDataSource collectAllStates() {
@@ -380,6 +394,69 @@ public class Context {
                             "Can't read state constant", ex);
                 }
             }
+        }
+    }
+
+    public void uninstallDebugHook() {
+        debugHook.uninstall();
+    }
+
+    public void installDebugHook() {
+        debugHook.install();
+    }
+
+    public Object getTooltipForWidget(Widget widget) {
+        PreviewDebugHook.Entry entry = debugHook.getEntry(widget);
+        if(entry != null) {
+            StringBuilder sb = new StringBuilder();
+            appendMsgs(sb, entry.errorMsg, "Error");
+            appendMsgs(sb, entry.warningMsg, "Warning");
+            stripTrailingNewline(sb);
+            return sb.toString();
+        }
+        return null;
+    }
+
+    public int getWidgetFlags(Widget widget) {
+        PreviewDebugHook.Entry entry = debugHook.getEntry(widget);
+        if(entry != null) {
+            return (entry.errorMsg.isEmpty() ? 0 : DecoratedText.ERROR) |
+                    (entry.warningMsg.isEmpty() ? 0 : DecoratedText.WARNING);
+        }
+        return 0;
+    }
+
+    private void appendMsgs(StringBuilder sb, Collection<String> msgs, String title) {
+        if(!msgs.isEmpty()) {
+            sb.append(title).append(":\n");
+            for(String m : msgs) {
+                sb.append(m).append('\n');
+            }
+        }
+    }
+
+    private void stripTrailingNewline(StringBuilder sb) {
+        int length = sb.length();
+        if(length > 0 && sb.charAt(length-1) == '\n') {
+            sb.deleteCharAt(length-1);
+        }
+    }
+
+    static class ThemeData {
+        final Theme themeNode;
+        final String name;
+        final TreeMap<String, ThemeData> children;
+        boolean hasWildcard;
+
+        ThemeData(Theme themeNode) {
+            this.themeNode = themeNode;
+            this.name = themeNode.getName();
+            this.children = new TreeMap<String, ThemeData>();
+        }
+
+        void copy(ThemeData src) {
+            hasWildcard |= src.hasWildcard;
+            children.putAll(src.children);
         }
     }
 }

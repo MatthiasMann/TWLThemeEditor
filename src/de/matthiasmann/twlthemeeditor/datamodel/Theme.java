@@ -48,6 +48,7 @@ public class Theme extends ThemeTreeNode implements HasProperties {
 
     protected final NameProperty nameProperty;
     protected final BooleanProperty allowWildcardProperty;
+    protected final BooleanProperty mergeProperty;
     protected final NodeReferenceProperty refProperty;
 
     public Theme(ThemeFile themeFile, TreeTableNode parent, Element element) {
@@ -70,9 +71,12 @@ public class Theme extends ThemeTreeNode implements HasProperties {
             allowWildcardProperty = new BooleanProperty(
                     new AttributeProperty(element, "allowWildcard", "Allow Wildcard", true), false);
             addProperty(allowWildcardProperty);
+            mergeProperty = null;
         } else {
             allowWildcardProperty = null;
-            addProperty(new BooleanProperty(new AttributeProperty(element, "merge", "Merge", true), false));
+            mergeProperty = new BooleanProperty(
+                    new AttributeProperty(element, "merge", "Merge", true), false);
+            addProperty(mergeProperty);
         }
 
         addProperty(refProperty = new NodeReferenceProperty(
@@ -97,6 +101,10 @@ public class Theme extends ThemeTreeNode implements HasProperties {
 
     public boolean isAllowWildcard() {
         return allowWildcardProperty != null && allowWildcardProperty.getValue();
+    }
+
+    public boolean isMerge() {
+        return mergeProperty != null && mergeProperty.getValue();
     }
 
     public boolean matchName(String name) {
