@@ -42,6 +42,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 public class WidgetTreeModel extends AbstractTreeTableModel {
 
     Context ctx;
+    Node rootNode;
 
     public WidgetTreeModel() {
     }
@@ -59,7 +60,8 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
     public void createTreeFromWidget(Context ctx, Widget w) {
         this.ctx = ctx;
         removeAllChildren();
-        insertChild(createNode(this, w), 0);
+        rootNode = createNode(this, w);
+        insertChild(rootNode, 0);
     }
 
     public Widget getWidget(TreeTableNode node) {
@@ -68,6 +70,24 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
         } else {
             return null;
         }
+    }
+
+    public Node getNodeForWidget(Widget w) {
+        if(w != null && rootNode != null) {
+            if(w == rootNode.widget) {
+                return rootNode;
+            }
+            Node parent = getNodeForWidget(w.getParent());
+            if(parent != null) {
+                for(int i=0,n=parent.getNumChildren() ; i<n ; ++i) {
+                    Node child = (Node)parent.getChild(i);
+                    if(child.widget == w) {
+                        return child;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private Node createNode(TreeTableNode parent, Widget w) {

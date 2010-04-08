@@ -14,6 +14,9 @@
         <texture name="-icon-jump" x="83" y="61" width="14" height="9" center="true"/>
         <texture name="-icon-add" x="48" y="19" width="12" height="12" center="true"/>
         <texture name="-icon-remove" x="61" y="19" width="12" height="12" center="true"/>
+        <texture name="-icon-select" x="105" y="68" width="12" height="12" center="true"/>
+
+        <cursor name="cursor.dragSelect" x="90" y="82" width="16" height="16" hotSpotX="5" hotSpotY="5"/>
         
         <alias name="textureviewer.background" ref="checkerboard" border="64" inset="64" sizeOverwriteH="0" sizeOverwriteV="0"/>
 
@@ -28,6 +31,28 @@
             <alias ref="panel.separator"/>
             <alias ref="none"/>
         </grid>
+
+        <grid name="-white-frame" weightsX="0,1,0" weightsY="0,1,0">
+            <alias ref="white"/>
+            <alias ref="white"/>
+            <alias ref="white"/>
+            <alias ref="white"/>
+            <alias ref="none"/>
+            <alias ref="white"/>
+            <alias ref="white"/>
+            <alias ref="white"/>
+            <alias ref="white"/>
+        </grid>
+        <select name="flashImage">
+            <animation timeSource="flashing" count="1" if="flashing">
+                <repeat count="5">
+                    <frame ref="-white-frame" duration="100" tint="red"/>
+                    <frame ref="-white-frame" duration="100" tint="blue"/>
+                </repeat>
+                <frame ref="none" duration="100"/>
+            </animation>
+            <alias ref="-white-frame" tint="red"/>
+        </select>
 
         <composed name="addbutton.overlay">
             <select>
@@ -91,6 +116,26 @@
                 <alias ref="-icon-jump" if="disabled" tint="#6fff"/>
                 <alias ref="-icon-jump" if="armed" inset="1,1,-1,-1"/>
                 <alias ref="-icon-jump"/>
+            </select>
+            <alias ref="vbutton.overlay"/>
+        </composed>
+        
+        <alias name="--icon-flash" ref="-white-frame" sizeOverwriteH="12" sizeOverwriteV="12"/>
+        <alias name="-icon-flash" ref="--icon-flash" center="true"/>
+        <composed name="flashbutton.overlay">
+            <select>
+                <alias ref="-icon-flash" tint="#6fff" if="disabled"/>
+                <alias ref="-icon-flash" tint="red" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-flash" tint="red" />
+            </select>
+            <alias ref="vbutton.overlay"/>
+        </composed>
+
+        <composed name="selectbutton.overlay">
+            <select>
+                <alias ref="-icon-select" if="disabled" tint="#6fff"/>
+                <alias ref="-icon-select" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-select"/>
             </select>
             <alias ref="vbutton.overlay"/>
         </composed>
@@ -387,8 +432,24 @@
         </theme>
     </theme>
 
-    <theme name="widgetTree" ref="scrollpane">
-        <theme name="themetree" ref="table"/>
+    <theme name="widgetTree" ref="dialoglayout">
+        <param name="border"><border>0,0,5,0</border></param>
+        <theme name="scrollpane" ref="scrollpane">
+            <theme name="themetree" ref="table"/>
+        </theme>
+        <theme name="btnFlash" ref="button">
+            <param name=""><image>flashbutton.*</image></param>
+            <param name="tooltip"><string>Highlight selected widget with a flashing red/blue frame</string></param>
+        </theme>
+        <theme name="btnSelect" ref="button">
+            <param name=""><image>selectbutton.*</image></param>
+            <param name="tooltip"><string>Select a widget by dragging the mouse over it</string></param>
+            <param name="mouseCursorDragging"><cursor>cursor.dragSelect</cursor></param>
+        </theme>
+        <param name="namedGaps"><map>
+            <param name="buttons-left"><gap>5,5,32767</gap></param>
+            <param name="buttons-right"><gap>5</gap></param>
+        </map></param>
     </theme>
 
     <theme name="previewwidget" ref="-defaults">
@@ -396,6 +457,7 @@
 <!--            <param name="mouseCursor"><cursor>cursor.none</cursor></param> -->
         <param name="maxWidth"><int>32767</int></param>
         <param name="maxHeight"><int>32767</int></param>
+        <param name="flashImage"><image>flashImage</image></param>
     </theme>
 
     <theme name="messagePopup" ref="-defaults">

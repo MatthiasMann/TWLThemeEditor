@@ -101,7 +101,7 @@ public class EditorArea extends Widget {
         propertiesScrollPane.setTheme("/propertyEditor");
         propertiesScrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
         widgetTreeModel = new WidgetTreeModel();
-        widgetTree = new WidgetTree(widgetTreeModel);
+        widgetTree = new WidgetTree(widgetTreeModel, previewWidget);
         widgetTree.setTheme("/widgetTree");
         widgetPropertyEditor = new WidgetPropertyEditor();
         widgetPropertyEditor.setTheme("/propertyEditor");

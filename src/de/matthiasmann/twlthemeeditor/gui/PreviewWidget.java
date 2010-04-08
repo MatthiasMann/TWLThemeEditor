@@ -29,9 +29,11 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twl.DesktopArea;
 import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.GUI;
+import de.matthiasmann.twl.ThemeInfo;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.renderer.CacheContext;
 import de.matthiasmann.twl.renderer.Image;
@@ -53,6 +55,8 @@ import org.lwjgl.opengl.GL11;
  */
 public class PreviewWidget extends Widget {
 
+    public static final String STATE_FLASHING = "flashing";
+    
     public interface Callback {
         public void testWidgetChanged(Widget widget);
         public void errorLocationChanged(Object errorLocation);
@@ -72,6 +76,12 @@ public class PreviewWidget extends Widget {
     private Widget testWidget;
     private Callback callback;
 
+    private Image flashImage;
+    private int flashX;
+    private int flashY;
+    private int flashWidth;
+    private int flashHeight;
+
     private static final MessageLog.Category CAT_INIT = new MessageLog.Category("init renderer", MessageLog.CombineMode.REPLACE, DecoratedText.ERROR);
     private static final MessageLog.Category CAT_WIDGET = new MessageLog.Category("creating widget", MessageLog.CombineMode.REPLACE, DecoratedText.ERROR);
     private static final MessageLog.Category CAT_THEME = new MessageLog.Category("theme loading", MessageLog.CombineMode.REPLACE, DecoratedText.ERROR);
@@ -81,6 +91,7 @@ public class PreviewWidget extends Widget {
         this.messageLog = messageLog;
         this.viewPortBuffer = BufferUtils.createIntBuffer(16);
         setCanAcceptKeyboardFocus(true);
+        setClip(true);
     }
 
     public void setURL(Context ctx, URL url) {
@@ -109,6 +120,51 @@ public class PreviewWidget extends Widget {
     public Image getImage(String name) {
         return (theme != null) ? theme.getImageNoWarning(name) : null;
     }
+
+    public void flashRectangle(int x, int y, int width, int height, boolean flashing) {
+        flashX = x;
+        flashY = y;
+        flashWidth = width;
+        flashHeight = height;
+        AnimationState as = getAnimationState();
+        as.setAnimationState(STATE_FLASHING, flashing);
+        as.resetAnimationTime(STATE_FLASHING);
+    }
+
+    public Widget selectWidgetFromMouse(int x, int y) {
+        x -= getInnerX();
+        y -= getInnerY();
+
+        if(testWidget == null || !testWidgetInside(testWidget, x, y)) {
+            return null;
+        }
+
+        Widget widget = testWidget;
+        for(;;) {
+            Widget found = null;
+            for(int i=widget.getNumChildren() ; i-->0 ;) {
+                Widget c = widget.getChild(i);
+                if(testWidgetInside(c, x, y)) {
+                    found = c;
+                    break;
+                }
+            }
+            if(found == null) {
+                return widget;
+            }
+            widget = found;
+        }
+    }
+
+    private boolean testWidgetInside(Widget widget, int x, int y) {
+        return x >= widget.getX() && y >= widget.getY() && x < widget.getRight() && y < widget.getBottom();
+    }
+
+    @Override
+    protected void applyTheme(ThemeInfo themeInfo) {
+        super.applyTheme(themeInfo);
+        flashImage = themeInfo.getImage("flashImage");
+    }
     
     @Override
     protected void paintWidget(GUI gui) {
@@ -135,6 +191,9 @@ public class PreviewWidget extends Widget {
             }
 
             ctx.uninstallDebugHook();
+        }
+        if(flashImage != null && flashWidth > 0 && flashHeight > 0) {
+            flashImage.draw(getAnimationState(), getInnerX() + flashX, getInnerY() + flashY, flashWidth, flashHeight);
         }
     }
 

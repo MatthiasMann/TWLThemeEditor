@@ -29,27 +29,37 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.Button;
+import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.ScrollPane;
-import de.matthiasmann.twl.TableBase.StringCellRenderer;
+import de.matthiasmann.twl.ScrollPane.Fixed;
 import de.matthiasmann.twl.TableRowSelectionManager;
+import de.matthiasmann.twl.ThemeInfo;
 import de.matthiasmann.twl.TreeTable;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.TableSingleSelectionModel;
+import de.matthiasmann.twl.renderer.MouseCursor;
 
 /**
  *
  * @author Matthias Mann
  */
-public class WidgetTree extends ScrollPane {
+public class WidgetTree extends DialogLayout {
 
     private final WidgetTreeModel treeModel;
+    private final PreviewWidget previewWidget;
     private final TableSingleSelectionModel selectionModel;
     private final TreeTable treeTable;
+    private final ScrollPane scrollPane;
+    private final Button btnFlashSelectedWidget;
+    private final Widget btnSelectWidget;
 
     private Widget rootWidget;
 
-    public WidgetTree(WidgetTreeModel treeModel) {
+    public WidgetTree(WidgetTreeModel treeModel, PreviewWidget previewWidget) {
         this.treeModel = treeModel;
+        this.previewWidget = previewWidget;
 
         selectionModel = new TableSingleSelectionModel();
         treeTable = new TreeTable(treeModel);
@@ -58,8 +68,66 @@ public class WidgetTree extends ScrollPane {
 
         DecoratedTextRenderer.install(treeTable);
 
-        setFixed(Fixed.HORIZONTAL);
-        setContent(treeTable);
+        scrollPane = new ScrollPane(treeTable);
+        scrollPane.setFixed(Fixed.HORIZONTAL);
+
+        btnFlashSelectedWidget = new Button();
+        btnFlashSelectedWidget.setTheme("btnFlash");
+        btnFlashSelectedWidget.setEnabled(false);
+        btnFlashSelectedWidget.addCallback(new Runnable() {
+            public void run() {
+                flashSelectedWidget();
+            }
+        });
+
+        btnSelectWidget = new Button() {
+            Widget selectedWidget;
+            MouseCursor cursorNormal;
+            MouseCursor cursorDragging;
+
+            @Override
+            protected boolean handleEvent(Event evt) {
+                if(evt.isMouseEvent() && evt.isMouseDragEvent()) {
+                    selectedWidget = selectWidgetFromMouse(evt.getMouseX(), evt.getMouseY());
+                    flashWidget(selectedWidget, false);
+                    if(evt.isMouseDragEnd()) {
+                        setMouseCursor(cursorNormal);
+                        selectWidget(selectedWidget);
+                        selectedWidget = null;
+                    } else {
+                        setMouseCursor(cursorDragging);
+                        return true;
+                    }
+                }
+                return super.handleEvent(evt) || evt.isMouseEventNoWheel();
+            }
+
+            @Override
+            protected void applyTheme(ThemeInfo themeInfo) {
+                super.applyTheme(themeInfo);
+                cursorNormal = themeInfo.getMouseCursor("mouseCursor");
+                cursorDragging = themeInfo.getMouseCursor("mouseCursorDragging");
+            }
+        };
+        btnSelectWidget.setTheme("btnSelect");
+        btnSelectWidget.setCanAcceptKeyboardFocus(true);
+
+        selectionModel.addSelectionChangeListener(new Runnable() {
+            public void run() {
+                btnFlashSelectedWidget.setEnabled(selectionModel.hasSelection());
+            }
+        });
+
+        setHorizontalGroup(createParallelGroup()
+                .addWidget(scrollPane)
+                .addGroup(createSequentialGroup()
+                    .addGap("buttons-left")
+                    .addWidget(btnSelectWidget)
+                    .addWidget(btnFlashSelectedWidget)
+                    .addGap("buttons-right")));
+        setVerticalGroup(createSequentialGroup()
+                .addWidget(scrollPane)
+                .addGroup(createParallelGroup(btnSelectWidget, btnFlashSelectedWidget)));
     }
 
     public void setRootWidget(Context ctx, Widget rootWidget) {
@@ -85,5 +153,31 @@ public class WidgetTree extends ScrollPane {
             }
         }
         return null;
+    }
+
+    void selectWidget(Widget widget) {
+        WidgetTreeModel.Node node = treeModel.getNodeForWidget(widget);
+        if(node != null) {
+            int row = treeTable.getRowFromNodeExpand(node);
+            selectionModel.setSelection(row, row);
+            treeTable.scrollToRow(row);
+        }
+        flashWidget(widget, true);
+    }
+
+    Widget selectWidgetFromMouse(int x, int y) {
+        return previewWidget.selectWidgetFromMouse(x, y);
+    }
+    
+    void flashSelectedWidget() {
+        flashWidget(getSelectedWidget(), true);
+    }
+
+    void flashWidget(Widget w, boolean flashing) {
+        if(w != null) {
+            previewWidget.flashRectangle(w.getX(), w.getY(), w.getWidth(), w.getHeight(), flashing);
+        } else {
+            previewWidget.flashRectangle(0, 0, 0, 0, false);
+        }
     }
 }
