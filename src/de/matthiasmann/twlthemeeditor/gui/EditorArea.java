@@ -66,10 +66,11 @@ public class EditorArea extends Widget {
         SPLIT_HHV
     }
 
+    private final MessageLog messageLog;
     private final TestWidgetManager testWidgetManager;
     private final Menu testWidgetMenu;
     private final ThemeTreePane themeTreePane;
-    private final PreviewPane previewPane;
+    private final PreviewWidget previewWidget;
     private final TextureViewerPane textureViewerPane;
     private final ScrollPane propertiesScrollPane;
     private final WidgetTreeModel widgetTreeModel;
@@ -85,39 +86,39 @@ public class EditorArea extends Widget {
     private ColorProperty boundColorProperty;
     private Layout layout = Layout.SPLIT_HV;
 
-    public EditorArea() {
-        testWidgetManager = new TestWidgetManager();
+    public EditorArea(MessageLog messageLog) {
+        this.messageLog = messageLog;
+        
+        testWidgetManager = new TestWidgetManager(messageLog);
         testWidgetMenu = new Menu("Widgets");
         themeTreePane = new ThemeTreePane();
         themeTreePane.setTheme("/themetreepane");
-        previewPane = new PreviewPane();
-        previewPane.setTheme("/previewpane");
+        previewWidget = new PreviewWidget(messageLog);
+        previewWidget.setTheme("/previewwidget");
         textureViewerPane = new TextureViewerPane();
         textureViewerPane.setTheme("/textureviewerpane");
         propertiesScrollPane = new ScrollPane();
         propertiesScrollPane.setTheme("/propertyEditor");
         propertiesScrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
-        this.widgetTreeModel = new WidgetTreeModel();
+        widgetTreeModel = new WidgetTreeModel();
         widgetTree = new WidgetTree(widgetTreeModel);
         widgetTree.setTheme("/widgetTree");
         widgetPropertyEditor = new WidgetPropertyEditor();
         widgetPropertyEditor.setTheme("/propertyEditor");
 
-        previewPane.addCallback(new Runnable() {
-            public void run() {
-                updateErrorLocation();
+        previewWidget.setCallback(new PreviewWidget.Callback() {
+            public void testWidgetChanged(Widget widget) {
+                updateTestWidget(widget);
             }
-        });
-        previewPane.setTestWidgetChangedCB(new Runnable() {
-            public void run() {
-                updateTestWidget();
+            public void errorLocationChanged(Object errorLocation) {
+                updateErrorLocation(errorLocation);
             }
         });
 
         modelChangedCB = new CallbackWithReason<ThemeTreeModel.CallbackReason>() {
             public void callback(ThemeTreeModel.CallbackReason reason) {
                 ctx.getThemeTreeModel().setErrorLocation(null);
-                previewPane.reloadTheme();
+                previewWidget.reloadTheme();
                 if(reason == ThemeTreeModel.CallbackReason.STRUCTURE_CHANGED) {
                     updatePropertyEditors.run();
                 }
@@ -154,17 +155,17 @@ public class EditorArea extends Widget {
 
         if(model == null) {
             ctx = null;
-            previewPane.setURL(null, null);
+            previewWidget.setURL(null, null);
         } else {
-            ctx = new Context(model);
+            ctx = new Context(messageLog, model);
             ctx.setThemeTreePane(themeTreePane);
 
             model.addCallback(modelChangedCB);
 
             try {
-                previewPane.setURL(ctx, model.getRootThemeFile().getVirtualURL());
+                previewWidget.setURL(ctx, model.getRootThemeFile().getVirtualURL());
             } catch(MalformedURLException ex) {
-                previewPane.setURL(null, null);
+                previewWidget.setURL(null, null);
             }
         }
         
@@ -190,7 +191,7 @@ public class EditorArea extends Widget {
     void recreateLayout() {
         removeAllChildren();
         removeFromParent(themeTreePane);
-        removeFromParent(previewPane);
+        removeFromParent(previewWidget);
         removeFromParent(textureViewerPane);
         removeFromParent(propertiesScrollPane);
         removeFromParent(widgetPropertyEditor);
@@ -215,7 +216,7 @@ public class EditorArea extends Widget {
                 spV1.add(propertiesScrollPane);
                 spV2.setDirection(SplitPane.Direction.VERTICAL);
                 spV2.add(textureViewerPane);
-                spV2.add(previewPane);
+                spV2.add(previewWidget);
                 spV3.setDirection(SplitPane.Direction.VERTICAL);
                 spV3.add(widgetTree);
                 spV3.add(widgetPropertyEditor);
@@ -241,7 +242,7 @@ public class EditorArea extends Widget {
                 spH3.add(spV2);
                 spV1.setDirection(SplitPane.Direction.VERTICAL);
                 spV1.add(textureViewerPane);
-                spV1.add(previewPane);
+                spV1.add(previewWidget);
                 spV2.setDirection(SplitPane.Direction.VERTICAL);
                 spV2.add(widgetTree);
                 spV2.add(widgetPropertyEditor);
@@ -304,7 +305,7 @@ public class EditorArea extends Widget {
                     name = image.getName();
                 }
                 if(name != null) {
-                    renderImage = previewPane.getImage(name);
+                    renderImage = previewWidget.getImage(name);
                 }
             }
             if(renderImage != null) {
@@ -317,19 +318,17 @@ public class EditorArea extends Widget {
         textureViewerPane.setTintColor((color != null) ? color : Color.WHITE);
     }
 
-    void updateErrorLocation() {
+    void updateErrorLocation(Object errorLocation) {
         if(ctx != null) {
-            Object loc = previewPane.getThemeLoadErrorLocation();
-            if(loc instanceof ThemeTreeNode) {
-                ctx.getThemeTreeModel().setErrorLocation((ThemeTreeNode)loc);
+            if(errorLocation instanceof ThemeTreeNode) {
+                ctx.getThemeTreeModel().setErrorLocation((ThemeTreeNode)errorLocation);
             } else {
                 ctx.getThemeTreeModel().setErrorLocation(null);
             }
         }
     }
 
-    void updateTestWidget() {
-        Widget testWidget = previewPane.getTestWidget();
+    void updateTestWidget(Widget testWidget) {
         widgetTree.setRootWidget(ctx, testWidget);
         widgetPropertyEditor.setWidget(testWidget);
     }
@@ -340,7 +339,7 @@ public class EditorArea extends Widget {
     }
     
     void changeTestWidget() {
-        previewPane.setWidgetFactory(testWidgetManager.getCurrentTestWidgetFactory());
+        previewWidget.setWidgetFactory(testWidgetManager.getCurrentTestWidgetFactory());
     }
 
     void recreateTestWidgets() {
@@ -354,7 +353,7 @@ public class EditorArea extends Widget {
         FileSelector.NamedFileFilter filter = new FileSelector.NamedFileFilter(
                 "JAR files", new ExtFilter(".jar"));
         FileSelector fileSelector = new FileSelector(
-                Preferences.userNodeForPackage(PreviewPane.class),
+                Preferences.userNodeForPackage(EditorArea.class),
                 "userWidgetJARs");
         fileSelector.setFileSystemModel(fsm);
         fileSelector.addFileFilter(FileSelector.AllFilesFilter);

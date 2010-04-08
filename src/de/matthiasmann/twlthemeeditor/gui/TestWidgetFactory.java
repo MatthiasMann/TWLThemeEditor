@@ -55,6 +55,10 @@ public class TestWidgetFactory {
         return name;
     }
 
+    public Class<? extends Widget> getClazz() {
+        return clazz;
+    }
+
     public Widget getOrCreate() throws InstantiationException, IllegalAccessException, InvocationTargetException {
         if(widget == null) {
             if(params.length == 0) {

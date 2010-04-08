@@ -121,7 +121,7 @@ public class WidgetPropertyEditor extends ScrollPane {
                 }
             }
         } catch(Throwable ex) {
-            Logger.getLogger(PreviewPane.class.getName()).log(Level.SEVERE, "can't collect bean properties", ex);
+            Logger.getLogger(WidgetPropertyEditor.class.getName()).log(Level.SEVERE, "can't collect bean properties", ex);
         }
     }
 

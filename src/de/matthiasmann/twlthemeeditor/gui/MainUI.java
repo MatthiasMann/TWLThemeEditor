@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.FileSelector;
+import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.MenuAction;
 import de.matthiasmann.twl.PopupWindow;
@@ -44,6 +45,7 @@ import de.matthiasmann.twl.model.JavaFileSystemModel;
 import de.matthiasmann.twl.model.MRUListModel;
 import de.matthiasmann.twl.model.PersistentMRUListModel;
 import de.matthiasmann.twl.model.SimpleTextAreaModel;
+import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.datamodel.Include;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
@@ -69,8 +71,13 @@ public class MainUI extends DialogLayout {
     private static final String KEY_PROJECT_FILESELECTOR = "projectsFiles";
     private static final String KEY_RECENT_PROJECTS = "recentProjects";
 
+    private static final MessageLog.Category CAT_PROJECT = new MessageLog.Category("Project", MessageLog.CombineMode.NONE, 0);
+    private static final MessageLog.Category CAT_PROJECT_ERROR = new MessageLog.Category("Project", MessageLog.CombineMode.NONE, DecoratedText.ERROR);
+    
     private final Preferences prefs;
+    private final MessageLog messageLog;
     private final EditorArea editorArea;
+    private final StatusBar statusBar;
     private final MenuAction btnSaveProject;
     private final Menu recentProjectsMenu;
     private final MRUListModel<String> recentProjectsModel;
@@ -81,7 +88,9 @@ public class MainUI extends DialogLayout {
 
     public MainUI() {
         this.prefs = Preferences.userNodeForPackage(MainUI.class);
-        this.editorArea = new EditorArea();
+        this.messageLog = new MessageLog();
+        this.editorArea = new EditorArea(messageLog);
+        this.statusBar = new StatusBar(messageLog);
 
         Menu menuFile = new Menu("File");
         menuFile.add("Open project", new Runnable() {
@@ -122,13 +131,32 @@ public class MainUI extends DialogLayout {
         
         setHorizontalGroup(createParallelGroup()
                 .addWidget(menuBar)
-                .addWidget(editorArea));
+                .addWidget(editorArea)
+                .addWidget(statusBar));
         setVerticalGroup(createSequentialGroup()
                 .addWidget(menuBar)
                 .addGap("menubar-editorarea")
-                .addWidget(editorArea));
+                .addWidget(editorArea)
+                .addGap("editorarea-statusbar")
+                .addWidget(statusBar));
 
         popuplateRecentProjectsMenu();
+    }
+
+    @Override
+    protected void afterAddToGUI(GUI gui) {
+        super.afterAddToGUI(gui);
+        messageLog.setGUI(gui);
+    }
+
+    @Override
+    protected void beforeRemoveFromGUI(GUI gui) {
+        messageLog.setGUI(null);
+        super.beforeRemoveFromGUI(gui);
+    }
+
+    public void clearMessages(MessageLog.Category category) {
+        messageLog.removeAll(category);
     }
 
     void openProject() {
@@ -182,11 +210,12 @@ public class MainUI extends DialogLayout {
             btnSaveProject.setEnabled(true);
             recentProjectsModel.addEntry(file.toString());
             popuplateRecentProjectsMenu();
+            messageLog.add(new MessageLog.Entry(CAT_PROJECT, "Project loaded", file.toString(), null));
         } catch(FileNotFoundException ex) {
             removeFromRecentProjectsList(file);
-            showErrorMessage("Can't load project", ex);
+            messageLog.add(new MessageLog.Entry(CAT_PROJECT_ERROR, "Could not load project", file.toString(), ex));
         } catch(IOException ex) {
-            showErrorMessage("Can't load project", ex);
+            messageLog.add(new MessageLog.Entry(CAT_PROJECT_ERROR, "Could not load project", file.toString(), ex));
         }
     }
 
@@ -221,22 +250,24 @@ public class MainUI extends DialogLayout {
                 }
 
                 if(oldFile.exists() && !oldFile.delete()) {
-                    Logger.getLogger(MainUI.class.getName()).log(Level.WARNING,
-                            "Can't delete old file: " + oldFile);
+                    messageLog.add(new MessageLog.Entry(CAT_PROJECT_ERROR, "Could not delete old backup file for " + relative, oldFile.toString(), null));
+                    return;
                 }
                 if(!file.renameTo(oldFile)) {
-                    Logger.getLogger(MainUI.class.getName()).log(Level.WARNING,
-                            "Can't rename file: " + file + " to " + oldFile);
+                    messageLog.add(new MessageLog.Entry(CAT_PROJECT_ERROR, "Could not backup existing file " + relative,
+                            file.toString() + "\nBackup file:\n" + oldFile.toString(), null));
+                    return;
                 }
                 if(!tmpFile.renameTo(file)) {
-                    Logger.getLogger(MainUI.class.getName()).log(Level.WARNING,
-                            "Can't rename file: " + tmpFile + " to " + file);
+                    messageLog.add(new MessageLog.Entry(CAT_PROJECT_ERROR, "Could not replace file " + relative,
+                            file.toString() + "\nNew file:\n" + tmpFile.toString(), null));
+                    return;
                 }
 
+                messageLog.add(new MessageLog.Entry(CAT_PROJECT, "Wrote " + relative, file.toString(), null));
                 themeFile.setModified(false);
             } catch(URISyntaxException ex) {
-                Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE,
-                        "Can't determine file location for: " + themeFile.getURL(), ex);
+                messageLog.add(new MessageLog.Entry(CAT_PROJECT_ERROR, "Could not determine file location for: " + themeFile.getURL(), null, null));
             }
         }
     }

@@ -179,6 +179,7 @@ public class TextureViewer extends DraggableButton {
             }
 
             reloadTexture = false;
+            changeImage = true;
             CallbackSupport.fireCallbacks(exceptionCallbacks);
         }
 
@@ -191,24 +192,26 @@ public class TextureViewer extends DraggableButton {
                 image = specialImage;
                 invalidateLayout();
             }
-        } else if(texture != null && (image == null || changeImage)) {
-            if(rect == null) {
-                rect = getTextureRect();
+        } else if(changeImage) {
+            if(texture != null) {
+                if(rect == null) {
+                    rect = getTextureRect();
+                } else {
+                    rect = new Rect(rect);
+                    rect.intersect(getTextureRect());
+                }
+                try {
+                    image = texture.getImage(rect.getX(), rect.getY(),
+                            rect.getWidth(), rect.getHeight(), tintColor, false);
+                } catch (IllegalArgumentException ex) {
+                    image = null;
+                }
             } else {
-                rect = new Rect(rect);
-                rect.intersect(getTextureRect());
-            }
-            try {
-                image = texture.getImage(rect.getX(), rect.getY(),
-                        rect.getWidth(), rect.getHeight(), tintColor, false);
-            } catch (IllegalArgumentException ex) {
                 image = null;
             }
 
             invalidateLayout();
             changeImage = false;
-        } else if(texture == null) {
-            invalidateLayout();
         }
 
         if(prevImage == null) {

@@ -751,6 +751,8 @@
     </fontDef>
 
     <fontDef name="popupmenu-font" filename="font.fnt" color="white">
+        <fontParam if="error" color="red"/>
+        <fontParam if="warning" color="orange"/>
         <fontParam if="disabled" color="#ccc"/>
     </fontDef>
 

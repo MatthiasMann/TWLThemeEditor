@@ -81,6 +81,7 @@ import de.matthiasmann.twlthemeeditor.properties.WidgetThemeProperty;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
@@ -95,6 +96,10 @@ import java.util.logging.Logger;
  */
 public class Context {
 
+    private static final MessageLog.Category CAT_JUMP  = new MessageLog.Category("Jump to element", MessageLog.CombineMode.NONE, DecoratedText.WARNING);
+    private static final MessageLog.Category CAT_ERROR = new MessageLog.Category("Exception", MessageLog.CombineMode.NONE, DecoratedText.ERROR);
+    
+    private final MessageLog messageLog;
     private final ThemeTreeModel model;
     private final PreviewDebugHook debugHook;
     private final TypeMapping<PropertyEditorFactory<?,?>> factories1;
@@ -103,8 +108,9 @@ public class Context {
 
     private ThemeTreePane themeTreePane;
 
-    public Context(ThemeTreeModel themeTreeModel) {
-        this.model = themeTreeModel;
+    public Context(MessageLog messageLog, ThemeTreeModel model) {
+        this.messageLog = messageLog;
+        this.model = model;
         this.debugHook = new PreviewDebugHook();
         
         factories1 = new TypeMapping<PropertyEditorFactory<?,?>>();
@@ -133,6 +139,14 @@ public class Context {
         collectStandardStates(Button.class);
         collectStandardStates(TableBase.class);
         collectStandardStates(EditField.class);
+    }
+
+    public void logMessage(MessageLog.Entry entry) {
+        messageLog.add(entry);
+    }
+
+    private void logException(String action, String detail, Throwable ex) {
+        logMessage(new MessageLog.Entry(CAT_ERROR, "Exception while "+action, detail, ex));
     }
 
     public ListModel<String> getRefableNodes(ThemeTreeNode stopAt, Kind kind) {
@@ -318,10 +332,16 @@ public class Context {
     }
 
     public void selectTarget(NodeReference ref) {
-        if(themeTreePane != null) {
-            ThemeTreeNode node = resolveReference(ref);
-            if(node != null) {
-                themeTreePane.selectNode(node);
+        if(themeTreePane != null && ref != null) {
+            try {
+                ThemeTreeNode node = resolveReference(ref);
+                if(node != null) {
+                    themeTreePane.selectNode(node);
+                } else {
+                    logMessage(new MessageLog.Entry(CAT_JUMP, "Could not locate theme element", ref.getKind() + " " + ref.getName(), null));
+                }
+            } catch(Throwable ex) {
+                logException("jump to theme element", ref.getKind() + " " + ref.getName(), ex);
             }
         }
     }
@@ -335,9 +355,15 @@ public class Context {
 
     public void selectTheme(String[] themePath) {
         if(themeTreePane != null) {
-            Theme theme = findTheme(themePath);
-            if(theme != null) {
-                themeTreePane.selectNode(theme);
+            try {
+                Theme theme = findTheme(themePath);
+                if(theme != null) {
+                    themeTreePane.selectNode(theme);
+                } else {
+                    logMessage(new MessageLog.Entry(CAT_JUMP, "Could not locate theme element", Arrays.toString(themePath), null));
+                }
+            } catch(Throwable ex) {
+                logException("jump to theme element", Arrays.toString(themePath), ex);
             }
         }
     }
@@ -403,6 +429,10 @@ public class Context {
 
     public void installDebugHook() {
         debugHook.install();
+    }
+
+    public void clearWidgetMessages() {
+        debugHook.clear();
     }
 
     public Object getTooltipForWidget(Widget widget) {

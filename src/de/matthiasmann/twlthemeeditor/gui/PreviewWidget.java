@@ -37,6 +37,7 @@ import de.matthiasmann.twl.renderer.CacheContext;
 import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
+import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeLoadErrorTracker;
 import java.io.IOException;
 import java.net.URL;
@@ -52,6 +53,12 @@ import org.lwjgl.opengl.GL11;
  */
 public class PreviewWidget extends Widget {
 
+    public interface Callback {
+        public void testWidgetChanged(Widget widget);
+        public void errorLocationChanged(Object errorLocation);
+    }
+
+    private final MessageLog messageLog;
     private final IntBuffer viewPortBuffer;
 
     private Context ctx;
@@ -60,25 +67,19 @@ public class PreviewWidget extends Widget {
     private ThemeManager theme;
     private GUI testGUI;
     private boolean reloadTheme;
+    private boolean hadThemeLoadError;
     private TestWidgetFactory widgetFactory;
     private Widget testWidget;
-    private Runnable testWidgetChangedCB;
+    private Callback callback;
 
-    private final ExceptionHolder exceptionHolder;
-    private Object themeLoadErrorLocation;
+    private static final MessageLog.Category CAT_INIT = new MessageLog.Category("init renderer", MessageLog.CombineMode.REPLACE, DecoratedText.ERROR);
+    private static final MessageLog.Category CAT_WIDGET = new MessageLog.Category("creating widget", MessageLog.CombineMode.REPLACE, DecoratedText.ERROR);
+    private static final MessageLog.Category CAT_THEME = new MessageLog.Category("theme loading", MessageLog.CombineMode.REPLACE, DecoratedText.ERROR);
+    private static final MessageLog.Category CAT_EXECUTE = new MessageLog.Category("executing", MessageLog.CombineMode.REPLACE, DecoratedText.ERROR);
 
-    private static final int EXCEPTION_INIT    = 0;
-    private static final int EXCEPTION_WIDGET  = 1;
-    private static final int EXCEPTION_THEME   = 2;
-    private static final int EXCEPTION_EXECUTE = 3;
-    
-    public PreviewWidget() {
+    public PreviewWidget(MessageLog messageLog) {
+        this.messageLog = messageLog;
         this.viewPortBuffer = BufferUtils.createIntBuffer(16);
-        this.exceptionHolder = new ExceptionHolder(
-                "Initialization",
-                "Widget creation",
-                "Theme load",
-                "Execution");
         setCanAcceptKeyboardFocus(true);
     }
 
@@ -97,28 +98,12 @@ public class PreviewWidget extends Widget {
         return testWidget;
     }
 
-    public void setTestWidgetChangedCB(Runnable testWidgetChangedCB) {
-        this.testWidgetChangedCB = testWidgetChangedCB;
-    }
-
     public void reloadTheme() {
         reloadTheme = true;
     }
 
-    public ExceptionHolder getExceptionHolder() {
-        return exceptionHolder;
-    }
-
-    public Object getThemeLoadErrorLocation() {
-        return themeLoadErrorLocation;
-    }
-
-    public void clearException(int nr) {
-        if(nr == EXCEPTION_THEME) {
-            themeLoadErrorLocation = null;
-            reloadTheme = true;
-        }
-        exceptionHolder.setException(nr, null);
+    public void setCallback(Callback callback) {
+        this.callback = callback;
     }
 
     public Image getImage(String name) {
@@ -127,9 +112,7 @@ public class PreviewWidget extends Widget {
     
     @Override
     protected void paintWidget(GUI gui) {
-        if(!exceptionHolder.hasException() && ctx != null) {
-            // don't execute callbacks in critical section
-            exceptionHolder.setDeferCallbacks(true);
+        if((reloadTheme || !hadThemeLoadError) && ctx != null) {
             ctx.installDebugHook();
 
             GL11.glGetInteger(GL11.GL_VIEWPORT, viewPortBuffer);
@@ -145,15 +128,13 @@ public class PreviewWidget extends Widget {
             try {
                 executeTestEnv(gui);
             } catch (Throwable ex) {
-                // don't let anything escape !
-                exceptionHolder.setException(EXCEPTION_EXECUTE, ex);
+                messageLog.add(new MessageLog.Entry(CAT_EXECUTE, "Exception while executing test widget", null, ex));
             } finally {
                 GL11.glPopAttrib();
                 // END OF CRITICAL REGION
             }
 
             ctx.uninstallDebugHook();
-            exceptionHolder.setDeferCallbacks(false);
         }
     }
 
@@ -192,22 +173,29 @@ public class PreviewWidget extends Widget {
             testGUI = new GUI(area, render);
         }
 
-        if((theme == null || reloadTheme) && !loadTheme()) {
+        if((theme == null || reloadTheme) && !loadTheme(gui)) {
             return;
         }
 
         if(testWidget == null && widgetFactory != null) {
             testGUI.getRootPane().removeAllChildren();
             try {
+                ctx.clearWidgetMessages();
                 testWidget = widgetFactory.getOrCreate();
                 testGUI.getRootPane().add(testWidget);
-
-                if(testWidgetChangedCB != null) {
-                    gui.invokeLater(testWidgetChangedCB);
-                }
                 testWidget.adjustSize();
             } catch (Throwable ex) {
-                exceptionHolder.setException(EXCEPTION_WIDGET, ex);
+                messageLog.add(new MessageLog.Entry(CAT_WIDGET, "Exception while creating test widget", null, ex));
+            }
+
+            if(callback != null) {
+                final Widget widget = testWidget;
+                final Callback cb = callback;
+                gui.invokeLater(new Runnable() {
+                    public void run() {
+                        cb.testWidgetChanged(widget);
+                    }
+                });
             }
         }
 
@@ -230,17 +218,19 @@ public class PreviewWidget extends Widget {
             render.setUseSWMouseCursors(true);
             return true;
         } catch(LWJGLException ex) {
-            exceptionHolder.setException(EXCEPTION_INIT, ex);
+            messageLog.add(new MessageLog.Entry(CAT_INIT, "Exception while creating renderer", null, ex));
             render = null;
             return false;
         }
     }
 
-    private boolean loadTheme() {
+    private boolean loadTheme(GUI gui) {
         reloadTheme = false;
+        hadThemeLoadError = false;
         if(url != null) {
             ThemeLoadErrorTracker tracker = new ThemeLoadErrorTracker();
             ThemeLoadErrorTracker.push(tracker);
+            Object errorLocation = null;
 
             CacheContext oldCacheContext = render.getActiveCacheContext();
             CacheContext newCacheContext = render.createNewCacheContext();
@@ -258,17 +248,31 @@ public class PreviewWidget extends Widget {
                 testGUI.destroy();
                 return true;
             } catch (IOException ex) {
-                exceptionHolder.setException(EXCEPTION_THEME, ex);
+                hadThemeLoadError = true;
+                errorLocation = tracker.findErrorLocation();
                 render.setActiveCacheContext(oldCacheContext);
                 newCacheContext.destroy();
-                themeLoadErrorLocation = tracker.findErrorLocation();
+                messageLog.add(new MessageLog.Entry(CAT_THEME, "Exception while loading theme", null, ex));
             } finally {
                 if(ThemeLoadErrorTracker.pop() != tracker) {
                     throw new IllegalStateException("Wrong error tracker");
                 }
             }
+
+            fireErrorLocationChanged(gui, errorLocation);
         }
         return false;
+    }
+
+    private void fireErrorLocationChanged(GUI gui, final Object errorLocation) {
+        if(callback != null) {
+            final Callback cb = callback;
+            gui.invokeLater(new Runnable() {
+                public void run() {
+                    cb.errorLocationChanged(errorLocation);
+                }
+            });
+        }
     }
 
     @Override
@@ -307,8 +311,7 @@ public class PreviewWidget extends Widget {
                         break;
                 }
             } catch(Throwable ex) {
-                // don't let anything escape !
-                exceptionHolder.setException(EXCEPTION_EXECUTE, ex);
+                messageLog.add(new MessageLog.Entry(CAT_EXECUTE, "Exception while handling events", null, ex));
             }
             return handled;
         }

@@ -37,6 +37,7 @@ import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.HasCallback;
+import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.PreviewWidgets;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestComboBox;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestFrameWithWidgets;
@@ -56,8 +57,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -65,13 +64,19 @@ import java.util.logging.Logger;
  */
 public class TestWidgetManager {
 
+    private static final MessageLog.Category CAT_ERROR   = new MessageLog.Category("Test widgets", MessageLog.CombineMode.NONE, DecoratedText.ERROR);
+    private static final MessageLog.Category CAT_WARNING = new MessageLog.Category("Test widgets", MessageLog.CombineMode.NONE, DecoratedText.WARNING);
+    private static final MessageLog.Category CAT_INFO    = new MessageLog.Category("Test widgets", MessageLog.CombineMode.NONE, 0);
+
+    private final MessageLog messageLog;
     private final ArrayList<TestWidgetFactory> builtinWidgets;
     private final HashMap<ArrayList<String>, ArrayList<TestWidgetFactory>> userWidgets;
 
     private Runnable callback;
     private TestWidgetFactory currentTestWidgetFactory;
 
-    public TestWidgetManager() {
+    public TestWidgetManager(MessageLog messageLog) {
+        this.messageLog = messageLog;
         this.builtinWidgets = new ArrayList<TestWidgetFactory>();
         this.userWidgets = new LinkedHashMap<ArrayList<String>, ArrayList<TestWidgetFactory>>();
 
@@ -147,11 +152,16 @@ public class TestWidgetManager {
 
     private boolean loadUserWidgets(ArrayList<File> files) {
         try {
+            StringBuilder infoMsg = new StringBuilder();
+            infoMsg.append("Loaded from the following JAr files:\n");
+            
             URL[] urls = new URL[files.size()];
             ArrayList<String> key = new ArrayList<String>();
             for(int i=0,n=urls.length ; i<n ; i++) {
-                urls[i] = files.get(i).toURI().toURL();
+                final File file = files.get(i);
+                urls[i] = file.toURI().toURL();
                 key.add(urls[i].toString());
+                infoMsg.append(file.toString()).append("\n");
             }
 
             ArrayList<TestWidgetFactory> testWidgetFactories = new ArrayList<TestWidgetFactory>();
@@ -160,11 +170,22 @@ public class TestWidgetManager {
                 scanJARFile(classLoader, f, testWidgetFactories);
             }
 
-            userWidgets.put(key, testWidgetFactories);
+            if(!testWidgetFactories.isEmpty()) {
+                userWidgets.put(key, testWidgetFactories);
+
+                infoMsg.append("\nThe following classes have been loaded:\n");
+                for(TestWidgetFactory twf : testWidgetFactories) {
+                    infoMsg.append(twf.getClazz().getName()).append("\n");
+                }
+            }
+
+            messageLog.add(new MessageLog.Entry(
+                    testWidgetFactories.isEmpty() ? CAT_WARNING : CAT_INFO,
+                    "Loaded " + testWidgetFactories.size() + " user widgets", infoMsg.toString(), null));
+            
             return true;
         } catch (Throwable ex) {
-            Logger.getLogger(TestWidgetManager.class.getName()).log(Level.SEVERE,
-                    "Can't load user classes", ex);
+            messageLog.add(new MessageLog.Entry(CAT_ERROR, "Can't load user classes", null, ex));
             return false;
         }
     }
@@ -173,25 +194,28 @@ public class TestWidgetManager {
         try {
             JarFile jarFile = new JarFile(file);
             try {
+                StringBuilder warnings = new StringBuilder();
                 Enumeration<JarEntry> entries = jarFile.entries();
                 while(entries.hasMoreElements()) {
                     JarEntry e = entries.nextElement();
                     String name = e.getName();
                     if(name.endsWith(".class") && !name.startsWith("de/matthiasmann/twl/")) {
                         name = name.substring(0, name.length()-6).replace('/', '.');
-                        testClass(classLoader, name, testWidgetFactories);
+                        testClass(classLoader, name, testWidgetFactories, warnings);
                     }
+                }
+                if(warnings.length() > 0) {
+                    messageLog.add(new MessageLog.Entry(CAT_WARNING, "Warnings while scanning JAR file: " + file.getName(), warnings.toString(), null));
                 }
             } finally {
                 jarFile.close();
             }
         } catch (IOException ex) {
-            Logger.getLogger(TestWidgetManager.class.getName()).log(Level.SEVERE,
-                    "Can't scan JAR file: " + file, ex);
+            messageLog.add(new MessageLog.Entry(CAT_ERROR, "Can't scan JAR file: " + file.getName(), file.toString(), ex));
         }
     }
 
-    private void testClass(ClassLoader classLoader, String name, ArrayList<TestWidgetFactory> testWidgetFactories) {
+    private void testClass(ClassLoader classLoader, String name, ArrayList<TestWidgetFactory> testWidgetFactories, StringBuilder warnings) {
         try {
             Class<?> clazz = Class.forName(name, false, classLoader);
             if(Widget.class.isAssignableFrom(clazz) && !clazz.isMemberClass() && !clazz.isLocalClass()) {
@@ -201,12 +225,14 @@ public class TestWidgetManager {
                 if(Modifier.isPublic(c.getModifiers())) {
                     testWidgetFactories.add(new TestWidgetFactory(
                             widgetClazz, clazz.getSimpleName()));
+                } else {
+                    warnings.append(name).append(": default constructor is not public\n");
                 }
             }
         } catch(NoSuchMethodException ignore) {
+            warnings.append(name).append(": no default constructor\n");
         } catch(Throwable ex) {
-            Logger.getLogger(TestWidgetManager.class.getName()).log(Level.SEVERE,
-                    "Can't check class: " + name, ex);
+            warnings.append(name).append(": can't load class: ").append(ex.getMessage()).append("\n");
         }
     }
 

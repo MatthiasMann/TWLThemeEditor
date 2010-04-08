@@ -23,6 +23,12 @@
             <alias ref="none" sizeOverwriteV="1"/>
         </grid>
 
+        <grid name="statusbar.background" weightsX="1" weightsY="0,0,1" border="5,5,2,5">
+            <alias ref="none" sizeOverwriteV="1"/>
+            <alias ref="panel.separator"/>
+            <alias ref="none"/>
+        </grid>
+
         <composed name="addbutton.overlay">
             <select>
                 <alias ref="-icon-add" if="disabled" tint="#6fff"/>
@@ -385,30 +391,36 @@
         <theme name="themetree" ref="table"/>
     </theme>
 
-    <theme name="previewpane" ref="dialoglayout">
-        <param name=""><image>panel.*</image></param>
-        <param name="border"><border>5</border></param>
-        <theme name="previewwidget" ref="-defaults">
-            <param name="background"><image>black</image></param>
+    <theme name="previewwidget" ref="-defaults">
+        <param name="background"><image>black</image></param>
 <!--            <param name="mouseCursor"><cursor>cursor.none</cursor></param> -->
-            <param name="maxWidth"><int>32767</int></param>
-            <param name="maxHeight"><int>32767</int></param>
-        </theme>
-        <theme name="errorDisplay" ref="label">
-            <param name="maxWidth"><int>32767</int></param>
-        </theme>
-        <theme name="" ref="*"/>
-        <param name="namedGaps"><map>
-            <param name="hscrollbar-height"><gap>13</gap></param>
-        </map></param>
+        <param name="maxWidth"><int>32767</int></param>
+        <param name="maxHeight"><int>32767</int></param>
     </theme>
 
-    <theme name="previewExceptionPopup" ref="-defaults">
-        <param name="background"><image>frame.background</image></param>
-        <param name="border"><border>20</border></param>
-        <theme name="dialoglayout" ref="dialoglayout">
-            <theme name="scrollpane" ref="scrollpane">
-                <theme name="" ref="*"/>
+    <theme name="messagePopup" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>10</border></param>
+        <theme name="messagedialog" ref="dialoglayout">
+            <theme name="splitpane" ref="splitpane">
+                <theme name="scrollpane" ref="scrollpane">
+                    <theme name="table" ref="table">
+                        <theme name="stringcellrenderer" merge="true">
+                            <param name="font"><font>popupmenu-font</font></param>
+                        </theme>
+                        <param name="columnWidths"><map>
+                            <param name="0"><int>80</int></param>
+                            <param name="1"><int>120</int></param>
+                        </map></param>
+                    </theme>
+                    <theme name="textarea" ref="textarea">
+                        <param name="background"><image>none</image></param>
+                        <param name="fonts"><map>
+                            <param name="default"><font>popupmenu-font</font></param>
+                        </map></param>
+                    </theme>
+                </theme>
+                <param name="maxHeight"><int>32767</int></param>
             </theme>
             <theme name="" ref="*"/>
         </theme>
@@ -475,8 +487,17 @@
             <param name="maxWidth"><int>32767</int></param>
             <param name="maxHeight"><int>32767</int></param>
         </theme>
+        <theme name="statusbar" ref="dialoglayout">
+            <param name="background"><image>statusbar.background</image></param>
+            <param name="border"><border>background.border</border></param>
+            <theme name="time" ref="label"/>
+            <theme name="message" ref="label"/>
+            <theme name="button" ref="button"/>
+            <param name="minHeight"><int>24</int></param>
+        </theme>
         <param name="namedGaps"><map>
             <param name="menubar-editorarea"><gap>0</gap></param>
+            <param name="editorarea-statusbar"><gap>0</gap></param>
         </map></param>
     </theme>
 

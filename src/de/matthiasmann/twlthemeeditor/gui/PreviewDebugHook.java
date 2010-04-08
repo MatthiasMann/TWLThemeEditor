@@ -35,7 +35,6 @@ import de.matthiasmann.twl.ThemeInfo;
 import de.matthiasmann.twl.Widget;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 
 /**
  *
@@ -77,24 +76,32 @@ public class PreviewDebugHook extends DebugHook {
 
     @Override
     public void missingTheme(String themePath) {
-        getEntryOrCreate(applyThemeWidget).errorMsg.add("Missing theme: " + themePath);
+        if(applyThemeWidget != null) {
+            getEntryOrCreate(applyThemeWidget).errorMsg.add("Missing theme: " + themePath);
+        }
     }
 
     @Override
     public void missingChildTheme(ThemeInfo parent, String theme) {
-        getEntryOrCreate(applyThemeWidget).errorMsg.add("Missing theme: " + theme);
+        if(applyThemeWidget != null) {
+            getEntryOrCreate(applyThemeWidget).errorMsg.add("Missing theme: " + theme);
+        }
     }
 
     @Override
     public void missingParameter(ParameterMap map, String paramName, String parentDescription) {
-        getEntryOrCreate(applyThemeWidget).warningMsg.add("Missing parameter: " + paramName + parentDescription);
+        if(applyThemeWidget != null) {
+            getEntryOrCreate(applyThemeWidget).warningMsg.add("Missing parameter: " + paramName + parentDescription);
+        }
     }
 
     @Override
     public void wrongParameterType(ParameterMap map, String paramName, Class<?> expectedType, Class<?> foundType, String parentDescription) {
-        getEntryOrCreate(applyThemeWidget).warningMsg.add("Parameter \"" + paramName + "\" is a " +
-                foundType.getSimpleName() + " expected a " +
-                expectedType.getSimpleName() + parentDescription);
+        if(applyThemeWidget != null) {
+            getEntryOrCreate(applyThemeWidget).warningMsg.add("Parameter \"" + paramName + "\" is a " +
+                    foundType.getSimpleName() + " expected a " +
+                    expectedType.getSimpleName() + parentDescription);
+        }
     }
 
     private Entry getEntryOrCreate(Widget widget) {
@@ -108,6 +115,10 @@ public class PreviewDebugHook extends DebugHook {
 
     public Entry getEntry(Widget widget) {
         return messages.get(widget);
+    }
+
+    public void clear() {
+        messages.clear();
     }
     
     public void install() {
@@ -124,18 +135,5 @@ public class PreviewDebugHook extends DebugHook {
         DebugHook.installHook(previous);
         previous = null;
         applyThemeWidget = null;
-        purgeWidgets();
-    }
-
-    private void purgeWidgets() {
-        if(!messages.isEmpty()) {
-            Iterator<Widget> iter = messages.keySet().iterator();
-            while(iter.hasNext()) {
-                Widget widget = iter.next();
-                if(widget.getGUI() == null) {
-                    iter.remove();
-                }
-            }
-        }
     }
 }
