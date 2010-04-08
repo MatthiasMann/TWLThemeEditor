@@ -54,20 +54,22 @@ public class Theme extends ThemeTreeNode implements HasProperties {
     public Theme(ThemeFile themeFile, TreeTableNode parent, Element element) {
         super(themeFile, parent, element);
 
-        this.nameProperty = new NameProperty(new AttributeProperty(element, "name"), getThemeTreeModel(), Kind.THEME) {
+        final boolean isTopLevel = element.getParentElement().isRootElement();
+
+        this.nameProperty = new NameProperty(new AttributeProperty(element, "name"), getThemeTreeModel(), Kind.THEME, isTopLevel) {
             @Override
             public void validateName(String name) throws IllegalArgumentException {
                 if(name == null || name.length() == 0) {
                     throw new IllegalArgumentException("empty name not allowed");
                 }
-                if(getThemeTreeModel().findTopLevelNodes(Theme.class, name, Theme.this) != null) {
+                if(isTopLevel && getThemeTreeModel().findTopLevelNodes(Theme.class, name, Theme.this) != null) {
                     throw new IllegalArgumentException("Name \"" + name + "\" already in use");
                 }
             }
         };
         addProperty(nameProperty);
 
-        if(element.getParentElement().isRootElement()) {
+        if(isTopLevel) {
             allowWildcardProperty = new BooleanProperty(
                     new AttributeProperty(element, "allowWildcard", "Allow Wildcard", true), false);
             addProperty(allowWildcardProperty);

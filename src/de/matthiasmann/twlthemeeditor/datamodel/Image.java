@@ -184,7 +184,7 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
 
     protected class ImageNameProperty extends NameProperty {
         public ImageNameProperty(Element element) {
-            super(new AttributeProperty(element, "name"), getThemeTreeModel(), getKind());
+            super(new AttributeProperty(element, "name"), getThemeTreeModel(), getKind(), true);
         }
 
         @Override

@@ -41,11 +41,13 @@ public abstract class NameProperty extends DerivedProperty<String> {
 
     private final ThemeTreeModel ttm;
     private final Kind kind;
+    private final boolean isTopLevel;
 
-    public NameProperty(Property<String> base, ThemeTreeModel ttm, Kind kind) {
+    public NameProperty(Property<String> base, ThemeTreeModel ttm, Kind kind, boolean isTopLevel) {
         super(base, String.class);
         this.ttm = ttm;
         this.kind = kind;
+        this.isTopLevel = isTopLevel;
     }
 
     public String getPropertyValue() {
@@ -56,7 +58,7 @@ public abstract class NameProperty extends DerivedProperty<String> {
         validateName(value);
         String prevName = base.getPropertyValue();
         if(!prevName.equals(value)) {
-            if(ttm != null && kind != null) {
+            if(isTopLevel && ttm != null && kind != null) {
                 ttm.handleNodeRenamed(prevName, value, kind);
             }
             base.setPropertyValue(value);

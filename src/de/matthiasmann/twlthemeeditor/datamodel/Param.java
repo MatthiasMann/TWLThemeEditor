@@ -62,7 +62,7 @@ public class Param extends ThemeTreeNode implements HasProperties {
         super(theme.getThemeFile(), parent, element);
         this.theme = theme;
         
-        this.nameProperty = new NameProperty(new AttributeProperty(element, "name"), null, null) {
+        this.nameProperty = new NameProperty(new AttributeProperty(element, "name"), null, null, false) {
             @Override
             public void validateName(String name) throws IllegalArgumentException {
             }

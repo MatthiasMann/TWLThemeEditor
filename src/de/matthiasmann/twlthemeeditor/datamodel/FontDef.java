@@ -61,7 +61,7 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
         super(themeFile, parent, element);
         this.virtualFontFiles = new ArrayList<VirtualFile>();
 
-        nameProperty = new NameProperty(new AttributeProperty(element, "name"), getThemeTreeModel(), Kind.FONT) {
+        nameProperty = new NameProperty(new AttributeProperty(element, "name"), getThemeTreeModel(), Kind.FONT, true) {
             @Override
             public void validateName(String name) throws IllegalArgumentException {
                 if(name == null || name.length() == 0) {
