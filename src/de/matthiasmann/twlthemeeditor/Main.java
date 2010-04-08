@@ -143,7 +143,11 @@ public class Main extends Frame implements WindowFocusListener, WindowListener, 
     
     @Override
     public void windowGainedFocus(WindowEvent e) {
-        canvas.requestFocusInWindow();
+        if(!Display.isActive()) {
+            // on linux the canvas looses focus once Display gains it
+            // so to prevent a focus stealing loop check if Display has focus ...
+            canvas.requestFocusInWindow();
+        }
     }
 
     public void windowLostFocus(WindowEvent e) {
