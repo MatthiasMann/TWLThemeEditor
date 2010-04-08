@@ -41,6 +41,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
+import org.lwjgl.LWJGLUtil;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -82,7 +83,13 @@ public class Main extends Frame implements WindowFocusListener, WindowListener, 
         canvas.addComponentListener(this);
 
         add(canvas, BorderLayout.CENTER);
-        addWindowFocusListener(this);
+
+        // on Windows we need to transfer focus to the Canvas
+        // otherwise keyboard input does not work when using alt-tab
+        if(LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_WINDOWS) {
+            addWindowFocusListener(this);
+        }
+        
         addWindowListener(this);
     }
 
@@ -143,11 +150,7 @@ public class Main extends Frame implements WindowFocusListener, WindowListener, 
     
     @Override
     public void windowGainedFocus(WindowEvent e) {
-        if(!Display.isActive()) {
-            // on linux the canvas looses focus once Display gains it
-            // so to prevent a focus stealing loop check if Display has focus ...
-            canvas.requestFocusInWindow();
-        }
+        canvas.requestFocusInWindow();
     }
 
     public void windowLostFocus(WindowEvent e) {
