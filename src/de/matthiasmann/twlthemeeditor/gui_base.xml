@@ -947,6 +947,7 @@
             <param name="namedGaps"><map>
                 <param name="title-buttons"><gap>20</gap></param>
                 <param name="title-msg"><gap>10</gap></param>
+                <param name="top-msg"><gap>0</gap></param>
                 <param name="msg-buttons"><gap>20</gap></param>
                 <param name="left-msg"><gap>0</gap></param>
                 <param name="msg-right"><gap>0,0,32767</gap></param>

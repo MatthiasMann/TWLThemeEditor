@@ -350,7 +350,6 @@ public class MainUI extends DialogLayout {
 
         SimpleDialog dialog = new SimpleDialog();
         dialog.setMessage(scrollPane);
-        dialog.setTitle("About TWL Theme Editor");
         dialog.setTheme("aboutDialog");
         dialog.showDialog(this);
     }
