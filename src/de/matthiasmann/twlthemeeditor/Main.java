@@ -36,11 +36,10 @@ import de.matthiasmann.twlthemeeditor.gui.MainUI;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Frame;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
-import java.awt.event.WindowListener;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -51,7 +50,7 @@ import org.lwjgl.opengl.GL11;
  *
  * @author Matthias Mann
  */
-public class Main extends Frame implements WindowFocusListener, WindowListener, ComponentListener {
+public class Main extends Frame {
 
     public static void main(String[] args) throws Exception {
         try {
@@ -71,26 +70,41 @@ public class Main extends Frame implements WindowFocusListener, WindowListener, 
         System.exit(0);
     }
 
-    private final Canvas canvas;
+    final Canvas canvas;
     
-    private volatile boolean closeRequested;
-    private volatile boolean canvasSizeChanged;
+    volatile boolean closeRequested;
+    volatile boolean canvasSizeChanged;
 
     public Main() {
         super("TWL Theme editor");
 
         canvas = new Canvas();
-        canvas.addComponentListener(this);
+        canvas.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                canvasSizeChanged = true;
+            }
+        });
 
         add(canvas, BorderLayout.CENTER);
 
         // on Windows we need to transfer focus to the Canvas
         // otherwise keyboard input does not work when using alt-tab
         if(LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_WINDOWS) {
-            addWindowFocusListener(this);
+            addWindowFocusListener(new WindowAdapter() {
+                @Override
+                public void windowGainedFocus(WindowEvent e) {
+                    canvas.requestFocusInWindow();
+                }
+            });
         }
         
-        addWindowListener(this);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                closeRequested = true;
+            }
+        });
     }
 
     public void run() {
@@ -142,49 +156,4 @@ public class Main extends Frame implements WindowFocusListener, WindowListener, 
         Mouse.poll();               // now update Mouse events
         Keyboard.poll();            // and Keyboard too
     }
-
-    @Override
-    public void windowClosing(WindowEvent e) {
-        closeRequested = true;
-    }
-    
-    @Override
-    public void windowGainedFocus(WindowEvent e) {
-        canvas.requestFocusInWindow();
-    }
-
-    public void windowLostFocus(WindowEvent e) {
-    }
-
-    public void windowActivated(WindowEvent e) {
-    }
-
-    public void windowClosed(WindowEvent e) {
-    }
-
-    public void windowDeactivated(WindowEvent e) {
-    }
-
-    public void windowDeiconified(WindowEvent e) {
-    }
-
-    public void windowIconified(WindowEvent e) {
-    }
-
-    public void windowOpened(WindowEvent e) {
-    }
-
-    public void componentHidden(ComponentEvent e) {
-    }
-
-    public void componentMoved(ComponentEvent e) {
-    }
-
-    public void componentResized(ComponentEvent e) {
-        canvasSizeChanged = true;
-    }
-
-    public void componentShown(ComponentEvent e) {
-    }
-
 }
