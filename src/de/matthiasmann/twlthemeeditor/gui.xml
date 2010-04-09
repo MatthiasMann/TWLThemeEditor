@@ -578,4 +578,25 @@
             </theme>
         </theme>
     </theme>
+
+    <textures file="TWL Logo.png" format="RGBA">
+        <texture name="twl-logo" x="0" y="0" width="256" height="128" inset="-8"/>
+    </textures>
+    <theme name="aboutDialog" ref="simpledialog">
+        <theme name="content" merge="true">
+            <theme name="scrollpane" ref="scrollpane">
+                <theme name="textarea" ref="textarea">
+                    <param name="background"><image>none</image></param>
+                    <param name="minWidth"><int>600</int></param>
+                    <param name="fonts"><map>
+                        <param name="default"><font>popupmenu-font</font></param>
+                    </map></param>
+                    <param name="images"><map>
+                        <param name="twl-logo"><image>twl-logo</image></param>
+                    </map></param>
+                </theme>
+            </theme>
+        </theme>
+    </theme>
+
 </themes>

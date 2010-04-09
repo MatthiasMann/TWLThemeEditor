@@ -41,6 +41,7 @@ import de.matthiasmann.twl.TextArea;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.FileSystemModel;
 import de.matthiasmann.twl.model.FileSystemModel.FileFilter;
+import de.matthiasmann.twl.model.HTMLTextAreaModel;
 import de.matthiasmann.twl.model.JavaFileSystemModel;
 import de.matthiasmann.twl.model.MRUListModel;
 import de.matthiasmann.twl.model.PersistentMRUListModel;
@@ -61,6 +62,8 @@ import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import org.lwjgl.Sys;
+import org.lwjgl.opengl.GL11;
 
 /**
  *
@@ -123,6 +126,14 @@ public class MainUI extends DialogLayout {
 
         editorArea.addMenus(mainMenu);
         
+        Menu menuHelp = new Menu("Help");
+        menuHelp.add("About", new Runnable() {
+            public void run() {
+                openAboutDialog();
+            }
+        });
+        mainMenu.add(menuHelp);
+
         Widget menuBar = mainMenu.createMenuBar();
 
         recentProjectsModel = new PersistentMRUListModel<String>(5, String.class, prefs, KEY_RECENT_PROJECTS);
@@ -317,6 +328,31 @@ public class MainUI extends DialogLayout {
             recentProjectsModel.removeEntry(idx);
             popuplateRecentProjectsMenu();
         }
+    }
+
+    void openAboutDialog() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<img src=\"twl-logo\" alt=\"TWL Logo\" style=\"text-align:center\"/><br/><br/>" +
+                "<p>TWL Theme Editor (c) 2010 Matthias Mann</p><br/>" +
+                "<div style=\"white-space:pre\">" +
+                "Java: ").append(System.getProperty("java.version")).append(" (").append(System.getProperty("java.vendor")).append(")\n" +
+                "OS: ").append(System.getProperty("os.name"))
+                    .append("  ").append(System.getProperty("os.arch"))
+                    .append("  Version ").append(System.getProperty("os.version")).append("\n" +
+                "LWJGL: ").append(Sys.getVersion()).append("\n" +
+                "OpenGL: ").append(GL11.glGetString(GL11.GL_VERSION))
+                    .append("  ").append(GL11.glGetString(GL11.GL_VENDOR)).append("</div>");
+
+        HTMLTextAreaModel areaModel = new HTMLTextAreaModel(sb.toString());
+        TextArea textArea = new TextArea(areaModel);
+        ScrollPane scrollPane = new ScrollPane(textArea);
+        scrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
+
+        SimpleDialog dialog = new SimpleDialog();
+        dialog.setMessage(scrollPane);
+        dialog.setTitle("About TWL Theme Editor");
+        dialog.setTheme("aboutDialog");
+        dialog.showDialog(this);
     }
 
     static class ExtFilter implements FileFilter {
