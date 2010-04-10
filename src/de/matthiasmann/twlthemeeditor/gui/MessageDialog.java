@@ -41,6 +41,7 @@ import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.TableSelectionModel;
 import de.matthiasmann.twl.model.TableSingleSelectionModel;
 import de.matthiasmann.twl.model.TextAreaModel;
+import de.matthiasmann.twl.model.TextAreaModel.Clear;
 import de.matthiasmann.twl.model.TextAreaModel.Element;
 import de.matthiasmann.twl.model.TextAreaModel.HAlignment;
 import de.matthiasmann.twl.model.TextAreaModel.VAlignment;
@@ -240,11 +241,11 @@ public class MessageDialog extends DialogLayout {
         public HAlignment getHorizontalAlignment() {
             return HAlignment.LEFT;
         }
-        public int getMarginLeft() {
-            return 0;
+        public TextAreaModel.ValueUnit getMarginLeft() {
+            return TextAreaModel.ZERO_PX;
         }
-        public int getMarginRight() {
-            return 0;
+        public TextAreaModel.ValueUnit getMarginRight() {
+            return TextAreaModel.ZERO_PX;
         }
         public VAlignment getVerticalAlignment() {
             return VAlignment.BOTTOM;
@@ -255,8 +256,8 @@ public class MessageDialog extends DialogLayout {
         public String getText() {
             return text;
         }
-        public int getTextIndent() {
-            return 0;
+        public TextAreaModel.ValueUnit getTextIndent() {
+            return TextAreaModel.ZERO_PX;
         }
         public boolean isParagraphEnd() {
             return true;
@@ -266,6 +267,9 @@ public class MessageDialog extends DialogLayout {
         }
         public boolean isPreformatted() {
             return pre;
+        }
+        public Clear getClear() {
+            return Clear.NONE;
         }
     }
 }
