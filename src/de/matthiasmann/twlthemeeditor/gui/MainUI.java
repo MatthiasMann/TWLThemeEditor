@@ -334,7 +334,7 @@ public class MainUI extends DialogLayout {
         StringBuilder sb = new StringBuilder();
         sb.append("<img src=\"twl-logo\" alt=\"TWL Logo\" style=\"text-align:center\"/><br/><br/>" +
                 "<p>TWL Theme Editor (c) 2010 Matthias Mann</p><br/>" +
-                "<div style=\"white-space:pre\">" +
+                "<div style=\"white-space:pre; background-image:sysinfo-bg; margin:4px; font:sysinfo\">" +
                 "Java: ").append(System.getProperty("java.version")).append(" (").append(System.getProperty("java.vendor")).append(")\n" +
                 "OS: ").append(System.getProperty("os.name"))
                     .append("  ").append(System.getProperty("os.arch"))
@@ -345,11 +345,9 @@ public class MainUI extends DialogLayout {
 
         HTMLTextAreaModel areaModel = new HTMLTextAreaModel(sb.toString());
         TextArea textArea = new TextArea(areaModel);
-        ScrollPane scrollPane = new ScrollPane(textArea);
-        scrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
 
         SimpleDialog dialog = new SimpleDialog();
-        dialog.setMessage(scrollPane);
+        dialog.setMessage(textArea);
         dialog.setTheme("aboutDialog");
         dialog.showDialog(this);
     }

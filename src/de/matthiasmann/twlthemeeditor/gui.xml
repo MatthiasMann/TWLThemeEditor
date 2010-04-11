@@ -583,18 +583,20 @@
         <texture name="twl-logo" x="0" y="0" width="256" height="128" inset="-8"/>
     </textures>
     <theme name="aboutDialog" ref="simpledialog">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>10</border></param>
         <theme name="content" merge="true">
-            <theme name="scrollpane" ref="scrollpane">
-                <theme name="textarea" ref="textarea">
-                    <param name="background"><image>none</image></param>
-                    <param name="minWidth"><int>600</int></param>
-                    <param name="fonts"><map>
-                        <param name="default"><font>popupmenu-font</font></param>
-                    </map></param>
-                    <param name="images"><map>
-                        <param name="twl-logo"><image>twl-logo</image></param>
-                    </map></param>
-                </theme>
+            <theme name="textarea" ref="textarea">
+                <param name="background"><image>none</image></param>
+                <param name="minWidth"><int>600</int></param>
+                <param name="fonts"><map>
+                    <param name="default"><font>popupmenu-font</font></param>
+                    <param name="sysinfo"><font>normal</font></param>
+                </map></param>
+                <param name="images"><map>
+                    <param name="twl-logo"><image>twl-logo</image></param>
+                    <param name="sysinfo-bg"><image>frame.background</image></param>
+                </map></param>
             </theme>
         </theme>
     </theme>
