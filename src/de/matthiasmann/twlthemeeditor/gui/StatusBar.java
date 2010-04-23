@@ -115,7 +115,7 @@ public class StatusBar extends DialogLayout {
             setAnimState(lMessage, displayedEntry.getCategory().getFlags());
 
             horz.addWidget(lTime).addWidget(lMessage).addGap().addWidget(btnDiscard).addWidget(btnDetails);
-            vert.addWidget(lTime).addWidget(lMessage).addGap().addWidget(btnDiscard).addWidget(btnDetails);
+            vert.addWidget(lTime).addWidget(lMessage).addWidget(btnDiscard).addWidget(btnDetails);
         }
 
         setHorizontalGroup(horz);
