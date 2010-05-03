@@ -293,9 +293,8 @@ public class PreviewWidget extends Widget {
 
             CacheContext oldCacheContext = render.getActiveCacheContext();
             CacheContext newCacheContext = render.createNewCacheContext();
-            render.setActiveCacheContext(newCacheContext);
             try {
-                ThemeManager newTheme = ThemeManager.createThemeManager(url, render);
+                ThemeManager newTheme = ThemeManager.createThemeManager(url, render, newCacheContext);
                 testGUI.applyTheme(newTheme);
 
                 oldCacheContext.destroy();
