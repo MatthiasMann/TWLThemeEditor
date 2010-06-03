@@ -40,11 +40,10 @@ import de.matthiasmann.twl.model.AbstractTableModel;
 import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.TableSelectionModel;
 import de.matthiasmann.twl.model.TableSingleSelectionModel;
-import de.matthiasmann.twl.model.TextAreaModel;
-import de.matthiasmann.twl.model.TextAreaModel.Clear;
-import de.matthiasmann.twl.model.TextAreaModel.Element;
-import de.matthiasmann.twl.model.TextAreaModel.HAlignment;
-import de.matthiasmann.twl.model.TextAreaModel.VAlignment;
+import de.matthiasmann.twl.textarea.TextAreaModel;
+import de.matthiasmann.twl.textarea.TextAreaModel.Element;
+import de.matthiasmann.twl.textarea.Style;
+import de.matthiasmann.twl.textarea.StyleAttribute;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.gui.MessageLog.Entry;
 import java.io.PrintWriter;
@@ -207,14 +206,14 @@ public class MessageDialog extends DialogLayout {
         public void set(String detailText, Throwable ex) {
             elements.clear();
             if(detailText != null && detailText.length() > 0) {
-                elements.add(new DefaultTextElement(detailText, false));
+                elements.add(new DefaultTextElement(detailText, NORMAL));
             }
             if(ex != null) {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
                 ex.printStackTrace(pw);
                 pw.flush();
-                elements.add(new DefaultTextElement(sw.toString(), true));
+                elements.add(new DefaultTextElement(sw.toString(), PRE));
             }
             doCallback();
         }
@@ -229,47 +228,28 @@ public class MessageDialog extends DialogLayout {
         }
     }
 
+    private static final Style NORMAL = new Style();
+    private static final Style PRE = NORMAL.with(StyleAttribute.PREFORMATTED, Boolean.TRUE);
+    
     static class DefaultTextElement implements TextAreaModel.TextElement {
         private final String text;
-        private final boolean pre;
+        private final Style style;
 
-        public DefaultTextElement(String text, boolean pre) {
+        public DefaultTextElement(String text, Style style) {
             this.text = text;
-            this.pre = pre;
-        }
-        
-        public HAlignment getHorizontalAlignment() {
-            return HAlignment.LEFT;
-        }
-        public TextAreaModel.ValueUnit getMarginLeft() {
-            return TextAreaModel.ZERO_PX;
-        }
-        public TextAreaModel.ValueUnit getMarginRight() {
-            return TextAreaModel.ZERO_PX;
-        }
-        public VAlignment getVerticalAlignment() {
-            return VAlignment.BOTTOM;
-        }
-        public String getFontName() {
-            return "default";
+            this.style = style;
         }
         public String getText() {
             return text;
         }
-        public TextAreaModel.ValueUnit getTextIndent() {
-            return TextAreaModel.ZERO_PX;
+        public Style getStyle() {
+            return style;
         }
         public boolean isParagraphEnd() {
             return true;
         }
         public boolean isParagraphStart() {
             return false;
-        }
-        public boolean isPreformatted() {
-            return pre;
-        }
-        public Clear getClear() {
-            return Clear.NONE;
         }
     }
 }

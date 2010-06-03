@@ -31,7 +31,7 @@ package de.matthiasmann.twlthemeeditor.gui.testwidgets;
 
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.TextArea;
-import de.matthiasmann.twl.model.HTMLTextAreaModel;
+import de.matthiasmann.twl.textarea.HTMLTextAreaModel;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
