@@ -238,6 +238,9 @@
         <theme name="opNewNodeTexture" ref="popupMenuButton">
             <param name="text"><string>Create a new "texture" node</string></param>
         </theme>
+        <theme name="opNewNodeAlias" ref="popupMenuButton">
+            <param name="text"><string>Create a new "alias" node</string></param>
+        </theme>
         <theme name="opNewNodeHsplit" ref="popupMenuButton">
             <param name="text"><string>Create a new "hsplit" node</string></param>
         </theme>
