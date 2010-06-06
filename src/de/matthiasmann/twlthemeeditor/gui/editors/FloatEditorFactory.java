@@ -27,28 +27,53 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel.images;
+package de.matthiasmann.twlthemeeditor.gui.editors;
 
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
-import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
-import de.matthiasmann.twlthemeeditor.properties.FloatProperty;
-import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
-import org.jdom.Element;
+import de.matthiasmann.twl.ValueAdjusterFloat;
+import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.FloatModel;
+import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
+import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Frame extends Alias {
+public class FloatEditorFactory implements PropertyEditorFactory<Float, Property<Float>> {
 
-    Frame(Textures textures, TreeTableNode parent, Element node) {
-        super(textures, parent, node);
-        addProperty(new IntegerProperty(new AttributeProperty(element, "duration"), 0, Short.MAX_VALUE));
-        addProperty(new FloatProperty(new AttributeProperty(element, "zoom", "Zoom X/Y", true), 0f, 4f, 1f));
-        addProperty(new FloatProperty(new AttributeProperty(element, "zoomX", "Zoom X", true), 0f, 4f, 1f));
-        addProperty(new FloatProperty(new AttributeProperty(element, "zoomY", "Zoom Y", true), 0f, 4f, 1f));
-        addProperty(new FloatProperty(new AttributeProperty(element, "zoomCenterX", "Zoom center X", true), -1f, 2f, 0.5f));
-        addProperty(new FloatProperty(new AttributeProperty(element, "zoomCenterY", "Zoom center Y", true), -1f, 2f, 0.5f));
+    public Widget create(final PropertyAccessor<Float, Property<Float>> pa) {
+        Property<Float> property = pa.getProperty();
+        ValueAdjusterFloat va = new ValueAdjusterFloat((property instanceof FloatModel)
+                ? (FloatModel)property
+                : new PropertyFloatModel(property));
+        pa.setWidgetsToEnable(va);
+
+        return va;
+    }
+
+    static class PropertyFloatModel implements FloatModel {
+        final Property<Float> property;
+        public PropertyFloatModel(Property<Float> property) {
+            this.property = property;
+        }
+        public void addCallback(Runnable callback) {
+            property.addValueChangedCallback(callback);
+        }
+        public void removeCallback(Runnable callback) {
+            property.removeValueChangedCallback(callback);
+        }
+        public float getValue() {
+            return property.getPropertyValue();
+        }
+        public void setValue(float value) {
+            property.setPropertyValue(value);
+        }
+        public float getMaxValue() {
+            return Short.MAX_VALUE;
+        }
+        public float getMinValue() {
+            return Short.MIN_VALUE;
+        }
     }
 }

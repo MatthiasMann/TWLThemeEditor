@@ -713,7 +713,16 @@
         <grid name="checkbox.overlay" weightsX="0,1" weightsY="1">
             <composed center="true">
                 <texture x="143" y="53" width="14" height="14" tint="#6f97df" if="keyboardFocus"/>
-                <alias ref="-icon.checkbox" if="selected"/>
+                <select>
+                    <animation if="selected" timeSource="selected" count="1" frozenTime="200">
+                        <frame ref="-icon.checkbox" duration="200" zoom="2"/>
+                        <frame ref="-icon.checkbox" duration="0"/>
+                    </animation>
+                    <animation timeSource="selected" count="1" frozenTime="200">
+                        <frame ref="-icon.checkbox" duration="200" zoomCenterY="0.75"/>
+                        <frame ref="-icon.checkbox" duration="0" zoom="0" zoomCenterY="0.75"/>
+                    </animation>
+                </select>
             </composed>
             <alias ref="none"/>
         </grid>

@@ -65,6 +65,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.gui.editors.AnimStateEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.EnumEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.FloatEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.WidgetThemeEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
@@ -130,6 +131,7 @@ public class Context {
         factories2 = new TypeMapping<PropertyEditorFactory<?,?>>();
         factories2.put(String.class, new StringEditorFactory());
         factories2.put(Integer.class, new IntegerEditorFactory());
+        factories2.put(Float.class, new FloatEditorFactory());
         factories2.put(Boolean.class, new BooleanEditorFactory());
         factories2.put(Enum.class, new EnumEditorFactory());
         factories2.put(AnimationState.class, new AnimStateEditorFactory(this));
