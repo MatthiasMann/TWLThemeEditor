@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.gui;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.Menu;
+import de.matthiasmann.twl.MenuCheckbox;
 import de.matthiasmann.twl.Scrollbar;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
@@ -145,7 +146,7 @@ public class TestWidgetManager {
     private void addMenu(Menu parent, String name, ArrayList<TestWidgetFactory> factories) {
         Menu menu = new Menu(name);
         for(TestWidgetFactory f : factories) {
-            menu.add(f.getName(), new SelectedWidgetModel(f));
+            menu.add(new MenuCheckbox(f.getName(), new SelectedWidgetModel(f)).setTheme("radiobtn"));
         }
         parent.add(menu);
     }

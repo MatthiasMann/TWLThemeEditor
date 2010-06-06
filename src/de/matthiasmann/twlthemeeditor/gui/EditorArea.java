@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.FileSelector;
@@ -45,13 +46,16 @@ import de.matthiasmann.twl.model.JavaFileSystemModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.DelayedAction;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
+import de.matthiasmann.twlthemeeditor.datamodel.Split;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.gui.MainUI.ExtFilter;
+import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
+import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
 import java.net.MalformedURLException;
 import java.util.prefs.Preferences;
 
@@ -84,6 +88,9 @@ public class EditorArea extends Widget {
     private Context ctx;
     private RectProperty boundRectProperty;
     private ColorProperty boundColorProperty;
+    private SplitProperty boundSplitXProperty;
+    private SplitProperty boundSplitYProperty;
+    private BorderProperty boundBorderProperty;
     private Layout layout = Layout.SPLIT_HV;
 
     public EditorArea(MessageLog messageLog) {
@@ -188,6 +195,10 @@ public class EditorArea extends Widget {
         menu.add(testWidgetMenu);
     }
 
+    public void addSettingsMenuItems(Menu settingsMenu) {
+        textureViewerPane.addSettingsMenuItems(settingsMenu);
+    }
+    
     void recreateLayout() {
         removeAllChildren();
         removeFromParent(themeTreePane);
@@ -261,6 +272,18 @@ public class EditorArea extends Widget {
             boundColorProperty.removeCallback(boundPropertyCB);
             boundColorProperty = null;
         }
+        if(boundSplitXProperty != null) {
+            boundSplitXProperty.removeCallback(boundPropertyCB);
+            boundSplitXProperty = null;
+        }
+        if(boundSplitYProperty != null) {
+            boundSplitYProperty.removeCallback(boundPropertyCB);
+            boundSplitYProperty = null;
+        }
+        if(boundBorderProperty != null) {
+            boundBorderProperty.removeCallback(boundPropertyCB);
+            boundBorderProperty = null;
+        }
         
         Object obj = themeTreePane.getSelected();
         if(obj != null) {
@@ -282,6 +305,20 @@ public class EditorArea extends Widget {
                     if(boundColorProperty == null && (property instanceof ColorProperty)) {
                         boundColorProperty = (ColorProperty)property;
                         boundColorProperty.addValueChangedCallback(boundPropertyCB);
+                    }
+                    if(property instanceof SplitProperty) {
+                        if(boundSplitXProperty == null && property.getName().startsWith("Split X")) {
+                            boundSplitXProperty = (SplitProperty)property;
+                            boundSplitXProperty.addValueChangedCallback(boundPropertyCB);
+                        }
+                        if(boundSplitYProperty == null && property.getName().startsWith("Split Y")) {
+                            boundSplitYProperty = (SplitProperty)property;
+                            boundSplitYProperty.addValueChangedCallback(boundPropertyCB);
+                        }
+                    }
+                    if(boundBorderProperty == null && (property instanceof BorderProperty) && property.getName().startsWith("Border")) {
+                        boundBorderProperty = (BorderProperty)property;
+                        boundBorderProperty.addValueChangedCallback(boundPropertyCB);
                     }
                 }
             }
@@ -316,6 +353,28 @@ public class EditorArea extends Widget {
         }
         Color color = (boundColorProperty != null) ? boundColorProperty.getPropertyValue() : Color.WHITE;
         textureViewerPane.setTintColor((color != null) ? color : Color.WHITE);
+        textureViewerPane.setSplitPositionsX(getSplitPos(boundSplitXProperty, boundBorderProperty, true));
+        textureViewerPane.setSplitPositionsY(getSplitPos(boundSplitYProperty, boundBorderProperty, false));
+    }
+
+    private static int[] getSplitPos(SplitProperty splitProperty, BorderProperty borderProperty, boolean horz) {
+        if(splitProperty != null) {
+            Split split = splitProperty.getPropertyValue();
+            if(split != null) {
+                return new int[] { split.getSplit1(), split.getSplit2() };
+            }
+            if(borderProperty != null) {
+                Border border = borderProperty.getPropertyValue();
+                if(border != null) {
+                    if(horz) {
+                        return new int[] { border.getBorderLeft(), splitProperty.getLimit() - border.getBorderRight() };
+                    } else {
+                        return new int[] { border.getBorderTop(), splitProperty.getLimit() - border.getBorderBottom() };
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     void updateErrorLocation(Object errorLocation) {

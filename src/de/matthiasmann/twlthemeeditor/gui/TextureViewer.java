@@ -34,6 +34,7 @@ import de.matthiasmann.twl.DraggableButton;
 import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Rect;
+import de.matthiasmann.twl.ThemeInfo;
 import de.matthiasmann.twl.renderer.CacheContext;
 import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.renderer.Renderer;
@@ -62,6 +63,8 @@ public class TextureViewer extends DraggableButton {
     private Color tintColor = Color.WHITE;
     private float zoomX;
     private float zoomY;
+    private int[] positionBarsHorz;
+    private int[] positionBarsVert;
     private Runnable[] exceptionCallbacks;
     private MouseOverListener mouseOverListener;
 
@@ -71,6 +74,9 @@ public class TextureViewer extends DraggableButton {
     private Image image;
     private Image specialImage;
     private IOException loadException;
+
+    private Image imagePositionBarHorz;
+    private Image imagePositionBarVert;
 
     private boolean reloadTexture;
     private boolean changeImage;
@@ -115,6 +121,14 @@ public class TextureViewer extends DraggableButton {
         this.zoomX = zoomX;
         this.zoomY = zoomY;
         invalidateLayout();
+    }
+
+    public void setPositionBarsHorz(int[] positionBarsHorz) {
+        this.positionBarsHorz = positionBarsHorz;
+    }
+
+    public void setPositionBarsVert(int[] positionBarsVert) {
+        this.positionBarsVert = positionBarsVert;
     }
 
     public void setImage(Image image) {
@@ -221,6 +235,19 @@ public class TextureViewer extends DraggableButton {
         if(prevImage != null) {
             prevImage.draw(getAnimationState(), getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight());
         }
+
+        if(positionBarsVert != null && imagePositionBarVert != null) {
+            for(int x : positionBarsVert) {
+                imagePositionBarVert.draw(getAnimationState(),
+                        getInnerX() + (int)(x*zoomX), getInnerY(), 1, getInnerHeight());
+            }
+        }
+        if(positionBarsHorz != null && imagePositionBarHorz != null) {
+            for(int y : positionBarsHorz) {
+                imagePositionBarHorz.draw(getAnimationState(),
+                        getInnerX(), getInnerY() + (int)(y*zoomY), getInnerWidth(), 1);
+            }
+        }
     }
 
     protected void loadTexture(Renderer renderer) throws IOException {
@@ -284,6 +311,13 @@ public class TextureViewer extends DraggableButton {
         }
         
         return super.handleEvent(evt);
+    }
+
+    @Override
+    protected void applyTheme(ThemeInfo themeInfo) {
+        super.applyTheme(themeInfo);
+        imagePositionBarHorz = themeInfo.getImage("positionBarHorz");
+        imagePositionBarVert = themeInfo.getImage("positionBarVert");
     }
 
 }

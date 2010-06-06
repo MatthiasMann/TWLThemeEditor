@@ -33,15 +33,18 @@ import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.DraggableButton.DragListener;
 import de.matthiasmann.twl.Label;
+import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterFloat;
 import de.matthiasmann.twl.model.FloatModel;
+import de.matthiasmann.twl.model.PersistentBooleanModel;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.model.SimpleFloatModel;
 import de.matthiasmann.twl.renderer.Image;
 import java.net.URL;
+import java.util.prefs.Preferences;
 
 /**
  *
@@ -53,14 +56,19 @@ public class TextureViewerPane extends DialogLayout {
     private final ScrollPane scrollPane;
     private final Label labelErrorDisplay;
     private final ToggleButton btnShowCompleteTexture;
+    private final ToggleButton btnShowSplitPositions;
     private final Label mousePositionDisplay;
     
     private final SimpleFloatModel zoomFactorX;
     private final SimpleFloatModel zoomFactorY;
     private final SimpleBooleanModel linkZoomFactors;
     private final SimpleBooleanModel showCompleteTexture;
+    private final SimpleBooleanModel showSplitPositions;
+    private final PersistentBooleanModel animatedPositionBars;
 
     private Rect rect;
+    private int[] splitPositionsX;
+    private int[] splitPositionsY;
     private boolean showMousePosition;
 
     public TextureViewerPane() {
@@ -75,6 +83,10 @@ public class TextureViewerPane extends DialogLayout {
         this.zoomFactorY = new SimpleFloatModel(0.1f, 20.0f, 1.0f);
         this.linkZoomFactors = new SimpleBooleanModel(true);
         this.showCompleteTexture = new SimpleBooleanModel(false);
+        this.showSplitPositions = new SimpleBooleanModel(true);
+        this.animatedPositionBars = new PersistentBooleanModel(
+                Preferences.userNodeForPackage(TextureViewerPane.class),
+                "animated-positionbars", true);
 
         ValueAdjusterFloat adjusterZoomX = new ZoomAdjuster(zoomFactorX);
         adjusterZoomX.setDisplayPrefix("X: ");
@@ -89,16 +101,21 @@ public class TextureViewerPane extends DialogLayout {
         btnShowCompleteTexture = new ToggleButton(showCompleteTexture);
         btnShowCompleteTexture.setTheme("showCompleteTexture");
 
+        btnShowSplitPositions = new ToggleButton(showSplitPositions);
+        btnShowSplitPositions.setTheme("showSplitPositions");
+
         Group horzCtrls = createSequentialGroup()
                 .addWidget(mousePositionDisplay)
                 .addGap()
                 .addWidgets(adjusterZoomX, btnLinkZoomFactors, adjusterZoomY)
                 .addGap()
                 .addWidget(btnShowCompleteTexture)
+                .addWidget(btnShowSplitPositions)
                 .addGap();
         Group vertCtrls = createParallelGroup(mousePositionDisplay,
                 adjusterZoomX, btnLinkZoomFactors,
-                adjusterZoomY, btnShowCompleteTexture);
+                adjusterZoomY, btnShowCompleteTexture,
+                btnShowSplitPositions);
 
         setClip(true);
         setHorizontalGroup(createParallelGroup()
@@ -126,11 +143,13 @@ public class TextureViewerPane extends DialogLayout {
                 updateZoom();
             }
         });
-        showCompleteTexture.addCallback(new Runnable() {
+        Runnable updateRectCB = new Runnable() {
             public void run() {
                 updateRect();
             }
-        });
+        };
+        showCompleteTexture.addCallback(updateRectCB);
+        showSplitPositions.addCallback(updateRectCB);
         textureViewer.addExceptionCallback(new Runnable() {
             public void run() {
                 Throwable ex = textureViewer.getLoadException();
@@ -165,8 +184,18 @@ public class TextureViewerPane extends DialogLayout {
                 }
             }
         });
+        animatedPositionBars.addCallback(new Runnable() {
+            public void run() {
+                updateAnimatedPositionBars();
+            }
+        });
 
         updateZoom();
+        updateAnimatedPositionBars();
+    }
+
+    public void addSettingsMenuItems(Menu settingsMenu) {
+        settingsMenu.add("Animate split positions", animatedPositionBars);
     }
 
     public void setUrl(URL url) {
@@ -181,12 +210,23 @@ public class TextureViewerPane extends DialogLayout {
         updateRect();
     }
 
+    public void setSplitPositionsX(int[] splitPositionsX) {
+        this.splitPositionsX = splitPositionsX;
+        updateRect();
+    }
+
+    public void setSplitPositionsY(int[] splitPositionsY) {
+        this.splitPositionsY = splitPositionsY;
+        updateRect();
+    }
+
     public void setImage(Image image) {
         this.rect = null;
         this.showMousePosition = false;
         textureViewer.setImage(image);
         btnShowCompleteTexture.setEnabled(false);
         mousePositionDisplay.setText("Preview");
+        updateRect();
     }
 
     public void setTintColor(Color tintColor) {
@@ -199,8 +239,37 @@ public class TextureViewerPane extends DialogLayout {
 
     void updateRect() {
         textureViewer.setRect(showCompleteTexture.getValue() ? null : rect);
+        if(rect != null && showSplitPositions.getValue()) {
+            if(showCompleteTexture.getValue()) {
+                textureViewer.setPositionBarsVert(addEdges(splitPositionsX, rect.getX(), rect.getRight()));
+                textureViewer.setPositionBarsHorz(addEdges(splitPositionsY, rect.getY(), rect.getBottom()));
+            } else {
+                textureViewer.setPositionBarsVert(splitPositionsX);
+                textureViewer.setPositionBarsHorz(splitPositionsY);
+            }
+        } else {
+            textureViewer.setPositionBarsVert(null);
+            textureViewer.setPositionBarsHorz(null);
+        }
     }
 
+    private int[] addEdges(int[] splits, int start, int end) {
+        int[] result = new int[(splits != null) ? splits.length+2 : 2];
+        result[0] = start;
+        if(splits != null) {
+            for(int i=0 ; i<splits.length ; i++) {
+                result[i+1] = start + splits[i];
+            }
+        }
+        result[result.length-1] = end;
+        return result;
+    }
+
+    void updateAnimatedPositionBars() {
+        textureViewer.getAnimationState().setAnimationState("animatedPositionBars",
+                animatedPositionBars.getValue());
+    }
+    
     static class ZoomAdjuster extends ValueAdjusterFloat {
         public ZoomAdjuster(FloatModel model) {
             super(model);

@@ -656,6 +656,17 @@
         </select>
         <alias name="popupmenucheckbox.overlay" ref="-popupmenucheckbox.icon" if="selected"/>
 
+        <hsplit name="-popupmenuradiobtn.hover" x="83" y="82" width="6" height="18" border="2,0"/>
+        <grid name="-popupmenuradiobtn.icon" weightsX="0,0,1" weightsY="1">
+            <alias ref="none" sizeOverwriteH="4"/>
+            <texture x="100" y="106" width="8" height="8" center="true"/>
+            <alias ref="none"/>
+        </grid>
+        <select name="popupmenuradiobtn.background" border="16,1">
+            <alias ref="-popupmenuradiobtn.hover" if="(hover | hasOpenPopups | hasOpenMenus) + !disabled"/>
+        </select>
+        <alias name="popupmenuradiobtn.overlay" ref="-popupmenuradiobtn.icon" if="selected"/>
+
         <alias name="popupmenusubmenubutton.background" ref="popupmenubutton.background" border="1,4,1,12"/>
         <grid name="popupmenusubmenubutton.overlay" weightsX="1,0" weightsY="1">
             <alias ref="none"/>
@@ -827,6 +838,13 @@
 
     <theme name="popupMenuCheckbox" ref="button">
         <param name=""><image>popupmenucheckbox.*</image></param>
+        <param name="border"><border>background.border</border></param>
+        <param name="textAlignment"><enum type="alignment">left</enum></param>
+        <param name="font"><font>popupmenu-font</font></param>
+    </theme>
+
+    <theme name="popupMenuRadioButton" ref="button">
+        <param name=""><image>popupmenuradiobtn.*</image></param>
         <param name="border"><border>background.border</border></param>
         <param name="textAlignment"><enum type="alignment">left</enum></param>
         <param name="font"><font>popupmenu-font</font></param>

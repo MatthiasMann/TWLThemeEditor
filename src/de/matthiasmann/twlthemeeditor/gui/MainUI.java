@@ -34,6 +34,7 @@ import de.matthiasmann.twl.FileSelector;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.MenuAction;
+import de.matthiasmann.twl.MenuCheckbox;
 import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SimpleDialog;
@@ -116,8 +117,8 @@ public class MainUI extends DialogLayout {
         });
 
         Menu menuView = new Menu("View");
-        menuView.add("Layout 1", editorArea.new LayoutModel(EditorArea.Layout.SPLIT_HV));
-        menuView.add("Layout 2", editorArea.new LayoutModel(EditorArea.Layout.SPLIT_HHV));
+        menuView.add(new MenuCheckbox("Layout 1", editorArea.new LayoutModel(EditorArea.Layout.SPLIT_HV)).setTheme("radiobtn"));
+        menuView.add(new MenuCheckbox("Layout 2", editorArea.new LayoutModel(EditorArea.Layout.SPLIT_HHV)).setTheme("radiobtn"));
         
         Menu mainMenu = new Menu();
         mainMenu.setTheme("mainmenu");
@@ -125,6 +126,10 @@ public class MainUI extends DialogLayout {
         mainMenu.add(menuView);
 
         editorArea.addMenus(mainMenu);
+
+        Menu menuSettings = new Menu("Settings");
+        editorArea.addSettingsMenuItems(menuSettings);
+        mainMenu.add(menuSettings);
         
         Menu menuHelp = new Menu("Help");
         menuHelp.add("About", new Runnable() {

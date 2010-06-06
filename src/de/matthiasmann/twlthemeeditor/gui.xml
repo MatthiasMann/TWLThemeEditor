@@ -7,6 +7,14 @@
 
     <textures file="gui.png" format="RGBA">
         <texture name="checkerboard" x="56" y="106" width="8" height="8" tiled="true"/>
+        <texture name="-positionbar-horizontal-0" x="124" y="68" width="32" height="1" tiled="true"/>
+        <texture name="-positionbar-horizontal-1" x="122" y="68" width="32" height="1" tiled="true"/>
+        <texture name="-positionbar-horizontal-2" x="120" y="68" width="32" height="1" tiled="true"/>
+        <texture name="-positionbar-horizontal-3" x="118" y="68" width="32" height="1" tiled="true"/>
+        <texture name="-positionbar-vertical-0" x="156" y="6" width="1" height="40" tiled="true"/>
+        <texture name="-positionbar-vertical-1" x="156" y="4" width="1" height="40" tiled="true"/>
+        <texture name="-positionbar-vertical-2" x="156" y="2" width="1" height="40" tiled="true"/>
+        <texture name="-positionbar-vertical-3" x="156" y="0" width="1" height="40" tiled="true"/>
         <texture name="-icon-moveup" x="74" y="19" width="12" height="8" center="true"/>
         <texture name="-icon-movedown" x="87" y="19" width="12" height="8" center="true"/>
         <texture name="-icon-apply" x="86" y="37" width="13" height="10" center="true" inset="0,1,0,-1"/>
@@ -20,6 +28,30 @@
         
         <alias name="textureviewer.background" ref="checkerboard" border="64" inset="64" sizeOverwriteH="0" sizeOverwriteV="0"/>
 
+        <select name="positionbar-horizontal">
+            <animation timeSource="now" if="animatedPositionBars">
+                <frame duration="200" ref="-positionbar-horizontal-0"/>
+                <frame duration="100" ref="-positionbar-horizontal-1"/>
+                <frame duration="100" ref="-positionbar-horizontal-2"/>
+                <frame duration="200" ref="-positionbar-horizontal-3"/>
+                <frame duration="100" ref="-positionbar-horizontal-2"/>
+                <frame duration="100" ref="-positionbar-horizontal-1"/>
+            </animation>
+            <alias ref="-positionbar-horizontal-0"/>
+        </select>
+
+        <select name="positionbar-vertical">
+            <animation timeSource="now" if="animatedPositionBars">
+                <frame duration="200" ref="-positionbar-vertical-0"/>
+                <frame duration="100" ref="-positionbar-vertical-1"/>
+                <frame duration="100" ref="-positionbar-vertical-2"/>
+                <frame duration="200" ref="-positionbar-vertical-3"/>
+                <frame duration="100" ref="-positionbar-vertical-2"/>
+                <frame duration="100" ref="-positionbar-vertical-1"/>
+            </animation>
+            <alias ref="-positionbar-vertical-0"/>
+        </select>
+        
         <grid name="mainmenu.background" weightsX="1" weightsY="1,0,0" border="0,0,4,0">
             <alias ref="none"/>
             <alias ref="panel.separator"/>
@@ -126,7 +158,7 @@
             <select>
                 <alias ref="-icon-flash" tint="#6fff" if="disabled"/>
                 <alias ref="-icon-flash" tint="red" if="armed" inset="1,1,-1,-1"/>
-                <alias ref="-icon-flash" tint="red" />
+                <alias ref="-icon-flash" tint="red"/>
             </select>
             <alias ref="vbutton.overlay"/>
         </composed>
@@ -500,10 +532,16 @@
             <param name="text"><string>ALL</string></param>
             <param name="tooltip"><string>Show complete texture instead of selected rect</string></param>
         </theme>
+        <theme name="showSplitPositions" ref="togglebutton">
+            <param name="text"><string>Splits</string></param>
+            <param name="tooltip"><string>Highlight split positions and edges of the selected texture</string></param>
+        </theme>
         <theme name="scrollpane" ref="scrollpane">
             <theme name="textureviewer" ref="-defaults">
                 <param name="background"><image>textureviewer.background</image></param>
                 <param name="border"><border>background.border</border></param>
+                <param name="positionBarHorz"><image>positionbar-horizontal</image></param>
+                <param name="positionBarVert"><image>positionbar-vertical</image></param>
             </theme>
         </theme>
         <theme name="zoomadjuster" ref="valueadjuster">
@@ -521,6 +559,7 @@
             <param name="border"><border>5</border></param>
             <theme name="button" ref="popupMenuButton"/>
             <theme name="checkbox" ref="popupMenuCheckbox"/>
+            <theme name="radiobtn" ref="popupMenuRadioButton"/>
             <theme name="submenu" ref="popupMenuSubMenuButton"/>
             <theme name="spacer" ref="-defaults">
                 <param name="background"><image>popupmenu.separator</image></param>

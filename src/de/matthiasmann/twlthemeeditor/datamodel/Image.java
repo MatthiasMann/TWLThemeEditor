@@ -144,7 +144,9 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
                 String tagName = element.getName();
 
                 if("texture".equals(tagName)) {
-                    return new Texture(textures, parent, element);
+                    Texture texture = new Texture(textures, parent, element);
+                    texture.addProperty(new BooleanProperty(new AttributeProperty(element, "tiled", "Tiled", true), false));
+                    return texture;
                 }
                 if("alias".equals(tagName)) {
                     return new Alias(textures, parent, element);
