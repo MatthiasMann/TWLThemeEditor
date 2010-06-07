@@ -206,14 +206,14 @@ public class MessageDialog extends DialogLayout {
         public void set(String detailText, Throwable ex) {
             elements.clear();
             if(detailText != null && detailText.length() > 0) {
-                elements.add(new DefaultTextElement(detailText, NORMAL));
+                elements.add(new TextElement(NORMAL, detailText, false, true));
             }
             if(ex != null) {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
                 ex.printStackTrace(pw);
                 pw.flush();
-                elements.add(new DefaultTextElement(sw.toString(), PRE));
+                elements.add(new TextElement(PRE, sw.toString(), false, true));
             }
             doCallback();
         }
@@ -230,26 +230,4 @@ public class MessageDialog extends DialogLayout {
 
     private static final Style NORMAL = new Style();
     private static final Style PRE = NORMAL.with(StyleAttribute.PREFORMATTED, Boolean.TRUE);
-    
-    static class DefaultTextElement implements TextAreaModel.TextElement {
-        private final String text;
-        private final Style style;
-
-        public DefaultTextElement(String text, Style style) {
-            this.text = text;
-            this.style = style;
-        }
-        public String getText() {
-            return text;
-        }
-        public Style getStyle() {
-            return style;
-        }
-        public boolean isParagraphEnd() {
-            return true;
-        }
-        public boolean isParagraphStart() {
-            return false;
-        }
-    }
 }
