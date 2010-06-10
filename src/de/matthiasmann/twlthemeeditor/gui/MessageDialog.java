@@ -206,14 +206,14 @@ public class MessageDialog extends DialogLayout {
         public void set(String detailText, Throwable ex) {
             elements.clear();
             if(detailText != null && detailText.length() > 0) {
-                elements.add(new TextElement(NORMAL, detailText, false, true));
+                elements.add(new TextElement(NORMAL, detailText));
             }
             if(ex != null) {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
                 ex.printStackTrace(pw);
                 pw.flush();
-                elements.add(new TextElement(PRE, sw.toString(), false, true));
+                elements.add(new TextElement(PRE, sw.toString()));
             }
             doCallback();
         }
