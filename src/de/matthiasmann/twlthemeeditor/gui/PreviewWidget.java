@@ -242,7 +242,11 @@ public class PreviewWidget extends Widget {
                 ctx.clearWidgetMessages();
                 testWidget = widgetFactory.getOrCreate();
                 testGUI.getRootPane().add(testWidget);
-                testWidget.adjustSize();
+                if(testWidget instanceof DesktopArea) {
+                    testWidget.setSize(getInnerWidth(), getInnerHeight());
+                } else {
+                    testWidget.adjustSize();
+                }
             } catch (Throwable ex) {
                 messageLog.add(new MessageLog.Entry(CAT_WIDGET, "Exception while creating test widget", null, ex));
             }
