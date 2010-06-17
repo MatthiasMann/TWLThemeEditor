@@ -448,7 +448,7 @@ public class EditorArea extends Widget {
                     splits[0] = limit(pos, 0, splits[1]);
                     break;
                 case 1:
-                    splits[1] = limit(pos, splits[0], boundSplitXProperty.getLimit());
+                    splits[1] = limit(pos, splits[0], splitProperty.getLimit());
                     break;
             }
             splitProperty.setPropertyValue(new Split(splits[0], splits[1]));
