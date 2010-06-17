@@ -117,7 +117,9 @@ public class ThemeTreePane extends DialogLayout {
         });
         treeTable.addCallback(new Callback() {
             public void mouseDoubleClicked(int row, int column) {
-                treeTable.setRowExpanded(row, !treeTable.isRowExpanded(row));
+                if(row >= 0 && row < treeTable.getNumRows()) {
+                    treeTable.setRowExpanded(row, !treeTable.isRowExpanded(row));
+                }
             }
             public void columnHeaderClicked(int column) {
             }
