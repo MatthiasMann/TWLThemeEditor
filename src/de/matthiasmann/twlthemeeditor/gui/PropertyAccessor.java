@@ -80,7 +80,15 @@ public class PropertyAccessor<T, P extends Property<T>> {
     }
     
     public T getValue(T defaultValue) {
-        return (value != null) ? value : defaultValue;
+        T storedValue = property.getPropertyValue();
+        if(activeModel != null) {
+            activeModel.setValue(storedValue != null);
+        }
+        if(storedValue != null) {
+            value = storedValue;
+            return storedValue;
+        }
+        return defaultValue;
     }
     
     public void setValue(T value) {

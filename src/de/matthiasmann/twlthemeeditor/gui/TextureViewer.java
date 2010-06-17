@@ -31,12 +31,15 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.DraggableButton;
+import de.matthiasmann.twl.DraggableButton.DragListener;
 import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ThemeInfo;
+import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.renderer.CacheContext;
 import de.matthiasmann.twl.renderer.Image;
+import de.matthiasmann.twl.renderer.MouseCursor;
 import de.matthiasmann.twl.renderer.Renderer;
 import de.matthiasmann.twl.renderer.Texture;
 import de.matthiasmann.twl.utils.CallbackSupport;
@@ -44,6 +47,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.EnumMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,12 +55,38 @@ import java.util.logging.Logger;
  *
  * @author Matthias Mann
  */
-public class TextureViewer extends DraggableButton {
+public class TextureViewer extends Widget {
 
     public interface MouseOverListener {
         public void mousePosition(int x, int y);
         public void mouseExited();
     }
+
+    public interface PositionBarDragListener {
+        public void dragStarted(int posBarHorz, int posBarVert);
+        public void dragged(int deltaX, int deltaY);
+        public void dragStopped();
+    }
+    
+    private enum DragMode {
+        NONE,
+        IMAGE,
+        BARS
+    }
+
+    private enum Cursors {
+        NONE("mouseCursor"),
+        HORZ("mouseCursor.horz"),
+        VERT("mouseCursor.vert"),
+        BOTH("mouseCursor.both");
+
+        final String cursorName;
+        Cursors(String cursorName) {
+            this.cursorName = cursorName;
+        }
+    }
+
+    private final EnumMap<Cursors, MouseCursor> cursors;
     
     private URL url;
     private Rect rect;
@@ -67,6 +97,8 @@ public class TextureViewer extends DraggableButton {
     private int[] positionBarsVert;
     private Runnable[] exceptionCallbacks;
     private MouseOverListener mouseOverListener;
+    private DraggableButton.DragListener imageDragListener;
+    private PositionBarDragListener positionBarDragListener;
 
     private long lastModified;
     private CacheContext cacheContext;
@@ -82,7 +114,14 @@ public class TextureViewer extends DraggableButton {
     private boolean changeImage;
     private boolean mouseInside;
 
+    private DragMode dragMode = DragMode.NONE;
+    private int dragPosBarHorz;
+    private int dragPosBarVert;
+    private int dragStartX;
+    private int dragStartY;
+
     public TextureViewer() {
+        cursors = new EnumMap<Cursors, MouseCursor>(Cursors.class);
     }
 
     public URL getUrl() {
@@ -151,6 +190,14 @@ public class TextureViewer extends DraggableButton {
 
     public void setMouseOverListener(MouseOverListener mouseOverListener) {
         this.mouseOverListener = mouseOverListener;
+    }
+
+    public void setImageDragListener(DragListener imageDragListener) {
+        this.imageDragListener = imageDragListener;
+    }
+
+    public void setPositionBarDragListener(PositionBarDragListener positionBarDragListener) {
+        this.positionBarDragListener = positionBarDragListener;
     }
 
     @Override
@@ -290,9 +337,12 @@ public class TextureViewer extends DraggableButton {
             int y = 0;
 
             if(image != null && evt.getType() != Event.Type.MOUSE_EXITED) {
-                if(evt.getMouseX() >= getInnerX() && evt.getMouseY() >= getInnerY()) {
-                    x = (int)((evt.getMouseX() - getInnerX()) / zoomX);
-                    y = (int)((evt.getMouseY() - getInnerY()) / zoomY);
+                int mouseX = evt.getMouseX() - getInnerX();
+                int mouseY = evt.getMouseY() - getInnerY();
+
+                if(mouseX >= 0 && mouseY >= 0) {
+                    x = (int)(mouseX / zoomX);
+                    y = (int)(mouseY / zoomY);
                     isInside = (x >= 0 && y >= 0 && x < image.getWidth() && y < image.getHeight());
                 }
             }
@@ -309,8 +359,48 @@ public class TextureViewer extends DraggableButton {
                 mouseInside = false;
             }
         }
-        
-        return super.handleEvent(evt);
+
+        if(evt.isMouseEvent() && dragMode != DragMode.NONE) {
+            if(evt.getType() == Event.Type.MOUSE_DRAGED) {
+                if(dragMode == DragMode.IMAGE && imageDragListener != null) {
+                    imageDragListener.dragged(evt.getMouseX()-dragStartX, evt.getMouseY()-dragStartY);
+                }
+                if(dragMode == DragMode.BARS && positionBarDragListener != null) {
+                    positionBarDragListener.dragged(
+                            (int)((evt.getMouseX()-dragStartX) / zoomX),
+                            (int)((evt.getMouseY()-dragStartY) / zoomY));
+                }
+            }
+            if(evt.isMouseDragEnd()) {
+                if(dragMode == DragMode.IMAGE && imageDragListener != null) {
+                    imageDragListener.dragStopped();
+                }
+                if(dragMode == DragMode.BARS && positionBarDragListener != null) {
+                    positionBarDragListener.dragStopped();
+                }
+                dragMode = DragMode.NONE;
+            }
+            return true;
+        }
+
+        if(super.handleEvent(evt)) {
+            return true;
+        }
+
+        switch (evt.getType()) {
+        case MOUSE_BTNDOWN:
+            dragStartX = evt.getMouseX();
+            dragStartY = evt.getMouseY();
+            break;
+        case MOUSE_DRAGED:
+            startDrag();
+            return true;
+        case MOUSE_MOVED:
+            setMouseCursor(cursors.get(selectMouseCursor(evt.getMouseX() - getInnerX(), evt.getMouseY() - getInnerY())));
+            return true;
+        }
+
+        return evt.isMouseEventNoWheel();
     }
 
     @Override
@@ -318,6 +408,59 @@ public class TextureViewer extends DraggableButton {
         super.applyTheme(themeInfo);
         imagePositionBarHorz = themeInfo.getImage("positionBarHorz");
         imagePositionBarVert = themeInfo.getImage("positionBarVert");
+        for(Cursors cursor : Cursors.values()) {
+            cursors.put(cursor, themeInfo.getMouseCursor(cursor.cursorName));
+        }
     }
 
+    private void startDrag() {
+        assert dragMode == DragMode.NONE;
+
+        dragPosBarHorz = findNearestPosBar(positionBarsHorz, dragStartY - getInnerY(), zoomY);
+        dragPosBarVert = findNearestPosBar(positionBarsVert, dragStartX - getInnerX(), zoomX);
+
+        if(dragPosBarHorz >= 0 || dragPosBarVert >= 0) {
+            dragMode = DragMode.BARS;
+            if(positionBarDragListener != null) {
+                positionBarDragListener.dragStarted(dragPosBarHorz, dragPosBarVert);
+            }
+        } else {
+            dragMode = DragMode.IMAGE;
+            setMouseCursor(cursors.get(Cursors.BOTH));
+            if(imageDragListener != null) {
+                imageDragListener.dragStarted();
+            }
+        }
+    }
+
+    private Cursors selectMouseCursor(int x, int y) {
+        int barHorz = findNearestPosBar(positionBarsHorz, y, zoomY);
+        int barVert = findNearestPosBar(positionBarsVert, x, zoomX);
+        if(barHorz >= 0 && barVert >= 0) {
+            return Cursors.BOTH;
+        } else if(barHorz >= 0) {
+            return Cursors.HORZ;
+        } else if(barVert >= 0) {
+            return Cursors.VERT;
+        } else {
+            return Cursors.NONE;
+        }
+    }
+
+    private int findNearestPosBar(int[] posBars, int pos, float zoom) {
+        int bestIdx = -1;
+        int bestDist = 10;
+
+        if(posBars != null) {
+            for(int idx=0 ; idx<posBars.length ; idx++) {
+                int dist = Math.abs((int)(posBars[idx] * zoom) - pos);
+                if(dist < bestDist) {
+                    bestDist = dist;
+                    bestIdx  = idx;
+                }
+            }
+        }
+
+        return bestIdx;
+    }
 }

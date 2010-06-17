@@ -32,11 +32,13 @@ package de.matthiasmann.twlthemeeditor.gui;
 import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.Color;
+import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.FileSelector;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.MenuAction;
 import de.matthiasmann.twl.PopupWindow;
+import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
 import de.matthiasmann.twl.Widget;
@@ -147,6 +149,63 @@ public class EditorArea extends Widget {
         testWidgetManager.setCallback(new Runnable() {
             public void run() {
                 changeTestWidget();
+            }
+        });
+
+        textureViewerPane.setListener(new TextureViewerPane.Listener() {
+            public void dragEdgeTop(int y) {
+                if(boundRectProperty != null) {
+                    Dimension limit = boundRectProperty.getLimit();
+                    Rect rect = boundRectProperty.getPropertyValue();
+                    rect.set(
+                        rect.getX(),
+                        limit(y, 0, Math.min(limit.getY(), rect.getBottom())-1),
+                        rect.getRight(),
+                        rect.getBottom());
+                    boundRectProperty.setPropertyValue(rect);
+                }
+            }
+            public void dragEdgeBottom(int y) {
+                if(boundRectProperty != null) {
+                    Dimension limit = boundRectProperty.getLimit();
+                    Rect rect = boundRectProperty.getPropertyValue();
+                    rect.set(
+                        rect.getX(),
+                        rect.getY(),
+                        rect.getRight(),
+                        limit(y, Math.max(0, rect.getY())+1, limit.getY()));
+                    boundRectProperty.setPropertyValue(rect);
+                }
+            }
+            public void dragEdgeLeft(int x) {
+                if(boundRectProperty != null) {
+                    Dimension limit = boundRectProperty.getLimit();
+                    Rect rect = boundRectProperty.getPropertyValue();
+                    rect.set(
+                        limit(x, 0, Math.min(limit.getX(), rect.getRight())-1),
+                        rect.getY(),
+                        rect.getRight(),
+                        rect.getBottom());
+                    boundRectProperty.setPropertyValue(rect);
+                }
+            }
+            public void dragEdgeRight(int x) {
+                if(boundRectProperty != null) {
+                    Dimension limit = boundRectProperty.getLimit();
+                    Rect rect = boundRectProperty.getPropertyValue();
+                    rect.set(
+                        rect.getX(),
+                        rect.getY(),
+                        limit(x, Math.max(0, rect.getX())+1, limit.getX()),
+                        rect.getBottom());
+                    boundRectProperty.setPropertyValue(rect);
+                }
+            }
+            public void dragSplitX(int idx, int x) {
+                dragSplit(idx, x, boundSplitXProperty, true);
+            }
+            public void dragSplitY(int idx, int y) {
+                dragSplit(idx, y, boundSplitYProperty, false);
             }
         });
 
@@ -377,6 +436,25 @@ public class EditorArea extends Widget {
         return null;
     }
 
+    static int limit(int what, int min, int max) {
+        return Math.max(min, Math.min(what, max));
+    }
+    
+    void dragSplit(int idx, int pos, SplitProperty splitProperty, boolean horz) {
+        int[] splits = getSplitPos(splitProperty, boundBorderProperty, true);
+        if(splits != null) {
+            switch (idx) {
+                case 0:
+                    splits[0] = limit(pos, 0, splits[1]);
+                    break;
+                case 1:
+                    splits[1] = limit(pos, splits[0], boundSplitXProperty.getLimit());
+                    break;
+            }
+            splitProperty.setPropertyValue(new Split(splits[0], splits[1]));
+        }
+    }
+    
     void updateErrorLocation(Object errorLocation) {
         if(ctx != null) {
             if(errorLocation instanceof ThemeTreeNode) {

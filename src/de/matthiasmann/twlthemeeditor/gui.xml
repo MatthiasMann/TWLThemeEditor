@@ -545,6 +545,9 @@
                 <param name="border"><border>background.border</border></param>
                 <param name="positionBarHorz"><image>positionbar-horizontal</image></param>
                 <param name="positionBarVert"><image>positionbar-vertical</image></param>
+                <param name="mouseCursor.horz"><cursor>arrow.top</cursor></param>
+                <param name="mouseCursor.vert"><cursor>arrow.left</cursor></param>
+                <param name="mouseCursor.both"><cursor>arrow.top-left</cursor></param> <!-- TODO: add all directions cursors -->
             </theme>
         </theme>
         <theme name="zoomadjuster" ref="valueadjuster">

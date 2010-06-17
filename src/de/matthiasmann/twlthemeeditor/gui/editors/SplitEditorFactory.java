@@ -32,7 +32,7 @@ package de.matthiasmann.twlthemeeditor.gui.editors;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.AbstractIntegerModel;
+import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Split;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
@@ -54,26 +54,24 @@ public class SplitEditorFactory implements PropertyEditorFactory<Split, SplitPro
         private final PropertyAccessor<Split, SplitProperty> pa;
         private final SplitIntegerModel model1;
         private final SplitIntegerModel model2;
-        private Split split;
 
         public SplitEditor(PropertyAccessor<Split, SplitProperty> pa) {
             this.pa = pa;
-            this.split = pa.getValue(DEFAULT_SPLIT);
 
             this.model1 = new SplitIntegerModel() {
                 public int getValue() {
-                    return split.getSplit1();
+                    return getSplit().getSplit1();
                 }
                 public void setValue(int value) {
-                    setSplit(value, Math.max(value, split.getSplit2()));
+                    setSplit(value, Math.max(value, getSplit().getSplit2()));
                 }
             };
             this.model2 = new SplitIntegerModel() {
                 public int getValue() {
-                    return split.getSplit2();
+                    return getSplit().getSplit2();
                 }
                 public void setValue(int value) {
-                    setSplit(Math.min(value, split.getSplit1()), value);
+                    setSplit(Math.min(value, getSplit().getSplit1()), value);
                 }
             };
 
@@ -88,22 +86,27 @@ public class SplitEditorFactory implements PropertyEditorFactory<Split, SplitPro
             setVerticalGroup(createSequentialGroup().addWidgetsWithGap("adjuster", adjusters));
         }
 
-        void setSplit(int split1, int split2) {
-            split = new Split(split1, split2);
-            pa.setValue(split);
-            model1.fireCallback();
-            model2.fireCallback();
+        Split getSplit() {
+            return pa.getValue(DEFAULT_SPLIT);
         }
 
-        abstract class SplitIntegerModel extends AbstractIntegerModel {
+        void setSplit(int split1, int split2) {
+            Split split = new Split(split1, split2);
+            pa.setValue(split);
+        }
+
+        abstract class SplitIntegerModel implements IntegerModel {
             public int getMaxValue() {
                 return pa.getProperty().getLimit();
             }
             public int getMinValue() {
                 return 0;
             }
-            void fireCallback() {
-                doCallback();
+            public void addCallback(Runnable callback) {
+                pa.getProperty().addCallback(callback);
+            }
+            public void removeCallback(Runnable callback) {
+                pa.getProperty().removeCallback(callback);
             }
         }
     }

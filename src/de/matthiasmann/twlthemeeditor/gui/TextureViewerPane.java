@@ -43,6 +43,7 @@ import de.matthiasmann.twl.model.PersistentBooleanModel;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.model.SimpleFloatModel;
 import de.matthiasmann.twl.renderer.Image;
+import de.matthiasmann.twlthemeeditor.gui.TextureViewer.PositionBarDragListener;
 import java.net.URL;
 import java.util.prefs.Preferences;
 
@@ -51,6 +52,15 @@ import java.util.prefs.Preferences;
  * @author Matthias Mann
  */
 public class TextureViewerPane extends DialogLayout {
+
+    public interface Listener {
+        public void dragEdgeTop(int y);
+        public void dragEdgeLeft(int x);
+        public void dragEdgeRight(int x);
+        public void dragEdgeBottom(int y);
+        public void dragSplitX(int idx, int x);
+        public void dragSplitY(int idx, int y);
+    }
 
     private final TextureViewer textureViewer;
     private final ScrollPane scrollPane;
@@ -66,10 +76,14 @@ public class TextureViewerPane extends DialogLayout {
     private final SimpleBooleanModel showSplitPositions;
     private final PersistentBooleanModel animatedPositionBars;
 
+    private static final int[] EMPTY_INT_ARRAY = {};
+    
     private Rect rect;
-    private int[] splitPositionsX;
-    private int[] splitPositionsY;
+    private int[] splitPositionsX = EMPTY_INT_ARRAY;
+    private int[] splitPositionsY = EMPTY_INT_ARRAY;
     private boolean showMousePosition;
+
+    private Listener listener;
 
     public TextureViewerPane() {
         this.textureViewer = new TextureViewer();
@@ -157,7 +171,7 @@ public class TextureViewerPane extends DialogLayout {
                 labelErrorDisplay.getAnimationState().setAnimationState("error", ex != null);
             }
         });
-        textureViewer.setListener(new DragListener() {
+        textureViewer.setImageDragListener(new DragListener() {
             int scrollStartX;
             int scrollStartY;
             
@@ -172,6 +186,7 @@ public class TextureViewerPane extends DialogLayout {
             public void dragStopped() {
             }
         });
+        textureViewer.setPositionBarDragListener(new PositionBarDragHandler());
         textureViewer.setMouseOverListener(new TextureViewer.MouseOverListener() {
             public void mousePosition(int x, int y) {
                 if(showMousePosition) {
@@ -194,6 +209,10 @@ public class TextureViewerPane extends DialogLayout {
         updateAnimatedPositionBars();
     }
 
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
+
     public void addSettingsMenuItems(Menu settingsMenu) {
         settingsMenu.add("Animate split positions", animatedPositionBars);
     }
@@ -211,12 +230,20 @@ public class TextureViewerPane extends DialogLayout {
     }
 
     public void setSplitPositionsX(int[] splitPositionsX) {
-        this.splitPositionsX = splitPositionsX;
+        if(splitPositionsX == null) {
+            this.splitPositionsX = EMPTY_INT_ARRAY;
+        } else {
+            this.splitPositionsX = splitPositionsX;
+        }
         updateRect();
     }
 
     public void setSplitPositionsY(int[] splitPositionsY) {
-        this.splitPositionsY = splitPositionsY;
+        if(splitPositionsY == null) {
+            this.splitPositionsY = EMPTY_INT_ARRAY;
+        } else {
+            this.splitPositionsY = splitPositionsY;
+        }
         updateRect();
     }
 
@@ -247,6 +274,9 @@ public class TextureViewerPane extends DialogLayout {
                 textureViewer.setPositionBarsVert(splitPositionsX);
                 textureViewer.setPositionBarsHorz(splitPositionsY);
             }
+        } else if(rect != null) {
+            textureViewer.setPositionBarsVert(new int[]{ rect.getX(), rect.getRight() });
+            textureViewer.setPositionBarsHorz(new int[]{ rect.getY(), rect.getBottom() });
         } else {
             textureViewer.setPositionBarsVert(null);
             textureViewer.setPositionBarsHorz(null);
@@ -254,12 +284,10 @@ public class TextureViewerPane extends DialogLayout {
     }
 
     private int[] addEdges(int[] splits, int start, int end) {
-        int[] result = new int[(splits != null) ? splits.length+2 : 2];
+        int[] result = new int[splits.length + 2];
         result[0] = start;
-        if(splits != null) {
-            for(int i=0 ; i<splits.length ; i++) {
-                result[i+1] = start + splits[i];
-            }
+        for(int i=0 ; i<splits.length ; i++) {
+            result[i+1] = start + splits[i];
         }
         result[result.length-1] = end;
         return result;
@@ -291,6 +319,135 @@ public class TextureViewerPane extends DialogLayout {
 
             float ceil = (float)Math.ceil(value / stepSize) * stepSize;
             setValue((ceil > value) ? ceil : ceil + stepSize);
+        }
+    }
+
+    static abstract class DragHandlerAxis {
+        int start;
+        abstract void drag(int pos);
+    }
+    class DragHandlerTop extends DragHandlerAxis {
+        public DragHandlerTop() {
+            start = rect.getY();
+        }
+        @Override
+        void drag(int pos) {
+            listener.dragEdgeTop(pos);
+        }
+    }
+    class DragHandlerLeft extends DragHandlerAxis {
+        public DragHandlerLeft() {
+            start = rect.getX();
+        }
+        @Override
+        void drag(int pos) {
+            listener.dragEdgeLeft(pos);
+        }
+    }
+    class DragHandlerRight extends DragHandlerAxis {
+        public DragHandlerRight() {
+            start = rect.getRight();
+        }
+        @Override
+        void drag(int pos) {
+            listener.dragEdgeRight(pos);
+        }
+    }
+    class DragHandlerBottom extends DragHandlerAxis {
+        public DragHandlerBottom() {
+            start = rect.getBottom();
+        }
+        @Override
+        void drag(int pos) {
+            listener.dragEdgeBottom(pos);
+        }
+    }
+    class DragHandlerSplitX extends DragHandlerAxis {
+        final int idx;
+        public DragHandlerSplitX(int idx) {
+            this.idx = idx;
+            this.start = splitPositionsX[idx];
+        }
+        @Override
+        void drag(int pos) {
+            listener.dragSplitX(idx, pos);
+        }
+    }
+    class DragHandlerSplitY extends DragHandlerAxis {
+        final int idx;
+        public DragHandlerSplitY(int idx) {
+            this.idx = idx;
+            this.start = splitPositionsY[idx];
+        }
+        @Override
+        void drag(int pos) {
+            listener.dragSplitY(idx, pos);
+        }
+    }
+
+    class PositionBarDragHandler implements PositionBarDragListener {
+        DragHandlerAxis axisX;
+        DragHandlerAxis axisY;
+
+        public void dragStarted(int posBarHorz, int posBarVert) {
+            if(rect != null) {
+                boolean all = showCompleteTexture.getValue();
+                boolean showSplits = showSplitPositions.getValue();
+
+                axisX = null;
+                axisY = null;
+
+                if(all) {
+                    if(showSplits) {
+                        if(posBarVert == 0) {
+                            axisX = new DragHandlerLeft();
+                        } else if(posBarVert == splitPositionsX.length + 1) {
+                            axisX = new DragHandlerRight();
+                        } else if(posBarVert > 0) {
+                            axisX = new DragHandlerSplitX(posBarVert - 1);
+                        }
+                        if(posBarHorz == 0) {
+                            axisY = new DragHandlerTop();
+                        } else if(posBarHorz == splitPositionsY.length + 1) {
+                            axisY = new DragHandlerBottom();
+                        } else if(posBarHorz > 0) {
+                            axisY = new DragHandlerSplitY(posBarHorz - 1);
+                        }
+                    } else {
+                        if(posBarVert == 0) {
+                            axisX = new DragHandlerLeft();
+                        } else if(posBarVert == 1) {
+                            axisX = new DragHandlerRight();
+                        }
+                        if(posBarHorz == 0) {
+                            axisY = new DragHandlerTop();
+                        } else if(posBarHorz == 1) {
+                            axisY = new DragHandlerBottom();
+                        }
+                    }
+                } else if(showSplits) {
+                    if(posBarVert >= 0) {
+                        axisX = new DragHandlerSplitX(posBarVert);
+                    }
+                    if(posBarHorz >= 0) {
+                        axisY = new DragHandlerSplitY(posBarHorz);
+                    }
+                }
+            }
+        }
+
+        public void dragged(int deltaX, int deltaY) {
+            if(listener != null) {
+                if(axisX != null) {
+                    axisX.drag(axisX.start + deltaX);
+                }
+                if(axisY != null) {
+                    axisY.drag(axisY.start + deltaY);
+                }
+            }
+        }
+
+        public void dragStopped() {
         }
     }
 }
