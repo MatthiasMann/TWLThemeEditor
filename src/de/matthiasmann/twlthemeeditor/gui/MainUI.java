@@ -97,6 +97,11 @@ public class MainUI extends DialogLayout {
         this.statusBar = new StatusBar(messageLog);
 
         Menu menuFile = new Menu("File");
+        menuFile.add("New project", new Runnable() {
+            public void run() {
+                newProject();
+            }
+        });
         menuFile.add("Open project", new Runnable() {
             public void run() {
                 openProject();
@@ -175,6 +180,30 @@ public class MainUI extends DialogLayout {
         messageLog.removeAll(category);
     }
 
+    void newProject() {
+        final PopupWindow popupWindow = new PopupWindow(this);
+        
+        JavaFileSystemModel fsm = new JavaFileSystemModel();
+        NewProjectDialog newProjectDialog = new NewProjectDialog(fsm,
+                prefs, KEY_PROJECT_FILESELECTOR, new NewProjectDialog.Listener() {
+            public void ok(NewProjectSettings settings) {
+                newProject(settings);
+                popupWindow.closePopup();
+            }
+            public void canceled() {
+                popupWindow.closePopup();
+            }
+        });
+        
+        popupWindow.setTheme("newproject-popup");
+        popupWindow.add(newProjectDialog);
+        popupWindow.openPopup();
+        popupWindow.setSize(getWidth()*4/5, popupWindow.getPreferredHeight());
+        popupWindow.setPosition(
+                getWidth()/2 - popupWindow.getWidth()/2,
+                getHeight()/2 - popupWindow.getHeight()/2);
+    }
+    
     void openProject() {
         final PopupWindow popupWindow = new PopupWindow(this);
         JavaFileSystemModel fsm = new JavaFileSystemModel();
@@ -216,6 +245,16 @@ public class MainUI extends DialogLayout {
         editorArea.setModel(null);
     }
     
+    public void newProject(NewProjectSettings settings) {
+        try {
+            File projectFile = settings.createProject();
+            messageLog.add(new MessageLog.Entry(CAT_PROJECT, "New project created", projectFile.toString(), null));
+            openProject(projectFile);
+        } catch(IOException ex) {
+            messageLog.add(new MessageLog.Entry(CAT_PROJECT_ERROR, "Could not create project", settings.toString(), ex));
+        }
+    }
+
     public void openProject(File file) {
         closeProject();
         file = file.getAbsoluteFile();

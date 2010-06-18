@@ -609,9 +609,49 @@
     </theme>
 
     <theme name="fileselector-popup" ref="-defaults">
-        <param name="background"><image>frame.background</image></param>
+        <param name="background"><image>popup.background</image></param>
         <param name="border"><border>20</border></param>
         <theme name="" ref="*"/>
+    </theme>
+
+    <theme name="newproject-popup" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>20</border></param>
+        <theme name="newprojectdialog" ref="dialoglayout">
+            <theme name="label" ref="label"/>
+            <theme name="currentFolder" ref="treecombobox">
+                <param name="maxWidth"><int>32767</int></param>
+            </theme>
+            <theme name="buttonFoldersMRU" ref="button">
+                <param name=""><image>fileselector.buttonMRU.*</image></param>
+                <param name="minWidth"><int>20</int></param>
+                <param name="tooltip"><string>Shows recently used folders</string></param>
+            </theme>
+            <theme name="editfieldProjectName" ref="editfield">
+                <param name="tooltip"><string>Enter the project name (name of the main XML file)</string></param>
+            </theme>
+            <theme name="labelInfo" ref="label">
+                <param name="background"><image>frame.background</image></param>
+                <param name="border"><border>10</border></param>
+                <param name="textAlignment"><enum type="alignment">topleft</enum></param>
+                <param name="maxWidth"><int>32767</int></param>
+                <param name="minHeight"><int>200</int></param>
+            </theme>
+            <theme name="buttonOk" ref="button">
+                <param name="text"><string>OK</string></param>
+                <param name="minWidth"><int>80</int></param>
+            </theme>
+            <theme name="buttonCancel" ref="button">
+                <param name="text"><string>Cancel</string></param>
+                <param name="minWidth"><int>80</int></param>
+            </theme>
+            <param name="namedGaps"><map>
+                <param name="buttonBarLeft"><gap/></param>
+                <param name="buttonBarSpacer"><gap>20</gap></param>
+                <param name="buttonBarRight"><gap>18</gap></param>
+                <param name="settings-info"><gap>20</gap></param>
+            </map></param>
+        </theme>
     </theme>
 
     <theme name="errorMsgDialog" ref="simpledialog">
