@@ -30,7 +30,6 @@
 package de.matthiasmann.twlthemeeditor.gui.testwidgets;
 
 import de.matthiasmann.twl.Scrollbar;
-import de.matthiasmann.twl.Scrollbar.Orientation;
 
 /**
  *

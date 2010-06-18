@@ -41,7 +41,6 @@ import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.TableSelectionModel;
 import de.matthiasmann.twl.model.TableSingleSelectionModel;
 import de.matthiasmann.twl.textarea.TextAreaModel;
-import de.matthiasmann.twl.textarea.TextAreaModel.Element;
 import de.matthiasmann.twl.textarea.Style;
 import de.matthiasmann.twl.textarea.StyleAttribute;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;

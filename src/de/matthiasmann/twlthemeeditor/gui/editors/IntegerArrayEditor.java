@@ -31,7 +31,6 @@ package de.matthiasmann.twlthemeeditor.gui.editors;
 
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
-import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.InfoWindow;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.ValueAdjusterInt;

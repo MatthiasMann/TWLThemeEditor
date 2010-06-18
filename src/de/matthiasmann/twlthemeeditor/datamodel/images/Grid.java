@@ -29,7 +29,6 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel.images;
 
-import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.NameGenerator;
 import de.matthiasmann.twlthemeeditor.datamodel.Textures;

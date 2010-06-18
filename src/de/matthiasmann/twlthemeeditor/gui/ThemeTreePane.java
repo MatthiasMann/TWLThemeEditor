@@ -38,7 +38,6 @@ import de.matthiasmann.twl.MenuAction;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.Table;
 import de.matthiasmann.twl.TableBase.Callback;
-import de.matthiasmann.twl.TableBase.StringCellRenderer;
 import de.matthiasmann.twl.TableRowSelectionManager;
 import de.matthiasmann.twl.TreeTable;
 import de.matthiasmann.twl.model.TableSingleSelectionModel;
