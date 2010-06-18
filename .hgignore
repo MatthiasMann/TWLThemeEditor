@@ -3,6 +3,10 @@
 \.chg\..*$
 \.rej$
 \.conflict\~$
+^bin/.*
+^build/.*
+^dist/.*
+^nbproject/private/.*
 ^src/de/matthiasmann/twlthemeeditor/Eforen\.png$
 ^src/de/matthiasmann/twlthemeeditor/EforenArrows\.png$
 ^src/de/matthiasmann/twlthemeeditor/Eforen\.xml$
