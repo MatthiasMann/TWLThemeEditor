@@ -376,9 +376,9 @@ public class MainUI extends DialogLayout {
 
     void openAboutDialog() {
         StringBuilder sb = new StringBuilder();
-        sb.append("<img src=\"twl-logo\" alt=\"TWL Logo\" style=\"text-align:center\"/><br/><br/>" +
+        sb.append("<img src=\"twl-logo\" alt=\"TWL Logo\" style=\"text-align:center; display:block\"/><br/><br/>" +
                 "<p>TWL Theme Editor (c) 2010 Matthias Mann</p><br/>" +
-                "<div style=\"white-space:pre; background-image:sysinfo-bg; margin:4px; font:sysinfo\">" +
+                "<div style=\"white-space:pre; background-image:sysinfo-bg; padding:5px; margin-top:10px; font:sysinfo\">" +
                 "Java: ").append(System.getProperty("java.version")).append(" (").append(System.getProperty("java.vendor")).append(")\n" +
                 "OS: ").append(System.getProperty("os.name"))
                     .append("  ").append(System.getProperty("os.arch"))
