@@ -5,26 +5,30 @@
     <include filename="gui_base.xml"/>
     <include filename="simple.xml"/>
 
-    <textures file="gui.png" format="RGBA">
-        <texture name="checkerboard" x="56" y="106" width="8" height="8" tiled="true"/>
-        <texture name="-positionbar-horizontal-0" x="124" y="68" width="32" height="1" tiled="true"/>
-        <texture name="-positionbar-horizontal-1" x="122" y="68" width="32" height="1" tiled="true"/>
-        <texture name="-positionbar-horizontal-2" x="120" y="68" width="32" height="1" tiled="true"/>
-        <texture name="-positionbar-horizontal-3" x="118" y="68" width="32" height="1" tiled="true"/>
-        <texture name="-positionbar-vertical-0" x="156" y="6" width="1" height="40" tiled="true"/>
-        <texture name="-positionbar-vertical-1" x="156" y="4" width="1" height="40" tiled="true"/>
-        <texture name="-positionbar-vertical-2" x="156" y="2" width="1" height="40" tiled="true"/>
-        <texture name="-positionbar-vertical-3" x="156" y="0" width="1" height="40" tiled="true"/>
-        <texture name="-icon-moveup" x="74" y="19" width="12" height="8" center="true"/>
-        <texture name="-icon-movedown" x="87" y="19" width="12" height="8" center="true"/>
-        <texture name="-icon-apply" x="86" y="37" width="13" height="10" center="true" inset="0,1,0,-1"/>
-        <texture name="-icon-clone" x="84" y="48" width="11" height="12" center="true"/>
-        <texture name="-icon-jump" x="83" y="61" width="14" height="9" center="true"/>
-        <texture name="-icon-add" x="48" y="19" width="12" height="12" center="true"/>
-        <texture name="-icon-remove" x="61" y="19" width="12" height="12" center="true"/>
-        <texture name="-icon-select" x="105" y="68" width="12" height="12" center="true"/>
+    <images file="gui.png" format="RGBA">
+        <area name="checkerboard" tiled="true" xywh="56,106,8,8"/>
+        <area name="-positionbar-horizontal-0" tiled="true" xywh="124,68,32,1"/>
+        <area name="-positionbar-horizontal-1" tiled="true" xywh="122,68,32,1"/>
+        <area name="-positionbar-horizontal-2" tiled="true" xywh="120,68,32,1"/>
+        <area name="-positionbar-horizontal-3" tiled="true" xywh="118,68,32,1"/>
+        <area name="-positionbar-vertical-0" tiled="true" xywh="156,6,1,40"/>
+        <area name="-positionbar-vertical-1" tiled="true" xywh="156,4,1,40"/>
+        <area name="-positionbar-vertical-2" tiled="true" xywh="156,2,1,40"/>
+        <area name="-positionbar-vertical-3" tiled="true" xywh="156,0,1,40"/>
+        <area name="-icon-moveup" center="true" xywh="74,19,12,8"/>
+        <area name="-icon-movedown" center="true" xywh="87,19,12,8"/>
+        <area name="-icon-apply" center="true" inset="0,1,0,-1" xywh="86,37,13,10"/>
+        <area name="-icon-clone" center="true" xywh="84,48,11,12"/>
+        <area name="-icon-jump" center="true" xywh="83,61,14,9"/>
+        <area name="-icon-add" center="true" xywh="48,19,12,12"/>
+        <area name="-icon-remove" center="true" xywh="61,19,12,12"/>
+        <area name="-icon-select" center="true" xywh="105,68,12,12"/>
+        <area name="-icon-relative-left" center="true" xywh="107,81,8,9"/>
+        <area name="-icon-relative-right" center="true" xywh="116,81,8,9"/>
+        <area name="-icon-relative-top" center="true" xywh="107,91,9,8"/>
+        <area name="-icon-relative-bottom" center="true" xywh="117,91,9,8"/>
 
-        <cursor name="cursor.dragSelect" x="90" y="82" width="16" height="16" hotSpotX="5" hotSpotY="5"/>
+        <cursor name="cursor.dragSelect" hotSpotX="5" hotSpotY="5" xywh="90,82,16,16"/>
         
         <alias name="textureviewer.background" ref="checkerboard" border="64" inset="64" sizeOverwriteH="0" sizeOverwriteV="0"/>
 
@@ -171,7 +175,43 @@
             </select>
             <alias ref="vbutton.overlay"/>
         </composed>
-    </textures>
+
+        <composed name="relativebutton.left.overlay">
+            <select>
+                <alias ref="-icon-relative-left" if="disabled" tint="#6fff"/>
+                <alias ref="-icon-relative-left" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-relative-left"/>
+            </select>
+            <alias ref="radiobutton.overlay"/>
+        </composed>
+
+        <composed name="relativebutton.right.overlay">
+            <select>
+                <alias ref="-icon-relative-right" if="disabled" tint="#6fff"/>
+                <alias ref="-icon-relative-right" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-relative-right"/>
+            </select>
+            <alias ref="radiobutton.overlay"/>
+        </composed>
+
+        <composed name="relativebutton.top.overlay">
+            <select>
+                <alias ref="-icon-relative-top" if="disabled" tint="#6fff"/>
+                <alias ref="-icon-relative-top" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-relative-top"/>
+            </select>
+            <alias ref="radiobutton.overlay"/>
+        </composed>
+
+        <composed name="relativebutton.bottom.overlay">
+            <select>
+                <alias ref="-icon-relative-bottom" if="disabled" tint="#6fff"/>
+                <alias ref="-icon-relative-bottom" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-relative-bottom"/>
+            </select>
+            <alias ref="radiobutton.overlay"/>
+        </composed>
+    </images>
 
     <theme name="themetreepane" ref="dialoglayout">
         <param name=""><image>panel.*</image></param>
@@ -377,6 +417,9 @@
 
                     <theme name="recteditor" ref="dialoglayout">
                         <theme name="" ref="*"/>
+                        <theme name="btnWholeArea" ref="checkbox">
+                            <param name="text"><string>Whole area</string></param>
+                            <param name="tooltip"><string>Use whole image area</string></param></theme>
                     </theme>
 
                     <theme name="weightseditor" ref="dialoglayout">
@@ -408,6 +451,22 @@
                         <theme name="addbutton" ref="button">
                             <param name=""><image>addbutton.*</image></param>
                             <param name="tooltip"><string>Add a new split position</string></param>
+                        </theme>
+                        <theme name="btnRelativeTop" ref="radiobutton">
+                            <param name=""><image>relativebutton.top.*</image></param>
+                            <param name="tooltip"><string>Position is relative to the top edge</string></param>
+                        </theme>
+                        <theme name="btnRelativeLeft" ref="radiobutton">
+                            <param name=""><image>relativebutton.left.*</image></param>
+                            <param name="tooltip"><string>Position is relative to the left edge</string></param>
+                        </theme>
+                        <theme name="btnRelativeRight" ref="radiobutton">
+                            <param name=""><image>relativebutton.right.*</image></param>
+                            <param name="tooltip"><string>Position is relative to the right edge</string></param>
+                        </theme>
+                        <theme name="btnRelativeBottom" ref="radiobutton">
+                            <param name=""><image>relativebutton.bottom.*</image></param>
+                            <param name="tooltip"><string>Position is relative to the bottom edge</string></param>
                         </theme>
                         <theme name="" ref="*"/>
                     </theme>
@@ -664,9 +723,9 @@
         </theme>
     </theme>
 
-    <textures file="TWL Logo.png" format="RGBA">
-        <texture name="twl-logo" x="0" y="0" width="256" height="128" inset="-8"/>
-    </textures>
+    <images file="TWL Logo.png" format="RGBA">
+        <area name="twl-logo" inset="-8" xywh="*"/>
+    </images>
     <theme name="aboutDialog" ref="simpledialog">
         <param name="background"><image>popup.background</image></param>
         <param name="border"><border>10</border></param>

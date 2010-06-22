@@ -33,7 +33,7 @@ import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
 import org.jdom.Element;
@@ -44,7 +44,7 @@ import org.jdom.Element;
  */
 public class Cursor extends Image {
 
-    public Cursor(Textures textures, TreeTableNode parent, Element node) {
+    public Cursor(Images textures, TreeTableNode parent, Element node) {
         super(textures, parent, node);
         final ImageRectProperty rectProperty = new ImageRectProperty(node);
         addProperty(rectProperty);

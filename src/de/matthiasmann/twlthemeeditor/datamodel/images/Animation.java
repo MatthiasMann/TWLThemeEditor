@@ -30,7 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import java.io.IOException;
@@ -42,7 +42,7 @@ import org.jdom.Element;
  */
 public class Animation extends Repeat {
 
-    public Animation(Textures textures, TreeTableNode parent, Element element) throws IOException {
+    public Animation(Images textures, TreeTableNode parent, Element element) throws IOException {
         super(textures, parent, element);
         addProperty(new AttributeProperty(element, "timeSource", "Time source", false));
         addProperty(new IntegerProperty(new AttributeProperty(element, "frozenTime", "Frozen time", true), 0, Short.MAX_VALUE));

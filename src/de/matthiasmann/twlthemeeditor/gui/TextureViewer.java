@@ -226,12 +226,12 @@ public class TextureViewer extends Widget {
         return (image != null) ? (int)(image.getHeight() * zoomY) : 0;
     }
 
-    @Override
-    protected void paintWidget(GUI gui) {
+    public void validateImage() {
         if(reloadTexture) {
             destroy();
 
-            if(url != null) {
+            GUI gui = getGUI();
+            if(url != null && gui != null) {
                 try {
                     loadTexture(gui.getRenderer());
                 } catch (IOException ex) {
@@ -243,11 +243,7 @@ public class TextureViewer extends Widget {
             changeImage = true;
             CallbackSupport.fireCallbacks(exceptionCallbacks);
         }
-
-        // render the previous image if the rectangle changes to give layout time to update
-        // this prevents jumpy image scaling when the rectangle size is changed
-        Image prevImage = image;
-
+        
         if(specialImage != null) {
             if(image != specialImage) {
                 image = specialImage;
@@ -274,7 +270,16 @@ public class TextureViewer extends Widget {
             invalidateLayout();
             changeImage = false;
         }
+    }
 
+    @Override
+    protected void paintWidget(GUI gui) {
+        // render the previous image if the rectangle changes to give layout time to update
+        // this prevents jumpy image scaling when the rectangle size is changed
+        Image prevImage = image;
+
+        validateImage();
+        
         if(prevImage == null) {
             prevImage = image;
         }

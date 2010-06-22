@@ -29,7 +29,6 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.Dimension;
@@ -49,11 +48,10 @@ import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.DelayedAction;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Split;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.gui.MainUI.ExtFilter;
-import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
@@ -92,7 +90,6 @@ public class EditorArea extends Widget {
     private ColorProperty boundColorProperty;
     private SplitProperty boundSplitXProperty;
     private SplitProperty boundSplitYProperty;
-    private BorderProperty boundBorderProperty;
     private Layout layout = Layout.SPLIT_HV;
 
     public EditorArea(MessageLog messageLog) {
@@ -339,14 +336,10 @@ public class EditorArea extends Widget {
             boundSplitYProperty.removeCallback(boundPropertyCB);
             boundSplitYProperty = null;
         }
-        if(boundBorderProperty != null) {
-            boundBorderProperty.removeCallback(boundPropertyCB);
-            boundBorderProperty = null;
-        }
         
         Object obj = themeTreePane.getSelected();
         if(obj != null) {
-            Textures textures = getTextures(obj);
+            Images textures = getTextures(obj);
             try {
                 textureViewerPane.setUrl((textures != null) ? textures.getTextureURL() : null);
             } catch(MalformedURLException ignored) {
@@ -375,16 +368,13 @@ public class EditorArea extends Widget {
                             boundSplitYProperty.addValueChangedCallback(boundPropertyCB);
                         }
                     }
-                    if(boundBorderProperty == null && (property instanceof BorderProperty) && property.getName().startsWith("Border")) {
-                        boundBorderProperty = (BorderProperty)property;
-                        boundBorderProperty.addValueChangedCallback(boundPropertyCB);
-                    }
                 }
             }
         } else {
             propertiesScrollPane.setContent(null);
         }
         updateTextureViewerPane();
+        textureViewerPane.scrollToRect();
     }
 
     void updateTextureViewerPane() {
@@ -412,25 +402,19 @@ public class EditorArea extends Widget {
         }
         Color color = (boundColorProperty != null) ? boundColorProperty.getPropertyValue() : Color.WHITE;
         textureViewerPane.setTintColor((color != null) ? color : Color.WHITE);
-        textureViewerPane.setSplitPositionsX(getSplitPos(boundSplitXProperty, boundBorderProperty, true));
-        textureViewerPane.setSplitPositionsY(getSplitPos(boundSplitYProperty, boundBorderProperty, false));
+        textureViewerPane.setSplitPositionsX(getSplitPos(boundSplitXProperty));
+        textureViewerPane.setSplitPositionsY(getSplitPos(boundSplitYProperty));
     }
 
-    private static int[] getSplitPos(SplitProperty splitProperty, BorderProperty borderProperty, boolean horz) {
+    private static int[] getSplitPos(SplitProperty splitProperty) {
         if(splitProperty != null) {
             Split split = splitProperty.getPropertyValue();
             if(split != null) {
-                return new int[] { split.getSplit1(), split.getSplit2() };
-            }
-            if(borderProperty != null) {
-                Border border = borderProperty.getPropertyValue();
-                if(border != null) {
-                    if(horz) {
-                        return new int[] { border.getBorderLeft(), splitProperty.getLimit() - border.getBorderRight() };
-                    } else {
-                        return new int[] { border.getBorderTop(), splitProperty.getLimit() - border.getBorderBottom() };
-                    }
-                }
+                int size = splitProperty.getLimit();
+                return new int[] {
+                    split.getPoint1().convertToPX(size),
+                    split.getPoint2().convertToPX(size)
+                };
             }
         }
         return null;
@@ -441,17 +425,22 @@ public class EditorArea extends Widget {
     }
     
     void dragSplit(int idx, int pos, SplitProperty splitProperty, boolean horz) {
-        int[] splits = getSplitPos(splitProperty, boundBorderProperty, true);
-        if(splits != null) {
+        Split split = splitProperty.getPropertyValue();
+        if(split != null) {
+            int size = splitProperty.getLimit();
+            Split.Point p1 = split.getPoint1();
+            Split.Point p2 = split.getPoint2();
             switch (idx) {
                 case 0:
-                    splits[0] = limit(pos, 0, splits[1]);
+                    pos = limit(pos, 0, p2.convertToPX(size));
+                    p1 = p1.movePX(pos - p1.convertToPX(size));
                     break;
                 case 1:
-                    splits[1] = limit(pos, splits[0], splitProperty.getLimit());
+                    pos = limit(pos, p1.convertToPX(size), size);
+                    p2 = p2.movePX(pos - p2.convertToPX(size));
                     break;
             }
-            splitProperty.setPropertyValue(new Split(splits[0], splits[1]));
+            splitProperty.setPropertyValue(new Split(p1, p2));
         }
     }
     
@@ -545,9 +534,9 @@ public class EditorArea extends Widget {
         }
     }
 
-    private Textures getTextures(Object node) {
-        if(node instanceof Textures) {
-            return (Textures)node;
+    private Images getTextures(Object node) {
+        if(node instanceof Images) {
+            return (Images)node;
         } else if(node instanceof Image) {
             return ((Image)node).getTextures();
         } else {

@@ -35,6 +35,7 @@ import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.XMLWriter;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
+import de.matthiasmann.twlthemeeditor.gui.MessageLog;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -55,6 +56,7 @@ import org.xmlpull.v1.XmlPullParser;
  */
 public class ThemeFile implements VirtualFile {
 
+    private final MessageLog messageLog;
     private final TestEnv env;
     private final URL url;
     private final Document document;
@@ -63,8 +65,10 @@ public class ThemeFile implements VirtualFile {
 
     private ThemeTreeNode treeNode;
     private boolean modified;
+    private boolean elementsUpgraded;
 
-    public ThemeFile(TestEnv env, URL url, Runnable xmlChangedCB) throws IOException {
+    public ThemeFile(MessageLog messageLog, TestEnv env, URL url, Runnable xmlChangedCB) throws IOException {
+        this.messageLog = messageLog;
         this.env = env;
         this.url = url;
         this.xmlChangedCB = xmlChangedCB;
@@ -119,11 +123,35 @@ public class ThemeFile implements VirtualFile {
     }
 
     public ThemeFile createThemeFile(String file) throws IOException {
-        return new ThemeFile(env, getURL(file), xmlChangedCB);
+        return new ThemeFile(messageLog, env, getURL(file), xmlChangedCB);
     }
 
     public URL getVirtualURL() throws MalformedURLException {
         return env.getURL(url.getFile());
+    }
+
+    public void log(MessageLog.Entry entry) {
+        messageLog.add(entry);
+    }
+
+    private static final MessageLog.Category CAT_LOAD_ERROR =
+            new MessageLog.Category("theme load error", MessageLog.CombineMode.NONE, DecoratedText.ERROR);
+
+    public void logError(String msg, String detailMsg, Throwable ex) {
+        messageLog.add(new MessageLog.Entry(CAT_LOAD_ERROR, msg, detailMsg, ex));
+    }
+
+    private static final MessageLog.Category CAT_UPGRADED =
+            new MessageLog.Category("theme upgrades", MessageLog.CombineMode.NONE, DecoratedText.WARNING);
+
+    public void elementUpgraded() {
+        setModified(true);
+        if(!elementsUpgraded) {
+            elementsUpgraded = true;
+            messageLog.add(new MessageLog.Entry(CAT_UPGRADED, "Elements have been upgraded",
+                    "The theme file '" + url.getPath() + "' has been converted to a new format. " +
+                    "Saving the theme will require a up to date TWL version to parse it.", null));
+        }
     }
     
     protected void addChildren(ThemeTreeNode node) throws IOException {
@@ -132,8 +160,13 @@ public class ThemeFile implements VirtualFile {
             public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                 String tagName = element.getName();
 
+                if("images".equals(tagName)) {
+                    return new Images(parent, element, themeFile);
+                }
                 if("textures".equals(tagName)) {
-                    return new Textures(parent, element, themeFile);
+                    element.setName("images");
+                    setModified(true);
+                    return new Images(parent, element, themeFile);
                 }
                 if("include".equals(tagName)) {
                     return new Include(parent, element, themeFile);

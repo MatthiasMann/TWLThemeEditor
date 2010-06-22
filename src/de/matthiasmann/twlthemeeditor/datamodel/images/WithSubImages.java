@@ -33,7 +33,7 @@ import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.DomXPPParser;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
 import java.io.IOException;
 import java.util.List;
@@ -45,7 +45,7 @@ import org.jdom.Element;
  */
 abstract class WithSubImages extends Image {
 
-    protected WithSubImages(Textures textures, TreeTableNode parent, Element element) throws IOException {
+    protected WithSubImages(Images textures, TreeTableNode parent, Element element) throws IOException {
         super(textures, parent, element);
     }
 
@@ -82,6 +82,6 @@ abstract class WithSubImages extends Image {
     }
 
     protected void addOperations(List<ThemeTreeOperation> operations) {
-        Textures.addCreateImageOperations(operations, this);
+        Images.addCreateImageOperations(operations, this);
     }
 }

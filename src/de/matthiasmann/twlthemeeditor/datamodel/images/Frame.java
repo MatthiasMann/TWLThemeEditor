@@ -30,7 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.FloatProperty;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
@@ -42,7 +42,7 @@ import org.jdom.Element;
  */
 public class Frame extends Alias {
 
-    Frame(Textures textures, TreeTableNode parent, Element node) {
+    Frame(Images textures, TreeTableNode parent, Element node) {
         super(textures, parent, node);
         addProperty(new IntegerProperty(new AttributeProperty(element, "duration"), 0, Short.MAX_VALUE));
         addProperty(new FloatProperty(new AttributeProperty(element, "zoom", "Zoom X/Y", true), 0f, 4f, 1f));

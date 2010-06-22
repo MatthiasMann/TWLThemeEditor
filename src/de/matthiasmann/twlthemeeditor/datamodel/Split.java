@@ -35,33 +35,127 @@ package de.matthiasmann.twlthemeeditor.datamodel;
  */
 public class Split {
 
-    private final int split1;
-    private final int split2;
+    public static class Point {
+        final int pos;
+        final boolean edge;
 
-    public Split(int split1, int split2) {
+        public Point(int pos, boolean edge) {
+            this.pos = pos;
+            this.edge = edge;
+        }
+
+        public Point(String str) {
+            if(str.length() == 0) {
+                throw new IllegalArgumentException("empty string");
+            }
+            switch (str.charAt(0)) {
+                case 't':
+                case 'T':
+                case 'l':
+                case 'L':
+                    edge = false;
+                    str = str.substring(1).trim();
+                    break;
+                case 'b':
+                case 'B':
+                case 'r':
+                case 'R':
+                    edge = true;
+                    str = str.substring(1).trim();
+                    break;
+                default:
+                    edge = false;
+                    break;
+            }
+            pos = Integer.parseInt(str);
+        }
+
+        public boolean isOtherEdge() {
+            return edge;
+        }
+
+        public int getPos() {
+            return pos;
+        }
+
+        public int convertToPX(int size) {
+            if(edge) {
+                return size - pos;
+            } else {
+                return pos;
+            }
+        }
+
+        public Point movePX(int delta) {
+            if(edge) {
+                return new Point(pos - delta, true);
+            } else {
+                return new Point(pos + delta, false);
+            }
+        }
+
+        public Point setOtherEdge(boolean edge, int size) {
+            if(this.edge != edge) {
+                return new Point(size - pos, edge);
+            } else {
+                return this;
+            }
+        }
+
+        public Point setPos(int pos) {
+            return new Point(pos, edge);
+        }
+    }
+
+    private final Point split1;
+    private final Point split2;
+
+    public Split(Point split1, Point split2) {
         this.split1 = split1;
         this.split2 = split2;
     }
 
     public Split(String splits) {
-        int[] tmp = Utils.parseInts(splits);
-        if(tmp.length != 2) {
+        int comma = splits.indexOf(',');
+        if(comma < 0) {
             throw new IllegalArgumentException("Need 2 integers");
         }
-        this.split1 = tmp[0];
-        this.split2 = tmp[1];
+
+        this.split1 = new Point(splits.substring(0, comma).trim());
+        this.split2 = new Point(splits.substring(comma+1).trim());
     }
 
-    public int getSplit1() {
+    public Point getPoint1() {
         return split1;
     }
 
-    public int getSplit2() {
+    public Point getPoint2() {
         return split2;
     }
 
+    public Point getPoint(int idx) {
+        switch (idx) {
+            case 0: return split1;
+            case 1: return split2;
+            default:
+                throw new IndexOutOfBoundsException();
+        }
+    }
+
+    public Split setPoint(int idx, Point point) {
+        switch (idx) {
+            case 0: return new Split(point, split2);
+            case 1: return new Split(split1, point);
+            default:
+                throw new IndexOutOfBoundsException();
+        }
+    }
+    
     @Override
     public String toString() {
-        return split1 + "," + split2;
+        return new StringBuilder()
+            .append(split1.edge ? 'R' : 'L').append(split1.pos)
+            .append(split2.edge ? ",B" : ",T").append(split2.pos)
+            .toString();
     }
 }

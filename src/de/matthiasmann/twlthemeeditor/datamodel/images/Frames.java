@@ -30,7 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import org.jdom.Element;
@@ -39,9 +39,9 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Frames extends Texture {
+public class Frames extends Area {
 
-    public Frames(Textures textures, TreeTableNode parent, Element node) {
+    public Frames(Images textures, TreeTableNode parent, Element node) {
         super(textures, parent, node);
         addProperty(new IntegerProperty(new AttributeProperty(element, "count", "Number of frames", false), 1, Short.MAX_VALUE));
         addProperty(new IntegerProperty(new AttributeProperty(element, "offsetx", "Offset X between frames", true), Short.MIN_VALUE, Short.MAX_VALUE));

@@ -31,7 +31,7 @@ package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.NameGenerator;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.datamodel.Weights;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
@@ -47,7 +47,7 @@ public class Grid extends WithSubImages implements NameGenerator {
     private final WeightsProperty weightsXProperty;
     private final WeightsProperty weightsYProperty;
 
-    public Grid(Textures textures, ThemeTreeNode parent, Element element) throws IOException {
+    public Grid(Images textures, ThemeTreeNode parent, Element element) throws IOException {
         super(textures, parent, element);
         this.weightsXProperty = new WeightsProperty(new AttributeProperty(element, "weightsX"));
         this.weightsYProperty = new WeightsProperty(new AttributeProperty(element, "weightsY"));

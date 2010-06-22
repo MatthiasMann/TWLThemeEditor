@@ -34,6 +34,7 @@ import de.matthiasmann.twl.model.AbstractTreeTableModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.TestEnv;
+import de.matthiasmann.twlthemeeditor.gui.MessageLog;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -57,13 +58,13 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
 
     private CallbackWithReason<?>[] callbacks;
 
-    public ThemeTreeModel(URL url) throws IOException {
+    public ThemeTreeModel(MessageLog messageLog, URL url) throws IOException {
         xmlChangedCB = new Runnable() {
             public void run() {
                 fireCallbacks(CallbackReason.ATTRIBUTE_CHANGED);
             }
         };
-        rootThemeFile = new ThemeFile(new TestEnv(), url, xmlChangedCB);
+        rootThemeFile = new ThemeFile(messageLog, new TestEnv(), url, xmlChangedCB);
         rootNode = new ThemeTreeRootNode(rootThemeFile, this);
 
         insertChild(rootNode, 0);
@@ -94,7 +95,7 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
     public List<Image> getImages(TreeTableNode stopAt) {
         TreeTablePath stopAtPath = TreeTablePath.create(stopAt);
         ArrayList<Image> result = new ArrayList<Image>();
-        outer: for(Textures t : getTopLevelNodes(Textures.class, null)) {
+        outer: for(Images t : getTopLevelNodes(Images.class, null)) {
             for(Image img : t.getChildren(Image.class)) {
                 if(stopAtPath != null && stopAtPath.compareTo(img) <= 0) {
                     break outer;

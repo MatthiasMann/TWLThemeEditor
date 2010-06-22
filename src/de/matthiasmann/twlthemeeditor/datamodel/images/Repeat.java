@@ -33,7 +33,7 @@ import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.DomWrapper;
 import de.matthiasmann.twlthemeeditor.datamodel.DomXPPParser;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
@@ -50,7 +50,7 @@ import org.jdom.Element;
  */
 public class Repeat extends WithSubImages {
 
-    Repeat(Textures textures, TreeTableNode parent, Element element) throws IOException {
+    Repeat(Images textures, TreeTableNode parent, Element element) throws IOException {
         super(textures, parent, element);
         addProperty(new IntegerProperty(new AttributeProperty(element, "count", "Count", true), 0, Short.MAX_VALUE));
     }
@@ -73,6 +73,7 @@ public class Repeat extends WithSubImages {
                     return new Frame(textures, parent, element);
                 }
                 if("frames".equals(tagName)) {
+                    convertToXYWH(themeFile, element);
                     return new Frames(textures, parent, element);
                 }
                 return null;

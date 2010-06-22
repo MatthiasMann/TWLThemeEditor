@@ -31,8 +31,12 @@ package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.Rect;
+import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.datamodel.Utils;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -40,18 +44,16 @@ import de.matthiasmann.twl.model.Property;
  */
 public abstract class RectProperty implements Property<Rect> {
 
+    private final BooleanModel wholeArea;
     private final IntegerModel baseX;
     private final IntegerModel baseY;
     private final IntegerModel baseW;
     private final IntegerModel baseH;
     private final String name;
 
-    public RectProperty(Property<String> x, Property<String> y, Property<String> width, Property<String> height, String name) {
-        this.baseX = new IntegerProperty(x, 0, 0) {
-            @Override
-            public int getMaxValue() {
-                return getLimit().getX() - 1;
-            }
+    public RectProperty(Property<String> xywh, String name) {
+        this.wholeArea = new WholeAreaModel(xywh);
+        this.baseX = new RectPartProperty(xywh, 0) {
             @Override
             public void setValue(int value) {
                 if(getValue() != value) {
@@ -60,11 +62,7 @@ public abstract class RectProperty implements Property<Rect> {
                 }
             }
         };
-        this.baseY = new IntegerProperty(y, 0, 0) {
-            @Override
-            public int getMaxValue() {
-                return getLimit().getY() - 1;
-            }
+        this.baseY = new RectPartProperty(xywh, 1) {
             @Override
             public void setValue(int value) {
                 if(getValue() != value) {
@@ -73,11 +71,7 @@ public abstract class RectProperty implements Property<Rect> {
                 }
             }
         };
-        this.baseW = new IntegerProperty(width, 0, 0) {
-            @Override
-            public int getMaxValue() {
-                return getLimit().getX();
-            }
+        this.baseW = new RectPartProperty(xywh, 2) {
             @Override
             public void setValue(int value) {
                 if(getValue() != value) {
@@ -86,11 +80,7 @@ public abstract class RectProperty implements Property<Rect> {
                 }
             }
         };
-        this.baseH = new IntegerProperty(height, 0, 0) {
-            @Override
-            public int getMaxValue() {
-                return getLimit().getY();
-            }
+        this.baseH = new RectPartProperty(xywh, 3) {
             @Override
             public void setValue(int value) {
                 if(getValue() != value) {
@@ -101,8 +91,9 @@ public abstract class RectProperty implements Property<Rect> {
         };
         this.name = name;
     }
-
+    
     public RectProperty(IntegerModel baseX, IntegerModel baseY, IntegerModel baseW, IntegerModel baseH, String name) {
+        this.wholeArea = null;
         this.baseX = baseX;
         this.baseY = baseY;
         this.baseW = baseW;
@@ -155,6 +146,10 @@ public abstract class RectProperty implements Property<Rect> {
         baseH.removeCallback(cb);
     }
 
+    public BooleanModel getWholeAreaModel() {
+        return wholeArea;
+    }
+
     public IntegerModel getXProperty() {
         return baseX;
     }
@@ -173,4 +168,90 @@ public abstract class RectProperty implements Property<Rect> {
 
     public abstract Dimension getLimit();
 
+    int[] parseXYWH(String xywh) {
+        if("*".equals(xywh)) {
+            Dimension limit = getLimit();
+            return new int[] { 0, 0, limit.getX(), limit.getY() };
+        } else {
+            return Utils.parseInts(xywh);
+        }
+    }
+    
+    class WholeAreaModel extends DerivedProperty<Boolean> implements BooleanModel {
+        public WholeAreaModel(Property<String> base) {
+            super(base, Boolean.class);
+        }
+        public boolean getValue() {
+            return "*".equals(base.getPropertyValue());
+        }
+        public void setValue(boolean value) {
+            if(value) {
+                base.setPropertyValue("*");
+            } else {
+                Rect rect = RectProperty.this.getPropertyValue();
+                base.setPropertyValue(rect.getX()+","+rect.getY()+","+rect.getWidth()+","+rect.getHeight());
+            }
+        }
+        public Boolean getPropertyValue() {
+            return getValue();
+        }
+        public void setPropertyValue(Boolean value) throws IllegalArgumentException {
+            setValue(value);
+        }
+    }
+
+    abstract class RectPartProperty extends DerivedProperty<Integer> implements IntegerModel {
+        private final int part;
+
+        public RectPartProperty(Property<String> base, int part) {
+            super(base, Integer.class);
+            this.part = part;
+        }
+
+        public Integer getPropertyValue() {
+            return getValue();
+        }
+
+        public void setPropertyValue(Integer value) throws IllegalArgumentException {
+            setValue(value);
+        }
+
+        public int getMinValue() {
+            return 0;
+        }
+
+        public int getMaxValue() {
+            switch (part) {
+                case 0:
+                case 2: return getLimit().getX();
+                case 1:
+                case 3: return getLimit().getY();
+                default:
+                    throw new AssertionError();
+            }
+        }
+
+        public void setValue(int value) {
+            String baseValue = base.getPropertyValue();
+            try {
+                int[] parts = parseXYWH(baseValue);
+                parts[part] = value;
+                base.setPropertyValue(Utils.toString(parts));
+            } catch (Throwable ex) {
+                Logger.getLogger(IntegerProperty.class.getName()).log(Level.SEVERE,
+                        "Can't parse value of propterty '" + getName() + "': " + baseValue, ex);
+            }
+        }
+
+        public int getValue() {
+            String baseValue = base.getPropertyValue();
+            try {
+                return parseXYWH(baseValue)[part];
+            } catch (Throwable ex) {
+                Logger.getLogger(IntegerProperty.class.getName()).log(Level.SEVERE,
+                        "Can't parse value of propterty '" + getName() + "': " + baseValue, ex);
+                return 0;
+            }
+        }
+    }
 }

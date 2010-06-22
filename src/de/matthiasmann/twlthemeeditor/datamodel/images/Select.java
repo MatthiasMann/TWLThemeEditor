@@ -33,7 +33,7 @@ import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Condition;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.NameGenerator;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import java.io.IOException;
 import org.jdom.Element;
@@ -44,7 +44,7 @@ import org.jdom.Element;
  */
 public class Select extends WithSubImages implements NameGenerator {
 
-    public Select(Textures textures, TreeTableNode parent, Element element) throws IOException {
+    public Select(Images textures, TreeTableNode parent, Element element) throws IOException {
         super(textures, parent, element);
     }
 

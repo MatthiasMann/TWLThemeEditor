@@ -30,7 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import java.io.IOException;
 import org.jdom.Element;
 
@@ -40,7 +40,7 @@ import org.jdom.Element;
  */
 public class Composed extends WithSubImages {
 
-    public Composed(Textures textures, TreeTableNode parent, Element element) throws IOException {
+    public Composed(Images textures, TreeTableNode parent, Element element) throws IOException {
         super(textures, parent, element);
     }
 

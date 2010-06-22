@@ -31,8 +31,10 @@ package de.matthiasmann.twlthemeeditor.gui.editors;
 
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Rect;
+import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
@@ -47,12 +49,19 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect, RectProper
         return new RectEditor(pa);
     }
 
-    static class RectEditor extends DialogLayout {
+    static final class RectEditor extends DialogLayout {
+        private final BooleanModel wholeAreaModel;
+        private final ToggleButton toggleWholeArea;
+        private final ValueAdjusterInt adjusterX;
+        private final ValueAdjusterInt adjusterY;
+        private final ValueAdjusterInt adjusterW;
+        private final ValueAdjusterInt adjusterH;
+
         public RectEditor(PropertyAccessor<Rect, RectProperty> pa) {
-            ValueAdjusterInt adjusterX = new ValueAdjusterInt(pa.getProperty().getXProperty());
-            ValueAdjusterInt adjusterY = new ValueAdjusterInt(pa.getProperty().getYProperty());
-            ValueAdjusterInt adjusterW = new ValueAdjusterInt(pa.getProperty().getWidthProperty());
-            ValueAdjusterInt adjusterH = new ValueAdjusterInt(pa.getProperty().getHeightProperty());
+            adjusterX = new ValueAdjusterInt(pa.getProperty().getXProperty());
+            adjusterY = new ValueAdjusterInt(pa.getProperty().getYProperty());
+            adjusterW = new ValueAdjusterInt(pa.getProperty().getWidthProperty());
+            adjusterH = new ValueAdjusterInt(pa.getProperty().getHeightProperty());
 
             adjusterX.setTooltipContent("X position");
             adjusterY.setTooltipContent("Y position");
@@ -64,8 +73,22 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect, RectProper
             adjusterW.setDisplayPrefix("W: ");
             adjusterH.setDisplayPrefix("H: ");
 
-            setHorizontalGroup(createParallelGroup(adjusterX, adjusterY, adjusterW, adjusterH));
-            setVerticalGroup(createSequentialGroup().addWidgetsWithGap("adjuster", adjusterX, adjusterY, adjusterW, adjusterH));
+            Group horz = createParallelGroup();
+            Group vert = createSequentialGroup();
+
+            wholeAreaModel = pa.getProperty().getWholeAreaModel();
+            if(wholeAreaModel != null) {
+                toggleWholeArea = new ToggleButton(wholeAreaModel);
+                toggleWholeArea.setTheme("btnWholeArea");
+
+                horz.addWidget(toggleWholeArea);
+                vert.addWidget(toggleWholeArea);
+            } else {
+                toggleWholeArea = null;
+            }
+
+            setHorizontalGroup(horz.addWidgets(adjusterX, adjusterY, adjusterW, adjusterH));
+            setVerticalGroup(vert.addWidgetsWithGap("adjuster", adjusterX, adjusterY, adjusterW, adjusterH));
         }
     }
 }

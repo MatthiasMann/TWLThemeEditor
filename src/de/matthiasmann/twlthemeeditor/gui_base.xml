@@ -1,56 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE themes PUBLIC "-//www.matthiasmann.de//TWL-Theme//EN" "http://hg.l33tlabs.org/twl/raw-file/tip/src/de/matthiasmann/twl/theme/theme.dtd">
 <themes>
-    <textures file="gui.png" format="RGBA">
-        <texture name="--area1L" x="0" y="0" width="4" height="18"/>
-        <texture name="--area1F" x="3" y="0" width="1" height="18"/>
-        <texture name="--area1M" x="4" y="0" width="1" height="18"/>
-        <texture name="--area1R" x="5" y="0" width="4" height="18"/>
+    <images file="gui.png" format="RGBA">
+        <area name="--area1L" xywh="0,0,4,18"/>
+        <area name="--area1F" xywh="3,0,1,18"/>
+        <area name="--area1M" xywh="4,0,1,18"/>
+        <area name="--area1R" xywh="5,0,4,18"/>
 
-        <texture name="--area2L" x="10" y="0" width="4" height="18"/>
-        <texture name="--area2F" x="13" y="0" width="1" height="18"/>
-        <texture name="--area2M" x="14" y="0" width="1" height="18"/>
-        <texture name="--area2R" x="15" y="0" width="4" height="18"/>
+        <area name="--area2L" xywh="10,0,4,18"/>
+        <area name="--area2F" xywh="13,0,1,18"/>
+        <area name="--area2M" xywh="14,0,1,18"/>
+        <area name="--area2R" xywh="15,0,4,18"/>
 
-        <texture name="--area3L" x="20" y="0" width="4" height="18"/>
-        <texture name="--area3F" x="23" y="0" width="1" height="18"/>
-        <texture name="--area3M" x="24" y="0" width="1" height="18"/>
-        <texture name="--area3R" x="25" y="0" width="4" height="18"/>
+        <area name="--area3L" xywh="20,0,4,18"/>
+        <area name="--area3F" xywh="23,0,1,18"/>
+        <area name="--area3M" xywh="24,0,1,18"/>
+        <area name="--area3R" xywh="25,0,4,18"/>
 
-        <texture name="--area4L" x="30" y="0" width="4" height="18"/>
-        <texture name="--area4F" x="33" y="0" width="1" height="18"/>
-        <texture name="--area4M" x="34" y="0" width="1" height="18"/>
-        <texture name="--area4R" x="35" y="0" width="4" height="18"/>
+        <area name="--area4L" xywh="30,0,4,18"/>
+        <area name="--area4F" xywh="33,0,1,18"/>
+        <area name="--area4M" xywh="34,0,1,18"/>
+        <area name="--area4R" xywh="35,0,4,18"/>
 
-        <texture name="--area5L" x="40" y="0" width="4" height="18"/>
-        <texture name="--area5F" x="43" y="0" width="1" height="18"/>
-        <texture name="--area5M" x="44" y="0" width="1" height="18"/>
-        <texture name="--area5R" x="45" y="0" width="4" height="18"/>
+        <area name="--area5L" xywh="40,0,4,18"/>
+        <area name="--area5F" xywh="43,0,1,18"/>
+        <area name="--area5M" xywh="44,0,1,18"/>
+        <area name="--area5R" xywh="45,0,4,18"/>
 
-        <texture name="--area6L" x="50" y="0" width="4" height="18"/>
-        <texture name="--area6F" x="53" y="0" width="1" height="18"/>
-        <texture name="--area6M" x="54" y="0" width="1" height="18"/>
-        <texture name="--area6R" x="55" y="0" width="4" height="18"/>
+        <area name="--area6L" xywh="50,0,4,18"/>
+        <area name="--area6F" xywh="53,0,1,18"/>
+        <area name="--area6M" xywh="54,0,1,18"/>
+        <area name="--area6R" xywh="55,0,4,18"/>
 
-        <texture name="--area7L" x="60" y="0" width="4" height="18"/>
-        <texture name="--area7F" x="63" y="0" width="1" height="18"/>
-        <texture name="--area7M" x="64" y="0" width="1" height="18"/>
-        <texture name="--area7R" x="65" y="0" width="4" height="18"/>
+        <area name="--area7L" xywh="60,0,4,18"/>
+        <area name="--area7F" xywh="63,0,1,18"/>
+        <area name="--area7M" xywh="64,0,1,18"/>
+        <area name="--area7R" xywh="65,0,4,18"/>
 
-        <texture name="--area8L" x="70" y="0" width="4" height="18"/>
-        <texture name="--area8F" x="73" y="0" width="1" height="18"/>
-        <texture name="--area8M" x="74" y="0" width="1" height="18"/>
-        <texture name="--area8R" x="75" y="0" width="4" height="18"/>
+        <area name="--area8L" xywh="70,0,4,18"/>
+        <area name="--area8F" xywh="73,0,1,18"/>
+        <area name="--area8M" xywh="74,0,1,18"/>
+        <area name="--area8R" xywh="75,0,4,18"/>
 
-        <texture name="--area9L" x="80" y="0" width="4" height="18"/>
-        <texture name="--area9F" x="83" y="0" width="1" height="18"/>
-        <texture name="--area9M" x="84" y="0" width="1" height="18"/>
-        <texture name="--area9R" x="85" y="0" width="4" height="18"/>
+        <area name="--area9L" xywh="80,0,4,18"/>
+        <area name="--area9F" xywh="83,0,1,18"/>
+        <area name="--area9M" xywh="84,0,1,18"/>
+        <area name="--area9R" xywh="85,0,4,18"/>
 
-        <texture name="--outlineL" x="90" y="0" width="4" height="18"/>
-        <texture name="--outlineF" x="93" y="0" width="1" height="18"/>
-        <texture name="--outlineM" x="94" y="0" width="1" height="18"/>
-        <texture name="--outlineR" x="95" y="0" width="4" height="18"/>
+        <area name="--outlineL" xywh="90,0,4,18"/>
+        <area name="--outlineF" xywh="93,0,1,18"/>
+        <area name="--outlineM" xywh="94,0,1,18"/>
+        <area name="--outlineR" xywh="95,0,4,18"/>
 
         <grid name="-area1L" weightsX="0,1" weightsY="1">
             <alias ref="--area1L"/>
@@ -299,60 +299,60 @@
             <alias ref="-area7X"/>
         </select>
         <alias name="button.overlay" ref="-outlineX" tint="#6f97df" if="keyboardFocus"/>
-    </textures>
+    </images>
 
-    <textures file="gui.png" format="RGBA">
-        <texture name="-adjuster1TL" x="0" y="28" width="12" height="17"/>
-        <texture name="-adjuster1TM" x="8" y="28" width="4" height="17"/>
-        <texture name="-adjuster1TR" x="8" y="28" width="12" height="17"/>
-        <texture name="-adjuster1ML" x="0" y="45" width="12" height="17"/>
-        <texture name="-adjuster1MM" x="8" y="45" width="4" height="17"/>
-        <texture name="-adjuster1MR" x="8" y="45" width="12" height="17"/>
-        <texture name="-adjuster1BL" x="0" y="62" width="12" height="18"/>
-        <texture name="-adjuster1BM" x="8" y="62" width="4" height="18"/>
-        <texture name="-adjuster1BR" x="8" y="62" width="12" height="18"/>
-        <texture name="-adjuster1XL" x="0" y="81" width="12" height="18"/>
-        <texture name="-adjuster1XM" x="8" y="81" width="4" height="18"/>
-        <texture name="-adjuster1XR" x="8" y="81" width="12" height="18"/>
+    <images file="gui.png" format="RGBA">
+        <area name="-adjuster1TL" xywh="0,28,12,17"/>
+        <area name="-adjuster1TM" xywh="8,28,4,17"/>
+        <area name="-adjuster1TR" xywh="8,28,12,17"/>
+        <area name="-adjuster1ML" xywh="0,45,12,17"/>
+        <area name="-adjuster1MM" xywh="8,45,4,17"/>
+        <area name="-adjuster1MR" xywh="8,45,12,17"/>
+        <area name="-adjuster1BL" xywh="0,62,12,18"/>
+        <area name="-adjuster1BM" xywh="8,62,4,18"/>
+        <area name="-adjuster1BR" xywh="8,62,12,18"/>
+        <area name="-adjuster1XL" xywh="0,81,12,18"/>
+        <area name="-adjuster1XM" xywh="8,81,4,18"/>
+        <area name="-adjuster1XR" xywh="8,81,12,18"/>
 
-        <texture name="-adjuster2TL" x="21" y="28" width="12" height="17"/>
-        <texture name="-adjuster2TM" x="29" y="28" width="4" height="17"/>
-        <texture name="-adjuster2TR" x="29" y="28" width="12" height="17"/>
-        <texture name="-adjuster2ML" x="21" y="45" width="12" height="17"/>
-        <texture name="-adjuster2MM" x="29" y="45" width="4" height="17"/>
-        <texture name="-adjuster2MR" x="29" y="45" width="12" height="17"/>
-        <texture name="-adjuster2BL" x="21" y="62" width="12" height="18"/>
-        <texture name="-adjuster2BM" x="29" y="62" width="4" height="18"/>
-        <texture name="-adjuster2BR" x="29" y="62" width="12" height="18"/>
-        <texture name="-adjuster2XL" x="21" y="81" width="12" height="18"/>
-        <texture name="-adjuster2XM" x="29" y="81" width="4" height="18"/>
-        <texture name="-adjuster2XR" x="29" y="81" width="12" height="18"/>
+        <area name="-adjuster2TL" xywh="21,28,12,17"/>
+        <area name="-adjuster2TM" xywh="29,28,4,17"/>
+        <area name="-adjuster2TR" xywh="29,28,12,17"/>
+        <area name="-adjuster2ML" xywh="21,45,12,17"/>
+        <area name="-adjuster2MM" xywh="29,45,4,17"/>
+        <area name="-adjuster2MR" xywh="29,45,12,17"/>
+        <area name="-adjuster2BL" xywh="21,62,12,18"/>
+        <area name="-adjuster2BM" xywh="29,62,4,18"/>
+        <area name="-adjuster2BR" xywh="29,62,12,18"/>
+        <area name="-adjuster2XL" xywh="21,81,12,18"/>
+        <area name="-adjuster2XM" xywh="29,81,4,18"/>
+        <area name="-adjuster2XR" xywh="29,81,12,18"/>
 
-        <texture name="-adjuster3TL" x="42" y="32" width="12" height="17"/>
-        <texture name="-adjuster3TM" x="50" y="32" width="4" height="17"/>
-        <texture name="-adjuster3TR" x="50" y="32" width="12" height="17"/>
-        <texture name="-adjuster3ML" x="42" y="49" width="12" height="17"/>
-        <texture name="-adjuster3MM" x="50" y="49" width="4" height="17"/>
-        <texture name="-adjuster3MR" x="50" y="49" width="12" height="17"/>
-        <texture name="-adjuster3BL" x="42" y="66" width="12" height="18"/>
-        <texture name="-adjuster3BM" x="50" y="66" width="4" height="18"/>
-        <texture name="-adjuster3BR" x="50" y="66" width="12" height="18"/>
-        <texture name="-adjuster3XL" x="42" y="85" width="12" height="18"/>
-        <texture name="-adjuster3XM" x="50" y="85" width="4" height="18"/>
-        <texture name="-adjuster3XR" x="50" y="85" width="12" height="18"/>
+        <area name="-adjuster3TL" xywh="42,32,12,17"/>
+        <area name="-adjuster3TM" xywh="50,32,4,17"/>
+        <area name="-adjuster3TR" xywh="50,32,12,17"/>
+        <area name="-adjuster3ML" xywh="42,49,12,17"/>
+        <area name="-adjuster3MM" xywh="50,49,4,17"/>
+        <area name="-adjuster3MR" xywh="50,49,12,17"/>
+        <area name="-adjuster3BL" xywh="42,66,12,18"/>
+        <area name="-adjuster3BM" xywh="50,66,4,18"/>
+        <area name="-adjuster3BR" xywh="50,66,12,18"/>
+        <area name="-adjuster3XL" xywh="42,85,12,18"/>
+        <area name="-adjuster3XM" xywh="50,85,4,18"/>
+        <area name="-adjuster3XR" xywh="50,85,12,18"/>
 
-        <texture name="-adjusterSelTL" x="63" y="32" width="8" height="17"/>
-        <texture name="-adjusterSelTM" x="72" y="32" width="1" height="17"/>
-        <texture name="-adjusterSelTR" x="74" y="32" width="8" height="17"/>
-        <texture name="-adjusterSelML" x="63" y="49" width="8" height="17"/>
-        <texture name="-adjusterSelMM" x="72" y="49" width="1" height="17"/>
-        <texture name="-adjusterSelMR" x="74" y="49" width="8" height="17"/>
-        <texture name="-adjusterSelBL" x="63" y="66" width="8" height="18"/>
-        <texture name="-adjusterSelBM" x="72" y="66" width="1" height="18"/>
-        <texture name="-adjusterSelBR" x="74" y="66" width="8" height="18"/>
-        <texture name="-adjusterSelXL" x="63" y="85" width="8" height="18"/>
-        <texture name="-adjusterSelXM" x="72" y="85" width="1" height="18"/>
-        <texture name="-adjusterSelXR" x="74" y="85" width="8" height="18"/>
+        <area name="-adjusterSelTL" xywh="63,32,8,17"/>
+        <area name="-adjusterSelTM" xywh="72,32,1,17"/>
+        <area name="-adjusterSelTR" xywh="74,32,8,17"/>
+        <area name="-adjusterSelML" xywh="63,49,8,17"/>
+        <area name="-adjusterSelMM" xywh="72,49,1,17"/>
+        <area name="-adjusterSelMR" xywh="74,49,8,17"/>
+        <area name="-adjusterSelBL" xywh="63,66,8,18"/>
+        <area name="-adjusterSelBM" xywh="72,66,1,18"/>
+        <area name="-adjusterSelBR" xywh="74,66,8,18"/>
+        <area name="-adjusterSelXL" xywh="63,85,8,18"/>
+        <area name="-adjusterSelXM" xywh="72,85,1,18"/>
+        <area name="-adjusterSelXR" xywh="74,85,8,18"/>
 
         <select name="valueadjuster.display.background">
             <select if="!adjusterNotFirst + !adjusterNotLast">
@@ -367,7 +367,7 @@
                 <alias ref="-adjuster2BM" if="hover + !disabled"/>
                 <alias ref="-adjuster1BM"/>
             </select>
-            <alias ref="-adjuster2MM" if="hover"/>
+            <alias ref="-adjuster2MM" if="hover + !disabled"/>
             <alias ref="-adjuster1MM"/>
         </select>
         <alias name="valueadjuster.display.overlay" ref="none"/>
@@ -388,7 +388,7 @@
                 <alias ref="-adjuster1BL"/>
             </select>
             <alias ref="-adjuster3ML" if="armed"/>
-            <alias ref="-adjuster2ML" if="hover"/>
+            <alias ref="-adjuster2ML" if="hover + !disabled"/>
             <alias ref="-adjuster1ML"/>
         </select>
         <alias name="valueadjuster.dec.overlay" ref="none"/>
@@ -409,7 +409,7 @@
                 <alias ref="-adjuster1BR"/>
             </select>
             <alias ref="-adjuster3MR" if="armed"/>
-            <alias ref="-adjuster2MR" if="hover"/>
+            <alias ref="-adjuster2MR" if="hover + !disabled"/>
             <alias ref="-adjuster1MR"/>
         </select>
         <alias name="valueadjuster.inc.overlay" ref="none"/>
@@ -438,78 +438,78 @@
         </select>
         <alias name="valueadjuster.edit.background" ref="valueadjuster.display.background"/>
         <alias name="valueadjuster.edit.overlay" ref="none"/>
-    </textures>
+    </images>
 
-    <textures file="gui.png" format="RGBA">
-        <texture name="-vbutton1TL" x="100" y="0" width="4" height="17"/>
-        <texture name="-vbutton1TM" x="103" y="0" width="1" height="17"/>
-        <texture name="-vbutton1TR" x="103" y="0" width="4" height="17"/>
-        <texture name="-vbutton1ML" x="100" y="17" width="4" height="17"/>
-        <texture name="-vbutton1MM" x="103" y="17" width="1" height="17"/>
-        <texture name="-vbutton1MR" x="103" y="17" width="4" height="17"/>
-        <texture name="-vbutton1BL" x="100" y="34" width="4" height="18"/>
-        <texture name="-vbutton1BM" x="103" y="34" width="1" height="18"/>
-        <texture name="-vbutton1BR" x="103" y="34" width="4" height="18"/>
+    <images file="gui.png" format="RGBA">
+        <area name="-vbutton1TL" xywh="100,0,4,17"/>
+        <area name="-vbutton1TM" xywh="103,0,1,17"/>
+        <area name="-vbutton1TR" xywh="103,0,4,17"/>
+        <area name="-vbutton1ML" xywh="100,17,4,17"/>
+        <area name="-vbutton1MM" xywh="103,17,1,17"/>
+        <area name="-vbutton1MR" xywh="103,17,4,17"/>
+        <area name="-vbutton1BL" xywh="100,34,4,18"/>
+        <area name="-vbutton1BM" xywh="103,34,1,18"/>
+        <area name="-vbutton1BR" xywh="103,34,4,18"/>
 
-        <texture name="-vbutton2TL" x="108" y="0" width="4" height="17"/>
-        <texture name="-vbutton2TM" x="111" y="0" width="1" height="17"/>
-        <texture name="-vbutton2TR" x="111" y="0" width="4" height="17"/>
-        <texture name="-vbutton2ML" x="108" y="17" width="4" height="17"/>
-        <texture name="-vbutton2MM" x="111" y="17" width="1" height="17"/>
-        <texture name="-vbutton2MR" x="111" y="17" width="4" height="17"/>
-        <texture name="-vbutton2BL" x="108" y="34" width="4" height="18"/>
-        <texture name="-vbutton2BM" x="111" y="34" width="1" height="18"/>
-        <texture name="-vbutton2BR" x="111" y="34" width="4" height="18"/>
+        <area name="-vbutton2TL" xywh="108,0,4,17"/>
+        <area name="-vbutton2TM" xywh="111,0,1,17"/>
+        <area name="-vbutton2TR" xywh="111,0,4,17"/>
+        <area name="-vbutton2ML" xywh="108,17,4,17"/>
+        <area name="-vbutton2MM" xywh="111,17,1,17"/>
+        <area name="-vbutton2MR" xywh="111,17,4,17"/>
+        <area name="-vbutton2BL" xywh="108,34,4,18"/>
+        <area name="-vbutton2BM" xywh="111,34,1,18"/>
+        <area name="-vbutton2BR" xywh="111,34,4,18"/>
 
-        <texture name="-vbutton3TL" x="116" y="0" width="4" height="17"/>
-        <texture name="-vbutton3TM" x="119" y="0" width="1" height="17"/>
-        <texture name="-vbutton3TR" x="119" y="0" width="4" height="17"/>
-        <texture name="-vbutton3ML" x="116" y="17" width="4" height="17"/>
-        <texture name="-vbutton3MM" x="119" y="17" width="1" height="17"/>
-        <texture name="-vbutton3MR" x="119" y="17" width="4" height="17"/>
-        <texture name="-vbutton3BL" x="116" y="34" width="4" height="18"/>
-        <texture name="-vbutton3BM" x="119" y="34" width="1" height="18"/>
-        <texture name="-vbutton3BR" x="119" y="34" width="4" height="18"/>
+        <area name="-vbutton3TL" xywh="116,0,4,17"/>
+        <area name="-vbutton3TM" xywh="119,0,1,17"/>
+        <area name="-vbutton3TR" xywh="119,0,4,17"/>
+        <area name="-vbutton3ML" xywh="116,17,4,17"/>
+        <area name="-vbutton3MM" xywh="119,17,1,17"/>
+        <area name="-vbutton3MR" xywh="119,17,4,17"/>
+        <area name="-vbutton3BL" xywh="116,34,4,18"/>
+        <area name="-vbutton3BM" xywh="119,34,1,18"/>
+        <area name="-vbutton3BR" xywh="119,34,4,18"/>
 
-        <texture name="-vbuttonSelTL" x="124" y="0" width="4" height="17"/>
-        <texture name="-vbuttonSelTM" x="127" y="0" width="1" height="17"/>
-        <texture name="-vbuttonSelTR" x="127" y="0" width="4" height="17"/>
-        <texture name="-vbuttonSelML" x="124" y="17" width="4" height="17"/>
-        <texture name="-vbuttonSelMM" x="127" y="17" width="1" height="17"/>
-        <texture name="-vbuttonSelMR" x="127" y="17" width="4" height="17"/>
-        <texture name="-vbuttonSelBL" x="124" y="34" width="4" height="18"/>
-        <texture name="-vbuttonSelBM" x="127" y="34" width="1" height="18"/>
-        <texture name="-vbuttonSelBR" x="127" y="34" width="4" height="18"/>
+        <area name="-vbuttonSelTL" xywh="124,0,4,17"/>
+        <area name="-vbuttonSelTM" xywh="127,0,1,17"/>
+        <area name="-vbuttonSelTR" xywh="127,0,4,17"/>
+        <area name="-vbuttonSelML" xywh="124,17,4,17"/>
+        <area name="-vbuttonSelMM" xywh="127,17,1,17"/>
+        <area name="-vbuttonSelMR" xywh="127,17,4,17"/>
+        <area name="-vbuttonSelBL" xywh="124,34,4,18"/>
+        <area name="-vbuttonSelBM" xywh="127,34,1,18"/>
+        <area name="-vbuttonSelBR" xywh="127,34,4,18"/>
 
-        <texture name="-vbutton4TL" x="132" y="0" width="4" height="17"/>
-        <texture name="-vbutton4TM" x="135" y="0" width="1" height="17"/>
-        <texture name="-vbutton4TR" x="135" y="0" width="4" height="17"/>
-        <texture name="-vbutton4ML" x="132" y="17" width="4" height="17"/>
-        <texture name="-vbutton4MM" x="135" y="17" width="1" height="17"/>
-        <texture name="-vbutton4MR" x="135" y="17" width="4" height="17"/>
-        <texture name="-vbutton4BL" x="132" y="34" width="4" height="18"/>
-        <texture name="-vbutton4BM" x="135" y="34" width="1" height="18"/>
-        <texture name="-vbutton4BR" x="135" y="34" width="4" height="18"/>
+        <area name="-vbutton4TL" xywh="132,0,4,17"/>
+        <area name="-vbutton4TM" xywh="135,0,1,17"/>
+        <area name="-vbutton4TR" xywh="135,0,4,17"/>
+        <area name="-vbutton4ML" xywh="132,17,4,17"/>
+        <area name="-vbutton4MM" xywh="135,17,1,17"/>
+        <area name="-vbutton4MR" xywh="135,17,4,17"/>
+        <area name="-vbutton4BL" xywh="132,34,4,18"/>
+        <area name="-vbutton4BM" xywh="135,34,1,18"/>
+        <area name="-vbutton4BR" xywh="135,34,4,18"/>
 
-        <texture name="-vbutton5TL" x="140" y="0" width="4" height="17"/>
-        <texture name="-vbutton5TM" x="143" y="0" width="1" height="17"/>
-        <texture name="-vbutton5TR" x="143" y="0" width="4" height="17"/>
-        <texture name="-vbutton5ML" x="140" y="17" width="4" height="17"/>
-        <texture name="-vbutton5MM" x="143" y="17" width="1" height="17"/>
-        <texture name="-vbutton5MR" x="143" y="17" width="4" height="17"/>
-        <texture name="-vbutton5BL" x="140" y="34" width="4" height="18"/>
-        <texture name="-vbutton5BM" x="143" y="34" width="1" height="18"/>
-        <texture name="-vbutton5BR" x="143" y="34" width="4" height="18"/>
+        <area name="-vbutton5TL" xywh="140,0,4,17"/>
+        <area name="-vbutton5TM" xywh="143,0,1,17"/>
+        <area name="-vbutton5TR" xywh="143,0,4,17"/>
+        <area name="-vbutton5ML" xywh="140,17,4,17"/>
+        <area name="-vbutton5MM" xywh="143,17,1,17"/>
+        <area name="-vbutton5MR" xywh="143,17,4,17"/>
+        <area name="-vbutton5BL" xywh="140,34,4,18"/>
+        <area name="-vbutton5BM" xywh="143,34,1,18"/>
+        <area name="-vbutton5BR" xywh="143,34,4,18"/>
 
-        <texture name="-vbutton6TL" x="148" y="0" width="4" height="17"/>
-        <texture name="-vbutton6TM" x="151" y="0" width="1" height="17"/>
-        <texture name="-vbutton6TR" x="151" y="0" width="4" height="17"/>
-        <texture name="-vbutton6ML" x="148" y="17" width="4" height="17"/>
-        <texture name="-vbutton6MM" x="151" y="17" width="1" height="17"/>
-        <texture name="-vbutton6MR" x="151" y="17" width="4" height="17"/>
-        <texture name="-vbutton6BL" x="148" y="34" width="4" height="18"/>
-        <texture name="-vbutton6BM" x="151" y="34" width="1" height="18"/>
-        <texture name="-vbutton6BR" x="151" y="34" width="4" height="18"/>
+        <area name="-vbutton6TL" xywh="148,0,4,17"/>
+        <area name="-vbutton6TM" xywh="151,0,1,17"/>
+        <area name="-vbutton6TR" xywh="151,0,4,17"/>
+        <area name="-vbutton6ML" xywh="148,17,4,17"/>
+        <area name="-vbutton6MM" xywh="151,17,1,17"/>
+        <area name="-vbutton6MR" xywh="151,17,4,17"/>
+        <area name="-vbutton6BL" xywh="148,34,4,18"/>
+        <area name="-vbutton6BM" xywh="151,34,1,18"/>
+        <area name="-vbutton6BR" xywh="151,34,4,18"/>
 
         <select name="vbutton.background">
             <alias ref="button.background" if="!vbuttonNotFirst + !vbuttonNotLast"/>
@@ -626,29 +626,29 @@
                 <alias ref="-vbuttonSelMR"/>
             </grid>
         </select>
-    </textures>
+    </images>
 
-    <textures file="gui.png" format="RGBA">
-        <texture name="white" x="66" y="66" width="1" height="1"/>
+    <images file="gui.png" format="RGBA">
+        <area name="white" xywh="66,66,1,1"/>
 
-        <texture name="panel.background" x="0" y="19" width="1" height="1"/>
-        <texture name="panel.separator" x="6" y="19" width="1" height="2"/>
+        <area name="panel.background" xywh="0,19,1,1"/>
+        <area name="panel.separator" xywh="6,19,1,2"/>
 
-        <hvsplit name="frame.background" x="0" y="121" width="7" height="7" border="3"/>
+        <area name="frame.background" border="3" xywh="0,121,7,7" splitx="L3,R3" splity="T3,B3"/>
 
-        <hvsplit name="popup.background" x="66" y="104" width="10" height="10" border="4" tint="#E0FFFFFF"/>
+        <area name="popup.background" border="4" tint="#E0FFFFFF" xywh="66,104,10,10" splitx="L4,R4" splity="T4,B4"/>
         
-        <hsplit name="-popupmenubutton.hover" x="83" y="82" width="6" height="18" border="2,0"/>
-        <hsplit name="-popupmenubutton.selected" x="83" y="82" width="6" height="18" border="2,0" tint="#808080"/>
+        <area name="-popupmenubutton.hover" border="2,0" xywh="83,82,6,18" splitx="L2,R2"/>
+        <area name="-popupmenubutton.selected" border="2,0" tint="#808080" xywh="83,82,6,18" splitx="L2,R2"/>
         <select name="popupmenubutton.background" border="4,1">
             <alias ref="-popupmenubutton.hover" if="(hover | hasOpenMenus) + !disabled"/>
             <alias ref="-popupmenubutton.selected" if="selected + !disabled"/>
         </select>
         <alias name="popupmenubutton.overlay" ref="none"/>
 
-        <hsplit name="-popupmenucheckbox.hover" x="83" y="82" width="6" height="18" border="2,0"/>
+        <area name="-popupmenucheckbox.hover" border="2,0" xywh="83,82,6,18" splitx="L2,R2"/>
         <grid name="-popupmenucheckbox.icon" weightsX="0,1" weightsY="1">
-            <texture x="35" y="19" width="12" height="9" center="true"/>
+            <area center="true" xywh="35,19,12,9"/>
             <alias ref="none"/>
         </grid>
         <select name="popupmenucheckbox.background" border="16,1">
@@ -656,10 +656,10 @@
         </select>
         <alias name="popupmenucheckbox.overlay" ref="-popupmenucheckbox.icon" if="selected"/>
 
-        <hsplit name="-popupmenuradiobtn.hover" x="83" y="82" width="6" height="18" border="2,0"/>
+        <area name="-popupmenuradiobtn.hover" border="2,0" xywh="83,82,6,18" splitx="L2,R2"/>
         <grid name="-popupmenuradiobtn.icon" weightsX="0,0,1" weightsY="1">
             <alias ref="none" sizeOverwriteH="4"/>
-            <texture x="100" y="106" width="8" height="8" center="true"/>
+            <area center="true" xywh="100,106,8,8"/>
             <alias ref="none"/>
         </grid>
         <select name="popupmenuradiobtn.background" border="16,1">
@@ -671,8 +671,8 @@
         <grid name="popupmenusubmenubutton.overlay" weightsX="1,0" weightsY="1">
             <alias ref="none"/>
             <select>
-                <texture x="23" y="19" width="5" height="9" sizeOverwriteH="9" center="true" inset="1,0,-1,0" if="(hover | hasOpenPopups) + !disabled"/>
-                <texture x="17" y="19" width="5" height="9" sizeOverwriteH="9" center="true" inset="1,0,-1,0"/>
+                <area sizeOverwriteH="9" center="true" inset="1,0,-1,0" if="(hover | hasOpenPopups) + !disabled" xywh="23,19,5,9"/>
+                <area sizeOverwriteH="9" center="true" inset="1,0,-1,0" xywh="17,19,5,9"/>
             </select>
         </grid>
         <select name="autocompletion.listbox.display.background" border="4,1">
@@ -687,7 +687,7 @@
         <alias name="editfield.cursor" ref="white" sizeOverwriteH="2" inset="0,-1,0,1" tint="#6f97df"/>
         <alias name="editfield.selection" ref="white" tint="#444"/>
 
-        <texture name="-icon.combobox" x="10" y="19" width="6" height="8" center="true"/>
+        <area name="-icon.combobox" center="true" xywh="10,19,6,8"/>
         <select name="combobox.background">
             <alias ref="-area3X" if="armed"/>
             <alias ref="-area2X" if="hover + !disabled"/>
@@ -701,18 +701,18 @@
         <alias name="combobox.overlay" ref="-outlineX" tint="#6f97df" if="keyboardFocus"/>
 
 
-        <texture name="-icon.checkbox" x="35" y="19" width="12" height="9" inset="0,2,5,0"/>
+        <area name="-icon.checkbox" inset="0,2,5,0" xywh="35,19,12,9"/>
         <grid name="checkbox.background" weightsX="0,1" weightsY="1" border="0,18,0,0">
             <select center="true">
-                <texture x="128" y="53" width="14" height="14" if="armed"/>
-                <texture x="113" y="53" width="14" height="14" if="hover + !disabled"/>
-                <texture x="98" y="53" width="14" height="14"/>
+                <area if="armed" xywh="128,53,14,14"/>
+                <area if="hover + !disabled" xywh="113,53,14,14"/>
+                <area xywh="98,53,14,14"/>
             </select>
             <alias ref="none"/>
         </grid>
         <grid name="checkbox.overlay" weightsX="0,1" weightsY="1">
             <composed center="true">
-                <texture x="143" y="53" width="14" height="14" tint="#6f97df" if="keyboardFocus"/>
+                <area tint="#6f97df" if="keyboardFocus" xywh="143,53,14,14"/>
                 <select>
                     <animation if="selected" timeSource="selected" count="1" frozenTime="200">
                         <frame ref="-icon.checkbox" duration="200" zoom="2"/>
@@ -728,18 +728,18 @@
         </grid>
 
 
-        <vsplit name="vscrollbar.background" x="0" y="104" width="13" height="16" splity="7,9"/>
+        <area name="vscrollbar.background" splity="7,9" xywh="0,104,13,16"/>
         <select name="vscrollbar.thumb.background">
-            <vsplit x="42" y="104" width="13" height="24" splity="10,14" if="pressed"/>
-            <vsplit x="28" y="104" width="13" height="24" splity="10,14" if="hover + !disabled"/>
-            <vsplit x="14" y="104" width="13" height="24" splity="10,14"/>
+            <area splity="10,14" if="pressed" xywh="42,104,13,24"/>
+            <area splity="10,14" if="hover + !disabled" xywh="28,104,13,24"/>
+            <area splity="10,14" xywh="14,104,13,24"/>
         </select>
 
-        <hsplit name="hscrollbar.background" x="83" y="101" width="16" height="13" splitx="7,9"/>
+        <area name="hscrollbar.background" splitx="7,9" xywh="83,101,16,13"/>
         <select name="hscrollbar.thumb.background">
-            <hsplit x="106" y="115" width="24" height="13" splitx="10,14" if="pressed"/>
-            <hsplit x="81" y="115" width="24" height="13" splitx="10,14" if="hover + !disabled"/>
-            <hsplit x="56" y="115" width="24" height="13" splitx="10,14"/>
+            <area splitx="10,14" if="pressed" xywh="106,115,24,13"/>
+            <area splitx="10,14" if="hover + !disabled" xywh="81,115,24,13"/>
+            <area splitx="10,14" xywh="56,115,24,13"/>
         </select>
 
 
@@ -749,21 +749,21 @@
         </grid>
 
         <select name="collapsiblepanel.arrow.background" center="true">
-            <texture x="94" y="71" width="10" height="10" unless="expanded"/>
-            <texture x="83" y="71" width="10" height="10"/>
+            <area unless="expanded" xywh="94,71,10,10"/>
+            <area xywh="83,71,10,10"/>
         </select>
 
         <select name="collapsiblepanel.arrowH.background" center="true">
-            <texture x="90" y="28" width="5" height="8" if="expanded"/>
-            <texture x="94" y="28" width="5" height="8"/>
+            <area if="expanded" xywh="90,28,5,8"/>
+            <area xywh="94,28,5,8"/>
         </select>
         
-        <texture name="splitpane.hsplitter.background" x="4" y="24" width="5" height="1"/>
+        <area name="splitpane.hsplitter.background" xywh="4,24,5,1"/>
         <alias name="splitpane.hsplitter.overlay" ref="none"/>
         
-        <texture name="splitpane.vsplitter.background" x="1" y="21" width="1" height="5"/>
+        <area name="splitpane.vsplitter.background" xywh="1,21,1,5"/>
         <alias name="splitpane.vsplitter.overlay" ref="none"/>
-    </textures>
+    </images>
 
     <fontDef name="button-font" filename="font.fnt" color="white">
         <fontParam if="disabled" color="#ccc"/>

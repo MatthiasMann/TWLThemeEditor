@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twl.model.TreeTableNode;
@@ -38,11 +39,8 @@ import de.matthiasmann.twlthemeeditor.datamodel.images.Composed;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Cursor;
 import de.matthiasmann.twlthemeeditor.datamodel.images.CursorRef;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Grid;
-import de.matthiasmann.twlthemeeditor.datamodel.images.HSplit;
-import de.matthiasmann.twlthemeeditor.datamodel.images.HVSplit;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Select;
-import de.matthiasmann.twlthemeeditor.datamodel.images.Texture;
-import de.matthiasmann.twlthemeeditor.datamodel.images.VSplit;
+import de.matthiasmann.twlthemeeditor.datamodel.images.Area;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
@@ -62,11 +60,11 @@ import org.jdom.Element;
  */
 public abstract class Image extends ThemeTreeNode implements HasProperties {
 
-    protected final Textures textures;
+    protected final Images textures;
     protected final NameProperty nameProperty;
     protected ConditionProperty conditionProperty;
 
-    protected Image(Textures textures, TreeTableNode parent, Element element) {
+    protected Image(Images textures, TreeTableNode parent, Element element) {
         super(textures.getThemeFile(), parent, element);
         this.textures = textures;
 
@@ -108,7 +106,7 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         return (conditionProperty != null) ? conditionProperty.getPropertyValue() : Condition.NONE;
     }
 
-    public final Textures getTextures() {
+    public final Images getTextures() {
         return textures;
     }
 
@@ -131,7 +129,60 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         return operations;
     }
 
-    public static DomWrapper getImageDomWrapper(final Textures textures) {
+    public static void convertToXYWH(ThemeFile themeFile, Element element) {
+        if(element.getAttributeValue("xywh") == null) {
+            String x = element.getAttributeValue("x");
+            String y = element.getAttributeValue("y");
+            String w = element.getAttributeValue("width");
+            String h = element.getAttributeValue("height");
+            element.setAttribute("xywh", x+","+y+","+w+","+h);
+            element.removeAttribute("x");
+            element.removeAttribute("y");
+            element.removeAttribute("width");
+            element.removeAttribute("height");
+            themeFile.elementUpgraded();
+        }
+    }
+
+    public static void convertSplitX(ThemeFile themeFile, Element element) {
+        if(element.getAttributeValue("splitx") == null) {
+            final String borderStr = element.getAttributeValue("border");
+            int left = 0;
+            int right = 0;
+            try {
+                Border border = Utils.parseBorder(borderStr);
+                if(border != null) {
+                    left = border.getBorderLeft();
+                    right = border.getBorderRight();
+                }
+            } catch(IllegalArgumentException ex) {
+                themeFile.logError("Could not parse border", borderStr, ex);
+            }
+            element.setAttribute("splitx", "L"+left+",R"+right);
+            themeFile.elementUpgraded();
+        }
+    }
+
+    public static void convertSplitY(ThemeFile themeFile, Element element) {
+        if(element.getAttributeValue("splity") == null) {
+            final String borderStr = element.getAttributeValue("border");
+            int top = 0;
+            int bottom = 0;
+            try {
+                Border border = Utils.parseBorder(borderStr);
+                if(border != null) {
+                    top = border.getBorderTop();
+                    bottom = border.getBorderBottom();
+                }
+            } catch(NumberFormatException ex) {
+                themeFile.logError("Could not parse border", borderStr, ex);
+            }
+            element.setAttribute("splity", "T"+top+",B"+bottom);
+            themeFile.elementUpgraded();
+        }
+    }
+    
+    public static DomWrapper getImageDomWrapper(final Images images) {
         return new DomWrapper() {
             public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                 Image image = createChild(themeFile, parent, element);
@@ -143,43 +194,77 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
             public Image createChild(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                 String tagName = element.getName();
 
-                if("texture".equals(tagName)) {
-                    Texture texture = new Texture(textures, parent, element);
-                    texture.addProperty(new BooleanProperty(new AttributeProperty(element, "tiled", "Tiled", true), false));
-                    return texture;
+                if("area".equals(tagName)) {
+                    return new Area(images, parent, element);
                 }
                 if("alias".equals(tagName)) {
-                    return new Alias(textures, parent, element);
+                    return new Alias(images, parent, element);
                 }
                 if("select".equals(tagName)) {
-                    return new Select(textures, parent, element);
+                    return new Select(images, parent, element);
                 }
                 if("composed".equals(tagName)) {
-                    return new Composed(textures, parent, element);
+                    return new Composed(images, parent, element);
                 }
                 if("grid".equals(tagName)) {
-                    return new Grid(textures, parent, element);
-                }
-                if("hsplit".equals(tagName)) {
-                    return new HSplit(textures, parent, element);
-                }
-                if("vsplit".equals(tagName)) {
-                    return new VSplit(textures, parent, element);
-                }
-                if("hvsplit".equals(tagName)) {
-                    return new HVSplit(textures, parent, element);
+                    return new Grid(images, parent, element);
                 }
                 if("cursor".equals(tagName)) {
                     if(element.getAttribute("ref") != null) {
-                        return new CursorRef(textures, parent, element);
+                        return new CursorRef(images, parent, element);
                     } else {
-                        return new Cursor(textures, parent, element);
+                        convertToXYWH(themeFile, element);
+                        return new Cursor(images, parent, element);
                     }
                 }
                 if("animation".equals(tagName)) {
-                    return new Animation(textures, parent, element);
+                    return new Animation(images, parent, element);
+                }
+                if("texture".equals(tagName)) {
+                    return upgradeTexture(themeFile, parent, element);
+                }
+                if("hsplit".equals(tagName)) {
+                    return upgradeHSplit(themeFile, parent, element);
+                }
+                if("vsplit".equals(tagName)) {
+                    return upgradeVSplit(themeFile, parent, element);
+                }
+                if("hvsplit".equals(tagName)) {
+                    return upgradeHVSplit(themeFile, parent, element);
                 }
                 return null;
+            }
+
+            private Image upgradeTexture(ThemeFile themeFile, ThemeTreeNode parent, Element element) {
+                element.setName("area");
+                convertToXYWH(themeFile, element);
+                themeFile.elementUpgraded();
+                return new Area(images, parent, element);
+            }
+
+            private Image upgradeHSplit(ThemeFile themeFile, ThemeTreeNode parent, Element element) {
+                element.setName("area");
+                convertToXYWH(themeFile, element);
+                convertSplitX(themeFile, element);
+                themeFile.elementUpgraded();
+                return new Area(images, parent, element);
+            }
+
+            private Image upgradeVSplit(ThemeFile themeFile, ThemeTreeNode parent, Element element) {
+                element.setName("area");
+                convertToXYWH(themeFile, element);
+                convertSplitY(themeFile, element);
+                themeFile.elementUpgraded();
+                return new Area(images, parent, element);
+            }
+
+            private Image upgradeHVSplit(ThemeFile themeFile, ThemeTreeNode parent, Element element) {
+                element.setName("area");
+                convertToXYWH(themeFile, element);
+                convertSplitX(themeFile, element);
+                convertSplitY(themeFile, element);
+                themeFile.elementUpgraded();
+                return new Area(images, parent, element);
             }
         };
     }
@@ -205,11 +290,7 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
 
     protected class ImageRectProperty extends RectProperty {
         public ImageRectProperty(Element element) {
-            super(new AttributeProperty(element, "x"),
-                    new AttributeProperty(element, "y"),
-                    new AttributeProperty(element, "width"),
-                    new AttributeProperty(element, "height"),
-                    "rect");
+            super(new AttributeProperty(element, "xywh"), "rect");
         }
 
         @Override

@@ -31,8 +31,9 @@ package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.Textures;
+import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
 import org.jdom.Element;
 
@@ -40,14 +41,18 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Texture extends Image {
+public class Area extends Image {
 
     protected final ImageRectProperty rectProperty;
 
-    public Texture(Textures textures, TreeTableNode parent, Element node) {
+    public Area(Images textures, TreeTableNode parent, Element node) {
         super(textures, parent, node);
         this.rectProperty = new ImageRectProperty(node);
         addProperty(rectProperty);
+        addProperty(new HSplitProperty());
+        addProperty(new VSplitProperty());
+        addProperty(new BooleanProperty(new AttributeProperty(element, "nocenter", "No Center", true), false));
+        addProperty(new BooleanProperty(new AttributeProperty(element, "tiled", "Tiled", true), false));
     }
 
     protected class HSplitProperty extends SplitProperty {

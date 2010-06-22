@@ -259,7 +259,7 @@ public class MainUI extends DialogLayout {
         closeProject();
         file = file.getAbsoluteFile();
         try {
-            model = new ThemeTreeModel(file.toURI().toURL());
+            model = new ThemeTreeModel(messageLog, file.toURI().toURL());
             projectDir = file.getParentFile();
             editorArea.setModel(model);
             btnSaveProject.setEnabled(true);

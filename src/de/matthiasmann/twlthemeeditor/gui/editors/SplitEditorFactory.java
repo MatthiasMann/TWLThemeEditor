@@ -30,8 +30,10 @@
 package de.matthiasmann.twlthemeeditor.gui.editors;
 
 import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Split;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
@@ -49,58 +51,117 @@ public class SplitEditorFactory implements PropertyEditorFactory<Split, SplitPro
     }
 
     static class SplitEditor extends DialogLayout {
-        private static final Split DEFAULT_SPLIT = new Split(0, 0);
+        private static final Split DEFAULT_SPLIT = new Split(
+                new Split.Point(0, false), new Split.Point(0, true));
 
         private final PropertyAccessor<Split, SplitProperty> pa;
-        private final SplitIntegerModel model1;
-        private final SplitIntegerModel model2;
 
         public SplitEditor(PropertyAccessor<Split, SplitProperty> pa) {
             this.pa = pa;
 
-            this.model1 = new SplitIntegerModel() {
-                public int getValue() {
-                    return getSplit().getSplit1();
-                }
-                public void setValue(int value) {
-                    setSplit(value, Math.max(value, getSplit().getSplit2()));
-                }
-            };
-            this.model2 = new SplitIntegerModel() {
-                public int getValue() {
-                    return getSplit().getSplit2();
-                }
-                public void setValue(int value) {
-                    setSplit(Math.min(value, getSplit().getSplit1()), value);
-                }
+            final ValueAdjusterInt adjusters[] = new ValueAdjusterInt[] {
+                new ValueAdjusterInt(new SplitIntegerModel(0)),
+                new ValueAdjusterInt(new SplitIntegerModel(1))
             };
 
-            ValueAdjusterInt adjusters[] = new ValueAdjusterInt[] {
-                new ValueAdjusterInt(model1),
-                new ValueAdjusterInt(model2)
-            };
+            final Group btnColumn1 = createParallelGroup();
+            final Group btnColumn2 = createParallelGroup();
+            final Group vert = createSequentialGroup();
+
+            final String theme1;
+            final String theme2;
+
+            if(pa.getProperty().getName().startsWith("Split X")) {
+                theme1 = "btnRelativeLeft";
+                theme2 = "btnRelativeRight";
+            } else {
+                theme1 = "btnRelativeTop";
+                theme2 = "btnRelativeBottom";
+            }
+            
+            for(int i=0,n=adjusters.length ; i<n ; i++) {
+                ValueAdjusterInt adjuster = adjusters[i];
+                adjuster.getAnimationState().setAnimationState("adjusterNotFirst", i > 0);
+                adjuster.getAnimationState().setAnimationState("adjusterNotLast", i < n-1);
+
+                ToggleButton btn1 = new ToggleButton(new EdgeBooleanModel(i, false));
+                ToggleButton btn2 = new ToggleButton(new EdgeBooleanModel(i, true));
+
+                btn1.setTheme(theme1);
+                btn2.setTheme(theme2);
+
+                btn1.getAnimationState().setAnimationState("radiobuttonNotLast", true);
+                btn2.getAnimationState().setAnimationState("radiobuttonNotFirst", true);
+
+                if(i > 0) {
+                    vert.addGap("adjuster");
+                }
+                
+                btnColumn1.addWidget(btn1);
+                btnColumn2.addWidget(btn2);
+                vert.addGroup(createParallelGroup().addWidget(adjuster).addWidget(btn1).addWidget(btn2));
+            }
 
             pa.setWidgetsToEnable(adjusters);
 
-            setHorizontalGroup(createParallelGroup(adjusters));
-            setVerticalGroup(createSequentialGroup().addWidgetsWithGap("adjuster", adjusters));
+            setHorizontalGroup(createSequentialGroup()
+                    .addGroup(createParallelGroup(adjusters))
+                    .addGroup(btnColumn1)
+                    .addGap("radiobutton")
+                    .addGroup(btnColumn2));
+            setVerticalGroup(vert);
         }
 
         Split getSplit() {
             return pa.getValue(DEFAULT_SPLIT);
         }
 
-        void setSplit(int split1, int split2) {
-            Split split = new Split(split1, split2);
-            pa.setValue(split);
-        }
-
-        abstract class SplitIntegerModel implements IntegerModel {
+        class SplitIntegerModel implements IntegerModel {
+            final int idx;
+            
+            public SplitIntegerModel(int idx) {
+                this.idx = idx;
+            }
             public int getMaxValue() {
                 return pa.getProperty().getLimit();
             }
             public int getMinValue() {
                 return 0;
+            }
+            public int getValue() {
+                return getSplit().getPoint(idx).getPos();
+            }
+            public void setValue(int value) {
+                Split split = getSplit();
+                pa.setValue(split.setPoint(idx, split.getPoint(idx).setPos(value)));
+            }
+            public void addCallback(Runnable callback) {
+                pa.getProperty().addCallback(callback);
+            }
+            public void removeCallback(Runnable callback) {
+                pa.getProperty().removeCallback(callback);
+            }
+        }
+
+        class EdgeBooleanModel implements BooleanModel {
+            final int idx;
+            final boolean thisEdge;
+
+            public EdgeBooleanModel(int idx, boolean thisEdge) {
+                this.idx = idx;
+                this.thisEdge = thisEdge;
+            }
+            public boolean getValue() {
+                return getSplit().getPoint(idx).isOtherEdge() == thisEdge;
+            }
+            public void setValue(boolean value) {
+                if(value) {
+                    final int limit = pa.getProperty().getLimit();
+                    final Split split = getSplit();
+                    final Split.Point point = split.getPoint(idx);
+                    final Split.Point newPoint = point.setOtherEdge(thisEdge, limit);
+                    pa.setValue(split.setPoint(idx, newPoint));
+                }
             }
             public void addCallback(Runnable callback) {
                 pa.getProperty().addCallback(callback);

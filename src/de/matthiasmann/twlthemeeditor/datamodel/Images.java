@@ -47,19 +47,19 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Textures extends ThemeTreeNode {
+public class Images extends ThemeTreeNode {
 
     private Dimension textureDimensions;
 
     protected VirtualFile textureVirtualFile;
     
-    Textures(TreeTableNode parent, Element element, ThemeFile themeFile) throws IOException {
+    Images(TreeTableNode parent, Element element, ThemeFile themeFile) throws IOException {
         super(themeFile, parent, element);
         
         registerTextureURL();
     }
 
-    protected void registerTextureURL() throws IOException {
+    final void registerTextureURL() throws IOException {
         TestEnv env = themeFile.getEnv();
         if(textureVirtualFile != null) {
             env.unregisterFile(textureVirtualFile);
@@ -67,19 +67,26 @@ public class Textures extends ThemeTreeNode {
         }
 
         URL textureURL = getTextureURL();
-        textureVirtualFile = env.registerFile(textureURL);
-        
-        InputStream textureStream = textureURL.openStream();
-        try {
-            PNGDecoder decoder = new PNGDecoder(textureStream);
-            textureDimensions = new Dimension(decoder.getWidth(), decoder.getHeight());
-        } finally {
-            textureStream.close();
+        if(textureURL != null) {
+            textureVirtualFile = env.registerFile(textureURL);
+
+            InputStream textureStream = textureURL.openStream();
+            try {
+                PNGDecoder decoder = new PNGDecoder(textureStream);
+                textureDimensions = new Dimension(decoder.getWidth(), decoder.getHeight());
+            } finally {
+                textureStream.close();
+            }
         }
     }
 
     public URL getTextureURL() throws MalformedURLException {
-        return themeFile.getURL(getFile());
+        String file = getFile();
+        if(file != null) {
+            return themeFile.getURL(file);
+        } else {
+            return null;
+        }
     }
 
     public String getFile() {
@@ -92,7 +99,7 @@ public class Textures extends ThemeTreeNode {
 
     @Override
     public String toString() {
-        return "[Textures file=\""+getFile()+"\"]";
+        return "[Images file=\""+getFile()+"\"]";
     }
 
     @Override
@@ -130,10 +137,7 @@ public class Textures extends ThemeTreeNode {
     }
 
     public static void addCreateImageOperations(List<ThemeTreeOperation> operations, ThemeTreeNode parent) {
-        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "texture"));
-        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "hsplit", "splitx", "0,0"));
-        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "vsplit", "splity", "0,0"));
-        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "hvsplit", "splitx", "0,0", "splity", "0,0"));
+        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "area"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "select"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "composed"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "grid", "weightsX", "0,1,0", "weightsY", "0,1,0"));
