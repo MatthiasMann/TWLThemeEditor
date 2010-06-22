@@ -86,9 +86,8 @@ public class PropertyAccessor<T, P extends Property<T>> {
         }
         if(storedValue != null) {
             value = storedValue;
-            return storedValue;
         }
-        return defaultValue;
+        return (value != null) ? value : defaultValue;
     }
     
     public void setValue(T value) {
