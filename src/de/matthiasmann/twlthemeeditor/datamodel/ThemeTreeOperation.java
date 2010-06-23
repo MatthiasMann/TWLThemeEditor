@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twl.model.FileSystemModel.FileFilter;
 import java.io.IOException;
 
 /**
@@ -67,6 +68,32 @@ public abstract class ThemeTreeOperation {
         return false;
     }
 
-    public abstract ThemeTreeNode execute() throws IOException;
-    
+    public Parameter[] getParameter() {
+        return null;
+    }
+
+    public abstract ThemeTreeNode execute(Object[] parameter) throws IOException;
+
+    public static class Parameter {
+        public enum Type {
+            FILE_SELECTOR
+        }
+
+        public final String name;
+        public final Type type;
+
+        public Parameter(String name, Type type) {
+            this.name = name;
+            this.type = type;
+        }
+    }
+
+    public static class FileParameter extends Parameter {
+        public final FileFilter fileFilter;
+
+        public FileParameter(String name, FileFilter fileFilter) {
+            super(name, Type.FILE_SELECTOR);
+            this.fileFilter = fileFilter;
+        }
+    }
 }

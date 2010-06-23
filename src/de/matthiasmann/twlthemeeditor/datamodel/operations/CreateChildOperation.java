@@ -126,7 +126,7 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
 
     protected void addNameAttributeIfNeeded(Element e) {
         if(element.isRootElement() ||
-                "textures".equals(element.getName()) ||
+                "images".equals(element.getName()) ||
                 "theme".equals(element.getName())) {
             e.setAttribute("name", makeRandomName());
         }

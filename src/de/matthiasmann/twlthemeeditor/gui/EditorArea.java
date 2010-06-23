@@ -97,7 +97,7 @@ public class EditorArea extends Widget {
         
         testWidgetManager = new TestWidgetManager(messageLog);
         testWidgetMenu = new Menu("Widgets");
-        themeTreePane = new ThemeTreePane();
+        themeTreePane = new ThemeTreePane(messageLog);
         themeTreePane.setTheme("/themetreepane");
         previewWidget = new PreviewWidget(messageLog);
         previewWidget.setTheme("/previewwidget");

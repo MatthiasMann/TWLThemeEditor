@@ -275,20 +275,11 @@
         <param name="background"><image>popup.background</image></param>
         <param name="border"><border>5</border></param>
 
-        <theme name="opNewNodeTexture" ref="popupMenuButton">
-            <param name="text"><string>Create a new "texture" node</string></param>
+        <theme name="opNewNodeArea" ref="popupMenuButton">
+            <param name="text"><string>Create a new "area" node</string></param>
         </theme>
         <theme name="opNewNodeAlias" ref="popupMenuButton">
             <param name="text"><string>Create a new "alias" node</string></param>
-        </theme>
-        <theme name="opNewNodeHsplit" ref="popupMenuButton">
-            <param name="text"><string>Create a new "hsplit" node</string></param>
-        </theme>
-        <theme name="opNewNodeVsplit" ref="popupMenuButton">
-            <param name="text"><string>Create a new "vsplit" node</string></param>
-        </theme>
-        <theme name="opNewNodeHvsplit" ref="popupMenuButton">
-            <param name="text"><string>Create a new "hvsplit" node</string></param>
         </theme>
         <theme name="opNewNodeGrid" ref="popupMenuButton">
             <param name="text"><string>Create a new "grid" node</string></param>
@@ -313,6 +304,9 @@
         </theme>
         <theme name="opNewNodeTheme" ref="popupMenuButton">
             <param name="text"><string>Create a new "theme" node</string></param>
+        </theme>
+        <theme name="opNewNodeImages" ref="popupMenuButton">
+            <param name="text"><string>Create a new "images" node</string></param>
         </theme>
         <theme name="opNewNodeFontDef" ref="popupMenuButton">
             <param name="text"><string>Create a new "fontDef" node</string></param>
@@ -366,6 +360,27 @@
             <theme name="btnOk" merge="true">
                 <param name="text"><string>Delete</string></param>
             </theme>
+        </theme>
+    </theme>
+
+    <theme name="parameterDlg-opNewNodeImages" ref="simpledialog">
+        <theme name="content" merge="true">
+            <theme name="title" merge="true">
+                <param name="text"><string>Specify the parameters for the new &lt;images;&gt; node</string></param>
+            </theme>
+            <theme name="queryoperationparameter" ref="dialoglayout">
+                <theme name="label" ref="label"/>
+                <theme name="filename" ref="editfield">
+                    <param name="maxWidth"><int>32767</int></param>
+                </theme>
+                <theme name="selectFile" ref="button">
+                    <param name="text"><string>...</string></param>
+                </theme>
+                <param name="maxWidth"><int>32767</int></param>
+            </theme>
+            <param name="namedGaps"><map ref="namedGaps">
+                <param name="msg-right"><gap>0</gap></param>
+            </map></param>
         </theme>
     </theme>
 

@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.gui.MainUI.ExtFilter;
 import java.io.IOException;
 import org.jdom.Element;
 
@@ -37,19 +38,32 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class CreateNewTexture extends CreateNewSimple {
+public class CreateNewImages extends CreateChildOperation {
 
-    public CreateNewTexture(ThemeTreeNode parent, Element element, String tagName, String ... attributes) {
-        super(parent, element, tagName, attributes);
+    public CreateNewImages(ThemeTreeNode parent, Element element) {
+        super("opNewNodeImages", parent, element);
     }
 
     @Override
-    protected ThemeTreeNode addChild(Element e) throws IOException {
-        e.setAttribute("x", "0");
-        e.setAttribute("y", "0");
-        e.setAttribute("width", "1");
-        e.setAttribute("height", "1");
-        return super.addChild(e);
+    public Parameter[] getParameter() {
+        return new Parameter[] {
+            new FileParameter("PNG file", new ExtFilter(".png"))
+        };
+    }
+
+    @Override
+    public ThemeTreeNode execute(Object[] parameter) throws IOException {
+        if (parameter.length != 1) {
+            throw new IllegalArgumentException("Wrong number of arguments");
+        }
+        if (!(parameter[0] instanceof String)) {
+            throw new IllegalArgumentException("PNG file not specified");
+        }
+        String pngFile = (String) parameter[0];
+
+        Element e = new Element("images");
+        e.setAttribute("file", pngFile);
+        return addChild(e);
     }
     
 }

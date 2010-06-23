@@ -35,7 +35,7 @@ import de.matthiasmann.twl.renderer.lwjgl.PNGDecoder;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
-import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewTexture;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewArea;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -137,12 +137,12 @@ public class Images extends ThemeTreeNode {
     }
 
     public static void addCreateImageOperations(List<ThemeTreeOperation> operations, ThemeTreeNode parent) {
-        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "area"));
+        operations.add(new CreateNewArea(parent, parent.getDOMElement(), "area"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "select"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "composed"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "grid", "weightsX", "0,1,0", "weightsY", "0,1,0"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "animation", "timeSource", "hover"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "alias", "ref", "none"));
-        operations.add(new CreateNewTexture(parent, parent.getDOMElement(), "cursor", "hotSpotX", "0", "hotSpotY", "0"));
+        operations.add(new CreateNewArea(parent, parent.getDOMElement(), "cursor", "hotSpotX", "0", "hotSpotY", "0"));
     }
 }

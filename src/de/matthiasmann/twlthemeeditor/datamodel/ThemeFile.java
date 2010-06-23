@@ -34,6 +34,7 @@ import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.XMLWriter;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewImages;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.gui.MessageLog;
 import java.io.IOException;
@@ -184,6 +185,7 @@ public class ThemeFile implements VirtualFile {
 
     protected void addCreateOperations(List<ThemeTreeOperation> operations, ThemeTreeNode node) {
         addCreateThemeOperation(operations, node, document.getRootElement());
+        operations.add(new CreateNewImages(node, document.getRootElement()));
         operations.add(new CreateNewSimple(node, document.getRootElement(), "fontDef", "filename", "font.fnt", "color", "white"));
     }
 

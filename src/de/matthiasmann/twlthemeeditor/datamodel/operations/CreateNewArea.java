@@ -30,7 +30,6 @@
 package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import java.io.IOException;
 import org.jdom.Element;
 
@@ -38,31 +37,16 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class CreateNewParam extends CreateChildOperation {
+public class CreateNewArea extends CreateNewSimple {
 
-    private final String tagName;
-    private final String initialText;
-
-    public CreateNewParam(Element element, String tagName, ThemeTreeNode parent, String initialText) {
-        super("opNewParam" + Utils.capitalize(tagName), parent, element);
-        this.tagName = tagName;
-        this.initialText = initialText;
-
-        indentChildren = "map".equals(tagName);
+    public CreateNewArea(ThemeTreeNode parent, Element element, String tagName, String ... attributes) {
+        super(parent, element, tagName, attributes);
     }
 
     @Override
-    public ThemeTreeNode execute(Object[] parameter) throws IOException {
-        Element e = new Element("param");
-        e.setAttribute("name", makeRandomName());
-        if("enum".equals(tagName)) {
-            e.setAttribute("type", "");
-        }
-
-        Element v = new Element(tagName);
-        v.setText(initialText);
-        e.addContent(v);
-
-        return addChild(e);
+    protected ThemeTreeNode addChild(Element e) throws IOException {
+        e.setAttribute("xywh", "0,0,1,1");
+        return super.addChild(e);
     }
+    
 }

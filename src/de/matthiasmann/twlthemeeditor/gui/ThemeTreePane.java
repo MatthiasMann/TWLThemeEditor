@@ -43,10 +43,13 @@ import de.matthiasmann.twl.TreeTable;
 import de.matthiasmann.twl.model.TableSingleSelectionModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.CallbackSupport;
+import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.datamodel.FilteredModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -58,6 +61,7 @@ import java.util.logging.Logger;
  */
 public class ThemeTreePane extends DialogLayout {
 
+    private final MessageLog messageLog;
     private final TreeTable treeTable;
     private final TableSingleSelectionModel treeTableSelectionModel;
     private final Table table;
@@ -71,7 +75,8 @@ public class ThemeTreePane extends DialogLayout {
     private TreeTableNode selected;
     private Runnable[] callbacks;
 
-    public ThemeTreePane() {
+    public ThemeTreePane(MessageLog messageLog) {
+        this.messageLog = messageLog;
         this.treeTable = new TreeTable();
         this.treeTableSelectionModel = new TableSingleSelectionModel();
         this.table = new Table();
@@ -173,8 +178,9 @@ public class ThemeTreePane extends DialogLayout {
     void updateOperationButtons() {
         buttons.removeAllChildren();
         if(selected instanceof ThemeTreeNode) {
-            List<ThemeTreeOperation> operations = ((ThemeTreeNode)selected).getOperations();
-            Menu m = createButtons(operations);
+            ThemeTreeNode node = (ThemeTreeNode)selected;
+            List<ThemeTreeOperation> operations = node.getOperations();
+            Menu m = createButtons(node, operations);
             m.createMenuBar(buttons);
         }
     }
@@ -195,15 +201,7 @@ public class ThemeTreePane extends DialogLayout {
         updateFilter();
     }
 
-    void showNodeOperations(int x, int y) {
-        List<ThemeTreeOperation> operations = ((ThemeTreeNode)selected).getOperations();
-        if(!operations.isEmpty()) {
-            Menu menu = createButtons(operations);
-            menu.openPopupMenu(table, x, y);
-        }
-    }
-
-    private Menu createButtons(List<ThemeTreeOperation> operations) {
+    private Menu createButtons(final ThemeTreeNode node, List<ThemeTreeOperation> operations) {
         Menu menu = new Menu();
         HashMap<String, Menu> submenus = new HashMap<String, Menu>();
         for(final ThemeTreeOperation operation : operations) {
@@ -226,11 +224,7 @@ public class ThemeTreePane extends DialogLayout {
             action.setEnabled(operation.isEnabled());
             action.setCallback(new Runnable() {
                 public void run() {
-                    if(operation.needConfirm()) {
-                        confirmOperation(operation);
-                    } else {
-                        executeOperation(operation);
-                    }
+                    queryOperationParameter(node, operation);
                 }
             });
 
@@ -239,13 +233,17 @@ public class ThemeTreePane extends DialogLayout {
         return menu;
     }
 
-    void executeOperation(ThemeTreeOperation operation) {
+    private static final MessageLog.Category CAT_THEME_TREE_OPERATION =
+            new MessageLog.Category("Tree operation", MessageLog.CombineMode.NONE, DecoratedText.ERROR);
+
+    void executeOperation(ThemeTreeOperation operation, Object[] paramter) {
         TreeTableNode newSelection = null;
         try {
-            newSelection = operation.execute();
+            newSelection = operation.execute(paramter);
+        } catch(IllegalArgumentException ex) {
+            messageLog.add(new MessageLog.Entry(CAT_THEME_TREE_OPERATION, "Invalid parameters for operation", ex.getMessage(), null));
         } catch(Throwable ex) {
-            Logger.getLogger(ThemeTreePane.class.getName()).log(Level.SEVERE,
-                    "Error while executing tree operation", ex);
+            messageLog.add(new MessageLog.Entry(CAT_THEME_TREE_OPERATION, "Error while executing tree operation", null, ex));
         }
         selectNode(newSelection);
     }
@@ -273,14 +271,51 @@ public class ThemeTreePane extends DialogLayout {
         }
     }
 
-    void confirmOperation(final ThemeTreeOperation operation) {
+    void queryOperationParameter(ThemeTreeNode node, final ThemeTreeOperation operation) {
+        ThemeTreeOperation.Parameter[] parameter = operation.getParameter();
+        if(parameter != null && parameter.length > 0) {
+            File startDir = null;
+            
+            try {
+                startDir = new File(node.getThemeFile().getURL().toURI()).getParentFile();
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(ThemeTreePane.class.getName()).log(Level.SEVERE, "Can't determine start dir", ex);
+            }
+
+            final QueryOperationParameter qop = new QueryOperationParameter(startDir);
+            qop.setParameter(parameter);
+
+            SimpleDialog dialog = new SimpleDialog();
+            dialog.setTheme("parameterDlg-" + operation.getActionID());
+            dialog.setTitle(operation.getActionID());
+            dialog.setMessage(qop);
+            dialog.setOkCallback(new Runnable() {
+                public void run() {
+                    maybeConfirmOperation(operation, qop.getResults());
+                }
+            });
+            dialog.showDialog(this);
+        } else {
+            maybeConfirmOperation(operation, null);
+        }
+    }
+
+    void maybeConfirmOperation(ThemeTreeOperation operation, Object[] paramter) {
+        if(operation.needConfirm()) {
+            confirmOperation(operation, paramter);
+        } else {
+            executeOperation(operation, paramter);
+        }
+    }
+
+    void confirmOperation(final ThemeTreeOperation operation, final Object[] paramter) {
         SimpleDialog dialog = new SimpleDialog();
         dialog.setTheme("confirmationDlg-" + operation.getActionID());
         dialog.setTitle(operation.getActionID());
         dialog.setMessage(selected.toString());
         dialog.setOkCallback(new Runnable() {
             public void run() {
-                executeOperation(operation);
+                executeOperation(operation, paramter);
             }
         });
         dialog.showDialog(this);

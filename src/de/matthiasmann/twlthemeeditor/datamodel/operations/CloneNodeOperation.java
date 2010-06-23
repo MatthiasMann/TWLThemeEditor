@@ -45,7 +45,7 @@ public class CloneNodeOperation extends ElementOperation {
     }
 
     @Override
-    public ThemeTreeNode execute() throws IOException {
+    public ThemeTreeNode execute(Object[] parameter) throws IOException {
         int elementPos = getElementPosition();
         int elementTextPos = getPrevSiblingPosition(elementPos) + 1;
 

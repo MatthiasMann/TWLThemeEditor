@@ -139,7 +139,7 @@ public class Main extends Frame {
 
             gui.destroy();
             theme.destroy();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             ex.printStackTrace();
         }
         Display.destroy();

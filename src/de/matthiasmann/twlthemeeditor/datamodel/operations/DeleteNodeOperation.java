@@ -51,7 +51,7 @@ public class DeleteNodeOperation extends ElementOperation {
     }
 
     @Override
-    public ThemeTreeNode execute() throws IOException {
+    public ThemeTreeNode execute(Object[] parameter) throws IOException {
         int idx = getElementPosition();
         if(idx > 0) {
             Content ctx = parent.getContent(idx-1);

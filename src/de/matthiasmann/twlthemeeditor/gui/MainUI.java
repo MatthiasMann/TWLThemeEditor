@@ -396,7 +396,7 @@ public class MainUI extends DialogLayout {
         dialog.showDialog(this);
     }
 
-    static class ExtFilter implements FileFilter {
+    public static class ExtFilter implements FileFilter {
         private final String[] extensions;
         public ExtFilter(String ... extensions) {
             this.extensions = extensions;

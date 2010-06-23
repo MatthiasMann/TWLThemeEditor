@@ -50,14 +50,14 @@ public class MoveNodeOperations extends ElementOperation {
 
     @Override
     public boolean isEnabled() {
-        TreeTableNode parent = node.getParent();
-        int pos = parent.getChildIndex(node);
-        return (direction > 0 && pos < parent.getNumChildren()-1) ||
+        TreeTableNode parentNode = node.getParent();
+        int pos = parentNode.getChildIndex(node);
+        return (direction > 0 && pos < parentNode.getNumChildren()-1) ||
                 (direction < 0 && pos > 0);
     }
 
     @Override
-    public ThemeTreeNode execute() throws IOException {
+    public ThemeTreeNode execute(Object[] parameter) throws IOException {
         int elementPos = getElementPosition();
         int elementTextPos = getPrevSiblingPosition(elementPos) + 1;
 
@@ -77,7 +77,6 @@ public class MoveNodeOperations extends ElementOperation {
     }
 
     protected void moveContent(int from, int to, int count) throws IOException {
-        Element parent = element.getParentElement();
         if(from < to) {
             for(; count > 0; count--) {
                 Content c = parent.removeContent(from);

@@ -37,7 +37,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
-import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewTexture;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewArea;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import java.io.IOException;
@@ -90,7 +90,7 @@ public class Repeat extends WithSubImages {
     protected void addOperations(List<ThemeTreeOperation> operations) {
         operations.add(new CreateNewSimple(this, element, "repeat", "count", "1"));
         operations.add(new CreateNewSimple(this, element, "frame", "duration", "100", "ref", "none"));
-        operations.add(new CreateNewTexture(this, element, "frames", "duration", "100", "count", "2", "offsetx", "10"));
+        operations.add(new CreateNewArea(this, element, "frames", "duration", "100", "count", "2", "offsetx", "10"));
     }
 
 }
