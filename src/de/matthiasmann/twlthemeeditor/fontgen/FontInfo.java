@@ -27,56 +27,20 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
-
-import de.matthiasmann.twl.DialogLayout;
-import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.BooleanModel;
-import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twl.model.SimpleBooleanModel;
+package de.matthiasmann.twlthemeeditor.fontgen;
 
 /**
  *
  * @author Matthias Mann
  */
-public final class PropertyPanel extends DialogLayout {
+public class FontInfo {
 
-    private final PropertyFactories factories;
+    public final int maxGlyphHeight;
+    public final int maxGlyphDecent;
 
-    public PropertyPanel(PropertyFactories factories, Property<?>[] properties) {
-        this.factories = factories;
-        
-        setHorizontalGroup(createParallelGroup());
-        setVerticalGroup(createSequentialGroup());
-
-        for(Property<?> p : properties) {
-            addProperty(p);
-        }
+    public FontInfo(int maxGlyphHeight, int maxGlyphDecent) {
+        this.maxGlyphHeight = maxGlyphHeight;
+        this.maxGlyphDecent = maxGlyphDecent;
     }
-
-    @SuppressWarnings("unchecked")
-    protected void addProperty(Property<?> p) {
-        boolean optional = p.canBeNull();
-        
-        PropertyEditorFactory<?, ?> factory = factories.getFactory(p);
-        if(factory != null) {
-            BooleanModel activeModel = null;
-
-            if(optional) {
-                activeModel = new SimpleBooleanModel();
-            }
-
-            Widget content = factory.create(new PropertyAccessor(p, activeModel));
-
-            CollapsiblePanel panel = new CollapsiblePanel(
-                    CollapsiblePanel.Direction.VERTICAL,
-                    p.getName(), content, activeModel);
-            
-            getVerticalGroup().addWidget(panel);
-            getHorizontalGroup().addWidget(panel);            
-        } else {
-            System.out.println("No factory for property " + p.getName() +
-                    " type " + p.getClass() + "<" + p.getType() + ">");
-        }
-    }
+    
 }

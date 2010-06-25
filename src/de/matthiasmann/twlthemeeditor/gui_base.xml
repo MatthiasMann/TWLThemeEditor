@@ -277,7 +277,7 @@
             <alias ref="-area1X"/>
         </select>
 
-        <select name="radiobutton.background" border="4,1">
+        <select name="radiobutton.background" border="5,1">
             <alias ref="radiobuttonX.background" if="!radiobuttonNotFirst + !radiobuttonNotLast"/>
             <alias ref="radiobuttonL.background" if="!radiobuttonNotFirst"/>
             <alias ref="radiobuttonR.background" if="!radiobuttonNotLast"/>
@@ -293,7 +293,7 @@
         <alias name="togglebutton.background" ref="radiobuttonX.background" border="4,1"/>
         <alias name="togglebutton.overlay" ref="radiobutton.overlay"/>
 
-        <select name="button.background" border="4,1">
+        <select name="button.background" border="5,1">
             <alias ref="-area9X" if="armed"/>
             <alias ref="-area8X" if="hover + !disabled"/>
             <alias ref="-area7X"/>
@@ -641,7 +641,7 @@
         <area name="-popupmenubutton.hover" border="2,0" xywh="83,82,6,18" splitx="L2,R2"/>
         <area name="-popupmenubutton.selected" border="2,0" tint="#808080" xywh="83,82,6,18" splitx="L2,R2"/>
         <select name="popupmenubutton.background" border="4,1">
-            <alias ref="-popupmenubutton.hover" if="(hover | hasOpenMenus) + !disabled"/>
+            <alias ref="-popupmenubutton.hover" if="(hover | hasOpenMenus) + !disabled + !empty"/>
             <alias ref="-popupmenubutton.selected" if="selected + !disabled"/>
         </select>
         <alias name="popupmenubutton.overlay" ref="none"/>
@@ -679,7 +679,7 @@
             <alias ref="-popupmenubutton.hover" if="(selected | hasOpenMenus) + !disabled + !empty"/>
         </select>
 
-        <select name="editfield.background" border="4,1">
+        <select name="editfield.background" border="5,1">
             <alias ref="-area8X" if="hover + !disabled"/>
             <alias ref="-area7X"/>
         </select>
@@ -882,7 +882,7 @@
         <param name=""><image>combobox.*</image></param>
         <theme name="display" ref="label">
             <param name=""><image>combobox.display.*</image></param>
-            <param name="border"><border>3,1</border></param>
+            <param name="border"><border>4,1</border></param>
             <param name="minWidth"><int>50</int></param>
             <param name="textAlignment"><enum type="alignment">left</enum></param>
             <param name="font"><fontDef filename="font.fnt" color="white">

@@ -37,25 +37,11 @@ import de.matthiasmann.twl.TableBase;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AutoCompletionDataSource;
 import de.matthiasmann.twl.model.AutoCompletionResult;
-import de.matthiasmann.twlthemeeditor.gui.editors.ColorEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.editors.GapEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.editors.WeightsEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.editors.SplitEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.editors.NameEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.editors.DimensionEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.editors.BorderEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.editors.RectEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.editors.HotSpotEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.editors.StringEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.NodeReferenceEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.editors.IntegerEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.editors.BooleanEditorFactory;
 import de.matthiasmann.twl.model.ListModel;
-import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleAutoCompletionResult;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twl.utils.TypeMapping;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
@@ -64,20 +50,9 @@ import de.matthiasmann.twlthemeeditor.datamodel.Theme;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.gui.editors.AnimStateEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.editors.EnumEditorFactory;
-import de.matthiasmann.twlthemeeditor.gui.editors.FloatEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.WidgetThemeEditorFactory;
-import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
-import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
-import de.matthiasmann.twlthemeeditor.properties.DimensionProperty;
-import de.matthiasmann.twlthemeeditor.properties.GapProperty;
-import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
-import de.matthiasmann.twlthemeeditor.properties.NameProperty;
-import de.matthiasmann.twlthemeeditor.properties.RectProperty;
-import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
-import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
 import de.matthiasmann.twlthemeeditor.properties.WidgetThemeProperty;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -95,7 +70,7 @@ import java.util.logging.Logger;
  *
  * @author Matthias Mann
  */
-public class Context {
+public class Context extends PropertyFactories {
 
     private static final MessageLog.Category CAT_JUMP  = new MessageLog.Category("Jump to element", MessageLog.CombineMode.NONE, DecoratedText.WARNING);
     private static final MessageLog.Category CAT_ERROR = new MessageLog.Category("Exception", MessageLog.CombineMode.NONE, DecoratedText.ERROR);
@@ -103,8 +78,6 @@ public class Context {
     private final MessageLog messageLog;
     private final ThemeTreeModel model;
     private final PreviewDebugHook debugHook;
-    private final TypeMapping<PropertyEditorFactory<?,?>> factories1;
-    private final TypeMapping<PropertyEditorFactory<?,?>> factories2;
     private final Set<String> standardStates;
 
     private ThemeTreePane themeTreePane;
@@ -114,26 +87,10 @@ public class Context {
         this.model = model;
         this.debugHook = new PreviewDebugHook();
         
-        factories1 = new TypeMapping<PropertyEditorFactory<?,?>>();
-        factories1.put(ColorProperty.class, new ColorEditorFactory());
-        factories1.put(RectProperty.class, new RectEditorFactory());
         factories1.put(ConditionProperty.class, new ConditionEditorFactory(this));
         factories1.put(NodeReferenceProperty.class, new NodeReferenceEditorFactory(this));
-        factories1.put(WeightsProperty.class, new WeightsEditorFactory());
-        factories1.put(SplitProperty.class, new SplitEditorFactory());
-        factories1.put(GapProperty.class, new GapEditorFactory());
-        factories1.put(DimensionProperty.class, new DimensionEditorFactory());
-        factories1.put(HotSpotProperty.class, new HotSpotEditorFactory());
-        factories1.put(BorderProperty.class, new BorderEditorFactory());
-        factories1.put(NameProperty.class, new NameEditorFactory());
         factories1.put(WidgetThemeProperty.class, new WidgetThemeEditorFactory(this));
 
-        factories2 = new TypeMapping<PropertyEditorFactory<?,?>>();
-        factories2.put(String.class, new StringEditorFactory());
-        factories2.put(Integer.class, new IntegerEditorFactory());
-        factories2.put(Float.class, new FloatEditorFactory());
-        factories2.put(Boolean.class, new BooleanEditorFactory());
-        factories2.put(Enum.class, new EnumEditorFactory());
         factories2.put(AnimationState.class, new AnimStateEditorFactory(this));
 
         standardStates = new TreeSet<String>();
@@ -368,14 +325,6 @@ public class Context {
                 logException("jump to theme element", Arrays.toString(themePath), ex);
             }
         }
-    }
-
-    public PropertyEditorFactory<?,?> getFactory(Property<?> property) {
-        PropertyEditorFactory<?,?> factory = factories1.get(property.getClass());
-        if(factory == null) {
-            factory = factories2.get(property.getType());
-        }
-        return factory;
     }
 
     public ThemeTreeModel getThemeTreeModel() {

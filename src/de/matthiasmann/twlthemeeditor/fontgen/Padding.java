@@ -27,56 +27,26 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
-
-import de.matthiasmann.twl.DialogLayout;
-import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.BooleanModel;
-import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twl.model.SimpleBooleanModel;
+package de.matthiasmann.twlthemeeditor.fontgen;
 
 /**
  *
  * @author Matthias Mann
  */
-public final class PropertyPanel extends DialogLayout {
+public class Padding {
 
-    private final PropertyFactories factories;
+    public final int top;
+    public final int left;
+    public final int right;
+    public final int bottom;
+    public final int advance;
 
-    public PropertyPanel(PropertyFactories factories, Property<?>[] properties) {
-        this.factories = factories;
-        
-        setHorizontalGroup(createParallelGroup());
-        setVerticalGroup(createSequentialGroup());
-
-        for(Property<?> p : properties) {
-            addProperty(p);
-        }
+    public Padding(int top, int left, int bottom, int right, int advance) {
+        this.top = top;
+        this.left = left;
+        this.right = right;
+        this.bottom = bottom;
+        this.advance = advance;
     }
-
-    @SuppressWarnings("unchecked")
-    protected void addProperty(Property<?> p) {
-        boolean optional = p.canBeNull();
-        
-        PropertyEditorFactory<?, ?> factory = factories.getFactory(p);
-        if(factory != null) {
-            BooleanModel activeModel = null;
-
-            if(optional) {
-                activeModel = new SimpleBooleanModel();
-            }
-
-            Widget content = factory.create(new PropertyAccessor(p, activeModel));
-
-            CollapsiblePanel panel = new CollapsiblePanel(
-                    CollapsiblePanel.Direction.VERTICAL,
-                    p.getName(), content, activeModel);
-            
-            getVerticalGroup().addWidget(panel);
-            getHorizontalGroup().addWidget(panel);            
-        } else {
-            System.out.println("No factory for property " + p.getName() +
-                    " type " + p.getClass() + "<" + p.getType() + ">");
-        }
-    }
+    
 }

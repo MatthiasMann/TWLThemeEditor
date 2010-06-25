@@ -27,56 +27,38 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
+package de.matthiasmann.twlthemeeditor.fontgen;
 
-import de.matthiasmann.twl.DialogLayout;
-import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.BooleanModel;
-import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twl.model.SimpleBooleanModel;
+import java.lang.Character.UnicodeBlock;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author Matthias Mann
  */
-public final class PropertyPanel extends DialogLayout {
+public class CharSet {
 
-    private final PropertyFactories factories;
+    private final HashMap<Character.UnicodeBlock, Boolean> blocks;
 
-    public PropertyPanel(PropertyFactories factories, Property<?>[] properties) {
-        this.factories = factories;
-        
-        setHorizontalGroup(createParallelGroup());
-        setVerticalGroup(createSequentialGroup());
-
-        for(Property<?> p : properties) {
-            addProperty(p);
-        }
+    public CharSet() {
+        this.blocks = new HashMap<Character.UnicodeBlock, Boolean>();
     }
 
-    @SuppressWarnings("unchecked")
-    protected void addProperty(Property<?> p) {
-        boolean optional = p.canBeNull();
-        
-        PropertyEditorFactory<?, ?> factory = factories.getFactory(p);
-        if(factory != null) {
-            BooleanModel activeModel = null;
+    public CharSet(CharSet charSet) {
+        this();
+        blocks.putAll(charSet.blocks);
+    }
 
-            if(optional) {
-                activeModel = new SimpleBooleanModel();
-            }
+    public void setBlock(Character.UnicodeBlock block, boolean included) {
+        blocks.put(block, included);
+    }
 
-            Widget content = factory.create(new PropertyAccessor(p, activeModel));
-
-            CollapsiblePanel panel = new CollapsiblePanel(
-                    CollapsiblePanel.Direction.VERTICAL,
-                    p.getName(), content, activeModel);
-            
-            getVerticalGroup().addWidget(panel);
-            getHorizontalGroup().addWidget(panel);            
-        } else {
-            System.out.println("No factory for property " + p.getName() +
-                    " type " + p.getClass() + "<" + p.getType() + ">");
-        }
+    public boolean getBlockEnabled(Character.UnicodeBlock block) {
+        return blocks.get(block) == Boolean.TRUE;
+    }
+    
+    public boolean isIncluded(int ch) {
+        return getBlockEnabled(Character.UnicodeBlock.of(ch));
     }
 }

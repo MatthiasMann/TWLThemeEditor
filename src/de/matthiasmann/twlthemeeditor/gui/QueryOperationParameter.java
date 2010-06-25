@@ -43,7 +43,7 @@ import java.util.prefs.Preferences;
 
 /**
  *
- * @author MannMat
+ * @author Matthias Mann
  */
 public class QueryOperationParameter extends DialogLayout {
 

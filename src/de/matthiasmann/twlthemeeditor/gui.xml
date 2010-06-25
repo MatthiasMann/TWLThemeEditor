@@ -384,6 +384,141 @@
         </theme>
     </theme>
 
+    <theme name="-property-editors" ref="dialoglayout">
+        <theme name="" ref="*"/>
+        <theme name="boolean" ref="togglebutton"/>
+        <theme name="colorselector" ref="colorselector">
+            <theme name="colorarea1d" merge="true">
+                <param name="background"><image>-borderC</image></param>
+                <param name="border"><border>2</border></param>
+            </theme>
+            <theme name="colorarea2d" merge="true">
+                <param name="background"><image>-borderC</image></param>
+                <param name="border"><border>2</border></param>
+            </theme>
+        </theme>
+
+        <theme name="conditioneditor" ref="dialoglayout">
+            <theme name="condition-none" ref="radiobutton">
+                <param name="text"><string>None</string></param>
+            </theme>
+            <theme name="condition-if" ref="radiobutton">
+                <param name="text"><string>If</string></param>
+            </theme>
+            <theme name="condition-unless" ref="radiobutton">
+                <param name="text"><string>Unless</string></param>
+            </theme>
+            <theme name="" ref="*"/>
+        </theme>
+
+        <theme name="recteditor" ref="dialoglayout">
+            <theme name="" ref="*"/>
+            <theme name="btnWholeArea" ref="checkbox">
+                <param name="text"><string>Whole area</string></param>
+                <param name="tooltip"><string>Use whole image area</string></param></theme>
+        </theme>
+
+        <theme name="weightseditor" ref="dialoglayout">
+            <theme name="removebutton" ref="vbutton">
+                <param name=""><image>removebutton.*</image></param>
+                <param name="tooltip"><string>Remove this weight</string></param>
+            </theme>
+            <theme name="addbutton" ref="button">
+                <param name=""><image>addbutton.*</image></param>
+                <param name="tooltip"><string>Add a new weight</string></param>
+            </theme>
+            <theme name="" ref="*"/>
+        </theme>
+
+        <theme name="animstateeditor" ref="dialoglayout">
+            <theme name="addbutton" ref="button">
+                <param name=""><image>addbutton.*</image></param>
+                <param name="tooltip"><string>Add this state name to the list</string></param>
+            </theme>
+            <theme name="statebutton" ref="vbutton"/>
+            <theme name="" ref="*"/>
+        </theme>
+
+        <theme name="spliteditor" ref="dialoglayout">
+            <theme name="removebutton" ref="vbutton">
+                <param name=""><image>removebutton.*</image></param>
+                <param name="tooltip"><string>Remove this split position</string></param>
+            </theme>
+            <theme name="addbutton" ref="button">
+                <param name=""><image>addbutton.*</image></param>
+                <param name="tooltip"><string>Add a new split position</string></param>
+            </theme>
+            <theme name="btnRelativeTop" ref="radiobutton">
+                <param name=""><image>relativebutton.top.*</image></param>
+                <param name="tooltip"><string>Position is relative to the top edge</string></param>
+            </theme>
+            <theme name="btnRelativeLeft" ref="radiobutton">
+                <param name=""><image>relativebutton.left.*</image></param>
+                <param name="tooltip"><string>Position is relative to the left edge</string></param>
+            </theme>
+            <theme name="btnRelativeRight" ref="radiobutton">
+                <param name=""><image>relativebutton.right.*</image></param>
+                <param name="tooltip"><string>Position is relative to the right edge</string></param>
+            </theme>
+            <theme name="btnRelativeBottom" ref="radiobutton">
+                <param name=""><image>relativebutton.bottom.*</image></param>
+                <param name="tooltip"><string>Position is relative to the bottom edge</string></param>
+            </theme>
+            <theme name="" ref="*"/>
+        </theme>
+
+        <theme name="hotspoteditor" ref="dialoglayout">
+            <theme name="" ref="*"/>
+        </theme>
+
+        <theme name="gapeditor" ref="dialoglayout">
+            <theme name="" ref="*"/>
+        </theme>
+
+        <theme name="dimensioneditor" ref="dialoglayout">
+            <theme name="" ref="*"/>
+        </theme>
+
+        <theme name="bordereditor" ref="dialoglayout">
+            <theme name="btnUseFormular" ref="checkbox">
+                <param name="tooltip"><string>Use formular instead of value adjusters</string></param>
+            </theme>
+            <theme name="" ref="*"/>
+        </theme>
+
+        <theme name="nameeditor" ref="dialoglayout">
+            <theme name="applybutton" ref="vbutton">
+                <param name=""><image>applybutton.*</image></param>
+                <param name="tooltip"><string>Change name of this element</string></param>
+            </theme>
+            <theme name="" ref="*"/>
+        </theme>
+
+        <theme name="nodereferenceeditor" ref="dialoglayout">
+            <theme name="jumpbutton" ref="vbutton">
+                <param name=""><image>jumpbutton.*</image></param>
+                <param name="tooltip"><string>Jump to the referenced element</string></param>
+            </theme>
+            <theme name="combobox" ref="combobox">
+                <param name="maxWidth"><int>32767</int></param>
+            </theme>
+        </theme>
+
+        <theme name="widgetthemeeditor" ref="dialoglayout">
+            <theme name="jumpbutton" ref="vbutton">
+                <param name=""><image>jumpbutton.*</image></param>
+                <param name="tooltip"><string>Jump to the referenced theme element</string></param>
+            </theme>
+            <theme name="combobox" ref="combobox">
+                <param name="maxWidth"><int>32767</int></param>
+            </theme>
+            <theme name="themepath" ref="editfield">
+                <param name="background"><image>none</image></param>
+                <param name="tooltip"><string>Effective theme path for this widget</string></param>
+            </theme>
+        </theme>
+    </theme>
+
     <theme name="propertyEditor" ref="scrollpane">
         <param name=""><image>panel.*</image></param>
         <param name="border"><border>background.border</border></param>
@@ -403,140 +538,7 @@
                     <param name="title-content"><gap>5</gap></param>
                 </map></param>
 
-                <theme name="contentcontainer" ref="-defaults">
-                    <theme name="" ref="*"/>
-                    <theme name="boolean" ref="togglebutton"/>
-                    <theme name="colorselector" ref="colorselector">
-                        <theme name="colorarea1d" merge="true">
-                            <param name="background"><image>-borderC</image></param>
-                            <param name="border"><border>2</border></param>
-                        </theme>
-                        <theme name="colorarea2d" merge="true">
-                            <param name="background"><image>-borderC</image></param>
-                            <param name="border"><border>2</border></param>
-                        </theme>
-                    </theme>
-
-                    <theme name="conditioneditor" ref="dialoglayout">
-                        <theme name="condition-none" ref="radiobutton">
-                            <param name="text"><string>None</string></param>
-                        </theme>
-                        <theme name="condition-if" ref="radiobutton">
-                            <param name="text"><string>If</string></param>
-                        </theme>
-                        <theme name="condition-unless" ref="radiobutton">
-                            <param name="text"><string>Unless</string></param>
-                        </theme>
-                        <theme name="" ref="*"/>
-                    </theme>
-
-                    <theme name="recteditor" ref="dialoglayout">
-                        <theme name="" ref="*"/>
-                        <theme name="btnWholeArea" ref="checkbox">
-                            <param name="text"><string>Whole area</string></param>
-                            <param name="tooltip"><string>Use whole image area</string></param></theme>
-                    </theme>
-
-                    <theme name="weightseditor" ref="dialoglayout">
-                        <theme name="removebutton" ref="vbutton">
-                            <param name=""><image>removebutton.*</image></param>
-                            <param name="tooltip"><string>Remove this weight</string></param>
-                        </theme>
-                        <theme name="addbutton" ref="button">
-                            <param name=""><image>addbutton.*</image></param>
-                            <param name="tooltip"><string>Add a new weight</string></param>
-                        </theme>
-                        <theme name="" ref="*"/>
-                    </theme>
-
-                    <theme name="animstateeditor" ref="dialoglayout">
-                        <theme name="addbutton" ref="button">
-                            <param name=""><image>addbutton.*</image></param>
-                            <param name="tooltip"><string>Add this state name to the list</string></param>
-                        </theme>
-                        <theme name="statebutton" ref="vbutton"/>
-                        <theme name="" ref="*"/>
-                    </theme>
-
-                    <theme name="spliteditor" ref="dialoglayout">
-                        <theme name="removebutton" ref="vbutton">
-                            <param name=""><image>removebutton.*</image></param>
-                            <param name="tooltip"><string>Remove this split position</string></param>
-                        </theme>
-                        <theme name="addbutton" ref="button">
-                            <param name=""><image>addbutton.*</image></param>
-                            <param name="tooltip"><string>Add a new split position</string></param>
-                        </theme>
-                        <theme name="btnRelativeTop" ref="radiobutton">
-                            <param name=""><image>relativebutton.top.*</image></param>
-                            <param name="tooltip"><string>Position is relative to the top edge</string></param>
-                        </theme>
-                        <theme name="btnRelativeLeft" ref="radiobutton">
-                            <param name=""><image>relativebutton.left.*</image></param>
-                            <param name="tooltip"><string>Position is relative to the left edge</string></param>
-                        </theme>
-                        <theme name="btnRelativeRight" ref="radiobutton">
-                            <param name=""><image>relativebutton.right.*</image></param>
-                            <param name="tooltip"><string>Position is relative to the right edge</string></param>
-                        </theme>
-                        <theme name="btnRelativeBottom" ref="radiobutton">
-                            <param name=""><image>relativebutton.bottom.*</image></param>
-                            <param name="tooltip"><string>Position is relative to the bottom edge</string></param>
-                        </theme>
-                        <theme name="" ref="*"/>
-                    </theme>
-
-                    <theme name="hotspoteditor" ref="dialoglayout">
-                        <theme name="" ref="*"/>
-                    </theme>
-
-                    <theme name="gapeditor" ref="dialoglayout">
-                        <theme name="" ref="*"/>
-                    </theme>
-
-                    <theme name="dimensioneditor" ref="dialoglayout">
-                        <theme name="" ref="*"/>
-                    </theme>
-
-                    <theme name="bordereditor" ref="dialoglayout">
-                        <theme name="btnUseFormular" ref="checkbox">
-                            <param name="tooltip"><string>Use formular instead of value adjusters</string></param>
-                        </theme>
-                        <theme name="" ref="*"/>
-                    </theme>
-
-                    <theme name="nameeditor" ref="dialoglayout">
-                        <theme name="applybutton" ref="vbutton">
-                            <param name=""><image>applybutton.*</image></param>
-                            <param name="tooltip"><string>Change name of this element</string></param>
-                        </theme>
-                        <theme name="" ref="*"/>
-                    </theme>
-
-                    <theme name="nodereferenceeditor" ref="dialoglayout">
-                        <theme name="jumpbutton" ref="vbutton">
-                            <param name=""><image>jumpbutton.*</image></param>
-                            <param name="tooltip"><string>Jump to the referenced element</string></param>
-                        </theme>
-                        <theme name="combobox" ref="combobox">
-                            <param name="maxWidth"><int>32767</int></param>
-                        </theme>
-                    </theme>
-
-                    <theme name="widgetthemeeditor" ref="dialoglayout">
-                        <theme name="jumpbutton" ref="vbutton">
-                            <param name=""><image>jumpbutton.*</image></param>
-                            <param name="tooltip"><string>Jump to the referenced theme element</string></param>
-                        </theme>
-                        <theme name="combobox" ref="combobox">
-                            <param name="maxWidth"><int>32767</int></param>
-                        </theme>
-                        <theme name="themepath" ref="editfield">
-                            <param name="background"><image>none</image></param>
-                            <param name="tooltip"><string>Effective theme path for this widget</string></param>
-                        </theme>
-                    </theme>
-                </theme>
+                <theme name="contentcontainer" ref="-property-editors"/>
             </theme>
         </theme>
     </theme>
@@ -760,4 +762,88 @@
         </theme>
     </theme>
 
+    <theme name="fontselectpopup" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>20</border></param>
+        <theme name="" ref="*"/>
+        <theme name="fileselector" ref="fileselector">
+            <theme name="fontpreview" ref="-defaults"/>
+        </theme>
+    </theme>
+
+    <theme name="fontGenDialog-popup" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>20</border></param>
+        <theme name="fontgendialog" ref="dialoglayout">
+            <theme name="splitpane" ref="splitpane">
+                <theme name="effectsPanel" ref="scrollpane">
+                    <param name="border"><border>0,0,0,5</border></param>
+                    <theme name="effectspanel" ref="dialoglayout">
+                        <param name="background"><image>panel.background</image></param>
+                        <param name="border"><border>5</border></param>
+                        <theme name="" ref="*"/>
+                        <theme name="label" ref="label">
+                            <param name="font"><font>popupmenu-font</font></param>
+                            <param name="textAlignment"><enum type="alignment">topleft</enum></param>
+                        </theme>
+                        <theme name="selectFontBtn" ref="button">
+                            <param name="text"><string>...</string></param>
+                        </theme>
+
+                        <theme name="collapsiblepanel" ref="dialoglayout">
+                            <param name=""><image>collapsiblepanel.*</image></param>
+                            <param name="border"><border>background.border</border></param>
+                            <theme name="arrow" ref="-defaults">
+                                <param name=""><image>collapsiblepanel.arrow.*</image></param>
+                            </theme>
+                            <theme name="title" ref="label">
+                                <param name="font"><font>popupmenu-font</font></param>
+                            </theme>
+                            <theme name="active" ref="checkbox"/>
+                            <param name="namedGaps"><map>
+                                <param name="title-content"><gap>5</gap></param>
+                            </map></param>
+
+                            <theme name="contentcontainer" ref="dialoglayout">
+                                <theme name="effectpropertypanel" ref="-property-editors">
+                                    <theme name="label" ref="label">
+                                        <param name="font"><font>popupmenu-font</font></param>
+                                        <param name="textAlignment"><enum type="alignment">topleft</enum></param>
+                                    </theme>
+                                </theme>
+
+                                <theme name="unicodeBlocks" ref="scrollpane">
+                                    <theme name="boxlayout" ref="-defaults">
+                                        <theme name="checkbox" ref="checkbox">
+                                            <param name="font"><font>popupmenu-font</font></param>
+                                        </theme>
+                                        <param name="alignment"><enum type="alignment">left</enum></param>
+                                        <param name="spacing"><int>5</int></param>
+                                    </theme>
+                                    <param name="maxHeight"><int>200</int></param>
+                                </theme>
+                            </theme>
+                        </theme>
+                    </theme>
+                </theme>
+                <theme name="fontDisplay" ref="scrollpane">
+                    <param name="border"><border>0,5,0,0</border></param>
+                    <theme name="fontdisplay-black" ref="-defaults">
+                        <param name="background"><image>black</image></param>
+                        <param name="border"><border>5</border></param>
+                    </theme>
+                    <theme name="fontdisplay-white" ref="-defaults">
+                        <param name="background"><image>white</image></param>
+                        <param name="border"><border>5</border></param>
+                    </theme>
+                    <theme name="fontdisplay-checkerboard" ref="-defaults">
+                        <param name="background"><image>checkerboard</image></param>
+                        <param name="border"><border>5</border></param>
+                    </theme>
+                </theme>
+                <param name="maxHeight"><int>32767</int></param>
+            </theme>
+            <theme name="" ref="*"/>
+        </theme>
+    </theme>
 </themes>

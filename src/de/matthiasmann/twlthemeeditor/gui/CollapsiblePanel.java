@@ -42,7 +42,7 @@ import de.matthiasmann.twl.model.BooleanModel;
  *
  * @author Matthias Mann
  */
-public class CollapsiblePanel extends DialogLayout {
+public final class CollapsiblePanel extends DialogLayout {
 
     public enum Direction {
         HORIZONTAL,
@@ -177,9 +177,27 @@ public class CollapsiblePanel extends DialogLayout {
         }
 
         @Override
+        public int getMinWidth() {
+            int minWidth = super.getMinWidth();
+            if(direction == Direction.VERTICAL) {
+                minWidth = Math.max(minWidth, getBorderHorizontal() + content.getMinWidth());
+            }
+            return minWidth;
+        }
+
+        @Override
+        public int getMinHeight() {
+            int minHeight = super.getMinHeight();
+            if(direction == Direction.HORIZONTAL) {
+                minHeight = Math.max(minHeight, getBorderVertical() + content.getMinHeight());
+            }
+            return minHeight;
+        }
+
+        @Override
         public int getPreferredInnerWidth() {
             if(direction == Direction.VERTICAL) {
-                return super.getPreferredInnerWidth();
+                return content.getPreferredWidth();
             }
             if(prefInnerSize < 0) {
                 prefInnerSize = computePreferredInnerSize();
@@ -190,7 +208,7 @@ public class CollapsiblePanel extends DialogLayout {
         @Override
         public int getPreferredInnerHeight() {
             if(direction == Direction.HORIZONTAL) {
-                return super.getPreferredInnerHeight();
+                return content.getPreferredHeight();
             }
             if(prefInnerSize < 0) {
                 prefInnerSize = computePreferredInnerSize();
@@ -216,9 +234,9 @@ public class CollapsiblePanel extends DialogLayout {
                 return 0;
             }
             if(direction == Direction.VERTICAL) {
-                return content.getPreferredHeight();
+                return computeSize(0, content.getPreferredHeight(), content.getMaxHeight());
             } else {
-                return content.getPreferredWidth();
+                return computeSize(0, content.getPreferredWidth(), content.getMaxWidth());
             }
         }
 

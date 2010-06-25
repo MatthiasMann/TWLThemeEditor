@@ -27,56 +27,45 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui;
+package de.matthiasmann.twlthemeeditor.fontgen.effects;
 
-import de.matthiasmann.twl.DialogLayout;
-import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twl.model.SimpleBooleanModel;
+import de.matthiasmann.twl.model.SimpleProperty;
+import de.matthiasmann.twlthemeeditor.fontgen.Effect;
+import de.matthiasmann.twlthemeeditor.fontgen.FontInfo;
+import de.matthiasmann.twlthemeeditor.fontgen.GlyphRect;
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
 
 /**
- *
+ * An effect to spread a gradient down the text
+ * 
+ * @author kevin
  * @author Matthias Mann
  */
-public final class PropertyPanel extends DialogLayout {
+public class GradientEffect extends Effect {
 
-    private final PropertyFactories factories;
+    private final SimpleProperty<Color> colorTop    = new SimpleProperty<Color>(Color.class, "top color", Color.YELLOW);
+    private final SimpleProperty<Color> colorBottom = new SimpleProperty<Color>(Color.class, "bottom color", Color.RED);
 
-    public PropertyPanel(PropertyFactories factories, Property<?>[] properties) {
-        this.factories = factories;
-        
-        setHorizontalGroup(createParallelGroup());
-        setVerticalGroup(createSequentialGroup());
-
-        for(Property<?> p : properties) {
-            addProperty(p);
-        }
+    @Override
+    public void preGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {
+        g.setPaint(new GradientPaint(
+                0, -fontInfo.maxGlyphHeight, colorTop.getPropertyValue(),
+                0, fontInfo.maxGlyphDecent, colorBottom.getPropertyValue()));
     }
 
-    @SuppressWarnings("unchecked")
-    protected void addProperty(Property<?> p) {
-        boolean optional = p.canBeNull();
-        
-        PropertyEditorFactory<?, ?> factory = factories.getFactory(p);
-        if(factory != null) {
-            BooleanModel activeModel = null;
+    @Override
+    public Property<?>[] getProperties() {
+        return new Property<?>[] {
+            new ColorConvertProperty(colorTop),
+            new ColorConvertProperty(colorBottom)
+        };
+    }
 
-            if(optional) {
-                activeModel = new SimpleBooleanModel();
-            }
-
-            Widget content = factory.create(new PropertyAccessor(p, activeModel));
-
-            CollapsiblePanel panel = new CollapsiblePanel(
-                    CollapsiblePanel.Direction.VERTICAL,
-                    p.getName(), content, activeModel);
-            
-            getVerticalGroup().addWidget(panel);
-            getHorizontalGroup().addWidget(panel);            
-        } else {
-            System.out.println("No factory for property " + p.getName() +
-                    " type " + p.getClass() + "<" + p.getType() + ">");
-        }
+    @Override
+    protected Effect createNew() {
+        return new GradientEffect();
     }
 }

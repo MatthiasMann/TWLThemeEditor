@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (ch) 2008-2010, Matthias Mann
  *
  * All rights reserved.
  *
@@ -27,37 +27,44 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui.testwidgets;
+package de.matthiasmann.twlthemeeditor.fontgen;
 
-import de.matthiasmann.twl.ScrollPane;
-import de.matthiasmann.twl.TextArea;
-import de.matthiasmann.twl.textarea.HTMLTextAreaModel;
-import java.io.IOException;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 
 /**
  *
  * @author Matthias Mann
  */
-public class TestScrollPane extends ScrollPane {
+public class GlyphRect {
 
-    private final HTMLTextAreaModel model;
-    private final TextArea textArea;
+    public final char ch;
+    public final int width;
+    public final int height;
+    public final int advance;
+    public final int yoffset;
+    public final int xDrawOffset;
+    public final int yDrawOffset;
+    public final Shape glyphShape;
 
-    public TestScrollPane() {
-        setTheme("scrollpane");
-        
-        model = new HTMLTextAreaModel();
-        textArea = new TextArea(model);
-        textArea.setTheme("/textarea");
-
-        setFixed(Fixed.HORIZONTAL);
-        
-        try {
-            model.readHTMLFromURL(TestScrollPane.class.getResource("text.html"));
-        } catch (IOException ex) {
-            model.setHtml("<html><body>ERROR: " + ex.getMessage() + "</body></html>");
-        }
-        setContent(textArea);
+    int x;
+    int y;
+    
+    public GlyphRect(char ch, int width, int height, int advance, int yoffset, int xDrawOffset, int yDrawOffset, Shape glyphShape) {
+        this.ch = ch;
+        this.width = width;
+        this.height = height;
+        this.advance = advance;
+        this.yoffset = yoffset;
+        this.xDrawOffset = xDrawOffset;
+        this.yDrawOffset = yDrawOffset;
+        this.glyphShape = glyphShape;
     }
 
+    public void drawGlyph(Graphics2D g) {
+        int offY = yDrawOffset - yoffset;
+        g.translate(xDrawOffset, offY);
+        g.fill(glyphShape);
+        g.translate(-xDrawOffset, -offY);
+    }
 }

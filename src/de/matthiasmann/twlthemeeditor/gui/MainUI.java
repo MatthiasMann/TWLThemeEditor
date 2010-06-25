@@ -52,6 +52,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.Include;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
+import de.matthiasmann.twlthemeeditor.fontgen.gui.FontGenDialog;
 import de.matthiasmann.twlthemeeditor.gui.EditorArea.Layout;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -140,6 +141,12 @@ public class MainUI extends DialogLayout {
         menuHelp.add("About", new Runnable() {
             public void run() {
                 openAboutDialog();
+            }
+        });
+        menuHelp.add("Fonts", new Runnable() {
+            public void run() {
+                FontGenDialog fgd = new FontGenDialog(MainUI.this);
+                fgd.openPopup();
             }
         });
         mainMenu.add(menuHelp);
