@@ -379,6 +379,10 @@ public final class FontGenDialog {
 
         charSet.load(properties);
         effectsPanel.load(properties);
+
+        for(CharSetBlockCB cs : unicodeBockCBs) {
+            cs.charSetModel.fireCallback();
+        }
         
         if(fontPath != null) {
             try {
@@ -529,6 +533,10 @@ public final class FontGenDialog {
         public void setValue(boolean value) {
             charSet.setBlock(block, value);
             doCallback();
+        }
+
+        void fireCallback() {
+            super.doCallback();
         }
     }
 
