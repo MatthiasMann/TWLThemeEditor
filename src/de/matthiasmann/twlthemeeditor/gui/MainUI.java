@@ -30,7 +30,6 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.DialogLayout;
-import de.matthiasmann.twl.FileSelector;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.MenuAction;
@@ -71,7 +70,7 @@ import org.lwjgl.opengl.GL11;
  *
  * @author Matthias Mann
  */
-public class MainUI extends DialogLayout {
+public final class MainUI extends DialogLayout {
 
     private static final String KEY_PROJECT_FILESELECTOR = "projectsFiles";
     private static final String KEY_RECENT_PROJECTS = "recentProjects";
@@ -136,17 +135,26 @@ public class MainUI extends DialogLayout {
         Menu menuSettings = new Menu("Settings");
         editorArea.addSettingsMenuItems(menuSettings);
         mainMenu.add(menuSettings);
-        
+
+        Menu menuTools = new Menu("Tools");
+        menuTools.add("Create font", new Runnable() {
+            public void run() {
+                FontGenDialog fgd = new FontGenDialog(MainUI.this);
+                fgd.openPopup();
+            }
+        });
+        menuTools.addSpacer();
+        menuTools.add("Reload all images", new Runnable() {
+            public void run() {
+                editorArea.reapplyTheme();
+            }
+        });
+        mainMenu.add(menuTools);
+
         Menu menuHelp = new Menu("Help");
         menuHelp.add("About", new Runnable() {
             public void run() {
                 openAboutDialog();
-            }
-        });
-        menuHelp.add("Fonts", new Runnable() {
-            public void run() {
-                FontGenDialog fgd = new FontGenDialog(MainUI.this);
-                fgd.openPopup();
             }
         });
         mainMenu.add(menuHelp);
@@ -212,34 +220,16 @@ public class MainUI extends DialogLayout {
     }
     
     void openProject() {
-        final PopupWindow popupWindow = new PopupWindow(this);
-        JavaFileSystemModel fsm = new JavaFileSystemModel();
-        FileSelector.NamedFileFilter filter = new FileSelector.NamedFileFilter(
-                "XML files", new ExtFilter(".xml"));
-        FileSelector fileSelector = new FileSelector(prefs, KEY_PROJECT_FILESELECTOR);
-        fileSelector.setFileSystemModel(fsm);
-        fileSelector.addFileFilter(FileSelector.AllFilesFilter);
-        fileSelector.addFileFilter(filter);
-        fileSelector.setFileFilter(filter);
-        fileSelector.setAllowMultiSelection(false);
-        fileSelector.addCallback(new FileSelector.Callback() {
-            public void filesSelected(Object[] files) {
-                if(files.length == 1 && (files[0] instanceof File)) {
-                    openProject((File)files[0]);
-                }
-                popupWindow.closePopup();
+        LoadFileSelector lfs = new LoadFileSelector(this,
+                prefs, KEY_PROJECT_FILESELECTOR,
+                 "XML theme files", ".xml", new LoadFileSelector.Callback() {
+            public void fileSelected(File file) {
+                openProject(file);
             }
             public void canceled() {
-                popupWindow.closePopup();
             }
         });
-        popupWindow.setTheme("fileselector-popup");
-        popupWindow.add(fileSelector);
-        popupWindow.setSize(getWidth()*4/5, getHeight()*4/5);
-        popupWindow.setPosition(
-                getWidth()/2 - popupWindow.getWidth()/2,
-                getHeight()/2 - popupWindow.getHeight()/2);
-        popupWindow.openPopup();
+        lfs.openPopup();
     }
 
     public boolean isCloseRequested() {

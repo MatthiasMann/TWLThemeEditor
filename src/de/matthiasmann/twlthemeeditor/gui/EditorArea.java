@@ -63,7 +63,7 @@ import java.util.prefs.Preferences;
  *
  * @author Matthias Mann
  */
-public class EditorArea extends Widget {
+public final class EditorArea extends Widget {
 
     public enum Layout {
         SPLIT_HV,
@@ -123,8 +123,7 @@ public class EditorArea extends Widget {
 
         modelChangedCB = new CallbackWithReason<ThemeTreeModel.CallbackReason>() {
             public void callback(ThemeTreeModel.CallbackReason reason) {
-                ctx.getThemeTreeModel().setErrorLocation(null);
-                previewWidget.reloadTheme();
+                reloadTheme();
                 if(reason == ThemeTreeModel.CallbackReason.STRUCTURE_CHANGED) {
                     updatePropertyEditors.run();
                 }
@@ -253,6 +252,11 @@ public class EditorArea extends Widget {
 
     public void addSettingsMenuItems(Menu settingsMenu) {
         textureViewerPane.addSettingsMenuItems(settingsMenu);
+    }
+
+    public void reloadTheme() {
+        ctx.getThemeTreeModel().setErrorLocation(null);
+        previewWidget.reloadTheme();
     }
     
     void recreateLayout() {

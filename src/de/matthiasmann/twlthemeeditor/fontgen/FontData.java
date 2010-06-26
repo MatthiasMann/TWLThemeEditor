@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -88,6 +89,18 @@ public final class FontData {
 
     public int getNextCodepoint(int codepoint) {
         return defined.nextSetBit(codepoint + 1);
+    }
+
+    public HashSet<Character.UnicodeBlock> getDefinedBlocks() {
+        HashSet<Character.UnicodeBlock> result = new HashSet<Character.UnicodeBlock>();
+        int codepoint = -1;
+        while((codepoint=getNextCodepoint(codepoint)) >= 0) {
+            Character.UnicodeBlock block = Character.UnicodeBlock.of(codepoint);
+            if(block != null) {
+                result.add(block);
+            }
+        }
+        return result;
     }
     
     private FontData(byte[] data, float size) throws IOException {

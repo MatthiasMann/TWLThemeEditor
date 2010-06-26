@@ -30,8 +30,11 @@
 package de.matthiasmann.twlthemeeditor.fontgen;
 
 import java.lang.Character.UnicodeBlock;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 /**
  *
@@ -60,5 +63,43 @@ public class CharSet {
     
     public boolean isIncluded(int ch) {
         return getBlockEnabled(Character.UnicodeBlock.of(ch));
+    }
+
+    public void save(Properties prop) {
+        for(Character.UnicodeBlock block : getSupportedBlocks()) {
+            prop.setProperty(getKey(block), Boolean.toString(getBlockEnabled(block)));
+        }
+    }
+
+    public void load(Properties prop) {
+        blocks.clear();
+        for(Character.UnicodeBlock block : getSupportedBlocks()) {
+            if("true".equals(prop.getProperty(getKey(block)))) {
+                setBlock(block, true);
+            }
+        }
+    }
+
+    private static String getKey(Character.UnicodeBlock block) {
+        return "CharSet.".concat(block.toString());
+    }
+
+    public static Character.UnicodeBlock[] getSupportedBlocks() {
+        ArrayList<Character.UnicodeBlock> result = new ArrayList<Character.UnicodeBlock>();
+        for(Field f : Character.UnicodeBlock.class.getFields()) {
+            if(Modifier.isStatic(f.getModifiers()) && f.getType() == Character.UnicodeBlock.class) {
+                try {
+                    Character.UnicodeBlock block = (UnicodeBlock) f.get(null);
+                    if(block != Character.UnicodeBlock.LOW_SURROGATES &&
+                            block != Character.UnicodeBlock.HIGH_SURROGATES &&
+                            block != Character.UnicodeBlock.SURROGATES_AREA &&
+                            block != Character.UnicodeBlock.HIGH_PRIVATE_USE_SURROGATES) {
+                        result.add(block);
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return result.toArray(new Character.UnicodeBlock[result.size()]);
     }
 }

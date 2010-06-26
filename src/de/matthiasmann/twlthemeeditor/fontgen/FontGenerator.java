@@ -29,8 +29,6 @@
  */
 package de.matthiasmann.twlthemeeditor.fontgen;
 
-import de.matthiasmann.twlthemeeditor.fontgen.effects.BlurShadowEffect;
-import de.matthiasmann.twlthemeeditor.fontgen.effects.GradientEffect;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -235,6 +233,29 @@ public class FontGenerator {
         return false;
     }
 
+    public void write(File file) throws IOException {
+        File dir = file.getParentFile();
+        String baseName = getBaseName(file);
+        
+        PNGWriter.write(new File(dir, baseName.concat("_00.png")), image, usedTextureHeight);
+        OutputStream os = new FileOutputStream(file);
+        try {
+            writeXML(os, baseName);
+        } finally {
+            os.close();
+        }
+    }
+
+    public File[] getFilesCreatedForName(File file) {
+        File dir = file.getParentFile();
+        String baseName = getBaseName(file);
+
+        return new File[] {
+            file,
+            new File(dir, baseName.concat("_00.png"))
+        };
+    }
+
     private void writeXML(OutputStream os, String basename) throws IOException {
         try {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -265,7 +286,7 @@ public class FontGenerator {
             xs.attribute(null, "base", Integer.toString(ascent));
             xs.attribute(null, "scaleW", Integer.toString(image.getWidth()));
             xs.attribute(null, "scaleH", Integer.toString(image.getHeight()));
-            xs.attribute(null, "apagesa", "1");
+            xs.attribute(null, "pages", "1");
             xs.attribute(null, "packed", "0");
             xs.endTag(null, "common");
             xs.text("\n  ");
@@ -289,7 +310,7 @@ public class FontGenerator {
                 xs.attribute(null, "width", Integer.toString(rect.width));
                 xs.attribute(null, "height", Integer.toString(rect.height));
                 xs.attribute(null, "xoffset", "0");
-                xs.attribute(null, "yoffset", Integer.toString(rect.yoffset));
+                xs.attribute(null, "yoffset", Integer.toString(ascent + rect.yoffset));
                 xs.attribute(null, "xadvance", Integer.toString(rect.advance));
                 xs.attribute(null, "page", "0");
                 xs.attribute(null, "chnl", "0");
@@ -319,33 +340,12 @@ public class FontGenerator {
         }
     }
 
-    public void write(File dir, String baseName) throws IOException {
-        PNGWriter.write(new File(dir, baseName.concat("_00.png")), image, usedTextureHeight);
-        OutputStream os = new FileOutputStream(new File(dir, baseName.concat(".fnt")));
-        try {
-            writeXML(os, baseName);
-        } finally {
-            os.close();
+    private String getBaseName(File file) {
+        String baseName = file.getName();
+        int idx = baseName.lastIndexOf('.');
+        if(idx > 0) {
+            baseName = baseName.substring(0, idx);
         }
-    }
-
-    public static void main(String[] args) throws IOException {
-        FontData data = FontData.create(new File("arial.ttf").toURI().toURL(), 32);
-        CharSet charSet = new CharSet();
-        charSet.setBlock(Character.UnicodeBlock.BASIC_LATIN, true);
-        charSet.setBlock(Character.UnicodeBlock.LATIN_1_SUPPLEMENT, true);
-        charSet.setBlock(Character.UnicodeBlock.LATIN_EXTENDED_A, true);
-        charSet.setBlock(Character.UnicodeBlock.LATIN_EXTENDED_B, true);
-        charSet.setBlock(Character.UnicodeBlock.LATIN_EXTENDED_ADDITIONAL, true);
-
-        Padding padding = new Padding(0, 0, 3, 3, 0);
-        Effect[] effects = new Effect[] {
-            new GradientEffect(),
-            new BlurShadowEffect()
-        };
-
-        FontGenerator fontgen = new FontGenerator(data);
-        fontgen.generate(1024, 1024, charSet, padding, effects);
-        fontgen.write(new File("."), "fonttest");
+        return baseName;
     }
 }

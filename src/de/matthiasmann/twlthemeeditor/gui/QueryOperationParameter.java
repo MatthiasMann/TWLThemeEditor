@@ -32,10 +32,7 @@ package de.matthiasmann.twlthemeeditor.gui;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
-import de.matthiasmann.twl.FileSelector;
 import de.matthiasmann.twl.Label;
-import de.matthiasmann.twl.PopupWindow;
-import de.matthiasmann.twl.model.JavaFileSystemModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
 import java.io.File;
 import java.net.URI;
@@ -96,36 +93,23 @@ public class QueryOperationParameter extends DialogLayout {
     private void addFileSelector(Group horz, Group vert, final int resultIdx, ThemeTreeOperation.FileParameter fileParameter) {
         final EditField ef = new EditField();
         final Button btn = new Button();
-        final PopupWindow popupWindow = new PopupWindow(this);
-        final FileSelector fileSelector = new FileSelector(
+        final LoadFileSelector lfs = new LoadFileSelector(this,
                 Preferences.userNodeForPackage(QueryOperationParameter.class),
-                "fileSelector_".concat(fileParameter.name.replace(' ', '_')));
-
-        fileSelector.setFileSystemModel(new JavaFileSystemModel());
-        fileSelector.setCurrentFolder(startDir);
-        fileSelector.setAllowMultiSelection(false);
-        fileSelector.setAllowFolderSelection(false);
-        fileSelector.addFileFilter(new FileSelector.NamedFileFilter(fileParameter.name, fileParameter.fileFilter));
-        fileSelector.addCallback(new FileSelector.Callback() {
-            public void filesSelected(Object[] files) {
-                if(files.length == 1 && (files[0] instanceof File)) {
-                    URI uri = ((File)files[0]).toURI();
-                    if(startDir != null) {
-                        uri = startDir.toURI().relativize(uri);
-                    }
-                    String path = uri.getPath();
-                    results[resultIdx] = path;
-                    ef.setText(path);
+                "fileSelector_".concat(fileParameter.name.replace(' ', '_')),
+                fileParameter.name, fileParameter.fileFilter, new LoadFileSelector.Callback() {
+            public void fileSelected(File file) {
+                URI uri = file.toURI();
+                if(startDir != null) {
+                    uri = startDir.toURI().relativize(uri);
                 }
-                popupWindow.closePopup();
+                String path = uri.getPath();
+                results[resultIdx] = path;
+                ef.setText(path);
             }
+
             public void canceled() {
-                popupWindow.closePopup();
             }
         });
-
-        popupWindow.setTheme("fileselector-popup");
-        popupWindow.add(fileSelector);
 
         ef.setTheme("filename");
         ef.setReadOnly(true);
@@ -133,13 +117,7 @@ public class QueryOperationParameter extends DialogLayout {
         btn.setTheme("selectFile");
         btn.addCallback(new Runnable() {
             public void run() {
-                int width = getGUI().getInnerWidth();
-                int height = getGUI().getInnerHeight();
-                popupWindow.setSize(width*4/5, height*4/5);
-                popupWindow.setPosition(
-                        width/2 - popupWindow.getWidth()/2,
-                        height/2 - popupWindow.getHeight()/2);
-                popupWindow.openPopup();
+                lfs.openPopup();
             }
         });
 

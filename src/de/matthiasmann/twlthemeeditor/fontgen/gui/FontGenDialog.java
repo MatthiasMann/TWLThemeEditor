@@ -47,18 +47,33 @@ import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
 import de.matthiasmann.twlthemeeditor.fontgen.CharSet;
 import de.matthiasmann.twlthemeeditor.fontgen.FontData;
+import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator;
 import de.matthiasmann.twlthemeeditor.fontgen.Padding;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.BlurShadowEffect;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.GradientEffect;
+import de.matthiasmann.twlthemeeditor.gui.LoadFileSelector;
+import de.matthiasmann.twlthemeeditor.gui.SaveFileSelector;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.lang.Character.UnicodeBlock;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 /**
  *
  * @author Matthias Mann
  */
 public final class FontGenDialog {
+    public static final String FONTGEN_FILE_SELECTOR_KEY = "fontgen_settings";
+
+    private static final String SETTINGS_EXTENSION = ".twlfontgen";
 
     private final CharSet charSet;
     private final DialogLayout layout;
@@ -69,16 +84,19 @@ public final class FontGenDialog {
     private final SimpleChangableListModel<Integer> textureSizesModel;
     private final ComboBox<Integer> textureSizeCB;
     private final ComboBox<FontDisplayBG> fontDisplayBgCB;
+    private final CharSetBlockCB[] unicodeBockCBs;
     private final BoxLayout unicodeBlocksBox;
     private final ScrollPane unicodeBlocksSP;
-    private final SimpleChangableListModel<Integer> fontSizesModel;
-    private final ComboBox<Integer> fontSizeCB;
+    private final SimpleIntegerModel fontSizeModel;
+    private final ValueAdjusterInt fontSizeAdjuster;
     private final EffectsPanel effectsPanel;
     private final ScrollPane effectsPanelSP;
     private final FontDisplay fontDisplay;
     private final ScrollPane fontDisplaySP;
+    private final Button loadSettingsButton;
+    private final Button saveSettingsButton;
     private final Button saveFontButton;
-    private final Button cancelButton;
+    private final Button closeButton;
 
     private final SimpleIntegerModel[] paddingModels;
 
@@ -102,19 +120,13 @@ public final class FontGenDialog {
                 updateCharset();
             }
         };
-        for(Field f : Character.UnicodeBlock.class.getFields()) {
-            if(Modifier.isStatic(f.getModifiers()) && f.getType() == Character.UnicodeBlock.class) {
-                try {
-                    Character.UnicodeBlock block = (UnicodeBlock) f.get(null);
-                    CharSetBlockModel charSetBlockModel = new CharSetBlockModel(charSet, block);
-                    charSetBlockModel.addCallback(updateCharSetCB);
-                    ToggleButton tb = new ToggleButton(charSetBlockModel);
-                    tb.setText(beautifyName(block.toString()));
-                    tb.setTheme("checkbox");
-                    unicodeBlocksBox.add(tb);
-                } catch (Throwable ignored) {
-                }
-            }
+        UnicodeBlock[] supportedBlocks = CharSet.getSupportedBlocks();
+        unicodeBockCBs = new CharSetBlockCB[supportedBlocks.length];
+        for(int i=0,n=supportedBlocks.length ; i<n ; i++) {
+            CharSetBlockModel charSetBlockModel = new CharSetBlockModel(charSet, supportedBlocks[i]);
+            charSetBlockModel.addCallback(updateCharSetCB);
+            unicodeBockCBs[i] = new CharSetBlockCB(charSetBlockModel);
+            unicodeBlocksBox.add(unicodeBockCBs[i]);
         }
 
         fontPathEF = new EditField();
@@ -150,23 +162,13 @@ public final class FontGenDialog {
         unicodeBlocksSP.setTheme("unicodeBlocks");
         unicodeBlocksSP.setFixed(ScrollPane.Fixed.HORIZONTAL);
 
-        fontSizesModel = new SimpleChangableListModel<Integer>();
-        for(int size=8 ; size<24 ; size++) {
-            fontSizesModel.addElement(size);
-        }
-        for(int size=24 ; size<64 ; size += 2) {
-            fontSizesModel.addElement(size);
-        }
-        for(int size=64 ; size<=128 ; size += 4) {
-            fontSizesModel.addElement(size);
-        }
-        fontSizeCB = new ComboBox<Integer>(fontSizesModel);
-        fontSizeCB.setSelected(6);
-        fontSizeCB.addCallback(new Runnable() {
+        fontSizeModel = new SimpleIntegerModel(8, 128, 14);
+        fontSizeModel.addCallback(new Runnable() {
             public void run() {
                 updateFont();
             }
         });
+        fontSizeAdjuster = new ValueAdjusterInt(fontSizeModel);
 
         Runnable updatePaddingCB = new Runnable() {
             public void run() {
@@ -190,7 +192,7 @@ public final class FontGenDialog {
         
         effectsPanel.addControl("TTF Font", fontPathEF, selectFontBtn);
         effectsPanel.addControl("Texture size", textureSizeCB);
-        effectsPanel.addControl("Font size", fontSizeCB);
+        effectsPanel.addControl("Font size", fontSizeAdjuster);
         effectsPanel.addControl("Padding", paddingAdjuster);
         effectsPanel.addControl("Preview BG", fontDisplayBgCB);
         effectsPanel.addCollapsible("Unicode blocks", unicodeBlocksSP, null).setExpanded(true);
@@ -209,24 +211,38 @@ public final class FontGenDialog {
         fontDisplay = new FontDisplay();
         fontDisplaySP = new ScrollPane(fontDisplay);
         fontDisplaySP.setTheme("fontDisplay");
-        
-        saveFontButton = new Button("Save Font");
-        saveFontButton.addCallback(new Runnable() {
+
+        loadSettingsButton = new Button("Load Settings");
+        loadSettingsButton.addCallback(new Runnable() {
             public void run() {
+                loadSettings();
             }
         });
 
-        cancelButton = new Button("Cancel");
-        cancelButton.addCallback(new Runnable() {
+        saveSettingsButton = new Button("Save Settings");
+        saveSettingsButton.addCallback(new Runnable() {
             public void run() {
-                cancel();
+                saveSettings();
+            }
+        });
+
+        saveFontButton = new Button("Save Font");
+        saveFontButton.addCallback(new Runnable() {
+            public void run() {
+                saveFont();
+            }
+        });
+
+        closeButton = new Button("Close");
+        closeButton.addCallback(new Runnable() {
+            public void run() {
+                close();
             }
         });
 
         SplitPane splitPane = new SplitPane();
         splitPane.setDirection(SplitPane.Direction.HORIZONTAL);
-        //splitPane.setReverseSplitPosition(true);
-        splitPane.setSplitPosition(300);
+        splitPane.setSplitPosition(370);
         splitPane.add(effectsPanelSP);
         splitPane.add(fontDisplaySP);
 
@@ -234,12 +250,16 @@ public final class FontGenDialog {
         layout.setTheme("fontgendialog");
         
         DialogLayout.Group hButtons = layout.createSequentialGroup()
+                .addWidget(loadSettingsButton)
+                .addWidget(saveSettingsButton)
                 .addGap()
                 .addWidget(saveFontButton)
-                .addWidget(cancelButton);
+                .addWidget(closeButton);
         DialogLayout.Group vButtons = layout.createParallelGroup()
+                .addWidget(loadSettingsButton)
+                .addWidget(saveSettingsButton)
                 .addWidget(saveFontButton)
-                .addWidget(cancelButton);
+                .addWidget(closeButton);
         
         layout.setHorizontalGroup(layout.createParallelGroup()
                 .addWidget(splitPane)
@@ -263,14 +283,171 @@ public final class FontGenDialog {
     public void openPopup() {
         if(popupWindow.openPopup()) {
             GUI gui = popupWindow.getGUI();
-            popupWindow.setSize(gui.getWidth()*4/5, gui.getHeight()*4/5);
+            popupWindow.setSize(gui.getWidth()*7/8, gui.getHeight()*7/8);
             popupWindow.setPosition(
                     (gui.getWidth() - popupWindow.getWidth())/2,
                     (gui.getHeight() - popupWindow.getHeight())/2);
         }
     }
 
-    void cancel() {
+    void loadSettings() {
+        LoadFileSelector lfs = new LoadFileSelector(loadSettingsButton,
+                Preferences.userNodeForPackage(FontGenDialog.class), FONTGEN_FILE_SELECTOR_KEY,
+                "TWL font generator settings", SETTINGS_EXTENSION, new LoadFileSelector.Callback() {
+            public void canceled() {
+            }
+            public void fileSelected(File file) {
+                loadSettings(file);
+            }
+        });
+        lfs.openPopup();
+    }
+
+    void saveSettings() {
+        SaveFileSelector sfs = new SaveFileSelector(saveSettingsButton,
+                Preferences.userNodeForPackage(FontGenDialog.class), FONTGEN_FILE_SELECTOR_KEY,
+                "TWL font generator settings", SETTINGS_EXTENSION, new SaveFileSelector.Callback() {
+            public File[] getFilesCreatedForFileName(File file) {
+                return new File[] { file };
+            }
+            public void fileNameSelected(File file) {
+                saveSettings(file);
+            }
+            public void canceled() {
+            }
+        });
+        sfs.openPopup();
+    }
+
+    private static final String KEY_FONTPATH = "fontPath";
+    private static final String KEY_TEXTURESIZE = "textureSize";
+    private static final String KEY_FONTSIZE = "fontSize";
+    private static final String[] KEY_PADDING = {
+        "padding.top",
+        "padding.left",
+        "padding.bottom",
+        "padding.right",
+        "padding.advance",
+    };
+
+    void loadSettings(File file) {
+        Properties properties = new Properties();
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            try {
+                InputStreamReader isr = new InputStreamReader(fis, "UTF8");
+                properties.load(isr);
+            } finally {
+                fis.close();
+            }
+        } catch(IOException ex) {
+            Logger.getLogger(FontGenDialog.class.getName()).log(Level.SEVERE, "Can't load settings file", ex);
+            return;
+        }
+
+        fontPath = properties.getProperty(KEY_FONTPATH);
+        fontData = null;
+        fontPathEF.setText(fontPath);
+
+        {
+            int textureSizeEntry = -1;
+            try {
+                int textureSize = Integer.parseInt(properties.getProperty(KEY_TEXTURESIZE, "0"));
+                textureSizeEntry = textureSizesModel.findElement(textureSize);
+            } catch (IllegalArgumentException ignore) {
+            }
+            textureSizeCB.setSelected((textureSizeEntry < 0) ? 2 : textureSizeEntry);
+        }
+
+        {
+            int fontSize = 14;
+            try {
+                fontSize = Integer.parseInt(properties.getProperty(KEY_FONTSIZE, "0"));
+            } catch (IllegalArgumentException ignore) {
+            }
+            fontSizeModel.setValue((fontSize <= 0) ? 14 : fontSize);
+        }
+
+        for(int i=0 ; i<5 ; i++) {
+            int padding = 0;
+            try {
+                padding = Integer.parseInt(properties.getProperty(KEY_PADDING[i], "0"));
+            } catch (IllegalArgumentException ignore) {
+            }
+            paddingModels[i].setValue(padding);
+        }
+
+        charSet.load(properties);
+        effectsPanel.load(properties);
+        
+        if(fontPath != null) {
+            try {
+                FileInputStream fis = new FileInputStream(fontPath);
+                try {
+                    fontData = FontData.create(fis, 32);
+                } finally {
+                    fis.close();
+                }
+            } catch (Throwable ex) {
+                Logger.getLogger(FontGenDialog.class.getName()).log(Level.SEVERE, "Can't load font", ex);
+            }
+        }
+
+        updateCharset();
+        updateFont();
+    }
+
+    void saveSettings(File file) {
+        Properties properties = new Properties();
+        properties.setProperty(KEY_FONTPATH, fontPath);
+        properties.setProperty(KEY_TEXTURESIZE, Integer.toString(getTextureSize()));
+        properties.setProperty(KEY_FONTSIZE, Integer.toString(fontSizeModel.getValue()));
+        charSet.save(properties);
+        for(int i=0 ; i<5 ; i++) {
+            properties.setProperty(KEY_PADDING[i], Integer.toString(paddingModels[i].getValue()));
+        }
+        effectsPanel.save(properties);
+
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            try {
+                OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF8");
+                properties.store(osw, "TWL theme editor font generator settings");
+                osw.close();
+            } finally {
+                fos.close();
+            }
+        } catch(IOException ex) {
+            Logger.getLogger(FontGenDialog.class.getName()).log(Level.SEVERE, "Can't write settings file", ex);
+        }
+    }
+
+    void saveFont() {
+        final FontGenerator fontGen = fontDisplay.getLastFontGen();
+        if(fontGen == null) {
+            return;
+        }
+
+        SaveFileSelector sfs = new SaveFileSelector(saveSettingsButton,
+                Preferences.userNodeForPackage(FontGenDialog.class), FONTGEN_FILE_SELECTOR_KEY,
+                "BMFont files", ".fnt", new SaveFileSelector.Callback() {
+            public File[] getFilesCreatedForFileName(File file) {
+                return fontGen.getFilesCreatedForName(file);
+            }
+            public void fileNameSelected(File file) {
+                try {
+                    fontGen.write(file);
+                } catch(IOException ex) {
+                    Logger.getLogger(FontGenDialog.class.getName()).log(Level.SEVERE, "Cound not save font", ex);
+                }
+            }
+            public void canceled() {
+            }
+        });
+        sfs.openPopup();
+    }
+
+    void close() {
         popupWindow.closePopup();
     }
 
@@ -314,41 +491,31 @@ public final class FontGenDialog {
 
     void updateFont() {
         if(fontData != null) {
-            int fontSize = fontSizesModel.getEntry(fontSizeCB.getSelected());
-            fontDisplay.setFontData(fontData.deriveFont(fontSize));
+            HashSet<UnicodeBlock> definedBlocks = fontData.getDefinedBlocks();
+            for(CharSetBlockCB cb : unicodeBockCBs) {
+                cb.setEnabled(definedBlocks.contains(cb.charSetModel.block));
+            }
+            fontDisplay.setFontData(fontData.deriveFont(fontSizeModel.getValue()));
         } else {
             fontDisplay.setFontData(null);
         }
     }
 
     void updateTextureSize() {
-        int textureSize = textureSizesModel.getEntry(textureSizeCB.getSelected());
-        fontDisplay.setTextureSize(textureSize);
+        fontDisplay.setTextureSize(getTextureSize());
+    }
+
+    private Integer getTextureSize() {
+        return textureSizesModel.getEntry(textureSizeCB.getSelected());
     }
 
     void updateEffects() {
         fontDisplay.setEffects(effectsPanel.getActiveEffects());
     }
 
-    private static String beautifyName(String name) {
-        char[] cb = name.toCharArray();
-        boolean toLower = false;
-        for(int i=0 ; i<cb.length ; i++) {
-            if(cb[i] == '_') {
-                cb[i] = ' ';
-                toLower = false;
-            } else if(toLower) {
-                cb[i] = Character.toLowerCase(cb[i]);
-            } else {
-                toLower = true;
-            }
-        }
-        return new String(cb);
-    }
-
     static class CharSetBlockModel extends HasCallback implements BooleanModel {
-        private final CharSet charSet;
-        private final Character.UnicodeBlock block;
+        final CharSet charSet;
+        final Character.UnicodeBlock block;
 
         public CharSetBlockModel(CharSet charSet, UnicodeBlock block) {
             this.charSet = charSet;
@@ -362,6 +529,37 @@ public final class FontGenDialog {
         public void setValue(boolean value) {
             charSet.setBlock(block, value);
             doCallback();
+        }
+    }
+
+    static class CharSetBlockCB extends ToggleButton {
+        final CharSetBlockModel charSetModel;
+
+        public CharSetBlockCB(CharSetBlockModel charSetModel) {
+            super(charSetModel);
+            this.charSetModel = charSetModel;
+            setText(getName(charSetModel.block));
+            setTheme("checkbox");
+        }
+
+        public CharSetBlockModel getCharSetModel() {
+            return charSetModel;
+        }
+
+        private static String getName(Character.UnicodeBlock block) {
+            char[] cb = block.toString().toCharArray();
+            boolean toLower = false;
+            for(int i=0 ; i<cb.length ; i++) {
+                if(cb[i] == '_') {
+                    cb[i] = ' ';
+                    toLower = false;
+                } else if(toLower) {
+                    cb[i] = Character.toLowerCase(cb[i]);
+                } else {
+                    toLower = true;
+                }
+            }
+            return new String(cb);
         }
     }
 

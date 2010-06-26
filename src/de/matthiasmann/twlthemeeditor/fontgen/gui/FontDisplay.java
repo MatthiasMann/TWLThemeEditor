@@ -64,6 +64,7 @@ public class FontDisplay extends Widget {
     private boolean updateRunning;
     private ByteBuffer buffer;
     private DynamicImage image;
+    private FontGenerator lastFontGen;
 
     public FontDisplay() {
         this.lock = new Object();
@@ -108,6 +109,10 @@ public class FontDisplay extends Widget {
             this.effects = tmp;
             update();
         }
+    }
+
+    public FontGenerator getLastFontGen() {
+        return lastFontGen;
     }
 
     private void update() {
@@ -161,6 +166,7 @@ public class FontDisplay extends Widget {
     }
 
     void updateImage(FontGenerator fontGen, int size) {
+        this.lastFontGen = fontGen;
         if(image == null || image.getWidth() != size) {
             destroyImage();
             GUI gui = getGUI();

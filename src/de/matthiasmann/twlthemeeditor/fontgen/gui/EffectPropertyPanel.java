@@ -119,18 +119,21 @@ public class EffectPropertyPanel extends DialogLayout {
         for(Property p : properties) {
             String str = prop.getProperty(getPropertyKey(p));
             if(str != null) {
-                Class<?> type = p.getType();
-                Object value;
-                if(Color.class == type) {
-                    value = Color.parserColor(str);
-                } else if(Integer.class == type) {
-                    value = Integer.valueOf(str);
-                } else if(Float.class == type) {
-                    value = Float.valueOf(str);
-                } else {
-                    throw new UnsupportedOperationException("Not implemented: " + type);
+                try {
+                    Class<?> type = p.getType();
+                    Object value;
+                    if(Color.class == type) {
+                        value = Color.parserColor(str);
+                    } else if(Integer.class == type) {
+                        value = Integer.valueOf(str);
+                    } else if(Float.class == type) {
+                        value = Float.valueOf(str);
+                    } else {
+                        throw new UnsupportedOperationException("Not implemented: " + type);
+                    }
+                    p.setPropertyValue(value);
+                } catch (IllegalArgumentException ignore) {
                 }
-                p.setPropertyValue(value);
             }
         }
     }
