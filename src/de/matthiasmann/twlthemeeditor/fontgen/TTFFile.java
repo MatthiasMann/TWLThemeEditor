@@ -20,7 +20,6 @@
 package de.matthiasmann.twlthemeeditor.fontgen;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
 
@@ -41,15 +40,6 @@ public class TTFFile {
 
     /** The all important conversion between internal units and Em */
     private int upem;                                // unitsPerEm from "head" table
-    /** The number of horizontal metrics */
-    private int nhmtx;                               // Number of horizontal metrics
-    /** The number of glyphs in the font */
-    private int numberOfGlyphs; // Number of glyphs in font (read from "maxp" table)
-
-    /**
-     * Contains glyph data
-     */
-    private int[] mtxWxTab;                  // Contains glyph data
 
     /** The name of the font */
     private String fontName = "";
@@ -235,9 +225,6 @@ public class TTFFile {
 
         readDirTabs(in);
         readFontHeader(in);
-        getNumGlyphs(in);
-        readHorizontalHeader(in);
-        readHorizontalMetrics(in);
         readName(in);
         // Read cmap table and fill in ansiwidths
         boolean valid = readCMAP(in);
@@ -266,17 +253,6 @@ public class TTFFile {
      */
     public String getFamilyName() {
         return familyName;
-    }
-
-    public IntMap<Integer> getUnicodeWidth() {
-        IntMap<Integer> result = new IntMap<Integer>();
-        for (int i=0,n=mtxWxTab.length ; i<n ; i++) {
-            Integer unicode = glyphMap.get(i);
-            if(unicode != null) {
-                result.put(unicode.intValue(), mtxWxTab[i]);
-            }
-        }
-        return result;
     }
 
     /**
@@ -320,56 +296,6 @@ public class TTFFile {
     protected void readFontHeader(FontFileReader in) throws IOException {
         seekTab(in, "head", 2 * 4 + 2 * 4 + 2);
         upem = in.readTTFUShort();
-    }
-
-    /**
-     * Read the number of glyphs from the "maxp" table
-     * @param in FontFileReader to read the number of glyphs from
-     * @throws IOException in case of an I/O problem
-     */
-    protected void getNumGlyphs(FontFileReader in) throws IOException {
-        seekTab(in, "maxp", 4);
-        numberOfGlyphs = in.readTTFUShort();
-    }
-
-
-    /**
-     * Read the "hhea" table to find the ascender and descender and
-     * size of "hmtx" table, as a fixed size font might have only
-     * one width.
-     * @param in FontFileReader to read the hhea table from
-     * @throws IOException in case of an I/O problem
-     */
-    protected void readHorizontalHeader(FontFileReader in)
-            throws IOException {
-        seekTab(in, "hhea", 8 + 2 + 2 + 3 * 2 + 8 * 2);
-        nhmtx = in.readTTFUShort();
-    }
-
-    /**
-     * Read "hmtx" table and put the horizontal metrics
-     * in the mtxWxTab array. If the number of metrics is less
-     * than the number of glyphs (eg fixed size fonts), extend
-     * the mtxWxTab array and fill in the missing widths
-     * @param in FontFileReader to read the hmtx table from
-     * @throws IOException in case of an I/O problem
-     */
-    protected void readHorizontalMetrics(FontFileReader in) throws IOException {
-        seekTab(in, "hmtx", 0);
-
-        int mtxSize = Math.max(numberOfGlyphs, nhmtx);
-        mtxWxTab = new int[mtxSize];
-
-        for (int i = 0; i < nhmtx; i++) {
-            mtxWxTab[i] = in.readTTFUShort();
-            in.readTTFUShort();
-        }
-
-        if (nhmtx < mtxSize) {
-            // Fill in the missing widths
-            int lastWidth = mtxWxTab[nhmtx - 1];
-            Arrays.fill(mtxWxTab, nhmtx, mtxSize, lastWidth);
-        }
     }
 
     /**

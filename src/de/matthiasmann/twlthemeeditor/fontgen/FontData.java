@@ -50,7 +50,6 @@ public final class FontData {
     private final float size;
     private final int upem;
     private final IntMap<IntMap<Integer>> kerning;
-    private final IntMap<Integer> charWidth;
     private final BitSet defined;
     private final String postScriptName;
 
@@ -83,10 +82,6 @@ public final class FontData {
         return kernings.toArray(new int[kernings.size()][]);
     }
 
-    public int getAdvance(char c) {
-        return convertUnitToEm(charWidth.get(c));
-    }
-
     public int getNextCodepoint(int codepoint) {
         return defined.nextSetBit(codepoint + 1);
     }
@@ -116,7 +111,6 @@ public final class FontData {
             upem = rawFont.getUPEM();
             kerning = rawFont.getKerning();
             defined = rawFont.getDefinedUnicodePoints();
-            charWidth = rawFont.getUnicodeWidth();
             postScriptName = rawFont.getPostScriptName();
 
             String name = getName();
@@ -146,7 +140,6 @@ public final class FontData {
         this.upem = src.upem;
         this.kerning = src.kerning;
         this.defined = src.defined;
-        this.charWidth = src.charWidth;
         this.postScriptName = src.postScriptName;
     }
 
