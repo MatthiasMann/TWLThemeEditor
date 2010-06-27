@@ -34,6 +34,7 @@ import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.EditFieldAutoCompletionWindow;
+import de.matthiasmann.twl.FileSelector;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.ListBox;
 import de.matthiasmann.twl.PopupWindow;
@@ -94,6 +95,8 @@ public class NewProjectDialog extends DialogLayout {
         } else {
             folderMRU = new SimpleMRUListModel<String>(10);
         }
+
+        model.setSorter(new FileSelector.NameSorter(fsm));
 
         currentFolder = new TreeComboBox();
         currentFolder.setTheme("currentFolder");
