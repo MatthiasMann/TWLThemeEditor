@@ -53,6 +53,7 @@ public class FontDisplay extends Widget {
 
     private final Object lock;
     private final Executor executor;
+    private final Runnable callback;
 
     private int textureSize;
     private FontData fontData;
@@ -66,10 +67,10 @@ public class FontDisplay extends Widget {
     private DynamicImage image;
     private FontGenerator lastFontGen;
 
-    public FontDisplay() {
+    public FontDisplay(Runnable callback) {
         this.lock = new Object();
         this.executor = Executors.newSingleThreadExecutor();
-        this.charSet = new CharSet();
+        this.callback = callback;
     }
 
     public void setTextureSize(int textureSize) {
@@ -192,6 +193,7 @@ public class FontDisplay extends Widget {
                 update();
             }
         }
+        callback.run();
     }
 
     final class GenFont implements Runnable {

@@ -763,6 +763,26 @@
         
         <area name="splitpane.vsplitter.background" xywh="1,21,1,5"/>
         <alias name="splitpane.vsplitter.overlay" ref="none"/>
+        
+        <area name="-fileselector.onelevelup" xywh="109,100,11,14" center="true"/>
+        <area name="-fileselector.home" xywh="121,100,11,14" center="true"/>
+        <area name="-fileselector.refresh" xywh="133,100,10,14" center="true"/>
+
+        <composed name="fileselector.buttonOneLevelUp.background">
+            <alias ref="button.background"/>
+            <select center="true">
+                <alias ref="-fileselector.onelevelup" unless="armed"/>
+                <alias ref="-fileselector.onelevelup" inset="1,1,-1,-1"/>
+            </select>
+        </composed>
+
+        <composed name="fileselector.buttonHome.background">
+            <alias ref="button.background"/>
+            <select center="true">
+                <alias ref="-fileselector.home" unless="armed"/>
+                <alias ref="-fileselector.home" inset="1,1,-1,-1"/>
+            </select>
+        </composed>
     </images>
 
     <fontDef name="button-font" filename="font.fnt" color="white">

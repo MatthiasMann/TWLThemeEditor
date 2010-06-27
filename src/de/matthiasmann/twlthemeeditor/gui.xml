@@ -856,6 +856,9 @@
                 </theme>
                 <param name="maxHeight"><int>32767</int></param>
             </theme>
+            <theme name="statusBar" ref="label">
+                <param name="maxWidth"><int>32767</int></param>
+            </theme>
             <theme name="" ref="*"/>
         </theme>
     </theme>

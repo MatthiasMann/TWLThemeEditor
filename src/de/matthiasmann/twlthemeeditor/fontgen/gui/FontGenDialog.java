@@ -29,12 +29,14 @@
  */
 package de.matthiasmann.twlthemeeditor.fontgen.gui;
 
+import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twl.BoxLayout;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.ComboBox;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.GUI;
+import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
@@ -45,6 +47,7 @@ import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
+import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.fontgen.CharSet;
 import de.matthiasmann.twlthemeeditor.fontgen.FontData;
 import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator;
@@ -97,6 +100,7 @@ public final class FontGenDialog {
     private final Button saveSettingsButton;
     private final Button saveFontButton;
     private final Button closeButton;
+    private final Label statusBar;
 
     private final SimpleIntegerModel[] paddingModels;
 
@@ -208,7 +212,11 @@ public final class FontGenDialog {
         Widget splitter = new Widget();
         splitter.setTheme("splitter");
 
-        fontDisplay = new FontDisplay();
+        fontDisplay = new FontDisplay(new Runnable() {
+            public void run() {
+                updateStatusBar();
+            }
+        });
         fontDisplaySP = new ScrollPane(fontDisplay);
         fontDisplaySP.setTheme("fontDisplay");
 
@@ -240,6 +248,9 @@ public final class FontGenDialog {
             }
         });
 
+        statusBar = new Label();
+        statusBar.setTheme("statusBar");
+
         SplitPane splitPane = new SplitPane();
         splitPane.setDirection(SplitPane.Direction.HORIZONTAL);
         splitPane.setSplitPosition(370);
@@ -252,12 +263,13 @@ public final class FontGenDialog {
         DialogLayout.Group hButtons = layout.createSequentialGroup()
                 .addWidget(loadSettingsButton)
                 .addWidget(saveSettingsButton)
-                .addGap()
+                .addWidget(statusBar)
                 .addWidget(saveFontButton)
                 .addWidget(closeButton);
         DialogLayout.Group vButtons = layout.createParallelGroup()
                 .addWidget(loadSettingsButton)
                 .addWidget(saveSettingsButton)
+                .addWidget(statusBar)
                 .addWidget(saveFontButton)
                 .addWidget(closeButton);
         
@@ -278,6 +290,7 @@ public final class FontGenDialog {
         updateFont();
         updatePadding();
         updateEffects();
+        updateStatusBar();
     }
 
     public void openPopup() {
@@ -455,6 +468,26 @@ public final class FontGenDialog {
         popupWindow.closePopup();
     }
 
+    void updateStatusBar() {
+        FontGenerator fontGen = fontDisplay.getLastFontGen();
+        if(fontGen == null) {
+            setStatusBar("Select a font", DecoratedText.ERROR);
+            return;
+        }
+        int usedTextureHeight = fontGen.getUsedTextureHeight();
+        if(usedTextureHeight == 0) {
+            setStatusBar("Select unicode blocks to include", DecoratedText.ERROR);
+            return;
+        }
+        Integer textureSize = getTextureSize();
+        if(usedTextureHeight > textureSize) {
+            setStatusBar("Not all characters could fit onto the selected texture size (need "
+                    + (usedTextureHeight - textureSize) + " lines more)", DecoratedText.ERROR);
+            return;
+        }
+        setStatusBar("Used " + usedTextureHeight + " of " + textureSize + " lines", 0);
+    }
+
     void setFontDisplayTheme() {
         FontDisplayBG fdbg = fontDisplayBgCB.getModel().getEntry(fontDisplayBgCB.getSelected());
         fontDisplay.setTheme(fdbg.theme);
@@ -515,6 +548,13 @@ public final class FontGenDialog {
 
     void updateEffects() {
         fontDisplay.setEffects(effectsPanel.getActiveEffects());
+    }
+
+    private void setStatusBar(String text, int flags) {
+        statusBar.setText(text);
+        AnimationState animState = statusBar.getAnimationState();
+        animState.setAnimationState("error", (flags & DecoratedText.ERROR) != 0);
+        animState.setAnimationState("warning", (flags & DecoratedText.WARNING) != 0);
     }
 
     static class CharSetBlockModel extends HasCallback implements BooleanModel {
