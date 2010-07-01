@@ -51,9 +51,9 @@ import java.awt.image.Kernel;
 public class BlurShadowEffect extends Effect {
 
     /** The number of kernels to apply */
-    public static final int NUM_KERNELS = 16;
+    private static final int NUM_KERNELS = 16;
     /** The blur kernels applied across the effect */
-    public static final float[][] GAUSSIAN_BLUR_KERNELS = generateGaussianBlurKernels(NUM_KERNELS);
+    private static final float[][] GAUSSIAN_BLUR_KERNELS = generateGaussianBlurKernels(NUM_KERNELS);
 
     private final SimpleProperty<Float> distance = new SimpleProperty<Float>(Float.class, "distance", 3.0f);
     private final SimpleProperty<Integer> kernelsize = new SimpleProperty<Integer>(Integer.class, "kernel size", 3);
