@@ -835,6 +835,10 @@
                                     </theme>
                                     <param name="maxHeight"><int>200</int></param>
                                 </theme>
+
+                                <theme name="dialoglayout" ref="dialoglayout">
+                                    <theme name="" ref="*"/>
+                                </theme>
                             </theme>
                         </theme>
                     </theme>

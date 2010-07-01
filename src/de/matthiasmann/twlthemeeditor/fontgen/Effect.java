@@ -44,6 +44,10 @@ public abstract class Effect {
     public void postGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {}
     public void postPageRender(Graphics2D g, FontInfo fontInfo) {}
 
+    public Padding getPadding() {
+        return null;
+    }
+    
     public abstract Property<?>[] getProperties();
 
     protected abstract Effect createNew();

@@ -35,7 +35,6 @@ import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.ValueAdjuster;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
-import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.fontgen.Effect;
 import de.matthiasmann.twlthemeeditor.gui.CollapsiblePanel;
@@ -84,12 +83,31 @@ public class EffectsPanel extends DialogLayout {
     }
 
     public CollapsiblePanel addCollapsible(String name, Widget content, BooleanModel active) {
-        CollapsiblePanel panel = new CollapsiblePanel( CollapsiblePanel.Direction.VERTICAL, name, content, active);
+        CollapsiblePanel panel = new CollapsiblePanel(CollapsiblePanel.Direction.VERTICAL, name, content, active);
 
         getHorizontalGroup().addWidget(panel);
         getVerticalGroup().addWidget(panel);
 
         return panel;
+    }
+
+    public CollapsiblePanel addCollapsible(String name, final ValueAdjuster[] adjuster, final BooleanModel active) {
+        DialogLayout l = new DialogLayout();
+        l.setHorizontalGroup(l.createParallelGroup(adjuster));
+        l.setVerticalGroup(l.createSequentialGroup().addWidgetsWithGap("adjuster", adjuster));
+
+        if(active != null) {
+            active.addCallback(new Runnable() {
+                public void run() {
+                    boolean enabled = active.getValue();
+                    for(ValueAdjuster va : adjuster) {
+                        va.setEnabled(enabled);
+                    }
+                }
+            });
+        }
+
+        return addCollapsible(name, l, active);
     }
 
     public void addControl(String labelText, Widget control) {

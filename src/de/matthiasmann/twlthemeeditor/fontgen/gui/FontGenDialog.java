@@ -45,6 +45,7 @@ import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.HasCallback;
+import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
@@ -103,6 +104,7 @@ public final class FontGenDialog {
     private final Label statusBar;
 
     private final SimpleIntegerModel[] paddingModels;
+    private final SimpleBooleanModel manualPaddingModel;
 
     private String fontPath;
     private FontData fontData;
@@ -180,6 +182,8 @@ public final class FontGenDialog {
             }
         };
 
+        manualPaddingModel = new SimpleBooleanModel();
+        manualPaddingModel.addCallback(updatePaddingCB);
         paddingModels = new SimpleIntegerModel[5];
         ValueAdjusterInt[] paddingAdjuster = new ValueAdjusterInt[paddingModels.length];
         for(int i=0 ; i<paddingModels.length ; i++) {
@@ -193,13 +197,13 @@ public final class FontGenDialog {
         paddingAdjuster[2].setDisplayPrefix("B: ");
         paddingAdjuster[3].setDisplayPrefix("R: ");
         paddingAdjuster[4].setDisplayPrefix("A: ");
-        
+
         effectsPanel.addControl("TTF Font", fontPathEF, selectFontBtn);
         effectsPanel.addControl("Texture size", textureSizeCB);
         effectsPanel.addControl("Font size", fontSizeAdjuster);
-        effectsPanel.addControl("Padding", paddingAdjuster);
         effectsPanel.addControl("Preview BG", fontDisplayBgCB);
         effectsPanel.addCollapsible("Unicode blocks", unicodeBlocksSP, null).setExpanded(true);
+        effectsPanel.addCollapsible("Manual Padding", paddingAdjuster, manualPaddingModel);
 
         effectsPanel.addEffect("Shadow", new BlurShadowEffect());
         effectsPanel.addEffect("Gradient", new GradientEffect());
@@ -335,6 +339,7 @@ public final class FontGenDialog {
     private static final String KEY_FONTPATH = "fontPath";
     private static final String KEY_TEXTURESIZE = "textureSize";
     private static final String KEY_FONTSIZE = "fontSize";
+    private static final String KEY_PADDING_AUTOMATIC = "padding.automatic";
     private static final String[] KEY_PADDING = {
         "padding.top",
         "padding.left",
@@ -381,6 +386,7 @@ public final class FontGenDialog {
             fontSizeModel.setValue((fontSize <= 0) ? 14 : fontSize);
         }
 
+        manualPaddingModel.setValue(!Boolean.parseBoolean(properties.getProperty(KEY_PADDING_AUTOMATIC, "false")));
         for(int i=0 ; i<5 ; i++) {
             int padding = 0;
             try {
@@ -420,6 +426,7 @@ public final class FontGenDialog {
         properties.setProperty(KEY_TEXTURESIZE, Integer.toString(getTextureSize()));
         properties.setProperty(KEY_FONTSIZE, Integer.toString(fontSizeModel.getValue()));
         charSet.save(properties);
+        properties.setProperty(KEY_PADDING_AUTOMATIC, Boolean.toString(!manualPaddingModel.getValue()));
         for(int i=0 ; i<5 ; i++) {
             properties.setProperty(KEY_PADDING[i], Integer.toString(paddingModels[i].getValue()));
         }
@@ -513,13 +520,17 @@ public final class FontGenDialog {
     }
 
     void updatePadding() {
-        Padding padding = new Padding(
-                paddingModels[0].getValue(),
-                paddingModels[1].getValue(),
-                paddingModels[2].getValue(),
-                paddingModels[3].getValue(),
-                paddingModels[4].getValue());
-        fontDisplay.setPadding(padding);
+        if(manualPaddingModel.getValue()) {
+            Padding padding = new Padding(
+                    paddingModels[0].getValue(),
+                    paddingModels[1].getValue(),
+                    paddingModels[2].getValue(),
+                    paddingModels[3].getValue(),
+                    paddingModels[4].getValue());
+            fontDisplay.setPaddingManual(padding);
+        } else {
+            fontDisplay.setPaddingAutomatic();
+        }
     }
 
     void updateCharset() {

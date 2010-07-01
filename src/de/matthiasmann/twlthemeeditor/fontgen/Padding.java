@@ -35,6 +35,8 @@ package de.matthiasmann.twlthemeeditor.fontgen;
  */
 public class Padding {
 
+    public static final Padding ZERO = new Padding(0, 0, 0, 0, 0);
+    
     public final int top;
     public final int left;
     public final int right;
@@ -48,5 +50,13 @@ public class Padding {
         this.bottom = bottom;
         this.advance = advance;
     }
-    
+
+    public Padding max(Padding other) {
+        return new Padding(
+                Math.max(this.top, other.top),
+                Math.max(this.left, other.left),
+                Math.max(this.bottom, other.bottom),
+                Math.max(this.right, other.right),
+                Math.max(this.advance, other.advance));
+    }
 }

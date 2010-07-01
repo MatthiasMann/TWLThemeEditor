@@ -51,13 +51,13 @@ import java.util.logging.Logger;
  */
 public class FontDisplay extends Widget {
 
-    private final Object lock;
     private final Executor executor;
     private final Runnable callback;
 
     private int textureSize;
     private FontData fontData;
     private Padding padding;
+    private boolean paddingAutomatic;
     private CharSet charSet;
     private Effect[] effects;
 
@@ -68,48 +68,44 @@ public class FontDisplay extends Widget {
     private FontGenerator lastFontGen;
 
     public FontDisplay(Runnable callback) {
-        this.lock = new Object();
         this.executor = Executors.newSingleThreadExecutor();
         this.callback = callback;
     }
 
     public void setTextureSize(int textureSize) {
-        synchronized(lock) {
-            this.textureSize = textureSize;
-            update();
-        }
+        this.textureSize = textureSize;
+        update();
     }
 
     public void setFontData(FontData fontData) {
-        synchronized(lock) {
-            this.fontData = fontData;
-            update();
-        }
+        this.fontData = fontData;
+        update();
     }
 
-    public void setPadding(Padding padding) {
-        synchronized(lock) {
-            this.padding = padding;
-            update();
-        }
+    public void setPaddingManual(Padding padding) {
+        this.padding = padding;
+        this.paddingAutomatic = false;
+        update();
+    }
+
+    public void setPaddingAutomatic() {
+        this.padding = null;
+        this.paddingAutomatic = true;
+        update();
     }
 
     public void setCharSet(CharSet charSet) {
-        synchronized(lock) {
-            this.charSet = new CharSet(charSet);
-            update();
-        }
+        this.charSet = new CharSet(charSet);
+        update();
     }
 
     public void setEffects(Effect[] effects) {
-        synchronized(lock) {
-            Effect[] tmp = new Effect[effects.length];
-            for(int i=0 ; i<effects.length ; i++) {
-                tmp[i] = effects[i].makeCopy();
-            }
-            this.effects = tmp;
-            update();
+        Effect[] tmp = new Effect[effects.length];
+        for(int i=0 ; i<effects.length ; i++) {
+            tmp[i] = effects[i].makeCopy();
         }
+        this.effects = tmp;
+        update();
     }
 
     public FontGenerator getLastFontGen() {
@@ -118,13 +114,29 @@ public class FontDisplay extends Widget {
 
     private void update() {
         GUI gui = getGUI();
-        if(gui != null && textureSize > 0 && fontData != null && padding != null && charSet != null && effects != null) {
+        if(gui != null && textureSize > 0 && fontData != null && (paddingAutomatic || padding != null) && charSet != null && effects != null) {
             if(updateRunning) {
                 pendingUpdate = true;
             } else {
-                executor.execute(new GenFont(gui, textureSize, fontData, padding, charSet, effects));
+                executor.execute(new GenFont(gui, textureSize, fontData, computePadding(), charSet, effects));
                 updateRunning = true;
             }
+        }
+    }
+
+    private Padding computePadding() {
+        if(paddingAutomatic) {
+            Padding p = Padding.ZERO;
+            for(Effect effect : effects) {
+                Padding ep = effect.getPadding();
+                if(ep != null) {
+                    p = p.max(ep);
+                }
+            }
+            return p;
+        } else {
+            assert padding != null : "padding is null";
+            return padding;
         }
     }
 
@@ -186,12 +198,10 @@ public class FontDisplay extends Widget {
             }
             invalidateLayout();
         }
-        synchronized(lock) {
-            updateRunning = false;
-            if(pendingUpdate) {
-                pendingUpdate = false;
-                update();
-            }
+        updateRunning = false;
+        if(pendingUpdate) {
+            pendingUpdate = false;
+            update();
         }
         callback.run();
     }

@@ -34,6 +34,7 @@ import de.matthiasmann.twl.model.SimpleProperty;
 import de.matthiasmann.twlthemeeditor.fontgen.Effect;
 import de.matthiasmann.twlthemeeditor.fontgen.FontInfo;
 import de.matthiasmann.twlthemeeditor.fontgen.GlyphRect;
+import de.matthiasmann.twlthemeeditor.fontgen.Padding;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -108,6 +109,12 @@ public class BlurShadowEffect extends Effect {
     public void postPageRender(Graphics2D g, FontInfo fontInfo) {
         filterH = null;
         filterV = null;
+    }
+
+    @Override
+    public Padding getPadding() {
+        int dist = Math.round((float)Math.ceil(distance.getPropertyValue()));
+        return new Padding(0, 0,dist, dist, 0);
     }
 
     @Override
