@@ -22,6 +22,8 @@ package de.matthiasmann.twlthemeeditor.fontgen;
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Reads a TrueType file or a TrueType Collection.
@@ -118,22 +120,19 @@ public class TTFFile {
         }
 
         // Read unicode cmap
-        seekTab(in, "cmap", cmapUniOffset);
+        if (!seekTab(in, "cmap", cmapUniOffset)) {
+            return false;
+        }
         int cmapFormat = in.readTTFUShort();
-        /*int cmap_length =*/ in.readTTFUShort(); //skip cmap length
-
         if (cmapFormat != 4) {
             return false;
         }
 
         glyphMap = new IntMap<Integer>();
         
-        in.skip(2);    // Skip version number
-        int cmapSegCountX2 = in.readTTFUShort();
-        int cmapSearchRange = in.readTTFUShort();
-        int cmapEntrySelector = in.readTTFUShort();
-        int cmapRangeShift = in.readTTFUShort();
-        int cmapSegCount = cmapSegCountX2 / 2;
+        in.skip(2 * 2);     // Skip length & language number
+        int cmapSegCount = in.readTTFUShort() / 2;
+        in.skip(3 * 2);     // Skip search parameters
 
         int[] cmapEndCounts = new int[cmapSegCount];
         int[] cmapStartCounts = new int[cmapSegCount];
@@ -154,13 +153,11 @@ public class TTFFile {
             cmapDeltas[i] = in.readTTFShort();
         }
 
-        //int startRangeOffset = in.getCurrentPos();
+        int startRangeOffset = in.getCurrentPos();
 
         for (int i=0 ; i<cmapSegCount ; i++) {
             cmapRangeOffsets[i] = in.readTTFUShort();
         }
-
-        int glyphIdArrayOffset = in.getCurrentPos();
 
         // Insert the unicode id for the glyphs in mtxWxTab
         // and fill in the cmaps ArrayList
@@ -172,10 +169,12 @@ public class TTFFile {
                 // the last character 65535 = .notdef
                 // may have a range offset
                 if (cmapRangeOffsets[seg] != 0 && unicode != 65535) {
-                    int glyphOffset = glyphIdArrayOffset + cmapRangeOffsets[seg] +
-                            ((unicode - cmapStartCounts[seg]) + seg - cmapSegCount) * 2;
+                    int glyphOffset = startRangeOffset + cmapRangeOffsets[seg] + ((unicode - cmapStartCounts[seg]) + seg) * 2;
                     in.seekSet(glyphOffset);
-                    glyphIdx = (in.readTTFUShort() + cmapDeltas[seg]) & 0xffff;
+                    glyphIdx = in.readTTFUShort();
+                    if(glyphIdx != 0) {
+                        glyphIdx = (glyphIdx + cmapDeltas[seg]) & 0xffff;
+                    }
                 } else {
                     glyphIdx = (unicode + cmapDeltas[seg]) & 0xffff;
                 }
@@ -357,40 +356,55 @@ public class TTFFile {
     private void readKerning(FontFileReader in) throws IOException {
         // Read kerning
         kerningTab = new IntMap<IntMap<Integer>>();
-        TTFDirTabEntry dirTab = dirTabs.get("kern");
-        if (dirTab != null) {
-            seekTab(in, "kern", 2);
-            for (int n = in.readTTFUShort(); n > 0; n--) {
-                in.skip(2 * 2);
-                int k = in.readTTFUShort();
-                if (!((k & 1) != 0) || (k & 2) != 0 || (k & 4) != 0) {
-                    return;
-                }
-                if ((k >> 8) != 0) {
+        if (seekTab(in, "kern", 0)) {
+            int version = in.readTTFUShort();
+            int nTables = in.readTTFUShort();
+            //System.out.println("version="+version+" nTables="+nTables);
+
+            long nextTablePos = in.getCurrentPos();
+            for(int table=0 ; table<nTables ; table++) {
+                in.seekSet(nextTablePos);
+                nextTablePos += in.readTTFULong();
+                int coverage = in.readTTFUShort();
+                if ((coverage & 3) != 1) {  // only horizontal
                     continue;
                 }
 
-                k = in.readTTFUShort();
-                in.skip(3 * 2);
-                while (k-- > 0) {
-                    int i = in.readTTFUShort();
-                    int j = in.readTTFUShort();
-                    int kpx = in.readTTFShort();
-                    if (kpx != 0) {
-                        // CID kerning table entry, using unicode indexes
-                        final Integer iUnicode = glyphMap.get(i);
-                        final Integer jUnicode = glyphMap.get(j);
-                        if (iUnicode != null && jUnicode != null) {
-                            IntMap<Integer> adjTab = kerningTab.get(iUnicode.intValue());
-                            if (adjTab == null) {
-                                adjTab = new IntMap<Integer>();
-                                kerningTab.put(iUnicode.intValue(), adjTab);
+                int format = coverage >> 8;
+                switch(format) {
+                    case 0: {
+                        int numPairs = in.readTTFUShort();;
+                        in.skip(3 * 2);
+                        for(int pair=0 ; pair<numPairs ; pair++) {
+                            int i = in.readTTFUShort();
+                            int j = in.readTTFUShort();
+                            int kpx = in.readTTFShort();
+                            if (kpx != 0) {
+                                // CID kerning table entry, using unicode indexes
+                                addKerning(i, j, kpx);
                             }
-                            adjTab.put(jUnicode.intValue(), kpx);
                         }
+                        break;
                     }
+                    default:
+                        Logger.getLogger(TTFFile.class.getName()).log(Level.WARNING,
+                                "Unsupported kerning subtable format: {0} (kern table version: {1})",
+                                new Object[]{format, version});
                 }
             }
+        }
+    }
+
+    private void addKerning(int fromGlyph, int toGlyph, int kpx) {
+        final Integer fromUnicode = glyphMap.get(fromGlyph);
+        final Integer toUnicode = glyphMap.get(toGlyph);
+        if (fromUnicode != null && toUnicode != null) {
+            IntMap<Integer> adjTab = kerningTab.get(fromUnicode.intValue());
+            if (adjTab == null) {
+                adjTab = new IntMap<Integer>();
+                kerningTab.put(fromUnicode.intValue(), adjTab);
+            }
+            adjTab.put(toUnicode.intValue(), kpx);
         }
     }
 
