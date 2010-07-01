@@ -43,6 +43,13 @@ public abstract class DerivedProperty<T> implements Property<T> {
     protected DerivedProperty(Property<String> base, Class<T> type) {
         this.base = base;
         this.type = type;
+
+        if(base == null) {
+            throw new NullPointerException("base");
+        }
+        if(type == null) {
+            throw new NullPointerException("type");
+        }
     }
 
     public void removeValueChangedCallback(Runnable cb) {
