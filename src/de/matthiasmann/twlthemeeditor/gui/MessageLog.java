@@ -71,7 +71,7 @@ public class MessageLog {
         }
     }
 
-    public abstract class EntryAction implements Runnable {
+    public static abstract class EntryAction implements Runnable {
         private final String name;
         public EntryAction(String name) {
             this.name = name;
@@ -82,7 +82,7 @@ public class MessageLog {
     }
 
     public static class Entry {
-        private final Date time;
+        private final long time;
         private final Category category;
         private final String msg;
         private final String detailText;
@@ -96,7 +96,7 @@ public class MessageLog {
             if(msg == null) {
                 throw new NullPointerException("msg");
             }
-            this.time = new Date();
+            this.time = System.currentTimeMillis();
             this.category = category;
             this.msg = msg;
             this.detailText = detailText;
@@ -125,7 +125,7 @@ public class MessageLog {
         }
 
         public Date getTime() {
-            return time;
+            return new Date(time);
         }
     }
 
