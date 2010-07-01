@@ -34,7 +34,7 @@ public class TTFFile {
     /**
      * Table directory
      */
-    private HashMap<String, TTFDirTabEntry> dirTabs;
+    private HashMap<String, Long> dirOffsets;
     /** The table of kerning values */
     private IntMap<IntMap<Integer>> kerningTab;                          // for CIDs
     /** The unicode mapping */
@@ -68,11 +68,11 @@ public class TTFFile {
      * @throws IOException Indicatesa a failure to read
      */
     boolean seekTab(FontFileReader in, String name, long offset) throws IOException {
-        TTFDirTabEntry dt = dirTabs.get(name);
+        Long dt = dirOffsets.get(name);
         if (dt == null) {
             return false;
         } else {
-            in.seekSet(dt.getOffset() + offset);
+            in.seekSet(dt.longValue() + offset);
         }
         return true;
     }
@@ -279,10 +279,18 @@ public class TTFFile {
         int ntabs = in.readTTFUShort();
         in.skip(6);    // 3xTTF_USHORT_SIZE
 
-        dirTabs = new HashMap<String, TTFDirTabEntry>();
+        byte[] tag = new byte[4];
+        dirOffsets = new HashMap<String, Long>();
         for (int i = 0; i < ntabs; i++) {
-            TTFDirTabEntry pd = new TTFDirTabEntry();
-            dirTabs.put(pd.read(in), pd);
+            tag[0] = in.readTTFByte();
+            tag[1] = in.readTTFByte();
+            tag[2] = in.readTTFByte();
+            tag[3] = in.readTTFByte();
+            in.skip(4);     // Skip checksum
+            long offset = in.readTTFULong();
+            in.skip(4);     // Skip length
+
+            dirOffsets.put(new String(tag, "ISO-8859-1"), offset);
         }
     }
 
@@ -373,7 +381,7 @@ public class TTFFile {
                 int format = coverage >> 8;
                 switch(format) {
                     case 0: {
-                        int numPairs = in.readTTFUShort();;
+                        int numPairs = in.readTTFUShort();
                         in.skip(3 * 2);
                         for(int pair=0 ; pair<numPairs ; pair++) {
                             int i = in.readTTFUShort();
@@ -428,9 +436,9 @@ public class TTFFile {
             // Read directory offsets
             int numDirectories = (int)in.readTTFULong();
             // int numDirectories=in.readTTFUShort();
-            long[] dirOffsets = new long[numDirectories];
+            long[] ttcfDirOffsets = new long[numDirectories];
             for (int i = 0; i < numDirectories; i++) {
-                dirOffsets[i] = in.readTTFULong();
+                ttcfDirOffsets[i] = in.readTTFULong();
             }
 
             System.out.println("This is a TrueType collection file with " + numDirectories + " fonts");
@@ -444,14 +452,14 @@ public class TTFFile {
             // Is found, just to show all the names
             long dirTabOffset = 0;
             for (int i = 0; (i < numDirectories); i++) {
-                in.seekSet(dirOffsets[i]);
+                in.seekSet(ttcfDirOffsets[i]);
                 readDirTabs(in);
 
                 readName(in);
 
                 if (fullName.equals(name)) {
                     found = true;
-                    dirTabOffset = dirOffsets[i];
+                    dirTabOffset = ttcfDirOffsets[i];
                     System.out.println(fullName + " <-- selected");
                 } else {
                     System.out.println(fullName);
