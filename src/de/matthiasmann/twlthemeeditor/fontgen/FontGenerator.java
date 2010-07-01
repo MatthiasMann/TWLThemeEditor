@@ -329,6 +329,7 @@ public class FontGenerator {
                 xs.attribute(null, "second", Integer.toString(kerning[1]));
                 xs.attribute(null, "amount", Integer.toString(kerning[2]));
                 xs.endTag(null, "kerning");
+                xs.comment(" '" + ch2str(kerning[0]) + "' to '" + ch2str(kerning[1]) + "' ");
             }
             xs.text("\n  ");
             xs.endTag(null, "kernings");
@@ -337,6 +338,14 @@ public class FontGenerator {
             xs.endDocument();
         } catch (XmlPullParserException ex) {
             throw (IOException)(new IOException().initCause(ex));
+        }
+    }
+
+    private String ch2str(int ch) {
+        if(Character.isISOControl(ch)) {
+            return String.format("\\u%04X", ch);
+        } else {
+            return Character.toString((char)ch);
         }
     }
 
