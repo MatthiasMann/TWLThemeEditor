@@ -128,16 +128,6 @@ public class EffectsPanel extends DialogLayout {
         vRows.addGroup(createParallelGroup().addWidget(label).addWidget(control).addWidget(btn));
     }
 
-    public void addControl(String labelText, ValueAdjuster[] controls) {
-        Label label = new Label(labelText);
-
-        hLabels.addWidget(label);
-        hControls.addGroup(createParallelGroup(controls));
-        vRows.addGroup(createParallelGroup()
-                .addWidget(label)
-                .addGroup(createSequentialGroup().addWidgetsWithGap("adjuster", controls)));
-    }
-
     public void addCallback(Runnable cb) {
         callbacks = CallbackSupport.addCallbackToList(callbacks, cb, Runnable.class);
     }
