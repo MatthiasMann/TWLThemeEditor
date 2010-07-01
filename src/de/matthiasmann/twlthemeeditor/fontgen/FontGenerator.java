@@ -216,7 +216,7 @@ public class FontGenerator {
 
         Arrays.sort(rects, new Comparator<GlyphRect>() {
             public int compare(GlyphRect a, GlyphRect b) {
-                return a.ch - a.ch;
+                return a.ch - b.ch;
             }
         });
     }
