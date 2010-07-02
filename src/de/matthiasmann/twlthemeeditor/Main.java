@@ -40,7 +40,10 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import org.lwjgl.LWJGLUtil;
+import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -145,7 +148,7 @@ public class Main extends Frame {
             gui.destroy();
             theme.destroy();
         } catch (Throwable ex) {
-            ex.printStackTrace();
+            showErrMsg(ex);
         }
         Display.destroy();
     }
@@ -160,5 +163,15 @@ public class Main extends Frame {
         Display.processMessages();  // process new native messages since Display.update();
         Mouse.poll();               // now update Mouse events
         Keyboard.poll();            // and Keyboard too
+    }
+
+    @SuppressWarnings("CallToThreadDumpStack")
+    public static void showErrMsg(Throwable ex) {
+        ex.printStackTrace();
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        ex.printStackTrace(pw);
+        pw.flush();
+        Sys.alert("TWL Theme Editor - unhandled exception", sw.toString());
     }
 }
