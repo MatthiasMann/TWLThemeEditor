@@ -58,6 +58,7 @@ public class Main extends Frame {
     public static void main(String[] args) throws Exception {
         try {
             System.setProperty("org.lwjgl.input.Mouse.allowNegativeMouseCoords", "true");
+            System.setProperty("org.lwjgl.opengl.Display.allowSoftwareOpenGL", "true");
         } catch (Throwable ignored) {
         }
 
