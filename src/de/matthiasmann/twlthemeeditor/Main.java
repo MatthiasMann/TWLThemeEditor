@@ -132,8 +132,13 @@ public class Main extends Frame {
                 
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
+                if(!Display.isActive()) {
+                    gui.clearKeyboardState();
+                    gui.clearMouseState();
+                }
+                
                 gui.update();
-                Display.update();
+                Display.update(false);
                 reduceInputLag();
             }
 
