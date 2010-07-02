@@ -128,7 +128,7 @@ public class StatusBar extends DialogLayout {
         as.setAnimationState("warning", (flags & DecoratedText.WARNING) != 0);
     }
     
-    void openDetailsDialog() {
+    public void openDetailsDialog() {
         MessageDialog msgDlg = new MessageDialog(messageLog, displayedEntry);
 
         final PopupWindow popupWindow = new PopupWindow(this);

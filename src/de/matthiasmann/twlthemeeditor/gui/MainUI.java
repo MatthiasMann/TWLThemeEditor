@@ -191,8 +191,16 @@ public final class MainUI extends DialogLayout {
         super.beforeRemoveFromGUI(gui);
     }
 
+    public void addMessage(MessageLog.Entry entry) {
+        messageLog.add(entry);
+    }
+
     public void clearMessages(MessageLog.Category category) {
         messageLog.removeAll(category);
+    }
+
+    public void openMessagesDialog() {
+        statusBar.openDetailsDialog();
     }
 
     void newProject() {
@@ -322,23 +330,6 @@ public final class MainUI extends DialogLayout {
                 messageLog.add(new MessageLog.Entry(CAT_PROJECT_ERROR, "Could not determine file location for: " + themeFile.getURL(), null, null));
             }
         }
-    }
-
-    void showErrorMessage(String msg, Throwable ex) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        ex.printStackTrace(pw);
-        pw.flush();
-
-        TextArea textArea = new TextArea(new SimpleTextAreaModel(sw.toString()));
-        ScrollPane scrollPane = new ScrollPane(textArea);
-        scrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
-
-        SimpleDialog dlg = new SimpleDialog();
-        dlg.setTheme("errorMsgDialog");
-        dlg.setMessage(scrollPane);
-        dlg.setTitle(msg);
-        dlg.showDialog(this);
     }
 
     void setLayout(Layout layout) {

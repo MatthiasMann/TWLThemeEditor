@@ -32,7 +32,10 @@ package de.matthiasmann.twlthemeeditor;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
+import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.gui.MainUI;
+import de.matthiasmann.twlthemeeditor.gui.MessageLog;
+import de.matthiasmann.twlthemeeditor.gui.MessageLog.Category;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Frame;
@@ -42,6 +45,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import org.lwjgl.LWJGLException;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
@@ -58,7 +62,6 @@ public class Main extends Frame {
     public static void main(String[] args) throws Exception {
         try {
             System.setProperty("org.lwjgl.input.Mouse.allowNegativeMouseCoords", "true");
-            System.setProperty("org.lwjgl.opengl.Display.allowSoftwareOpenGL", "true");
         } catch (Throwable ignored) {
         }
 
@@ -113,8 +116,24 @@ public class Main extends Frame {
 
     public void run() {
         try {
+            boolean usesSWGL = false;
+            
             Display.setParent(canvas);
-            Display.create();
+            try {
+                Display.create();
+            } catch (LWJGLException ex) {
+                if(ex.getMessage().equals("Pixel format not accelerated")) {
+                    try {
+                        System.setProperty("org.lwjgl.opengl.Display.allowSoftwareOpenGL", "true");
+                        Display.create();
+                        usesSWGL = true;
+                    } catch (LWJGLException ex2) {
+                        throw ex2;
+                    } catch (SecurityException ex2) {
+                        throw ex;
+                    }
+                }
+            }
             Display.setVSyncEnabled(true);
 
             LWJGLRenderer renderer = new LWJGLRenderer();
@@ -126,6 +145,14 @@ public class Main extends Frame {
             ThemeManager theme = ThemeManager.createThemeManager(
                     Main.class.getResource("gui.xml"), renderer);
             gui.applyTheme(theme);
+
+            if(usesSWGL) {
+                Category cat = new MessageLog.Category("OpenGL", MessageLog.CombineMode.NONE, DecoratedText.WARNING);
+                root.addMessage(new MessageLog.Entry(cat, "Software OpenGL rendering in use",
+                        "Software OpenGL rendering offers poor performance which could make this editor hard to use." +
+                        "It is suggested to check that the latest graphics driver from the graphic card vendor is installed.", null));
+                root.openMessagesDialog();
+            }
 
             while(!Display.isCloseRequested() && !closeRequested && !root.isCloseRequested()) {
                 if(canvasSizeChanged) {
