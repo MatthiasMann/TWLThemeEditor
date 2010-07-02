@@ -30,15 +30,13 @@
 package de.matthiasmann.twlthemeeditor.fontgen;
 
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 /**
  *
  * @author Matthias Mann
  */
-public class IntMap<T> implements Iterable<Map.Entry<Integer, T>> {
+public class IntMap<T> implements Iterable<IntMap.Entry<T>> {
 
     private static final int PAGE_SIZE = 256;
 
@@ -69,8 +67,8 @@ public class IntMap<T> implements Iterable<Map.Entry<Integer, T>> {
         return null;
     }
 
-    public Iterator<Entry<Integer, T>> iterator() {
-        return new Iterator<Entry<Integer, T>>() {
+    public Iterator<Entry<T>> iterator() {
+        return new Iterator<Entry<T>>() {
             int pageNr;
             int pageIdx;
             Object[] page = pages[0];
@@ -98,24 +96,14 @@ public class IntMap<T> implements Iterable<Map.Entry<Integer, T>> {
                 }
             }
 
-            public Entry<Integer, T> next() {
+            public Entry<T> next() {
                 if(!hasNext()) {
                     throw new NoSuchElementException();
                 }
                 final int key = pageNr * PAGE_SIZE + pageIdx;
                 @SuppressWarnings("unchecked")
                 final T value = (T)page[pageIdx++];
-                return new Map.Entry<Integer, T>() {
-                    public Integer getKey() {
-                        return key;
-                    }
-                    public T getValue() {
-                        return value;
-                    }
-                    public T setValue(T value) {
-                        throw new UnsupportedOperationException();
-                    }
-                };
+                return new Entry<T>(key, value);
             }
 
             public void remove() {
@@ -137,5 +125,15 @@ public class IntMap<T> implements Iterable<Map.Entry<Integer, T>> {
         Object[] page = new Object[PAGE_SIZE];
         pages[pageNr] = page;
         return page;
+    }
+
+    public static class Entry<T> {
+        final int key;
+        final T value;
+
+        public Entry(int key, T value) {
+            this.key = key;
+            this.value = value;
+        }
     }
 }

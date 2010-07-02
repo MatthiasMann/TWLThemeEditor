@@ -34,7 +34,7 @@ public class TTFFile {
     /**
      * Table directory
      */
-    private HashMap<String, Long> dirOffsets;
+    private HashMap<String, Integer> dirOffsets;
     /** The table of kerning values */
     private IntMap<IntMap<Integer>> kerningTab;                          // for CIDs
     /** The unicode mapping */
@@ -67,12 +67,12 @@ public class TTFFile {
      * @return True if found the table
      * @throws IOException Indicatesa a failure to read
      */
-    boolean seekTab(FontFileReader in, String name, long offset) throws IOException {
-        Long dt = dirOffsets.get(name);
+    boolean seekTab(FontFileReader in, String name, int offset) throws IOException {
+        Integer dt = dirOffsets.get(name);
         if (dt == null) {
             return false;
         } else {
-            in.seekSet(dt.longValue() + offset);
+            in.seekSet(dt.intValue() + offset);
         }
         return true;
     }
@@ -102,13 +102,13 @@ public class TTFFile {
         
         seekTab(in, "cmap", 2);
         int numCMap = in.readTTFUShort();    // Number of cmap subtables
-        long cmapUniOffset = 0;
+        int cmapUniOffset = 0;
 
         //Read offset for all tables. We are only interested in the unicode table
         for (int i = 0; i < numCMap; i++) {
             int cmapPID = in.readTTFUShort();
             int cmapEID = in.readTTFUShort();
-            long cmapOffset = in.readTTFULong();
+            int cmapOffset = in.readTTFLong();
 
             if (cmapPID == 3 && cmapEID == 1) {
                 cmapUniOffset = cmapOffset;
@@ -159,28 +159,29 @@ public class TTFFile {
             cmapRangeOffsets[i] = in.readTTFUShort();
         }
 
-        // Insert the unicode id for the glyphs in mtxWxTab
-        // and fill in the cmaps ArrayList
-
         for (int seg=0 ; seg<cmapSegCount ; seg++) {
             for (int unicode=cmapStartCounts[seg] ; unicode<=cmapEndCounts[seg] ; unicode++) {
                 int glyphIdx;
 
                 // the last character 65535 = .notdef
-                // may have a range offset
-                if (cmapRangeOffsets[seg] != 0 && unicode != 65535) {
-                    int glyphOffset = startRangeOffset + cmapRangeOffsets[seg] + ((unicode - cmapStartCounts[seg]) + seg) * 2;
-                    in.seekSet(glyphOffset);
-                    glyphIdx = in.readTTFUShort();
-                    if(glyphIdx != 0) {
-                        glyphIdx = (glyphIdx + cmapDeltas[seg]) & 0xffff;
+                if (unicode != 65535) {
+                    // may have a range offset
+                    if (cmapRangeOffsets[seg] != 0) {
+                        int glyphOffset = startRangeOffset + cmapRangeOffsets[seg] + ((unicode - cmapStartCounts[seg]) + seg) * 2;
+                        in.seekSet(glyphOffset);
+                        glyphIdx = in.readTTFUShort();
+                        if(glyphIdx != 0) {
+                            glyphIdx = (glyphIdx + cmapDeltas[seg]) & 0xffff;
+                        }
+                    } else {
+                        glyphIdx = (unicode + cmapDeltas[seg]) & 0xffff;
                     }
-                } else {
-                    glyphIdx = (unicode + cmapDeltas[seg]) & 0xffff;
-                }
 
-                glyphMap.put(glyphIdx, unicode);
-                unicodeDefined.set(unicode);
+                    glyphMap.put(glyphIdx, unicode);
+                    if (glyphIdx != 0) {
+                        unicodeDefined.set(unicode);
+                    }
+                }
             }
         }
         return true;
@@ -280,14 +281,14 @@ public class TTFFile {
         in.skip(6);    // 3xTTF_USHORT_SIZE
 
         byte[] tag = new byte[4];
-        dirOffsets = new HashMap<String, Long>();
+        dirOffsets = new HashMap<String, Integer>();
         for (int i = 0; i < ntabs; i++) {
             tag[0] = in.readTTFByte();
             tag[1] = in.readTTFByte();
             tag[2] = in.readTTFByte();
             tag[3] = in.readTTFByte();
             in.skip(4);     // Skip checksum
-            long offset = in.readTTFULong();
+            int offset = in.readTTFLong();
             in.skip(4);     // Skip length
 
             dirOffsets.put(new String(tag, "ISO-8859-1"), offset);
@@ -369,10 +370,10 @@ public class TTFFile {
             int nTables = in.readTTFUShort();
             //System.out.println("version="+version+" nTables="+nTables);
 
-            long nextTablePos = in.getCurrentPos();
+            int nextTablePos = in.getCurrentPos();
             for(int table=0 ; table<nTables ; table++) {
                 in.seekSet(nextTablePos);
-                nextTablePos += in.readTTFULong();
+                nextTablePos += in.readTTFLong();
                 int coverage = in.readTTFUShort();
                 if ((coverage & 3) != 1) {  // only horizontal
                     continue;
@@ -434,11 +435,11 @@ public class TTFFile {
             in.skip(4);
 
             // Read directory offsets
-            int numDirectories = (int)in.readTTFULong();
+            int numDirectories = in.readTTFLong();
             // int numDirectories=in.readTTFUShort();
-            long[] ttcfDirOffsets = new long[numDirectories];
+            int[] ttcfDirOffsets = new int[numDirectories];
             for (int i = 0; i < numDirectories; i++) {
-                ttcfDirOffsets[i] = in.readTTFULong();
+                ttcfDirOffsets[i] = in.readTTFLong();
             }
 
             System.out.println("This is a TrueType collection file with " + numDirectories + " fonts");
@@ -450,7 +451,7 @@ public class TTFFile {
 
             // Iterate through all name tables even if font
             // Is found, just to show all the names
-            long dirTabOffset = 0;
+            int dirTabOffset = 0;
             for (int i = 0; (i < numDirectories); i++) {
                 in.seekSet(ttcfDirOffsets[i]);
                 readDirTabs(in);

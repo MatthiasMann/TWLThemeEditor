@@ -69,13 +69,17 @@ public final class FontData {
         return javaFont;
     }
 
-    public int[][] getKernings() {
+    public int[][] getKernings(CharSet charSet) {
         ArrayList<int[]> kernings = new ArrayList<int[]>();
-        for(Map.Entry<Integer, IntMap<Integer>> from : kerning) {
-            for(Map.Entry<Integer, Integer> to : from.getValue()) {
-                int value = convertUnitToEm(to.getValue());
-                if(value != 0) {
-                    kernings.add(new int[] { from.getKey(), to.getKey(), value});
+        for(IntMap.Entry<IntMap<Integer>> from : kerning) {
+            if(charSet.isIncluded(from.key)) {
+                for(IntMap.Entry<Integer> to : from.value) {
+                    if(charSet.isIncluded(to.key)) {
+                        int value = convertUnitToEm(to.value);
+                        if(value != 0) {
+                            kernings.add(new int[] { from.key, to.key, value});
+                        }
+                    }
                 }
             }
         }
