@@ -198,6 +198,9 @@ public class FontDisplay extends Widget {
             }
             invalidateLayout();
         }
+    }
+
+    void updateDone() {
         updateRunning = false;
         if(pendingUpdate) {
             pendingUpdate = false;
@@ -250,6 +253,7 @@ public class FontDisplay extends Widget {
             if(fontGen != null) {
                 updateImage(fontGen, textureSize);
             }
+            updateDone();
         }
     }
 }

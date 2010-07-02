@@ -847,15 +847,12 @@
                     <param name="border"><border>0,5,0,0</border></param>
                     <theme name="fontdisplay-black" ref="-defaults">
                         <param name="background"><image>black</image></param>
-                        <param name="border"><border>5</border></param>
                     </theme>
                     <theme name="fontdisplay-white" ref="-defaults">
                         <param name="background"><image>white</image></param>
-                        <param name="border"><border>5</border></param>
                     </theme>
                     <theme name="fontdisplay-checkerboard" ref="-defaults">
                         <param name="background"><image>checkerboard</image></param>
-                        <param name="border"><border>5</border></param>
                     </theme>
                 </theme>
                 <param name="maxHeight"><int>32767</int></param>

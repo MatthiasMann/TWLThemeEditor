@@ -55,6 +55,7 @@ import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator;
 import de.matthiasmann.twlthemeeditor.fontgen.Padding;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.BlurShadowEffect;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.GradientEffect;
+import de.matthiasmann.twlthemeeditor.fontgen.effects.OutlineEffect;
 import de.matthiasmann.twlthemeeditor.gui.LoadFileSelector;
 import de.matthiasmann.twlthemeeditor.gui.SaveFileSelector;
 import java.io.File;
@@ -207,6 +208,7 @@ public final class FontGenDialog {
 
         effectsPanel.addEffect("Shadow", new BlurShadowEffect());
         effectsPanel.addEffect("Gradient", new GradientEffect());
+        effectsPanel.addEffect("Outline", new OutlineEffect());
         effectsPanel.addCallback(new Runnable() {
             public void run() {
                 updateEffects();

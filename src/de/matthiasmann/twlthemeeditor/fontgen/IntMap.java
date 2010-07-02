@@ -85,13 +85,11 @@ public class IntMap<T> implements Iterable<IntMap.Entry<T>> {
                         }
                         page = pages[pageNr];
                     }
-                    if(page != null) {
-                        while(pageIdx < PAGE_SIZE) {
-                            if(page[pageIdx] != null) {
-                                return true;
-                            }
-                            ++pageIdx;
+                    while(pageIdx < PAGE_SIZE) {
+                        if(page[pageIdx] != null) {
+                            return true;
                         }
+                        ++pageIdx;
                     }
                 }
             }

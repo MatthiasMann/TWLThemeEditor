@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.fontgen;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphMetrics;
@@ -106,27 +107,18 @@ public class FontGenerator {
 
             final GlyphVector vector = font.layoutGlyphVector(fontRenderContext, chBuffer, 0, 1, Font.LAYOUT_LEFT_TO_RIGHT);
             final GlyphMetrics metrics = vector.getGlyphMetrics(0);
+            final Rectangle bounds = metrics.getBounds2D().getBounds();
             
-            int xoffset = 0;
-            int lsb = (int)metrics.getLSB();
-            int rsb = (int)metrics.getRSB();
-            int advance = (int)metrics.getAdvanceX();
-            int glyphWidth = advance + padding.left + padding.right + 1;
-            int glyphHeight = vector.getGlyphVisualBounds(0).getBounds().height + 2 + padding.top + padding.bottom;
-            int yoffset = vector.getPixelBounds(fontRenderContext, 0, 0).y - 1;
-
-            if (lsb < 0) {
-                xoffset = 1 - lsb;
-                glyphWidth += xoffset;
-            }
-            if (rsb < 0) {
-                glyphWidth -= rsb - 1;
-            }
+            int advance = Math.round(metrics.getAdvanceX());
+            int glyphWidth = bounds.width + 1 + padding.left + padding.right;
+            int glyphHeight = bounds.height + 1 + padding.top + padding.bottom;
+            int xoffset = 1 - bounds.x;
+            int yoffset = bounds.y - 1;
 
             GlyphRect rect = new GlyphRect(chBuffer[0],
-                    glyphWidth, glyphHeight + 1,
+                    glyphWidth, glyphHeight,
                     advance + padding.advance, yoffset,
-                    xoffset + padding.left + 1, padding.top,
+                    xoffset + padding.left, padding.top,
                     vector.getGlyphOutline(0));
 
             maxHeight = Math.max(glyphHeight, maxHeight);
@@ -142,7 +134,11 @@ public class FontGenerator {
         rects = rectList.toArray(new GlyphRect[numGlyphs]);
         Arrays.sort(rects, new Comparator<GlyphRect>() {
             public int compare(GlyphRect a, GlyphRect b) {
-                return b.height - a.height;
+                int diff = b.height - a.height;
+                if(diff == 0) {
+                    diff = b.width - a.width;
+                }
+                return diff;
             }
         });
 
