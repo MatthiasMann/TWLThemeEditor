@@ -203,7 +203,7 @@ public class TestWidgetManager {
             }
 
             ArrayList<TestWidgetFactory> testWidgetFactories = new ArrayList<TestWidgetFactory>();
-            URLClassLoader classLoader = new URLClassLoader(urls);
+            URLClassLoader classLoader = new URLClassLoader(urls, getClass().getClassLoader());
             for(URI uri : toScan) {
                 File file = new File(uri);
                 if(file.isFile()) {
