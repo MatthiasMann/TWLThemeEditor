@@ -74,7 +74,7 @@ public class SaveFileSelector {
         FileSelector.NamedFileFilter filter = new FileSelector.NamedFileFilter(description, new MainUI.ExtFilter(extension));
         
         fileSelector = new FileSelector(prefs, prefsKey);
-        fileSelector.setFileSystemModel(new JavaFileSystemModel());
+        fileSelector.setFileSystemModel(JavaFileSystemModel.getInstance());
         fileSelector.setAllowMultiSelection(false);
         fileSelector.setUserWidgetBottom(editField);
         fileSelector.addCallback(cb);

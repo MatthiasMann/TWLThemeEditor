@@ -38,6 +38,7 @@ import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.HasCallback;
+import de.matthiasmann.twl.utils.XMLParser;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.PreviewWidgets;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestComboBox;
@@ -49,6 +50,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -58,6 +60,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
  *
@@ -121,24 +125,48 @@ public class TestWidgetManager {
         }
     }
     
-    public boolean loadUserWidgets(Object[] files) {
-        ArrayList<File> jarFiles = new ArrayList<File>(files.length);
-        for(Object o : files) {
-            if(o instanceof File) {
-                jarFiles.add((File)o);
+    public boolean loadUserWidgets(File file) {
+        try {
+            URI base = file.getParentFile().toURI();
+            XMLParser xmlp = new XMLParser(file.toURI().toURL());
+            xmlp.nextTag();
+            xmlp.require(XmlPullParser.START_TAG, null, "classpath");
+            xmlp.nextTag();
+            ArrayList<URI> toScan = readEntries(xmlp, base, "entriesToScan");
+            xmlp.nextTag();
+            ArrayList<URI> dependencies = readEntries(xmlp, base, "entriesDependencies");
+            xmlp.nextTag();
+            xmlp.require(XmlPullParser.END_TAG, null, "classpath");
+            if(toScan.size() > 0) {
+                return loadUserWidgets(toScan, dependencies);
             }
-        }
-        if(jarFiles.size() > 0) {
-            return loadUserWidgets(jarFiles);
+        } catch(Exception ex) {
+            messageLog.add(new MessageLog.Entry(CAT_ERROR, "Can't load class path", null, ex));
         }
         return false;
+    }
+
+    private ArrayList<URI> readEntries(XMLParser xmlp, URI base, String tag) throws XmlPullParserException, IOException {
+        ArrayList<URI> result = new ArrayList<URI>();
+        xmlp.require(XmlPullParser.START_TAG, null, tag);
+        xmlp.nextTag();
+        while(!xmlp.isEndTag()) {
+            xmlp.require(XmlPullParser.START_TAG, null, "entry");
+            result.add(base.resolve(xmlp.nextText()));
+            xmlp.require(XmlPullParser.END_TAG, null, "entry");
+            xmlp.nextTag();
+        }
+        xmlp.require(XmlPullParser.END_TAG, null, tag);
+        return result;
     }
 
     public void updateMenu(Menu menu) {
         addMenu(menu, "built-in widgets", builtinWidgets);
         for(Map.Entry<ArrayList<String>, ArrayList<TestWidgetFactory>> entry : userWidgets.entrySet()) {
             String name = entry.getKey().get(0);
-            name = name.substring(name.lastIndexOf('/') + 1);
+            if(!name.endsWith("/")) {
+                name = name.substring(name.lastIndexOf('/') + 1);
+            }
             addMenu(menu, name, entry.getValue());
         }
     }
@@ -151,24 +179,38 @@ public class TestWidgetManager {
         parent.add(menu);
     }
 
-    private boolean loadUserWidgets(ArrayList<File> files) {
+    private boolean loadUserWidgets(ArrayList<URI> toScan, ArrayList<URI> dependencies) {
         try {
             StringBuilder infoMsg = new StringBuilder();
-            infoMsg.append("Loaded from the following JAr files:\n");
+            infoMsg.append("Loaded from the following class path:\n");
             
-            URL[] urls = new URL[files.size()];
+            URL[] urls = new URL[toScan.size() + dependencies.size()];
             ArrayList<String> key = new ArrayList<String>();
-            for(int i=0,n=urls.length ; i<n ; i++) {
-                final File file = files.get(i);
-                urls[i] = file.toURI().toURL();
-                key.add(urls[i].toString());
-                infoMsg.append(file.toString()).append("\n");
+            for(int i=0,n=toScan.size() ; i<n ; i++) {
+                URI file = toScan.get(i);
+                String path = new File(file).toString();
+                urls[i] = file.toURL();
+                key.add(path);
+                infoMsg.append(path).append("\n");
+            }
+            if(!dependencies.isEmpty()) {
+                infoMsg.append("Additional class path:\n");
+                for(int i=0,n=dependencies.size() ; i<n ; i++) {
+                    URI file = dependencies.get(i);
+                    urls[i+toScan.size()] = file.toURL();
+                    infoMsg.append(file.getPath()).append("\n");
+                }
             }
 
             ArrayList<TestWidgetFactory> testWidgetFactories = new ArrayList<TestWidgetFactory>();
             URLClassLoader classLoader = new URLClassLoader(urls);
-            for(File f : files) {
-                scanJARFile(classLoader, f, testWidgetFactories);
+            for(URI uri : toScan) {
+                File file = new File(uri);
+                if(file.isFile()) {
+                    scanJARFile(classLoader, file, testWidgetFactories);
+                } else if(file.isDirectory()) {
+                    scanFolder(classLoader, uri, file, testWidgetFactories);
+                }
             }
 
             if(!testWidgetFactories.isEmpty()) {
@@ -199,11 +241,7 @@ public class TestWidgetManager {
                 Enumeration<JarEntry> entries = jarFile.entries();
                 while(entries.hasMoreElements()) {
                     JarEntry e = entries.nextElement();
-                    String name = e.getName();
-                    if(name.endsWith(".class") && !name.startsWith("de/matthiasmann/twl/")) {
-                        name = name.substring(0, name.length()-6).replace('/', '.');
-                        testClass(classLoader, name, testWidgetFactories, warnings);
-                    }
+                    checkClassFile(e.getName(), classLoader, testWidgetFactories, warnings);
                 }
                 if(warnings.length() > 0) {
                     messageLog.add(new MessageLog.Entry(CAT_WARNING, "Warnings while scanning JAR file: " + file.getName(), warnings.toString(), null));
@@ -213,6 +251,31 @@ public class TestWidgetManager {
             }
         } catch (IOException ex) {
             messageLog.add(new MessageLog.Entry(CAT_ERROR, "Can't scan JAR file: " + file.getName(), file.toString(), ex));
+        }
+    }
+
+    private void scanFolder(ClassLoader classLoader, URI base, File folder, ArrayList<TestWidgetFactory> testWidgetFactories) {
+        StringBuilder warnings = new StringBuilder();
+        scanFolder(classLoader, base, folder, testWidgetFactories, warnings);
+        if(warnings.length() > 0) {
+            messageLog.add(new MessageLog.Entry(CAT_WARNING, "Warnings while scanning folder: " + folder, warnings.toString(), null));
+        }
+    }
+
+    private void scanFolder(ClassLoader classLoader, URI base, File folder, ArrayList<TestWidgetFactory> testWidgetFactories, StringBuilder warnings) {
+        for(File file : folder.listFiles()) {
+            if(file.isDirectory()) {
+                scanFolder(classLoader, base, file, testWidgetFactories, warnings);
+            } else if(file.canRead() && file.getName().endsWith(".class")) {
+                checkClassFile(base.relativize(file.toURI()).getPath(), classLoader, testWidgetFactories, warnings);
+            }
+        }
+    }
+
+    private void checkClassFile(String name, ClassLoader classLoader, ArrayList<TestWidgetFactory> testWidgetFactories, StringBuilder warnings) {
+        if(name.endsWith(".class") && !name.startsWith("de/matthiasmann/twl/")) {
+            name = name.substring(0, name.length() - 6).replace('/', '.');
+            testClass(classLoader, name, testWidgetFactories, warnings);
         }
     }
 

@@ -35,7 +35,6 @@ import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.MenuAction;
 import de.matthiasmann.twl.MenuCheckbox;
 import de.matthiasmann.twl.PopupWindow;
-import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SimpleDialog;
 import de.matthiasmann.twl.TextArea;
 import de.matthiasmann.twl.Widget;
@@ -45,7 +44,6 @@ import de.matthiasmann.twl.textarea.HTMLTextAreaModel;
 import de.matthiasmann.twl.model.JavaFileSystemModel;
 import de.matthiasmann.twl.model.MRUListModel;
 import de.matthiasmann.twl.model.PersistentMRUListModel;
-import de.matthiasmann.twl.textarea.SimpleTextAreaModel;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.datamodel.Include;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
@@ -57,8 +55,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -206,7 +202,7 @@ public final class MainUI extends DialogLayout {
     void newProject() {
         final PopupWindow popupWindow = new PopupWindow(this);
         
-        JavaFileSystemModel fsm = new JavaFileSystemModel();
+        JavaFileSystemModel fsm = JavaFileSystemModel.getInstance();
         NewProjectDialog newProjectDialog = new NewProjectDialog(fsm,
                 prefs, KEY_PROJECT_FILESELECTOR, new NewProjectDialog.Listener() {
             public void ok(NewProjectSettings settings) {

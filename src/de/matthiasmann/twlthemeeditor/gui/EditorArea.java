@@ -32,18 +32,16 @@ package de.matthiasmann.twlthemeeditor.gui;
 import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.Dimension;
-import de.matthiasmann.twl.FileSelector;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.MenuAction;
-import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.HasCallback;
-import de.matthiasmann.twl.model.JavaFileSystemModel;
+import de.matthiasmann.twl.model.PersistentMRUListModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.DelayedAction;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
@@ -51,11 +49,12 @@ import de.matthiasmann.twlthemeeditor.datamodel.Split;
 import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
-import de.matthiasmann.twlthemeeditor.gui.MainUI.ExtFilter;
+import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.util.prefs.Preferences;
 
@@ -70,6 +69,9 @@ public final class EditorArea extends Widget {
         SPLIT_HHV
     }
 
+    private static final String KEY_RECENT_CLASSPATHS = "recentClasspaths";
+    private static final String KEY_CLASSPATH_FS = "userWidgetJARs";
+    
     private final MessageLog messageLog;
     private final TestWidgetManager testWidgetManager;
     private final Menu testWidgetMenu;
@@ -80,6 +82,10 @@ public final class EditorArea extends Widget {
     private final WidgetTreeModel widgetTreeModel;
     private final WidgetTree widgetTree;
     private final WidgetPropertyEditor widgetPropertyEditor;
+
+    private final Preferences prefs;
+    private final PersistentMRUListModel<String> recentClasspathsModel;
+    private final Menu classpathsMenu;
 
     private final CallbackWithReason<ThemeTreeModel.CallbackReason> modelChangedCB;
     private final Runnable boundPropertyCB;
@@ -112,6 +118,10 @@ public final class EditorArea extends Widget {
         widgetPropertyEditor = new WidgetPropertyEditor();
         widgetPropertyEditor.setTheme("/propertyEditor");
 
+        prefs = Preferences.userNodeForPackage(EditorArea.class);
+        recentClasspathsModel = new PersistentMRUListModel<String>(5, String.class, prefs, KEY_RECENT_CLASSPATHS);
+        classpathsMenu = new Menu("User widgets");
+        
         previewWidget.setCallback(new PreviewWidget.Callback() {
             public void testWidgetChanged(Widget widget) {
                 updateTestWidget(widget);
@@ -206,6 +216,7 @@ public final class EditorArea extends Widget {
         });
 
         recreateLayout();
+        updateRecentClasspathsMenu();
         updateTestWidgetMenu();
         changeTestWidget();
     }
@@ -477,37 +488,71 @@ public final class EditorArea extends Widget {
         changeTestWidget();
     }
 
-    void loadUserWidget() {
-        final PopupWindow popupWindow = new PopupWindow(this);
-        JavaFileSystemModel fsm = new JavaFileSystemModel();
-        FileSelector.NamedFileFilter filter = new FileSelector.NamedFileFilter(
-                "JAR files", new ExtFilter(".jar"));
-        FileSelector fileSelector = new FileSelector(
-                Preferences.userNodeForPackage(EditorArea.class),
-                "userWidgetJARs");
-        fileSelector.setFileSystemModel(fsm);
-        fileSelector.addFileFilter(FileSelector.AllFilesFilter);
-        fileSelector.addFileFilter(filter);
-        fileSelector.setFileFilter(filter);
-        fileSelector.setAllowMultiSelection(true);
-        fileSelector.addCallback(new FileSelector.Callback() {
-            public void filesSelected(Object[] files) {
-                if(testWidgetManager.loadUserWidgets(files)) {
-                    updateTestWidgetMenu();
-                }
-                popupWindow.closePopup();
+    void loadClasspath() {
+        LoadFileSelector lfs = new LoadFileSelector(this, prefs, KEY_CLASSPATH_FS,
+                "TWL Theme Editor classpath file", ".classpath", new LoadFileSelector.Callback() {
+            public void fileSelected(File file) {
+                loadClasspath(file);
             }
             public void canceled() {
-                popupWindow.closePopup();
             }
         });
-        popupWindow.setTheme("fileselector-popup");
-        popupWindow.add(fileSelector);
-        popupWindow.setSize(getWidth()*4/5, getHeight()*4/5);
-        popupWindow.setPosition(
-                getWidth()/2 - popupWindow.getWidth()/2,
-                getHeight()/2 - popupWindow.getHeight()/2);
-        popupWindow.openPopup();
+        lfs.openPopup();
+    }
+
+    void createClasspath() {
+        NewClasspathDialog ncd = new NewClasspathDialog(this, new NewClasspathDialog.Callback() {
+            public void classpathCreated(File file) {
+                loadClasspath(file);
+            }
+        });
+        ncd.openPopup();
+    }
+
+    void loadClasspath(File file) {
+        if(testWidgetManager.loadUserWidgets(file)) {
+            updateTestWidgetMenu();
+            recentClasspathsModel.addEntry(file.toString());
+            updateRecentClasspathsMenu();
+        } else {
+            int idx = Utils.find(recentClasspathsModel, file.toString());
+            if(idx >= 0) {
+                recentClasspathsModel.removeEntry(idx);
+                updateRecentClasspathsMenu();
+            }
+        }
+    }
+
+    void updateRecentClasspathsMenu() {
+        MenuAction maLoadClasspath = new MenuAction("Load classpath", new Runnable() {
+            public void run() {
+                loadClasspath();
+            }
+        });
+        maLoadClasspath.setTooltipContent("Load Widgets from an existing classpath file");
+
+        MenuAction maCreateClasspath = new MenuAction("New classpath", new Runnable() {
+            public void run() {
+                createClasspath();
+            }
+        });
+        maCreateClasspath.setTooltipContent("Create a new classpath file containing your Widgets");
+
+        classpathsMenu.clear();
+        classpathsMenu.add(maLoadClasspath);
+        classpathsMenu.add(maCreateClasspath);
+        int numEntries = recentClasspathsModel.getNumEntries();
+        if(numEntries > 0) {
+            classpathsMenu.addSpacer();
+            for(int i=0 ; i<numEntries ; i++) {
+                final String entry = recentClasspathsModel.getEntry(i);
+                classpathsMenu.add(entry, new Runnable() {
+                    public void run() {
+                        loadClasspath(new File(entry));
+                    }
+                });
+            }
+        }
     }
 
     void updateTestWidgetMenu() {
@@ -518,18 +563,11 @@ public final class EditorArea extends Widget {
         });
         maRecreateTestWidgets.setTooltipContent("Clears widget cache and recreates current widget");
 
-        MenuAction maLoadUserWidget = new MenuAction("Load Widget", new Runnable() {
-            public void run() {
-                loadUserWidget();
-            }
-        });
-        maLoadUserWidget.setTooltipContent("Load a Widget from a user supplied JAR file");
-
         testWidgetMenu.clear();
         testWidgetManager.updateMenu(testWidgetMenu);
         testWidgetMenu.addSpacer();
         testWidgetMenu.add(maRecreateTestWidgets);
-        testWidgetMenu.add(maLoadUserWidget);
+        testWidgetMenu.add(classpathsMenu);
     }
     
     private void removeFromParent(Widget w) {

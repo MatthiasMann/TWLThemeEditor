@@ -32,6 +32,8 @@
         
         <alias name="textureviewer.background" ref="checkerboard" border="64" inset="64" sizeOverwriteH="0" sizeOverwriteV="0"/>
 
+        <alias name="listbox.background" ref="panel.background" inset="0,0,0,6"/>
+        
         <select name="positionbar-horizontal">
             <animation timeSource="now" if="animatedPositionBars">
                 <frame duration="200" ref="-positionbar-horizontal-0"/>
@@ -863,4 +865,37 @@
             <theme name="" ref="*"/>
         </theme>
     </theme>
+
+    <theme name="newclasspathdialog" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>20</border></param>
+        <theme name="dialoglayout" ref="dialoglayout">
+            <theme name="" ref="*"/>
+            <theme name="title" ref="label">
+                <param name="font"><font>popupmenu-font</font></param>
+            </theme>
+            <theme name="listbox" ref="listbox">
+                <param name="background"><image>listbox.background</image></param>
+                <param name="border"><border>0</border></param>
+                <theme name="display" ref="popupMenuButton"/>
+            </theme>
+        </theme>
+    </theme>
+
+    <theme name="selectfolder" ref="simpledialog">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>20</border></param>
+        <theme name="content" merge="true">
+            <theme name="scrollpane" ref="scrollpane">
+                <theme name="treetable" ref="table">
+                    <param name="background"><image>-borderH</image></param>
+                    <param name="border"><border>2</border></param>
+                    <param name="columnHeaderHeight"><int>0</int></param>
+                </theme>
+                <param name="minWidth"><int>400</int></param>
+                <param name="minHeight"><int>500</int></param>
+            </theme>
+        </theme>
+    </theme>
+
 </themes>

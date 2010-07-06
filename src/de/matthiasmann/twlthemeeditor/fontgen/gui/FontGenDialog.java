@@ -214,9 +214,6 @@ public final class FontGenDialog {
                 updateEffects();
             }
         });
-        
-        Widget splitter = new Widget();
-        splitter.setTheme("splitter");
 
         fontDisplay = new FontDisplay(new Runnable() {
             public void run() {

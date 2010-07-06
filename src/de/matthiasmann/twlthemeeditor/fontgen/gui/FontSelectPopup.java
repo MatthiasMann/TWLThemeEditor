@@ -67,7 +67,7 @@ public class FontSelectPopup extends PopupWindow {
         this.fileSelector = new FileSelector(Preferences.userNodeForPackage(FontSelectPopup.class), PREF_FS);
         this.preview = new FontPreview();
 
-        fileSelector.setFileSystemModel(new JavaFileSystemModel());
+        fileSelector.setFileSystemModel(JavaFileSystemModel.getInstance());
         fileSelector.addFileFilter(new FileSelector.NamedFileFilter("TrueType fonts", new ExtFilter(".ttf")));
         fileSelector.setAllowMultiSelection(false);
         fileSelector.setUserWidgetBottom(preview);

@@ -69,7 +69,7 @@ public class LoadFileSelector {
         FileSelector.NamedFileFilter filter = new FileSelector.NamedFileFilter(description, fileFilter);
 
         fileSelector = new FileSelector(prefs, prefsKey);
-        fileSelector.setFileSystemModel(new JavaFileSystemModel());
+        fileSelector.setFileSystemModel(JavaFileSystemModel.getInstance());
         fileSelector.setAllowMultiSelection(false);
         fileSelector.addCallback(new CB());
         fileSelector.addFileFilter(FileSelector.AllFilesFilter);
