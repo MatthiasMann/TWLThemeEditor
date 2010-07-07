@@ -1067,4 +1067,17 @@
         </theme>
     </theme>
 
+    <theme name="tablesearchwindow" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>20</border></param>
+        <theme name="dialoglayout" ref="dialoglayout">
+            <theme name="label" ref="label">
+                <param name="font"><font>popupmenu-font</font></param>
+            </theme>
+            <theme name="editfield" ref="editfield">
+                <param name="columns"><int>20</int></param>
+            </theme>
+        </theme>
+    </theme>
+    
 </themes>
