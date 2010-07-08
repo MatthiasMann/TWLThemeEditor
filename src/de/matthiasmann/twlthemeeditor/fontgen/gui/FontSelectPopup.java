@@ -37,7 +37,7 @@ import de.matthiasmann.twl.model.JavaFileSystemModel;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.fontgen.FontData;
 import de.matthiasmann.twlthemeeditor.gui.MainUI.ExtFilter;
-import java.io.InputStream;
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -88,6 +88,7 @@ public class FontSelectPopup extends PopupWindow {
         });
 
         add(fileSelector);
+        setCloseOnClickedOutside(false);
     }
 
     public void addCallback(Callback cb) {
@@ -118,15 +119,10 @@ public class FontSelectPopup extends PopupWindow {
         FileTable.Entry[] selection = fileSelector.getFileTable().getSelection();
         if(selection.length >= 0) {
             FileTable.Entry entry = selection[0];
-            if(!entry.isFolder) {
+            if(!entry.isFolder && (entry.obj instanceof File)) {
                 try {
-                    InputStream is = entry.fsm.openStream(entry.obj);
-                    try {
-                        fontData = FontData.create(is, 32);
-                        fontPath = entry.getPath();
-                    } finally {
-                        is.close();
-                    }
+                    fontData = new FontData((File)entry.obj, 32);
+                    fontPath = entry.getPath();
                 } catch (Throwable ex) {
                     Logger.getLogger(FontSelectPopup.class.getName()).log(Level.SEVERE, "Can't open font: " + entry.getPath(), ex);
                 }

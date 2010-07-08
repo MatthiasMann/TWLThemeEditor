@@ -286,6 +286,7 @@ public final class FontGenDialog {
         popupWindow = new PopupWindow(owner);
         popupWindow.setTheme("fontGenDialog-popup");
         popupWindow.add(layout);
+        popupWindow.setCloseOnClickedOutside(false);
 
         setFontDisplayTheme();
         updateTextureSize();
@@ -404,12 +405,7 @@ public final class FontGenDialog {
         
         if(fontPath != null) {
             try {
-                FileInputStream fis = new FileInputStream(fontPath);
-                try {
-                    fontData = FontData.create(fis, 32);
-                } finally {
-                    fis.close();
-                }
+                fontData = new FontData(new File(fontPath), 32);
             } catch (Throwable ex) {
                 Logger.getLogger(FontGenDialog.class.getName()).log(Level.SEVERE, "Can't load font", ex);
             }

@@ -31,14 +31,15 @@ package de.matthiasmann.twlthemeeditor.fontgen;
 
 import java.awt.Font;
 import java.awt.FontFormatException;
-import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
+import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -102,23 +103,37 @@ public final class FontData {
         return result;
     }
     
-    private FontData(byte[] data, float size) throws IOException {
+    public FontData(File file, float size) throws IOException {
         this.size = size;
+        this.defined = new BitSet();
+        this.kerning = new IntMap<IntMap<Integer>>();
+
         try {
-            TTFFile rawFont = new TTFFile();
-            if (!rawFont.readFont(new FontFileReader(data))) {
-                throw new IOException("Invalid font file");
+            RandomAccessFile raf = new RandomAccessFile(file, "r");
+            try {
+                byte[] dirTable = readDirTable(raf);
+                byte[] headSection = readSection(raf, dirTable, "head");
+                byte[] cmapSection = readSection(raf, dirTable, "cmap");
+                byte[] nameSection = readSection(raf, dirTable, "name");
+                byte[] kernSection = readSectionOptional(raf, dirTable, "kern");
+
+                IntMap<Integer> glyphToUnicode = new IntMap<Integer>();
+                
+                upem = readUPEM(headSection);
+                postScriptName = readNAME(nameSection);
+                readCMAP(cmapSection, glyphToUnicode);
+
+                if(kernSection != null) {
+                    readKERN(kernSection, glyphToUnicode);
+                }
+            } finally {
+                raf.close();
             }
 
-            Font font = Font.createFont(Font.TRUETYPE_FONT, new ByteArrayInputStream(data));
+            Font font = Font.createFont(Font.TRUETYPE_FONT, file);
             
-            upem = rawFont.getUPEM();
-            kerning = rawFont.getKerning();
-            defined = rawFont.getDefinedUnicodePoints();
-            postScriptName = rawFont.getPostScriptName();
-
             String name = getName();
-            System.err.println("Loaded: " + name + " (" + data.length + ")");
+            System.err.println("Loaded: " + name);
             
             int style = 0;
             int comma = name.indexOf(',');
@@ -155,40 +170,229 @@ public final class FontData {
         return new FontData(this, size, style);
     }
 
-    public static FontData create(InputStream is, float size) throws IOException {
-        return new FontData(readInputStream(is), size);
+    private int convertUnitToEm(int units) {
+        return Math.round((units * size) / upem);
     }
 
-    public static FontData create(URL url, float size) throws IOException {
-        byte[] data;
-        InputStream is = url.openStream();
-        try {
-            data = readInputStream(is);
-        } finally {
-            is.close();
-        }
-        return new FontData(data, size);
-    }
-    
-    private static byte[] readInputStream(InputStream is) throws IOException {
-        byte[] buffer = new byte[16384];
-        int size = 0;
-        int read;
-        while((read=is.read(buffer, size, buffer.length - size)) > 0) {
-            size += read;
-            if(size == buffer.length) {
-                byte[] tmp = new byte[buffer.length * 2];
-                System.arraycopy(buffer, 0, tmp, 0, size);
-                buffer = tmp;
+    private void readCMAP(byte[] cmapSection, IntMap<Integer> glyphToUnicode) throws IOException {
+        int numCMap = readUShort(cmapSection, 2);
+        int cmapUniOffset = 0;
+
+        for(int i=0 ; i<numCMap ; i++) {
+            int cmapPID = readUShort(cmapSection, i*8 + 4);
+            int cmapEID = readUShort(cmapSection, i*8 + 6);
+
+            if (cmapPID == 3 && cmapEID == 1) {
+                cmapUniOffset = readInt(cmapSection, i*8 + 8);
+                break;
             }
         }
 
-        byte[] data = new byte[size];
-        System.arraycopy(buffer, 0, data, 0, size);
-        return data;
+        if(cmapUniOffset == 0) {
+            throw new IOException("No unicode mapping table found");
+        }
+
+        int cmapFormat = readUShort(cmapSection, cmapUniOffset);
+        if (cmapFormat != 4) {
+            throw new IOException("Unsupported unicode table format: " + cmapFormat);
+        }
+
+        int cmapSegCountX2 = readUShort(cmapSection, cmapUniOffset + 6);
+
+        for (int segX2=0 ; segX2<cmapSegCountX2 ; segX2+=2) {
+            int cmapEndCount   = readUShort(cmapSection, cmapUniOffset + 14 + segX2);
+            int cmapStartCount = readUShort(cmapSection, cmapUniOffset + 16 + segX2 + cmapSegCountX2);
+            int cmapDelta      = readShort (cmapSection, cmapUniOffset + 16 + segX2 + cmapSegCountX2*2);
+
+            int cmapROO         = cmapUniOffset + 16 + segX2 + cmapSegCountX2*3;
+            int cmapRangeOffset = readUShort(cmapSection, cmapROO);
+            int glyphOffset     = cmapRangeOffset + cmapROO;
+
+            if(cmapEndCount == 65535) {
+                // exclude the last character 65535 = .notdef
+                cmapEndCount--;
+            }
+
+            for (int unicode=cmapStartCount ; unicode<=cmapEndCount ; unicode++) {
+                int glyphIdx = unicode;
+                
+                if (cmapRangeOffset != 0) {
+                    glyphIdx = readUShort(cmapSection, glyphOffset);
+                    glyphOffset += 2;
+                }
+
+                if (cmapRangeOffset == 0 || glyphIdx != 0) {
+                    glyphIdx = (glyphIdx + cmapDelta) & 0xffff;
+                }
+
+                if (glyphIdx != 0) {
+                    glyphToUnicode.put(glyphIdx, unicode);
+                    defined.set(unicode);
+                }
+            }
+        }
+    }
+
+    private void readKERN(byte[] kernSection, IntMap<Integer> glyphToUnicode) {
+        int version = readUShort(kernSection, 0);
+        int nTables = readUShort(kernSection, 2);
+        //System.out.println("version="+version+" nTables="+nTables);
+
+        int tableOffset = 4;
+        for(int table=0 ; table<nTables ; table++) {
+            int tableLength = readInt(kernSection, tableOffset);
+            int coverage = readUShort(kernSection, tableOffset + 4);
+            
+            if ((coverage & 3) == 1) {  // only horizontal
+                int format = coverage >> 8;
+                switch(format) {
+                    case 0: {
+                        int numPairs = readUShort(kernSection, tableOffset + 6);
+                        int offset = tableOffset + 14;
+
+                        for(int pair=0 ; pair<numPairs ; pair++,offset+=6) {
+                            int from = readUShort(kernSection, offset);
+                            int to   = readUShort(kernSection, offset + 2);
+                            int kpx  = readShort (kernSection, offset + 4);
+                            if (kpx != 0) {
+                                // CID kerning table entry, using unicode indexes
+                                addKerning( glyphToUnicode, from, to, kpx);
+                            }
+                        }
+                        break;
+                    }
+                    default:
+                        Logger.getLogger(FontData.class.getName()).log(Level.WARNING,
+                                "Unsupported kerning subtable format: {0} (kern table version: {1})",
+                                new Object[]{format, version});
+                }
+            }
+
+            tableOffset += tableLength;
+        }
+    }
+
+    private void addKerning(IntMap<Integer> glyphToUnicode, int fromGlyph, int toGlyph, int kpx) {
+        final Integer fromUnicode = glyphToUnicode.get(fromGlyph);
+        final Integer toUnicode = glyphToUnicode.get(toGlyph);
+        if (fromUnicode != null && toUnicode != null) {
+            IntMap<Integer> adjTab = kerning.get(fromUnicode.intValue());
+            if (adjTab == null) {
+                adjTab = new IntMap<Integer>();
+                kerning.put(fromUnicode.intValue(), adjTab);
+            }
+            adjTab.put(toUnicode.intValue(), kpx);
+        }
+    }
+
+    private static byte[] readDirTable(RandomAccessFile raf) throws IOException {
+        raf.seek(4);
+        int ntabs = raf.readUnsignedShort();
+        raf.seek(12);
+
+        byte[] dirTable = new byte[ntabs * 16];
+        raf.readFully(dirTable);
+
+        return dirTable;
+    }
+
+    private static byte[] readSectionOptional(RandomAccessFile raf, byte[] dirTable, String sectionName) throws IOException {
+        assert sectionName.length() == 4;
+
+        for(int i=0 ; i<dirTable.length ; i+=16) {
+            boolean match = true;
+            for(int j=0 ; j<4 ; j++) {
+                if(dirTable[i + j] != sectionName.charAt(j)) {
+                    match = false;
+                    break;
+                }
+            }
+
+            if(match) {
+                int offset = readInt(dirTable, i + 8);
+                int length = readInt(dirTable, i + 12);
+
+                byte[] section = new byte[length];
+                raf.seek(offset);
+                raf.readFully(section);
+                return section;
+            }
+        }
+
+        return null;
+    }
+
+    private static byte[] readSection(RandomAccessFile raf, byte[] dirTable, String sectionName) throws IOException {
+        byte[] section = readSectionOptional(raf, dirTable, sectionName);
+        if(section == null) {
+            throw new IOException("Missing '"+sectionName+"' section");
+        }
+        return section;
+    }
+
+    private static int readUPEM(byte[] headSection) {
+        return readUShort(headSection, 18);
+    }
+
+    private static String readNAME(byte[] nameSection) {
+        int numStrings = readUShort(nameSection, 2);
+        int strOffset = readUShort(nameSection, 4);
+
+        String familyName = "";
+        String subFamilyName = "";
+
+        for(int i=0 ; i<numStrings ; i++) {
+            int platformID = readUShort(nameSection, i*12 + 6);
+            int encodingID = readUShort(nameSection, i*12 + 8);
+
+            if ((platformID == 1 || platformID == 3) && (encodingID == 0 || encodingID == 1)) {
+                int nameID = readUShort(nameSection, i*12 + 12);
+                int length = readUShort(nameSection, i*12 + 14);
+                int offset = readUShort(nameSection, i*12 + 16);
+
+                switch (nameID) {
+                    case 1:
+                        familyName = readString(nameSection, strOffset + offset, length);
+                        break;
+                    case 2:
+                        subFamilyName = readString(nameSection, strOffset + offset, length);
+                        break;
+                }
+            }
+        }
+
+        if (subFamilyName.length() == 0 || "Regular".equals(subFamilyName) || "Roman".equals(subFamilyName)) {
+            return familyName;
+        } else {
+            return familyName + "," + subFamilyName;
+        }
     }
     
-    private int convertUnitToEm(int units) {
-        return Math.round((units * size) / upem);
+    private static int readUShort(byte[] a, int off) {
+        return ((a[off+0] & 0xFF) << 8) |
+               ((a[off+1] & 0xFF)     );
+    }
+
+    private static short readShort(byte[] a, int off) {
+        return (short)readUShort(a, off);
+    }
+
+    private static int readInt(byte[] a, int off) {
+        return ((a[off+0] & 0xFF) << 24) |
+               ((a[off+1] & 0xFF) << 16) |
+               ((a[off+2] & 0xFF) <<  8) |
+               ((a[off+3] & 0xFF)      );
+    }
+
+    private static String readString(byte[] a, int off, int len) {
+        try {
+            if (len > 0) {
+                String encoding = (a[off] == 0) ? "UTF-16BE" : "ISO-8859-1";
+                return new String(a, off, len, encoding);
+            }
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(FontData.class.getName()).log(Level.SEVERE, "Can't decode string", ex);
+        }
+        return "";
     }
 }
