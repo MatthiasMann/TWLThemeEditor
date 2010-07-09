@@ -57,7 +57,8 @@ public class ImageData {
     private final BufferedImage[] images;
     private final GIFImageMetadata[] gifImagesMetadata;
 
-    private Color backgroundColor = TRANSPARENT;
+    private int backgroundColorIndex;
+    private Node globalColorTable;
     private BufferedImage backgroundForNext;
     private Rectangle eraseForNext;
     private int lastImgNr;
@@ -87,18 +88,9 @@ public class ImageData {
 
             backgroundForNext = new BufferedImage(logicalScreenWidth, logicalScreenHeight, BufferedImage.TYPE_INT_ARGB);
 
-            Node globalColorTable = getChildNode(gifMetadata, "GlobalColorTable");
-            int backgroundColorIndex   = getInt(globalColorTable, "backgroundColorIndex", 0);
-            int sizeOfGlobalColorTable = getInt(globalColorTable, "sizeOfGlobalColorTable", 0);
-
-            if(backgroundColorIndex >= 0 && backgroundColorIndex < sizeOfGlobalColorTable) {
-                Node entry = getChildNodeWithIndex(globalColorTable, "ColorTableEntry", backgroundColorIndex);
-                int red   = getInt(entry, "red", 0);
-                int green = getInt(entry, "green", 0);
-                int blue  = getInt(entry, "blue", 0);
-                backgroundColor = new Color(red, green, blue);
-                eraseForNext = new Rectangle(0, 0, logicalScreenWidth, logicalScreenHeight);
-            }
+            globalColorTable = getChildNode(gifMetadata, "GlobalColorTable");
+            backgroundColorIndex  = getInt(globalColorTable, "backgroundColorIndex", -1);
+            eraseForNext = new Rectangle(0, 0, logicalScreenWidth, logicalScreenHeight);
         } else {
             gifImagesMetadata = null;
         }
@@ -191,6 +183,20 @@ public class ImageData {
             g.setComposite(AlphaComposite.Src);
             g.drawImage(backgroundForNext, 0, 0, null);
             if(eraseForNext != null) {
+                Color backgroundColor;
+                if(gifim.transparentColorFlag && gifim.transparentColorIndex == backgroundColorIndex) {
+                    backgroundColor = TRANSPARENT;
+                } else {
+                    Node colorEntry = getChildNodeWithIndex(gifim.localColorTable, "ColorTableEntry", backgroundColorIndex);
+                    if(colorEntry == null) {
+                        colorEntry = getChildNodeWithIndex(globalColorTable, "ColorTableEntry", backgroundColorIndex);
+                    }
+                    int red   = getInt(colorEntry, "red", 0);
+                    int green = getInt(colorEntry, "green", 0);
+                    int blue  = getInt(colorEntry, "blue", 0);
+                    backgroundColor = new Color(red, green, blue);
+                }
+
                 g.setColor(backgroundColor);
                 g.fillRect(eraseForNext.x, eraseForNext.y, eraseForNext.width, eraseForNext.height);
             }
@@ -281,6 +287,9 @@ public class ImageData {
         final int imageHeight;
         final int delayTimeMS;
         final String disposalMethod;
+        final int transparentColorIndex;
+        final boolean transparentColorFlag;
+        final Node localColorTable;
 
         public GIFImageMetadata(Node gifMetadata) {
             Node imageDescriptor = getChildNode(gifMetadata, "ImageDescriptor");
@@ -290,8 +299,12 @@ public class ImageData {
             imageHeight       = getInt(imageDescriptor, "imageHeight", 1);
 
             Node graphicControlExtension = getChildNode(gifMetadata, "GraphicControlExtension");
-            delayTimeMS    = getInt(graphicControlExtension, "delayTime", 10) * 10; // in 10 ms steps
-            disposalMethod = getStr(graphicControlExtension, "disposalMethod", "none");
+            delayTimeMS           = getInt(graphicControlExtension, "delayTime", 10) * 10; // in 10 ms steps
+            disposalMethod        = getStr(graphicControlExtension, "disposalMethod", "none");
+            transparentColorIndex = getInt(graphicControlExtension, "transparentColorIndex", 255);
+            transparentColorFlag  = Boolean.parseBoolean(getStr(graphicControlExtension, "transparentColorFlag", "false"));
+
+            localColorTable = getChildNode(gifMetadata, "LocalColorTable");
         }
     }
 }
