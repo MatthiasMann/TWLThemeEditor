@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.imgconv;
 
+import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.ComboBox;
 import de.matthiasmann.twl.DialogLayout;
@@ -37,24 +38,41 @@ import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
+import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
+import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.fontgen.gui.EffectsPanel;
+import de.matthiasmann.twlthemeeditor.fontgen.gui.FontGenDialog;
+import de.matthiasmann.twlthemeeditor.gui.SaveFileSelector;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ConvertImageDialog extends PopupWindow {
+public final class ConvertImageDialog extends PopupWindow {
+
+    private static final String IMAGECONV_FILE_SELECTOR_KEY = "saveImage";
 
     private final EditField imagePathEF;
     private final Button selectImageBtn;
-    private final SimpleChangableListModel<Integer> textureSizesModel;
-    private final ComboBox<Integer> textureSizeCB;
+    private final SimpleBooleanModel excludeZeroDelayFramesModel;
+    private final ToggleButton excludeZeroDelayFramesBtn;
+    private final ComboBox<ImageDisplayBG> imageDisplayBgCB;
+    private final ImageDisplay imageDisplay;
     private final Label statusBar;
     private final Button saveImageButton;
     private final Button closeButton;
 
+    private String imagePath;
+    private ImageData imageData;
+    
     public ConvertImageDialog(Widget owner) {
         super(owner);
 
@@ -69,13 +87,22 @@ public class ConvertImageDialog extends PopupWindow {
             }
         });
 
-        textureSizesModel = new SimpleChangableListModel<Integer>(256, 512, 1024, 2048, 4096);
-
-        textureSizeCB = new ComboBox<Integer>(textureSizesModel);
-        textureSizeCB.setSelected(2);
-        textureSizeCB.addCallback(new Runnable() {
+        excludeZeroDelayFramesModel = new SimpleBooleanModel(true);
+        excludeZeroDelayFramesModel.addCallback(new Runnable() {
             public void run() {
-                updateTextureSize();
+                updateExcludeZeroDelayFrames();
+            }
+        });
+
+        excludeZeroDelayFramesBtn = new ToggleButton(excludeZeroDelayFramesModel);
+        excludeZeroDelayFramesBtn.setTheme("checkbox");
+        excludeZeroDelayFramesBtn.setText("Exclude frames with 0 delay");
+
+        imageDisplayBgCB = new ComboBox<ImageDisplayBG>(new SimpleChangableListModel<ImageDisplayBG>(ImageDisplayBG.values()));
+        imageDisplayBgCB.setSelected(0);
+        imageDisplayBgCB.addCallback(new Runnable() {
+            public void run() {
+                setImageDisplayTheme();
             }
         });
 
@@ -86,7 +113,16 @@ public class ConvertImageDialog extends PopupWindow {
         effectsPanelSP.setExpandContentSize(true);
         
         effectsPanel.addControl("Image", imagePathEF, selectImageBtn);
-        effectsPanel.addControl("Texture size", textureSizeCB);
+        effectsPanel.addControl(excludeZeroDelayFramesBtn);
+
+        imageDisplay = new ImageDisplay(new Runnable() {
+            public void run() {
+                updateStatusBar();
+            }
+        });
+
+        ScrollPane imageDisplaySP = new ScrollPane(imageDisplay);
+        imageDisplaySP.setTheme("imageDisplay");
 
         saveImageButton = new Button("Save Image");
         saveImageButton.addCallback(new Runnable() {
@@ -109,7 +145,8 @@ public class ConvertImageDialog extends PopupWindow {
         splitPane.setDirection(SplitPane.Direction.HORIZONTAL);
         splitPane.setSplitPosition(370);
         splitPane.add(effectsPanelSP);
-        //splitPane.add(imageDisplaySP);
+        splitPane.add(imageDisplaySP);
+        effectsPanel.addControl("Preview BG", imageDisplayBgCB);
         
         DialogLayout layout = new DialogLayout();
 
@@ -131,17 +168,12 @@ public class ConvertImageDialog extends PopupWindow {
 
         add(layout);
         setCloseOnClickedOutside(false);
-    }
 
-    void selectImage() {
-        ImageSelectPopup isp = new ImageSelectPopup(selectImageBtn);
-        isp.addCallback(new ImageSelectPopup.Callback() {
-            public void imageSelected(String imagePath, ImageData imageData) {
-            }
-        });
-        isp.openPopup();
+        setImageDisplayTheme();
+        updateExcludeZeroDelayFrames();
+        updateStatusBar();
     }
-
+    
     @Override
     public boolean openPopup() {
         if(super.openPopup()) {
@@ -156,16 +188,100 @@ public class ConvertImageDialog extends PopupWindow {
         return false;
     }
 
+    void setImageDisplayTheme() {
+        ImageDisplayBG idbg = imageDisplayBgCB.getModel().getEntry(imageDisplayBgCB.getSelected());
+        imageDisplay.setTheme(idbg.theme);
+        imageDisplay.reapplyTheme();
+    }
+
+    void selectImage() {
+        ImageSelectPopup isp = new ImageSelectPopup(selectImageBtn);
+        isp.addCallback(new ImageSelectPopup.Callback() {
+            public void imageSelected(String imagePath, ImageData imageData) {
+                ConvertImageDialog.this.imageSelected(imagePath, imageData);
+            }
+        });
+        isp.openPopup();
+    }
+
+    void imageSelected(String imagePath, ImageData imageData) {
+        this.imagePath = imagePath;
+        this.imageData = imageData;
+
+        imagePathEF.setText(imagePath);
+        imageDisplay.setImageData(imageData);
+    }
+
+    void updateExcludeZeroDelayFrames() {
+        imageDisplay.setSkipZeroDelayFrames(excludeZeroDelayFramesModel.getValue());
+    }
+
     void saveImage() {
-        
+        final ImageGenerator imageGen = imageDisplay.getLastImageGen();
+        if(imageGen == null) {
+            return;
+        }
+
+        SaveFileSelector sfs = new SaveFileSelector(saveImageButton,
+                Preferences.userNodeForPackage(ConvertImageDialog.class), IMAGECONV_FILE_SELECTOR_KEY,
+                "PNG files", ".png", new SaveFileSelector.Callback() {
+            public File[] getFilesCreatedForFileName(File file) {
+                return imageGen.getFilesCreatedForName(file);
+            }
+            public void fileNameSelected(File file) {
+                try {
+                    imageGen.write(file);
+                } catch(IOException ex) {
+                    Logger.getLogger(FontGenDialog.class.getName()).log(Level.SEVERE, "Cound not save image", ex);
+                }
+            }
+            public void canceled() {
+            }
+        });
+        sfs.openPopup();
     }
 
-    void updateTextureSize() {
-        //fontDisplay.setTextureSize(getTextureSize());
+    void updateStatusBar() {
+        ImageGenerator imageGen = imageDisplay.getLastImageGen();
+        if(imageGen == null) {
+            setStatusBar("Select an image", DecoratedText.ERROR);
+            return;
+        }
+        if(imageGen.getNumFrames() == 0) {
+            setStatusBar("No frames found in selected image", DecoratedText.ERROR);
+            return;
+        }
+        if(imageGen.isCutoff()) {
+            setStatusBar("Not all frames could fit onto the maximum texture size of "
+                    + ImageGenerator.MAX_TEXTURE_SIZE, DecoratedText.WARNING);
+        }
+        setStatusBar("Used texture size is " + imageGen.getWidth() + "x" + imageGen.getHeight(), 0);
     }
 
-    private Integer getTextureSize() {
-        return textureSizesModel.getEntry(textureSizeCB.getSelected());
+    private void setStatusBar(String text, int flags) {
+        statusBar.setText(text);
+        AnimationState animState = statusBar.getAnimationState();
+        animState.setAnimationState("error", (flags & DecoratedText.ERROR) != 0);
+        animState.setAnimationState("warning", (flags & DecoratedText.WARNING) != 0);
+        saveImageButton.setEnabled((flags & DecoratedText.ERROR) == 0);
     }
 
+    static enum ImageDisplayBG {
+        BLACK("Black", "imagedisplay-black"),
+        WHITE("White", "imagedisplay-white"),
+        CHECKERBOARD("Checker board", "imagedisplay-checkerboard");
+
+        final String text;
+        final String theme;
+
+        private ImageDisplayBG(String text, String theme) {
+            this.text = text;
+            this.theme = theme;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
+    }
 }

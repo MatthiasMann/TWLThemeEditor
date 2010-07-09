@@ -447,7 +447,7 @@ public final class FontGenDialog {
             return;
         }
 
-        SaveFileSelector sfs = new SaveFileSelector(saveSettingsButton,
+        SaveFileSelector sfs = new SaveFileSelector(saveFontButton,
                 Preferences.userNodeForPackage(FontGenDialog.class), FONTGEN_FILE_SELECTOR_KEY,
                 "BMFont files", ".fnt", new SaveFileSelector.Callback() {
             public File[] getFilesCreatedForFileName(File file) {

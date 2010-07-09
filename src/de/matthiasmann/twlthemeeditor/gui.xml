@@ -925,6 +925,18 @@
                         </theme>
                     </theme>
                 </theme>
+                <theme name="imageDisplay" ref="scrollpane">
+                    <param name="border"><border>0,5,0,0</border></param>
+                    <theme name="imagedisplay-black" ref="-defaults">
+                        <param name="background"><image>black</image></param>
+                    </theme>
+                    <theme name="imagedisplay-white" ref="-defaults">
+                        <param name="background"><image>white</image></param>
+                    </theme>
+                    <theme name="imagedisplay-checkerboard" ref="-defaults">
+                        <param name="background"><image>checkerboard</image></param>
+                    </theme>
+                </theme>
                 <param name="maxHeight"><int>32767</int></param>
             </theme>
             <theme name="statusBar" ref="label">

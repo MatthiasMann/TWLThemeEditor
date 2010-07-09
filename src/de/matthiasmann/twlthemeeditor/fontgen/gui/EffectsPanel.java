@@ -84,10 +84,7 @@ public class EffectsPanel extends DialogLayout {
 
     public CollapsiblePanel addCollapsible(String name, Widget content, BooleanModel active) {
         CollapsiblePanel panel = new CollapsiblePanel(CollapsiblePanel.Direction.VERTICAL, name, content, active);
-
-        getHorizontalGroup().addWidget(panel);
-        getVerticalGroup().addWidget(panel);
-
+        addControl(panel);
         return panel;
     }
 
@@ -128,6 +125,11 @@ public class EffectsPanel extends DialogLayout {
         vRows.addGroup(createParallelGroup().addWidget(label).addWidget(control).addWidget(btn));
     }
 
+    public void addControl(Widget widget) {
+        getHorizontalGroup().addWidget(widget);
+        getVerticalGroup().addWidget(widget);
+    }
+    
     public void addCallback(Runnable cb) {
         callbacks = CallbackSupport.addCallbackToList(callbacks, cb, Runnable.class);
     }
