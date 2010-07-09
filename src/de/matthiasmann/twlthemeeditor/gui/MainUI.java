@@ -51,6 +51,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.fontgen.gui.FontGenDialog;
 import de.matthiasmann.twlthemeeditor.gui.EditorArea.Layout;
+import de.matthiasmann.twlthemeeditor.imgconv.ConvertImageDialog;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -137,6 +138,12 @@ public final class MainUI extends DialogLayout {
             public void run() {
                 FontGenDialog fgd = new FontGenDialog(MainUI.this);
                 fgd.openPopup();
+            }
+        });
+        menuTools.add("Convert image", new Runnable() {
+            public void run() {
+                ConvertImageDialog cid = new ConvertImageDialog(MainUI.this);
+                cid.openPopup();
             }
         });
         menuTools.addSpacer();

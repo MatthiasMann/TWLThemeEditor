@@ -898,4 +898,40 @@
         </theme>
     </theme>
 
+    <theme name="imageselectpopup" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>20</border></param>
+        <theme name="fileselector" ref="fileselector">
+            <theme name="imagepreview" ref="-defaults"/>
+        </theme>
+    </theme>
+
+    <theme name="convertimagedialog" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>20</border></param>
+        <theme name="dialoglayout" ref="dialoglayout">
+            <theme name="splitpane" ref="splitpane">
+                <theme name="effectsPanel" ref="scrollpane">
+                    <param name="background"><image>panel.background</image></param>
+                    <theme name="effectspanel" ref="dialoglayout">
+                        <param name="border"><border>5</border></param>
+                        <theme name="" ref="*"/>
+                        <theme name="label" ref="label">
+                            <param name="font"><font>popupmenu-font</font></param>
+                            <param name="textAlignment"><enum type="alignment">topleft</enum></param>
+                        </theme>
+                        <theme name="selectImageBtn" ref="button">
+                            <param name="text"><string>...</string></param>
+                        </theme>
+                    </theme>
+                </theme>
+                <param name="maxHeight"><int>32767</int></param>
+            </theme>
+            <theme name="statusBar" ref="label">
+                <param name="maxWidth"><int>32767</int></param>
+            </theme>
+            <theme name="" ref="*"/>
+        </theme>
+    </theme>
+    
 </themes>
