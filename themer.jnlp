@@ -15,7 +15,7 @@
     <all-permissions/>
   </security>
   <resources locale="" os="">
-    <j2se href="http://java.sun.com/products/autodl/j2se" max-heap-size="128M" version="1.5+"/>
+    <j2se href="http://java.sun.com/products/autodl/j2se" max-heap-size="512M" version="1.5+"/>
   </resources>
     <resources locale="" os="">
     <jar download="eager" href="TWLThemeEditor.jar" main="true" version=""/>
