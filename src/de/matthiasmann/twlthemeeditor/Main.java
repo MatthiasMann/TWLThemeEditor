@@ -187,7 +187,8 @@ public class Main extends Frame {
      * Call after Display.update()
      */
     private static void reduceInputLag() {
-        GL11.glGetError();          // this call will burn the time between vsyncs
+        // calling glGetError() will cause high CPU usage - so disable it for now
+        //GL11.glGetError();          // this call will burn the time between vsyncs
         Display.processMessages();  // process new native messages since Display.update();
         Mouse.poll();               // now update Mouse events
         Keyboard.poll();            // and Keyboard too
