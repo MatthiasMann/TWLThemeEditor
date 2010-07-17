@@ -262,6 +262,8 @@ public class FontGenerator {
             xs.setOutput(os, "UTF8");
             xs.startDocument("UTF8", true);
             xs.text("\n");
+            xs.comment("Created by TWL Theme Editor");
+            xs.text("\n");
             xs.startTag(null, "font");
             xs.text("\n  ");
             xs.startTag(null, "info");
