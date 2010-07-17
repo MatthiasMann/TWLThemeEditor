@@ -44,6 +44,7 @@ import de.matthiasmann.twl.textarea.HTMLTextAreaModel;
 import de.matthiasmann.twl.model.JavaFileSystemModel;
 import de.matthiasmann.twl.model.MRUListModel;
 import de.matthiasmann.twl.model.PersistentMRUListModel;
+import de.matthiasmann.twl.textarea.StyleSheet;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.datamodel.Include;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
@@ -367,19 +368,33 @@ public final class MainUI extends DialogLayout {
 
     void openAboutDialog() {
         StringBuilder sb = new StringBuilder();
-        sb.append("<img src=\"twl-logo\" alt=\"TWL Logo\" style=\"text-align:center; display:block\"/><br/><br/>" +
+        sb.append("<img id=\"logo\" src=\"twl-logo\" alt=\"TWL Logo\"/><br/><br/>" +
                 "<p>TWL Theme Editor (c) 2010 Matthias Mann</p><br/>" +
-                "<div style=\"white-space:pre; background-image:sysinfo-bg; padding:5px; margin-top:10px; font:sysinfo\">" +
-                "Java: ").append(System.getProperty("java.version")).append(" (").append(System.getProperty("java.vendor")).append(")\n" +
-                "OS: ").append(System.getProperty("os.name"))
+                "<table id=\"sysinfo\">" +
+                "<tr><td class=\"parameter\">Java</td><td class=\"value\">")
+                .append(System.getProperty("java.version")).append(" (").append(System.getProperty("java.vendor")).append(")</td></tr>" +
+                "<tr><td class=\"parameter\">OS</td><td class=\"value\">").append(System.getProperty("os.name"))
                     .append("  ").append(System.getProperty("os.arch"))
-                    .append("  Version ").append(System.getProperty("os.version")).append("\n" +
-                "LWJGL: ").append(Sys.getVersion()).append("\n" +
-                "OpenGL: ").append(GL11.glGetString(GL11.GL_VERSION))
-                    .append("  ").append(GL11.glGetString(GL11.GL_VENDOR)).append("</div>");
+                    .append("  Version ").append(System.getProperty("os.version")).append("</td></tr>" +
+                "<tr><td class=\"parameter\"><a href=\"http://www.lwjgl.org\">LWJGL</a></td><td class=\"value\">").append(Sys.getVersion()).append("</td></tr>" +
+                "<tr><td class=\"parameter\">OpenGL</td><td class=\"value\">").append(GL11.glGetString(GL11.GL_VERSION))
+                    .append("  ").append(GL11.glGetString(GL11.GL_VENDOR)).append("</td></tr></table>");
+
+        StyleSheet styleSheet = new StyleSheet();
+        try {
+            styleSheet.parse(MainUI.class.getResource("about.css"));
+        } catch(IOException ex) {
+            Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, "Can't load style sheet", ex);
+        }
 
         HTMLTextAreaModel areaModel = new HTMLTextAreaModel(sb.toString());
         TextArea textArea = new TextArea(areaModel);
+        textArea.setStyleClassResolver(styleSheet);
+        textArea.addCallback(new TextArea.Callback() {
+            public void handleLinkClicked(String href) {
+                Sys.openURL(href);
+            }
+        });
 
         SimpleDialog dialog = new SimpleDialog();
         dialog.setMessage(textArea);

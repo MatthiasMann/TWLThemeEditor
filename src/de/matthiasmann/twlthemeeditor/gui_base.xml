@@ -804,6 +804,10 @@
         <fontParam if="modified" color="#1000FF"/>
     </fontDef>
 
+    <fontDef name="normal-link" filename="font.fnt" color="blue" underlineOffset="1">
+        <fontParam if="hover" color="blue" underline="true"/>
+    </fontDef>
+
     <fontDef name="combobox" filename="font.fnt" color="black">
         <fontParam if="comboboxKeyboardFocus" color="white"/>
     </fontDef>

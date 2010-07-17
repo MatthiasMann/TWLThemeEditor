@@ -1,0 +1,23 @@
+#logo {
+    text-align: center;
+    display: block;
+}
+
+#sysinfo {
+    background-image: url(sysinfo-bg);
+    padding: 5px;
+    margin-top: 10px;
+    font: sysinfo;
+}
+
+#sysinfo .parameter {
+    width: 5em;
+}
+
+#sysinfo a {
+    font: sysinfo-link;
+}
+
+p {
+    margin-bottom: 1em;
+}

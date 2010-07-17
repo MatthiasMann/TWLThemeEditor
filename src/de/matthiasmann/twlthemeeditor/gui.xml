@@ -770,6 +770,7 @@
                 <param name="fonts"><map>
                     <param name="default"><font>popupmenu-font</font></param>
                     <param name="sysinfo"><font>normal</font></param>
+                    <param name="sysinfo-link"><font>normal-link</font></param>
                 </map></param>
                 <param name="images"><map>
                     <param name="twl-logo"><image>twl-logo</image></param>
