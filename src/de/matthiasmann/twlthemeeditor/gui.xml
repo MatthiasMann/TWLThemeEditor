@@ -510,11 +510,18 @@
         </theme>
 
         <theme name="nodereferenceeditor" ref="dialoglayout">
+            <theme name="applybutton" ref="vbutton">
+                <param name=""><image>applybutton.*</image></param>
+                <param name="tooltip"><string>Change the referenced element</string></param>
+            </theme>
             <theme name="jumpbutton" ref="vbutton">
                 <param name=""><image>jumpbutton.*</image></param>
                 <param name="tooltip"><string>Jump to the referenced element</string></param>
             </theme>
             <theme name="combobox" ref="combobox">
+                <param name="maxWidth"><int>32767</int></param>
+            </theme>
+            <theme name="editfield" ref="editfield">
                 <param name="maxWidth"><int>32767</int></param>
             </theme>
         </theme>

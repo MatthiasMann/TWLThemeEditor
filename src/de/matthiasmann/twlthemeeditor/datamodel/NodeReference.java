@@ -59,4 +59,12 @@ public class NodeReference {
     public boolean isNone() {
         return kind == Kind.IMAGE && "none".equals(name);
     }
+
+    public boolean isWildcard() {
+        return kind == Kind.IMAGE && name.endsWith(".*");
+    }
+
+    public String getBaseName() {
+        return isWildcard() ? name.substring(0, name.length()-1) : name;
+    }
 }

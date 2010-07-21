@@ -38,6 +38,7 @@ import de.matthiasmann.twlthemeeditor.gui.MessageLog;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -155,6 +156,10 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
 
     public ThemeTreeNode findNode(String name, Kind kind) {
         return rootNode.findNode(name, kind);
+    }
+
+    public void collectNodes(String baseName, Kind kind, Collection<ThemeTreeNode> nodes) {
+        rootNode.collectNodes(baseName, kind, nodes);
     }
 
     public void addCallback(CallbackWithReason<CallbackReason> cb) {

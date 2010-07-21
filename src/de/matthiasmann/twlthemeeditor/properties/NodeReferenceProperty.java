@@ -42,11 +42,17 @@ public class NodeReferenceProperty extends DerivedProperty<NodeReference> {
 
     private final ThemeTreeNode limit;
     private final Kind kind;
+    private final boolean supportsWildcard;
 
-    public NodeReferenceProperty(Property<String> base, ThemeTreeNode limit, Kind kind) {
+    public NodeReferenceProperty(Property<String> base, ThemeTreeNode limit, Kind kind, boolean supportsWildcard) {
         super(base, NodeReference.class);
         this.limit = limit;
         this.kind = kind;
+        this.supportsWildcard = supportsWildcard;
+    }
+
+    public NodeReferenceProperty(Property<String> base, ThemeTreeNode limit, Kind kind) {
+        this(base, limit, kind, false);
     }
 
     public NodeReference getPropertyValue() {
@@ -66,6 +72,10 @@ public class NodeReferenceProperty extends DerivedProperty<NodeReference> {
 
     public Kind getKind() {
         return kind;
+    }
+
+    public boolean isSupportsWildcard() {
+        return supportsWildcard;
     }
 
     public void handleNodeRenamed(String from, String to, Kind kind) {

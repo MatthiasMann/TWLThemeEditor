@@ -305,6 +305,29 @@ public class Context extends PropertyFactories {
         }
     }
 
+    public void selectTarget(ThemeTreeNode node) {
+        if(themeTreePane != null && node != null) {
+            try {
+                themeTreePane.selectNode(node);
+            } catch(Throwable ex) {
+                logException("jump to theme element", node.getKind() + " " + node.getName(), ex);
+            }
+        }
+    }
+
+    public void resolveReference(NodeReference ref, Collection<ThemeTreeNode> nodes) {
+        if(ref != null && !ref.isNone()) {
+            if(ref.isWildcard()) {
+                model.collectNodes(ref.getBaseName(), ref.getKind(), nodes);
+            } else {
+                ThemeTreeNode node = model.findNode(ref.getName(), ref.getKind());
+                if(node != null) {
+                    nodes.add(node);
+                }
+            }
+        }
+    }
+
     private ThemeTreeNode resolveReference(NodeReference ref) {
         if(ref != null && !ref.isNone()) {
             return model.findNode(ref.getName(), ref.getKind());

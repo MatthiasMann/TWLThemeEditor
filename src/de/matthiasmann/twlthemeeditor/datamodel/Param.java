@@ -148,7 +148,7 @@ public class Param extends ThemeTreeNode implements HasProperties {
     static Property<?> createProperty(Element e, ThemeTreeNode node, ThemeTreeNode limit) {
         String tagName = e.getName();
         if("image".equals(tagName)) {
-            return new NodeReferenceProperty(new ElementTextProperty(e, "image reference"), limit, Kind.IMAGE);
+            return new NodeReferenceProperty(new ElementTextProperty(e, "image reference"), limit, Kind.IMAGE, true);
         }
         if("border".equals(tagName)) {
             return new BorderProperty(new ElementTextProperty(e, "border"), 0, true);

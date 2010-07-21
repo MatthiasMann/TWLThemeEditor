@@ -37,6 +37,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.operations.MoveNodeOperations;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
 import org.jdom.Element;
@@ -218,6 +219,16 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
             }
         }
         return null;
+    }
+
+    public final void collectNodes(String baseName, Kind kind, Collection<ThemeTreeNode> nodes) {
+        final String ownName = getName();
+        if(getKind() == kind && ownName != null && ownName.startsWith(baseName)) {
+            nodes.add(this);
+        }
+        for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
+            node.collectNodes(baseName, kind, nodes);
+        }
     }
 
     public Property<?>[] getProperties() {
