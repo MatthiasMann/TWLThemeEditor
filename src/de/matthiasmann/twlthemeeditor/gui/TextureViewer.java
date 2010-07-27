@@ -366,7 +366,7 @@ public class TextureViewer extends Widget {
         }
 
         if(evt.isMouseEvent() && dragMode != DragMode.NONE) {
-            if(evt.getType() == Event.Type.MOUSE_DRAGED) {
+            if(evt.getType() == Event.Type.MOUSE_DRAGGED) {
                 if(dragMode == DragMode.IMAGE && imageDragListener != null) {
                     imageDragListener.dragged(evt.getMouseX()-dragStartX, evt.getMouseY()-dragStartY);
                 }
@@ -397,7 +397,7 @@ public class TextureViewer extends Widget {
             dragStartX = evt.getMouseX();
             dragStartY = evt.getMouseY();
             break;
-        case MOUSE_DRAGED:
+        case MOUSE_DRAGGED:
             startDrag();
             return true;
         case MOUSE_MOVED:

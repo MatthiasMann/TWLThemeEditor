@@ -33,6 +33,7 @@ import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Timer;
 import de.matthiasmann.twl.ToggleButton;
@@ -50,7 +51,6 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lwjgl.input.Keyboard;
 
 /**
  *
@@ -133,7 +133,7 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
 
         public void callback(int key) {
             addStateNameButton.setEnabled(stateNameField.getTextLength() > 0);
-            if(key == Keyboard.KEY_RETURN) {
+            if(key == Event.KEY_RETURN) {
                 addState();
             }
         }

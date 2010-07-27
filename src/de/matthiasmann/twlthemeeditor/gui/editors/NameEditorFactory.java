@@ -32,11 +32,11 @@ package de.matthiasmann.twlthemeeditor.gui.editors;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
-import org.lwjgl.input.Keyboard;
 
 /**
  *
@@ -67,7 +67,7 @@ public class NameEditorFactory implements PropertyEditorFactory<String, NameProp
         ef.setText(pa.getValue(""));
         ef.addCallback(new EditField.Callback() {
             public void callback(int key) {
-                if(key == Keyboard.KEY_RETURN) {
+                if(key == Event.KEY_RETURN) {
                     if(applyBtn.isEnabled()) {
                         applyCB.run();
                     }

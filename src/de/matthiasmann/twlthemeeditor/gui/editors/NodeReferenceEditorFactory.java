@@ -33,6 +33,7 @@ import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.ComboBox;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AutoCompletionDataSource;
@@ -51,7 +52,6 @@ import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import org.lwjgl.input.Keyboard;
 
 /**
  *
@@ -125,7 +125,7 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
             ef.setText((ref != null) ? ref.toString() : "none");
             ef.addCallback(new EditField.Callback() {
                 public void callback(int key) {
-                    if(key == Keyboard.KEY_RETURN) {
+                    if(key == Event.KEY_RETURN) {
                         if(applyBtn.isEnabled()) {
                             applyCB.run();
                         }

@@ -46,7 +46,6 @@ import java.net.URL;
 import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -344,7 +343,7 @@ public class PreviewWidget extends Widget {
             try {
                 switch (evt.getType()) {
                     case MOUSE_MOVED:
-                    case MOUSE_DRAGED:
+                    case MOUSE_DRAGGED:
                     case MOUSE_ENTERED:
                     case MOUSE_EXITED:
                         handled = true;
@@ -381,8 +380,8 @@ public class PreviewWidget extends Widget {
     }
 
     protected int translateKeyCode(int keyCode) {
-        if(keyCode == Keyboard.KEY_F6) {
-            return Keyboard.KEY_TAB;
+        if(keyCode == Event.KEY_F6) {
+            return Event.KEY_TAB;
         }
         return keyCode;
     }

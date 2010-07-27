@@ -34,6 +34,7 @@ import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.EditFieldAutoCompletionWindow;
+import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.FileSelector;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.ListBox;
@@ -50,7 +51,6 @@ import de.matthiasmann.twl.model.TreeTableNode;
 import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.prefs.Preferences;
-import org.lwjgl.input.Keyboard;
 
 /**
  *
@@ -287,11 +287,11 @@ public class NewProjectDialog extends DialogLayout {
     }
 
     void handleEditFieldKey(int key) {
-        if(key == Keyboard.KEY_ESCAPE) {
+        if(key == Event.KEY_ESCAPE) {
             canceled();
         } else {
             checkProjectSettings();
-            if(key == Keyboard.KEY_RETURN && btnOk.isEnabled()) {
+            if(key == Event.KEY_RETURN && btnOk.isEnabled()) {
                 acceptSelection();
             }
         }
