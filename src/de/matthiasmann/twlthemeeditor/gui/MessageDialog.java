@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.Button;
+import de.matthiasmann.twl.Clipboard;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
@@ -66,6 +67,7 @@ public class MessageDialog extends DialogLayout {
     private final MessageTextAreaModel textModel;
     private final Button btnDiscard;
     private final Button btnClose;
+    private final Button btnCopyToClipboard;
 
     private MessageLog.Entry[] entries;
 
@@ -93,6 +95,7 @@ public class MessageDialog extends DialogLayout {
 
         btnDiscard = new Button("Discard message");
         btnClose = new Button("Close");
+        btnCopyToClipboard = new Button("Copy to clipboard");
 
         btnDiscard.addCallback(new Runnable() {
             public void run() {
@@ -104,16 +107,21 @@ public class MessageDialog extends DialogLayout {
                 updateText();
             }
         });
+        btnCopyToClipboard.addCallback(new Runnable() {
+            public void run() {
+                copyToClipboard();
+            }
+        });
 
         DecoratedTextRenderer.install(table);
         table.setSelectionManager(new TableRowSelectionManager(selectionModel));
 
         setHorizontalGroup(createParallelGroup()
                 .addWidget(splitPane)
-                .addGroup(createSequentialGroup().addGap().addWidgets(btnDiscard, btnClose)));
+                .addGroup(createSequentialGroup().addWidget(btnCopyToClipboard).addGap().addWidgets(btnDiscard, btnClose)));
         setVerticalGroup(createSequentialGroup()
                 .addWidget(splitPane)
-                .addGroup(createParallelGroup().addWidgets(btnDiscard, btnClose)));
+                .addGroup(createParallelGroup().addWidgets(btnCopyToClipboard, btnDiscard, btnClose)));
 
         updateText();
         setSelected(selectedEntry);
@@ -128,9 +136,11 @@ public class MessageDialog extends DialogLayout {
         if(entry != null) {
             textModel.set(entry.getDetailText(), entry.getDetailException());
             btnDiscard.setEnabled(true);
+            btnCopyToClipboard.setEnabled(true);
         } else {
             textModel.clear();
             btnDiscard.setEnabled(false);
+            btnCopyToClipboard.setEnabled(false);
         }
     }
 
@@ -144,6 +154,30 @@ public class MessageDialog extends DialogLayout {
             }
             tableModel.updateTable();
             setSelected(null);
+        }
+    }
+
+    void copyToClipboard() {
+        Entry entry = getSelectedEntry();
+        if(entry != null) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            pw.print("Time: ");
+            pw.println(TIME_FORMAT.format(entry.getTime()));
+            pw.print("Category: ");
+            pw.println(entry.getCategory());
+            pw.print("Title: ");
+            pw.println(entry.getMessage());
+            if(entry.getDetailText() != null) {
+                pw.println();
+                pw.println(entry.getDetailText());
+            }
+            if(entry.getDetailException() != null) {
+                pw.println();
+                entry.getDetailException().printStackTrace(pw);
+            }
+            pw.flush();
+            Clipboard.setClipboard(sw.toString());
         }
     }
 
