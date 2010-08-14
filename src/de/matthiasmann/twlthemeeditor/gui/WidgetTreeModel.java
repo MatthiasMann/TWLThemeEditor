@@ -60,8 +60,10 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
     public void createTreeFromWidget(Context ctx, Widget w) {
         this.ctx = ctx;
         removeAllChildren();
-        rootNode = createNode(this, w);
-        insertChild(rootNode, 0);
+        if(w != null) {
+            rootNode = createNode(this, w);
+            insertChild(rootNode, 0);
+        }
     }
 
     public Widget getWidget(TreeTableNode node) {
