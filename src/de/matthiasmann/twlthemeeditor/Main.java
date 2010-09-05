@@ -190,8 +190,9 @@ public class Main extends Frame {
         // calling glGetError() will cause high CPU usage - so disable it for now
         //GL11.glGetError();          // this call will burn the time between vsyncs
         Display.processMessages();  // process new native messages since Display.update();
-        Mouse.poll();               // now update Mouse events
-        Keyboard.poll();            // and Keyboard too
+        // *.poll() is called already by processMessages() above
+        //Mouse.poll();               // now update Mouse events
+        //Keyboard.poll();            // and Keyboard too
     }
 
     @SuppressWarnings("CallToThreadDumpStack")
