@@ -48,8 +48,6 @@ import java.io.StringWriter;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.Sys;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
@@ -169,8 +167,9 @@ public class Main extends Frame {
                 }
                 
                 gui.update();
-                Display.update(false);
-                reduceInputLag();
+                //Display.update(false);
+                //reduceInputLag();
+                Display.update();
             }
 
             gui.destroy();
