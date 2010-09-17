@@ -128,6 +128,8 @@ public class EffectPropertyPanel extends DialogLayout {
                         value = Integer.valueOf(str);
                     } else if(Float.class == type) {
                         value = Float.valueOf(str);
+                    } else if(type.isEnum()) {
+                        value = Enum.valueOf((Class<Enum>)type,str);
                     } else {
                         throw new UnsupportedOperationException("Not implemented: " + type);
                     }
