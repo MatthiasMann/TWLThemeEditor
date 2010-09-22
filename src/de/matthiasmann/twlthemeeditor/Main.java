@@ -30,6 +30,8 @@
 package de.matthiasmann.twlthemeeditor;
 
 import de.matthiasmann.twl.GUI;
+import de.matthiasmann.twl.input.Input;
+import de.matthiasmann.twl.input.lwjgl.LWJGLInput;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
@@ -48,6 +50,8 @@ import java.io.StringWriter;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.Sys;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
@@ -114,7 +118,6 @@ public class Main extends Frame {
 
     public void run() {
         try {
-            final int platform = LWJGLUtil.getPlatform();
             boolean usesSWGL = false;
 
             Display.setParent(canvas);
@@ -135,9 +138,41 @@ public class Main extends Frame {
             }
             Display.setVSyncEnabled(true);
 
+            Input input;
+            if(LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_LINUX) {
+                // don't call Display.isActive() on linux - it returns bogus values with LWJGL 2.5
+                input = new Input() {
+                    public boolean pollInput(GUI gui) {
+                        if(Keyboard.isCreated()) {
+                            while(Keyboard.next()) {
+                                gui.handleKey(
+                                        Keyboard.getEventKey(),
+                                        Keyboard.getEventCharacter(),
+                                        Keyboard.getEventKeyState());
+                            }
+                        }
+                        if(Mouse.isCreated()) {
+                            while(Mouse.next()) {
+                                gui.handleMouse(
+                                        Mouse.getEventX(), gui.getHeight() - Mouse.getEventY() - 1,
+                                        Mouse.getEventButton(), Mouse.getEventButtonState());
+
+                                int wheelDelta = Mouse.getEventDWheel();
+                                if(wheelDelta != 0) {
+                                    gui.handleMouseWheel(wheelDelta / 120);
+                                }
+                            }
+                        }
+                        return true;
+                    }
+                };
+            } else {
+                input = new LWJGLInput();
+            }
+            
             LWJGLRenderer renderer = new LWJGLRenderer();
             MainUI root = new MainUI();
-            GUI gui = new GUI(root, renderer);
+            GUI gui = new GUI(root, renderer, input);
 
             root.setFocusKeyEnabled(true);
 
@@ -162,11 +197,6 @@ public class Main extends Frame {
                 
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
-                if(platform != LWJGLUtil.PLATFORM_LINUX && !Display.isActive()) {
-                    gui.clearKeyboardState();
-                    gui.clearMouseState();
-                }
-                
                 gui.update();
                 Display.update(false);
                 reduceInputLag();
