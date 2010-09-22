@@ -114,8 +114,9 @@ public class Main extends Frame {
 
     public void run() {
         try {
+            final int platform = LWJGLUtil.getPlatform();
             boolean usesSWGL = false;
-            
+
             Display.setParent(canvas);
             try {
                 Display.create();
@@ -152,7 +153,6 @@ public class Main extends Frame {
                 root.openMessagesDialog();
             }
 
-            int inactiveCount = 0;
             while(!Display.isCloseRequested() && !closeRequested && !root.isCloseRequested()) {
                 if(canvasSizeChanged) {
                     canvasSizeChanged = false;
@@ -162,15 +162,9 @@ public class Main extends Frame {
                 
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
-                if(!Display.isActive()) {
-                    if(inactiveCount < 3) {
-                        inactiveCount++;
-                    } else {
-                        gui.clearKeyboardState();
-                        gui.clearMouseState();
-                    }
-                } else {
-                    inactiveCount = 0;
+                if(platform != LWJGLUtil.PLATFORM_LINUX && !Display.isActive()) {
+                    gui.clearKeyboardState();
+                    gui.clearMouseState();
                 }
                 
                 gui.update();
