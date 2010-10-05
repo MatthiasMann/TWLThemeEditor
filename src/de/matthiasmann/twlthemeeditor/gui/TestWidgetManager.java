@@ -161,7 +161,7 @@ public class TestWidgetManager {
     }
 
     public void updateMenu(Menu menu) {
-        addMenu(menu, "built-in widgets", builtinWidgets);
+        addMenu(menu, "Built-in widgets", builtinWidgets);
         for(Map.Entry<ArrayList<String>, ArrayList<TestWidgetFactory>> entry : userWidgets.entrySet()) {
             String name = entry.getKey().get(0);
             if(!name.endsWith("/")) {

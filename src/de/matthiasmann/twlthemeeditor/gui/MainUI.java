@@ -95,12 +95,12 @@ public final class MainUI extends DialogLayout {
         this.statusBar = new StatusBar(messageLog);
 
         Menu menuFile = new Menu("File");
-        menuFile.add("New project", new Runnable() {
+        menuFile.add("New project...", new Runnable() {
             public void run() {
                 newProject();
             }
         });
-        menuFile.add("Open project", new Runnable() {
+        menuFile.add("Open project...", new Runnable() {
             public void run() {
                 openProject();
             }
@@ -135,13 +135,13 @@ public final class MainUI extends DialogLayout {
         mainMenu.add(menuSettings);
 
         Menu menuTools = new Menu("Tools");
-        menuTools.add("Create font", new Runnable() {
+        menuTools.add("Create font...", new Runnable() {
             public void run() {
                 FontGenDialog fgd = new FontGenDialog(MainUI.this);
                 fgd.openPopup();
             }
         });
-        menuTools.add("Convert image", new Runnable() {
+        menuTools.add("Convert image...", new Runnable() {
             public void run() {
                 ConvertImageDialog cid = new ConvertImageDialog(MainUI.this);
                 cid.openPopup();

@@ -524,14 +524,14 @@ public final class EditorArea extends Widget {
     }
 
     void updateRecentClasspathsMenu() {
-        MenuAction maLoadClasspath = new MenuAction("Load classpath", new Runnable() {
+        MenuAction maLoadClasspath = new MenuAction("Load classpath...", new Runnable() {
             public void run() {
                 loadClasspath();
             }
         });
         maLoadClasspath.setTooltipContent("Load Widgets from an existing classpath file");
 
-        MenuAction maCreateClasspath = new MenuAction("New classpath", new Runnable() {
+        MenuAction maCreateClasspath = new MenuAction("New classpath...", new Runnable() {
             public void run() {
                 createClasspath();
             }
