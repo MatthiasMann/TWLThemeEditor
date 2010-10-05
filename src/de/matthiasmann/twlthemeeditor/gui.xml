@@ -748,7 +748,7 @@
             <param name="namedGaps"><map>
                 <param name="buttonBarLeft"><gap/></param>
                 <param name="buttonBarSpacer"><gap>20</gap></param>
-                <param name="buttonBarRight"><gap>18</gap></param>
+                <param name="buttonBarRight"><gap>0</gap></param>
                 <param name="settings-info"><gap>20</gap></param>
             </map></param>
         </theme>
