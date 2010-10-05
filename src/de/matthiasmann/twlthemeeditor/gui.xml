@@ -232,7 +232,7 @@
             <param name="tooltip"><string>Search for nodes</string></param>
         </theme>
         <theme name="collapsiblepanel" ref="dialoglayout">
-            <param name="border"><border>5,0</border></param>
+            <param name="border"><border>0,2,0,5</border></param>
             <theme name="arrow" ref="-defaults">
                 <param name=""><image>collapsiblepanel.arrowH.*</image></param>
                 <param name="tooltip"><string>Toggle tree editing buttons</string></param>

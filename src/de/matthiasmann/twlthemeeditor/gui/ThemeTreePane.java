@@ -138,7 +138,7 @@ public class ThemeTreePane extends DialogLayout {
 
         setHorizontalGroup(createParallelGroup()
                 .addWidget(scrollPane)
-                .addGroup(createSequentialGroup(filterEditField, collapsibleButtons)));
+                .addGroup(createSequentialGroup().addGap(DEFAULT_GAP).addWidget(filterEditField).addWidget(collapsibleButtons)));
         setVerticalGroup(createSequentialGroup()
                 .addWidget(scrollPane)
                 .addGroup(createParallelGroup(filterEditField, collapsibleButtons)));
