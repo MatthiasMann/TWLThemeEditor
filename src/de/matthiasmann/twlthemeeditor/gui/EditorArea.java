@@ -556,7 +556,7 @@ public final class EditorArea extends Widget {
     }
 
     void updateTestWidgetMenu() {
-        MenuAction maRecreateTestWidgets = new MenuAction("Recreate Widgets", new Runnable() {
+        MenuAction maRecreateTestWidgets = new MenuAction("Recreate widgets", new Runnable() {
             public void run() {
                 recreateTestWidgets();
             }

@@ -64,14 +64,14 @@ public class StatusBar extends DialogLayout {
             }
         });
 
-        btnDiscard = new Button("discard");
+        btnDiscard = new Button("Discard");
         btnDiscard.addCallback(new Runnable() {
             public void run() {
                 discardMessage();
             }
         });
 
-        btnDetails = new Button("details");
+        btnDetails = new Button("Details");
         btnDetails.addCallback(new Runnable() {
             public void run() {
                 openDetailsDialog();
