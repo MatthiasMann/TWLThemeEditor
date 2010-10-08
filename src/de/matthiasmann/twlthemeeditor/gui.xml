@@ -313,6 +313,9 @@
         <theme name="opNewNodeFontDef" ref="popupMenuButton">
             <param name="text"><string>Create a new "fontDef" node</string></param>
         </theme>
+        <theme name="opNewNodeInclude" ref="popupMenuButton">
+            <param name="text"><string>Create a new "include" node</string></param>
+        </theme>
         <theme name="opNewNodeCursor" ref="popupMenuButton">
             <param name="text"><string>Create a new "cursor" node</string></param>
         </theme>
@@ -395,6 +398,14 @@
         <theme name="content" merge="true">
             <theme name="title" merge="true">
                 <param name="text"><string>Specify the parameters for the new &lt;fontDef&gt; node</string></param>
+            </theme>
+        </theme>
+    </theme>
+
+    <theme name="parameterDlg-opNewNodeInclude" ref="-parameterDlg">
+        <theme name="content" merge="true">
+            <theme name="title" merge="true">
+                <param name="text"><string>Specify the parameters for the new &lt;include&gt; node</string></param>
             </theme>
         </theme>
     </theme>

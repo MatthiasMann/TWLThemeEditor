@@ -36,6 +36,7 @@ import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.XMLWriter;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewFontDef;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewImages;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewInclude;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.gui.MessageLog;
 import java.io.IOException;
@@ -69,6 +70,7 @@ public class ThemeFile implements VirtualFile {
     private boolean modified;
     private boolean elementsUpgraded;
 
+    @SuppressWarnings("LeakingThisInConstructor")
     public ThemeFile(MessageLog messageLog, TestEnv env, URL url, Runnable xmlChangedCB) throws IOException {
         this.messageLog = messageLog;
         this.env = env;
@@ -188,6 +190,7 @@ public class ThemeFile implements VirtualFile {
         addCreateThemeOperation(operations, node, document.getRootElement());
         operations.add(new CreateNewImages(node, document.getRootElement()));
         operations.add(new CreateNewFontDef(node, document.getRootElement()));
+        operations.add(new CreateNewInclude(node, document.getRootElement()));
     }
 
     static void addCreateThemeOperation(List<ThemeTreeOperation> operations, ThemeTreeNode node, Element parent) {
