@@ -218,7 +218,7 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
                 } else if(prevChar != '.') {
                     throw new IllegalArgumentException("wildcard must follow a '.'");
                 }
-            } else if(!Character.isJavaIdentifierPart(ch)) {
+            } else if(!Character.isJavaIdentifierPart(ch) && ch != '-') {
                 throw new IllegalArgumentException("reference contains invalid character: " + ch);
             }
             prevChar = ch;
