@@ -55,17 +55,20 @@ public class CloneNodeOperation extends ElementOperation {
             Content content = parent.getContent(i);
             Content clone = (Content)content.clone();
             if(clone instanceof Element) {
-                cloneElement = (Element)clone;
-                String name = cloneElement.getAttributeValue("name");
-                if(name != null) {
-                    cloneElement.setAttribute("name", name+System.nanoTime());
-                }
+                adjustClonedElement((Element)clone);
             }
             parent.addContent(elementPos+1, clone);
         }
 
         updateParent();
         return CreateChildOperation.findChildInParent(getNodeParent(), cloneElement);
+    }
+
+    protected void adjustClonedElement(Element clonedElement) {
+        String name = clonedElement.getAttributeValue("name");
+        if(name != null) {
+            clonedElement.setAttribute("name", name + System.nanoTime());
+        }
     }
 
 }

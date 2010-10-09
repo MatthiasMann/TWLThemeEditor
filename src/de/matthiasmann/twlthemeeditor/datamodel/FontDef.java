@@ -36,6 +36,7 @@ import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
@@ -57,6 +58,7 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
     protected final ArrayList<VirtualFile> virtualFontFiles;
     protected final NameProperty nameProperty;
     protected final Property<String> fileNameProperty;
+    protected final BooleanProperty defaultProperty;
 
     public FontDef(ThemeFile themeFile, TreeTableNode parent, Element element) throws IOException {
         super(themeFile, parent, element);
@@ -82,7 +84,10 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
             }
         });
         addProperty(fileNameProperty);
-        
+
+        defaultProperty = new BooleanProperty(new AttributeProperty(element, "default", "Default font", true), false);
+
+        addProperty(defaultProperty);
         addProperty(new ColorProperty(new AttributeProperty(element, "color", "Font color", true)));
         addProperty(new IntegerProperty(new AttributeProperty(element, "offsetX", "Offset X", true), -100, 100));
         addProperty(new IntegerProperty(new AttributeProperty(element, "offsetY", "Offset Y", true), -100, 100));
@@ -92,7 +97,11 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
 
     @Override
     public String getName() {
-        return nameProperty.getPropertyValue();
+        if(defaultProperty.getValue()) {
+            return nameProperty.getPropertyValue() + " *";
+        } else {
+            return nameProperty.getPropertyValue();
+        }
     }
 
     public Kind getKind() {
@@ -123,7 +132,13 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
     @Override
     public List<ThemeTreeOperation> getOperations() {
         List<ThemeTreeOperation> operations = super.getOperations();
-        operations.add(new CloneNodeOperation(element, this));
+        operations.add(new CloneNodeOperation(element, this) {
+            @Override
+            protected void adjustClonedElement(Element clonedElement) {
+                super.adjustClonedElement(clonedElement);
+                clonedElement.removeAttribute("default");
+            }
+        });
         operations.add(new CreateNewSimple(this, element, "fontParam", "if", "hover"));
         return operations;
     }
