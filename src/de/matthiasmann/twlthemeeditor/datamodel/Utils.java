@@ -63,7 +63,7 @@ public final class Utils {
                 end = value.length();
             }
             String part = value.substring(pos, end);
-            result[i] = Integer.parseInt(part);
+            result[i] = Integer.parseInt(part.trim());
             pos = end+1;
         }
         return result;

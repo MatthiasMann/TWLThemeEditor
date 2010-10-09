@@ -53,7 +53,7 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border, Border
         return new BorderEditor(pa);
     }
 
-    static class BorderEditor extends DialogLayout implements Runnable, EditField.Callback {
+    static final class BorderEditor extends DialogLayout implements Runnable, EditField.Callback {
         private final PropertyAccessor<Border, BorderProperty> pa;
         private final SimpleBooleanModel useFormular;
         private final SimpleIntegerModel modelTop;
@@ -67,6 +67,7 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border, Border
 
         private static final int MAX_BORDER_SIZE = 1000;
 
+        @SuppressWarnings("LeakingThisInConstructor")
         public BorderEditor(PropertyAccessor<Border, BorderProperty> pa) {
             this.pa = pa;
 
@@ -150,10 +151,12 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border, Border
                     border = new BorderFormular(formular);
                     try {
                         Border values = Utils.parseBorder(formular);
-                        modelTop.setValue(values.getBorderTop());
-                        modelLeft.setValue(values.getBorderLeft());
-                        modelBottom.setValue(values.getBorderBottom());
-                        modelRight.setValue(values.getBorderRight());
+                        if(values != null) {
+                            modelTop.setValue(values.getBorderTop());
+                            modelLeft.setValue(values.getBorderLeft());
+                            modelBottom.setValue(values.getBorderBottom());
+                            modelRight.setValue(values.getBorderRight());
+                        }
                     } catch (NumberFormatException ex) {
                     }
                 } else {
@@ -166,8 +169,9 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border, Border
                     if(efFormular != null) {
                         try {
                             // if the current formular is a parseable border then update it
-                            Utils.parseBorder(efFormular.getText());
-                            efFormular.setText(Utils.toString(border, false));
+                            if(Utils.parseBorder(efFormular.getText()) != null) {
+                                efFormular.setText(Utils.toString(border, false));
+                            }
                         } catch (NumberFormatException ex) {
                         }
                     }
