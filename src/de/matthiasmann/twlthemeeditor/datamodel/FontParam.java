@@ -56,7 +56,7 @@ public class FontParam extends ThemeTreeNode implements HasProperties {
                 new AttributeProperty(element, "unless", "unless", true),
                 "Condition");
         addProperty(conditionProperty);
-        
+
         addProperty(new ColorProperty(new AttributeProperty(element, "color", "Font color", true)));
         addProperty(new IntegerProperty(new AttributeProperty(element, "offsetX", "Offset X", true), -100, 100));
         addProperty(new IntegerProperty(new AttributeProperty(element, "offsetY", "Offset Y", true), -100, 100));
@@ -65,7 +65,7 @@ public class FontParam extends ThemeTreeNode implements HasProperties {
     @Override
     public String getName() {
         Condition condition = conditionProperty.getPropertyValue();
-        return condition.getType() + " " + condition.getCondition();
+        return condition.getType().name() + "(" + condition.getCondition() + ")";
     }
 
     public Kind getKind() {
