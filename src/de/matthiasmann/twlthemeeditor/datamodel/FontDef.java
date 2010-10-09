@@ -38,6 +38,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
+import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -83,6 +84,8 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
         addProperty(fileNameProperty);
         
         addProperty(new ColorProperty(new AttributeProperty(element, "color", "Font color", true)));
+        addProperty(new IntegerProperty(new AttributeProperty(element, "offsetX", "Offset X", true), -100, 100));
+        addProperty(new IntegerProperty(new AttributeProperty(element, "offsetY", "Offset Y", true), -100, 100));
 
         registerFontFiles();
     }
@@ -125,7 +128,7 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
         return operations;
     }
 
-    protected void registerFontFiles() throws IOException {
+    private void registerFontFiles() throws IOException {
         TestEnv env = getThemeFile().getEnv();
         env.unregisterFiles(virtualFontFiles);
         virtualFontFiles.clear();

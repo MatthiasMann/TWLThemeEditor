@@ -35,6 +35,7 @@ import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
+import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import java.io.IOException;
 import java.util.List;
 import org.jdom.Element;
@@ -57,6 +58,8 @@ public class FontParam extends ThemeTreeNode implements HasProperties {
         addProperty(conditionProperty);
         
         addProperty(new ColorProperty(new AttributeProperty(element, "color", "Font color", true)));
+        addProperty(new IntegerProperty(new AttributeProperty(element, "offsetX", "Offset X", true), -100, 100));
+        addProperty(new IntegerProperty(new AttributeProperty(element, "offsetY", "Offset Y", true), -100, 100));
     }
 
     @Override
