@@ -187,6 +187,36 @@ public class WidgetPropertyEditor extends ScrollPane {
             Widget parent = widget.getParent();
             return new Dimension(parent.getInnerWidth(), parent.getInnerHeight());
         }
+
+        @Override
+        public AbstractAction[] getActions() {
+            if(widget.getParent() instanceof TestWidgetContainer) {
+                return new AbstractAction[] {
+                    new AbstractAction("Adjust size", "Calls the adjustSize() method") {
+                        public void run() {
+                            try {
+                                widget.adjustSize();
+                            } catch(Throwable ex) {
+                                Logger.getLogger(WidgetPropertyEditor.class.getName()).log(Level.SEVERE, "adjusting widget size", ex);
+                            }
+                        }
+                    },
+                    new AbstractAction("Full size") {
+                        public void run() {
+                            try {
+                                Widget parent = widget.getParent();
+                                widget.setPosition(0, 0);
+                                widget.setSize(parent.getInnerWidth(), parent.getInnerHeight());
+                            } catch(Throwable ex) {
+                                Logger.getLogger(WidgetPropertyEditor.class.getName()).log(Level.SEVERE, "changing widget size", ex);
+                            }
+                        }
+                    }
+                };
+            } else {
+                return super.getActions();
+            }
+        }
     }
 
 }

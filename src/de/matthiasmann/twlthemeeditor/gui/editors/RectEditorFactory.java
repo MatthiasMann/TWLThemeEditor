@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.gui.editors;
 
+import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ToggleButton;
@@ -87,8 +88,31 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect, RectProper
                 toggleWholeArea = null;
             }
 
-            setHorizontalGroup(horz.addWidgets(adjusterX, adjusterY, adjusterW, adjusterH));
-            setVerticalGroup(vert.addWidgetsWithGap("adjuster", adjusterX, adjusterY, adjusterW, adjusterH));
+            horz.addWidgets(adjusterX, adjusterY, adjusterW, adjusterH);
+            vert.addWidgetsWithGap("adjuster", adjusterX, adjusterY, adjusterW, adjusterH);
+            
+            RectProperty.AbstractAction[] actions = pa.getProperty().getActions();
+            if(actions.length > 0) {
+                Group hActions = createSequentialGroup();
+                Group vActions = createParallelGroup();
+
+                for(RectProperty.AbstractAction action : actions) {
+                    Button btn = new Button(action.getName());
+                    btn.setTheme("actionButton");
+                    btn.setTooltipContent(action.getTooltip());
+                    btn.addCallback(action);
+                    hActions.addWidget(btn);
+                    vActions.addWidget(btn);
+                }
+
+                hActions.addGap();
+
+                horz.addGroup(hActions);
+                vert.addGroup(vActions);
+            }
+
+            setHorizontalGroup(horz);
+            setVerticalGroup(vert);
         }
     }
 }

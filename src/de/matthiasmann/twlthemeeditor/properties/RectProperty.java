@@ -150,6 +150,10 @@ public abstract class RectProperty implements Property<Rect> {
         return wholeArea;
     }
 
+    public AbstractAction[] getActions() {
+        return NO_ACTIONS;
+    }
+
     public IntegerModel getXProperty() {
         return baseX;
     }
@@ -252,6 +256,31 @@ public abstract class RectProperty implements Property<Rect> {
                         "Can't parse value of propterty '" + getName() + "': " + baseValue, ex);
                 return 0;
             }
+        }
+    }
+
+    protected static final AbstractAction[] NO_ACTIONS = new AbstractAction[0];
+    
+    public abstract class AbstractAction implements Runnable {
+        private final String name;
+        private final String tooltip;
+
+        public AbstractAction(String name) {
+            this.name = name;
+            this.tooltip = null;
+        }
+
+        public AbstractAction(String name, String tooltip) {
+            this.name = name;
+            this.tooltip = tooltip;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getTooltip() {
+            return tooltip;
         }
     }
 }

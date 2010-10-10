@@ -441,7 +441,9 @@
             <theme name="" ref="*"/>
             <theme name="btnWholeArea" ref="checkbox">
                 <param name="text"><string>Whole area</string></param>
-                <param name="tooltip"><string>Use whole image area</string></param></theme>
+                <param name="tooltip"><string>Use whole image area</string></param>
+            </theme>
+            <theme name="actionButton" ref="button"/>
         </theme>
 
         <theme name="weightseditor" ref="dialoglayout">
