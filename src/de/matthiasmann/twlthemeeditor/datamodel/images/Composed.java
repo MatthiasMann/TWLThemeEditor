@@ -31,6 +31,8 @@ package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Images;
+import de.matthiasmann.twlthemeeditor.datamodel.NameGenerator;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import java.io.IOException;
 import org.jdom.Element;
 
@@ -38,7 +40,7 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Composed extends WithSubImages {
+public class Composed extends WithSubImages implements NameGenerator {
 
     public Composed(Images textures, TreeTableNode parent, Element element) throws IOException {
         super(textures, parent, element);
@@ -48,4 +50,17 @@ public class Composed extends WithSubImages {
     protected int getRequiredChildren() {
         return Math.max(1, getNumChildren());
     }
+
+    public String generateName(ThemeTreeNode node) {
+        int idx = getChildIndex(node);
+        StringBuilder sb = new StringBuilder();
+        sb.append('#').append(idx + 1);
+        if(idx == 0) {
+            sb.append(" (bottom)");
+        } else if(idx == getNumChildren()-1) {
+            sb.append(" (top)");
+        }
+        return sb.toString();
+    }
+
 }
