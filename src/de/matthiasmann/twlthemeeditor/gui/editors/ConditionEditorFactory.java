@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.gui.editors;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.HasCallback;
@@ -87,6 +88,7 @@ public class ConditionEditorFactory implements PropertyEditorFactory<Condition, 
         final EditField ef;
         Condition.Type conditionType;
 
+        @SuppressWarnings("LeakingThisInConstructor")
         protected ConditionModifier(Context ctx, PropertyAccessor<Condition, ConditionProperty> pa) {
             this.pa = pa;
 
@@ -102,7 +104,7 @@ public class ConditionEditorFactory implements PropertyEditorFactory<Condition, 
             setEnable();
         }
 
-        void setCondition() {
+        boolean setCondition() {
             doCallback();
             setEnable();
             
@@ -113,12 +115,13 @@ public class ConditionEditorFactory implements PropertyEditorFactory<Condition, 
                     StateExpression.parse(condition, false);
                 } catch (ParseException ex) {
                     ef.setErrorMessage(ex.getMessage());
-                    return;
+                    return false;
                 }
             }
 
             ef.setErrorMessage(null);
             pa.setValue(new Condition(conditionType, condition));
+            return true;
         }
 
         private void setEnable() {
@@ -126,12 +129,15 @@ public class ConditionEditorFactory implements PropertyEditorFactory<Condition, 
         }
 
         public void callback(int key) {
-            setCondition();
+            if(setCondition() && key == Event.KEY_RETURN) {
+                ef.getAutoCompletionWindow().closeInfo();
+            }
         }
 
         class TypeBooleanModel extends SimpleBooleanModel implements Runnable {
             private final Condition.Type type;
 
+            @SuppressWarnings("LeakingThisInConstructor")
             public TypeBooleanModel(Condition.Type type) {
                 this.type = type;
                 run();
