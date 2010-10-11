@@ -41,20 +41,20 @@ import de.matthiasmann.twl.Widget;
  */
 public class TestFormular extends DialogLayout {
 
-    private final EditField efName;
-    private final EditField efAddress;
-    private final EditField efZIP;
-    private final EditField efCity;
+    private final EditField nameField;
+    private final EditField addressField;
+    private final EditField zipField;
+    private final EditField cityField;
 
     public TestFormular() {
-        efName    = new EditField();
-        efAddress = new EditField();
-        efZIP     = new EditField();
-        efCity    = new EditField();
+        nameField    = new EditField();
+        addressField = new EditField();
+        zipField     = new EditField();
+        cityField    = new EditField();
 
         // put all widgets in an array for easier handling
         Widget[] widgets = new Widget[] {
-            efName, efAddress, efZIP, efCity
+            nameField, addressField, zipField, cityField
         };
 
         // text for the labels - has to be the same order as widgets above
