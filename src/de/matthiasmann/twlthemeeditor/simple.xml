@@ -513,4 +513,11 @@
         <theme name="" ref="*"/>
     </theme>
 
+
+    <theme name="testformular" ref="dialoglayout">
+        <param name="background"><image>panel.background</image></param>
+        <param name="border"><border>10</border></param>
+        <theme name="" ref="*"/>
+    </theme>
+
 </themes>
