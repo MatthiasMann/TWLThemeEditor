@@ -96,12 +96,21 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
     }
 
     @Override
-    public String getName() {
-        if(defaultProperty.getValue()) {
-            return nameProperty.getPropertyValue() + " *";
-        } else {
-            return nameProperty.getPropertyValue();
+    public String getDisplayName() {
+        String name = getName();
+        if(name != null) {
+            if(defaultProperty.getValue()) {
+                return name + " *";
+            } else {
+                return name;
+            }
         }
+        return super.getDisplayName();
+    }
+
+    @Override
+    public String getName() {
+        return nameProperty.getPropertyValue();
     }
 
     public Kind getKind() {
