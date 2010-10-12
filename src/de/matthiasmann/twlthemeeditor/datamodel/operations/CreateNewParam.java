@@ -32,6 +32,8 @@ package de.matthiasmann.twlthemeeditor.datamodel.operations;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
 import org.jdom.Element;
 
 /**
@@ -42,6 +44,18 @@ public class CreateNewParam extends CreateChildOperation {
 
     private final String tagName;
     private final String initialText;
+
+    private final static HashMap<String, String[]> NAME_LIST;
+
+    static {
+        NAME_LIST = new HashMap<String, String[]>();
+        NAME_LIST.put("image", new String[] { "background", "overlay" });
+        NAME_LIST.put("string", new String[] { "text", "tooltip" });
+        NAME_LIST.put("border", new String[] { "border" });
+        NAME_LIST.put("font", new String[] { "font" });
+        NAME_LIST.put("cursor", new String[] { "mouseCursor" });
+        NAME_LIST.put("int", new String[] { "maxWidth", "maxHeight", "minWidth", "minHeight" });
+    }
 
     public CreateNewParam(Element element, String tagName, ThemeTreeNode parent, String initialText) {
         super("opNewParam" + Utils.capitalize(tagName), parent, element);
@@ -54,7 +68,7 @@ public class CreateNewParam extends CreateChildOperation {
     @Override
     public ThemeTreeNode execute(Object[] parameter) throws IOException {
         Element e = new Element("param");
-        e.setAttribute("name", makeRandomName());
+        e.setAttribute("name", makeName());
         if("enum".equals(tagName)) {
             e.setAttribute("type", "");
         }
@@ -64,5 +78,35 @@ public class CreateNewParam extends CreateChildOperation {
         e.addContent(v);
 
         return addChild(e);
+    }
+
+    protected String makeName() {
+        String[] list = NAME_LIST.get(tagName);
+        if(list != null) {
+            HashSet<String> used = findUsedNames();
+            for(String name : list) {
+                if(!used.contains(name)) {
+                    return name;
+                }
+            }
+            for(int i=2 ; i<10 ; i++) {
+                String name = list[0] + i;
+                if(!used.contains(name)) {
+                    return name;
+                }
+            }
+        }
+        return makeRandomName();
+    }
+
+    protected HashSet<String> findUsedNames() {
+        HashSet<String> result = new HashSet<String>();
+        for(Object child : element.getChildren("param")) {
+            Element e = (Element)child;
+            if(e.getChild(tagName) != null) {
+                result.add(e.getAttributeValue("name"));
+            }
+        }
+        return result;
     }
 }
