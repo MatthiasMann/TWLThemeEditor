@@ -45,6 +45,7 @@ import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestComboBox;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestFormular;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestFrameWithWidgets;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestLabel;
+import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestListBox;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollPane;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollbar;
 import java.io.File;
@@ -93,6 +94,7 @@ public class TestWidgetManager {
         builtinWidgets.add(new TestWidgetFactory(EditField.class, "EditField"));
         builtinWidgets.add(new TestWidgetFactory(TestScrollbar.class, "HScrollbar", Scrollbar.Orientation.HORIZONTAL));
         builtinWidgets.add(new TestWidgetFactory(TestScrollbar.class, "VScrollbar", Scrollbar.Orientation.VERTICAL));
+        builtinWidgets.add(new TestWidgetFactory(TestListBox.class, "ListBox"));
         builtinWidgets.add(new TestWidgetFactory(TestComboBox.class, "ComboBox"));
         builtinWidgets.add(new TestWidgetFactory(PreviewWidgets.class, "Widgets"));
         builtinWidgets.add(new TestWidgetFactory(TestFormular.class, "Example formular"));
