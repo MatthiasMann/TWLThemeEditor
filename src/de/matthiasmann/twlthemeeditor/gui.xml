@@ -278,46 +278,46 @@
         <param name="border"><border>5</border></param>
 
         <theme name="opNewNodeArea" ref="popupMenuButton">
-            <param name="text"><string>Create a new "area" node</string></param>
+            <param name="text"><string>Create a new &lt;area&gt; node</string></param>
         </theme>
         <theme name="opNewNodeAlias" ref="popupMenuButton">
-            <param name="text"><string>Create a new "alias" node</string></param>
+            <param name="text"><string>Create a new &lt;alias&gt; node</string></param>
         </theme>
         <theme name="opNewNodeGrid" ref="popupMenuButton">
-            <param name="text"><string>Create a new "grid" node</string></param>
+            <param name="text"><string>Create a new &lt;grid&gt; node</string></param>
         </theme>
         <theme name="opNewNodeSelect" ref="popupMenuButton">
-            <param name="text"><string>Create a new "select" node</string></param>
+            <param name="text"><string>Create a new &lt;select&gt; node</string></param>
         </theme>
         <theme name="opNewNodeComposed" ref="popupMenuButton">
-            <param name="text"><string>Create a new "composed" node</string></param>
+            <param name="text"><string>Create a new &lt;composed&gt; node</string></param>
         </theme>
         <theme name="opNewNodeAnimation" ref="popupMenuButton">
-            <param name="text"><string>Create a new "animation" node</string></param>
+            <param name="text"><string>Create a new &lt;animation&gt; node</string></param>
         </theme>
         <theme name="opNewNodeFrame" ref="popupMenuButton">
-            <param name="text"><string>Create a new animation frame node</string></param>
+            <param name="text"><string>Create a new animation &lt;frame&gt; node</string></param>
         </theme>
         <theme name="opNewNodeFrames" ref="popupMenuButton">
-            <param name="text"><string>Create a new animation frame sequence node</string></param>
+            <param name="text"><string>Create a new animation &lt;frames&gt; (frame sequence) node</string></param>
         </theme>
         <theme name="opNewNodeRepeat" ref="popupMenuButton">
-            <param name="text"><string>Create a new animation repeat node</string></param>
+            <param name="text"><string>Create a new animation &lt;repeat&gt; node</string></param>
         </theme>
         <theme name="opNewNodeTheme" ref="popupMenuButton">
-            <param name="text"><string>Create a new "theme" node</string></param>
+            <param name="text"><string>Create a new &lt;theme&gt; node</string></param>
         </theme>
         <theme name="opNewNodeImages" ref="popupMenuButton">
-            <param name="text"><string>Create a new "images" node</string></param>
+            <param name="text"><string>Create a new &lt;images&gt; node</string></param>
         </theme>
         <theme name="opNewNodeFontDef" ref="popupMenuButton">
-            <param name="text"><string>Create a new "fontDef" node</string></param>
+            <param name="text"><string>Create a new &lt;fontDef&gt; node</string></param>
         </theme>
         <theme name="opNewNodeInclude" ref="popupMenuButton">
-            <param name="text"><string>Create a new "include" node</string></param>
+            <param name="text"><string>Create a new &lt;include&gt; node</string></param>
         </theme>
         <theme name="opNewNodeCursor" ref="popupMenuButton">
-            <param name="text"><string>Create a new "cursor" node</string></param>
+            <param name="text"><string>Create a new &lt;cursor&gt; node</string></param>
         </theme>
         <theme name="opNewNodeFontParam" ref="popupMenuButton">
             <param name="text"><string>Create a new font parameter</string></param>
