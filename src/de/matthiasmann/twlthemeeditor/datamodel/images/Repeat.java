@@ -34,6 +34,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.DomWrapper;
 import de.matthiasmann.twlthemeeditor.datamodel.DomXPPParser;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Images;
+import de.matthiasmann.twlthemeeditor.datamodel.NameGenerator;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
@@ -48,7 +49,7 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Repeat extends WithSubImages {
+public class Repeat extends WithSubImages implements NameGenerator {
 
     Repeat(Images textures, TreeTableNode parent, Element element) throws IOException {
         super(textures, parent, element);
@@ -58,6 +59,11 @@ public class Repeat extends WithSubImages {
     @Override
     protected int getRequiredChildren() {
         return Math.max(1, getNumChildren());
+    }
+
+    public String generateName(ThemeTreeNode node) {
+        int idx = getChildIndex(node);
+        return "Frame " + (idx+1);
     }
 
     @Override
