@@ -360,34 +360,36 @@ public final class EditorArea extends Widget {
             } catch(MalformedURLException ignored) {
                 textureViewerPane.setUrl(null);
             }
-            if(obj instanceof HasProperties) {
-                Property<?>[] properties = ((HasProperties)obj).getProperties();
-                PropertyPanel propertyPanel = new PropertyPanel(ctx, properties);
-                propertiesScrollPane.setContent(propertyPanel);
-                for(Property<?> property : properties) {
-                    if(boundRectProperty == null && (property instanceof RectProperty)) {
-                        boundRectProperty = (RectProperty)property;
-                        boundRectProperty.addValueChangedCallback(boundPropertyCB);
+        }
+        
+        if(obj instanceof HasProperties) {
+            Property<?>[] properties = ((HasProperties)obj).getProperties();
+            PropertyPanel propertyPanel = new PropertyPanel(ctx, properties);
+            propertiesScrollPane.setContent(propertyPanel);
+            for(Property<?> property : properties) {
+                if(boundRectProperty == null && (property instanceof RectProperty)) {
+                    boundRectProperty = (RectProperty)property;
+                    boundRectProperty.addValueChangedCallback(boundPropertyCB);
+                }
+                if(boundColorProperty == null && (property instanceof ColorProperty)) {
+                    boundColorProperty = (ColorProperty)property;
+                    boundColorProperty.addValueChangedCallback(boundPropertyCB);
+                }
+                if(property instanceof SplitProperty) {
+                    if(boundSplitXProperty == null && property.getName().startsWith("Split X")) {
+                        boundSplitXProperty = (SplitProperty)property;
+                        boundSplitXProperty.addValueChangedCallback(boundPropertyCB);
                     }
-                    if(boundColorProperty == null && (property instanceof ColorProperty)) {
-                        boundColorProperty = (ColorProperty)property;
-                        boundColorProperty.addValueChangedCallback(boundPropertyCB);
-                    }
-                    if(property instanceof SplitProperty) {
-                        if(boundSplitXProperty == null && property.getName().startsWith("Split X")) {
-                            boundSplitXProperty = (SplitProperty)property;
-                            boundSplitXProperty.addValueChangedCallback(boundPropertyCB);
-                        }
-                        if(boundSplitYProperty == null && property.getName().startsWith("Split Y")) {
-                            boundSplitYProperty = (SplitProperty)property;
-                            boundSplitYProperty.addValueChangedCallback(boundPropertyCB);
-                        }
+                    if(boundSplitYProperty == null && property.getName().startsWith("Split Y")) {
+                        boundSplitYProperty = (SplitProperty)property;
+                        boundSplitYProperty.addValueChangedCallback(boundPropertyCB);
                     }
                 }
             }
         } else {
             propertiesScrollPane.setContent(null);
         }
+        
         updateTextureViewerPane();
         textureViewerPane.scrollToRect();
     }

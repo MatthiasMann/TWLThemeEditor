@@ -36,6 +36,8 @@ import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewArea;
+import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -47,9 +49,10 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Images extends ThemeTreeNode {
+public class Images extends ThemeTreeNode implements HasProperties {
 
     private Dimension textureDimensions;
+    private AttributeProperty commentProperty;
 
     protected VirtualFile textureVirtualFile;
     
@@ -78,6 +81,9 @@ public class Images extends ThemeTreeNode {
                 textureStream.close();
             }
         }
+
+        commentProperty = new AttributeProperty(element, "comment", "Comment", true);
+        addProperty(commentProperty);
     }
 
     public URL getTextureURL() throws MalformedURLException {
@@ -105,6 +111,27 @@ public class Images extends ThemeTreeNode {
     @Override
     public String getName() {
         return getFile();
+    }
+
+    @Override
+    public String getDisplayName() {
+        String comment = commentProperty.getPropertyValue();
+        String name = getName();
+
+        if(comment != null) {
+            comment = comment.trim();
+        }
+
+        if(comment != null && comment.length() > 0) {
+            if(name != null) {
+                return comment + " (" + name + ")";
+            }
+            return comment;
+        } else if(name != null) {
+            return name;
+        }
+        
+        return "<add comment>";
     }
 
     public Kind getKind() {

@@ -389,7 +389,8 @@
     <theme name="parameterDlg-opNewNodeImages" ref="-parameterDlg">
         <theme name="content" merge="true">
             <theme name="title" merge="true">
-                <param name="text"><string>Specify the parameters for the new &lt;images&gt; node</string></param>
+                <param name="text"><string>Specify the parameters for the new &lt;images&gt; node.
+Leave empty to create an &lt;images&gt; node without an image.</string></param>
             </theme>
         </theme>
     </theme>

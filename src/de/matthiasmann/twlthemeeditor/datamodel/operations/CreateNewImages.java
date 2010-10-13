@@ -56,13 +56,18 @@ public class CreateNewImages extends CreateChildOperation {
         if (parameter.length != 1) {
             throw new IllegalArgumentException("Wrong number of arguments");
         }
-        if (!(parameter[0] instanceof String)) {
-            throw new IllegalArgumentException("PNG file not specified");
-        }
-        String pngFile = (String) parameter[0];
 
         Element e = new Element("images");
-        e.setAttribute("file", pngFile);
+
+        if(parameter[0] != null) {
+            if (!(parameter[0] instanceof String)) {
+                throw new IllegalArgumentException("PNG file not specified");
+            }
+            String pngFile = (String) parameter[0];
+
+            e.setAttribute("file", pngFile);
+        }
+
         return addChild(e);
     }
     
