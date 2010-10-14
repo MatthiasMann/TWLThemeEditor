@@ -701,6 +701,7 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
             <param name="background"><image>mainmenu.background</image></param>
             <param name="border"><border>background.border</border></param>
             <theme name="submenu" ref="popupMenuButton"/>
+            <theme name="button" ref="popupMenuButton"/>
             <param name="namedGaps"><map>
                 <param name="menuitem"><gap>5</gap></param>
             </map></param>

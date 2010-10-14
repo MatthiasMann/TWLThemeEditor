@@ -258,7 +258,15 @@ public final class EditorArea extends Widget {
     }
 
     public void addMenus(Menu menu) {
+        MenuAction maRecreateTestWidgets = new MenuAction("Recreate widgets", new Runnable() {
+            public void run() {
+                recreateTestWidgets();
+            }
+        });
+        maRecreateTestWidgets.setTooltipContent("Clears widget cache and recreates current widget");
+
         menu.add(testWidgetMenu);
+        menu.add(maRecreateTestWidgets);
     }
 
     public void addSettingsMenuItems(Menu settingsMenu) {
@@ -558,17 +566,9 @@ public final class EditorArea extends Widget {
     }
 
     void updateTestWidgetMenu() {
-        MenuAction maRecreateTestWidgets = new MenuAction("Recreate widgets", new Runnable() {
-            public void run() {
-                recreateTestWidgets();
-            }
-        });
-        maRecreateTestWidgets.setTooltipContent("Clears widget cache and recreates current widget");
-
         testWidgetMenu.clear();
         testWidgetManager.updateMenu(testWidgetMenu);
         testWidgetMenu.addSpacer();
-        testWidgetMenu.add(maRecreateTestWidgets);
         testWidgetMenu.add(classpathsMenu);
     }
     
