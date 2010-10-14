@@ -89,9 +89,23 @@ public class PreviewDebugHook extends DebugHook {
     }
 
     @Override
-    public void missingParameter(ParameterMap map, String paramName, String parentDescription) {
+    public void missingParameter(ParameterMap map, String paramName, String parentDescription, Class<?> dataType) {
         if(applyThemeWidget != null) {
-            getEntryOrCreate(applyThemeWidget).warningMsg.add("Missing parameter: " + paramName + parentDescription);
+            StringBuilder sb = new StringBuilder("Missing ");
+            if(dataType != null) {
+                if(dataType == Integer.class) {
+                    sb.append("int");
+                } else if(dataType == Float.class) {
+                    sb.append("float");
+                } else if(dataType == Boolean.class) {
+                    sb.append("boolean");
+                } else if(dataType != null) {
+                    sb.append(dataType.getSimpleName());
+                }
+                sb.append(' ');
+            }
+            sb.append("parameter: ").append(paramName).append(parentDescription);
+            getEntryOrCreate(applyThemeWidget).warningMsg.add(sb.toString());
         }
     }
 
