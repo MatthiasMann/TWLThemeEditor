@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewWildcardTheme;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
@@ -56,49 +57,56 @@ public class Theme extends ThemeTreeNode implements HasProperties {
 
         final boolean isTopLevel = element.getParentElement().isRootElement();
 
-        this.nameProperty = new NameProperty(new AttributeProperty(element, "name"), getThemeTreeModel(), Kind.THEME, isTopLevel) {
-            @Override
-            public void validateName(String name) throws IllegalArgumentException {
-                if(name == null || name.length() == 0) {
-                    throw new IllegalArgumentException("empty name not allowed");
-                }
-                if(isTopLevel && getThemeTreeModel().findTopLevelNodes(Theme.class, name, Theme.this) != null) {
-                    throw new IllegalArgumentException("Name \"" + name + "\" already in use");
-                }
-            }
-        };
-        addProperty(nameProperty);
+        boolean isWildcard = !isTopLevel &&
+                "".equals(element.getAttributeValue("name")) &&
+                "*".equals(element.getAttributeValue("ref"));
 
-        if(isTopLevel) {
-            allowWildcardProperty = new BooleanProperty(
-                    new AttributeProperty(element, "allowWildcard", "Allow Wildcard", true), false);
-            addProperty(allowWildcardProperty);
-            mergeProperty = null;
+        if(isWildcard) {
+            this.nameProperty = null;
+            this.allowWildcardProperty = null;
+            this.mergeProperty = null;
+            this.refProperty = null;
         } else {
-            allowWildcardProperty = null;
-            mergeProperty = new BooleanProperty(
-                    new AttributeProperty(element, "merge", "Merge", true), false);
-            addProperty(mergeProperty);
-        }
+            this.nameProperty = new NameProperty(new AttributeProperty(element, "name"), getThemeTreeModel(), Kind.THEME, isTopLevel) {
+                @Override
+                public void validateName(String name) throws IllegalArgumentException {
+                    if(name == null || name.length() == 0) {
+                        throw new IllegalArgumentException("empty name not allowed");
+                    }
+                    if(isTopLevel && getThemeTreeModel().findTopLevelNodes(Theme.class, name, Theme.this) != null) {
+                        throw new IllegalArgumentException("Name \"" + name + "\" already in use");
+                    }
+                }
+            };
+            addProperty(nameProperty);
 
-        addProperty(refProperty = new NodeReferenceProperty(
-                new AttributeProperty(element, "ref", "Base theme reference", true),
-                this, Kind.THEME));
+            if(isTopLevel) {
+                allowWildcardProperty = new BooleanProperty(
+                        new AttributeProperty(element, "allowWildcard", "Allow Wildcard", true), false);
+                addProperty(allowWildcardProperty);
+                mergeProperty = null;
+            } else {
+                allowWildcardProperty = null;
+                mergeProperty = new BooleanProperty(
+                        new AttributeProperty(element, "merge", "Merge", true), false);
+                addProperty(mergeProperty);
+            }
+
+            addProperty(refProperty = new NodeReferenceProperty(
+                    new AttributeProperty(element, "ref", "Base theme reference", true),
+                    this, Kind.THEME));
+        }
     }
 
     public String getName() {
         if(nameProperty == null) {
-            return null;
-        }
-        String name = nameProperty.getPropertyValue();
-        if("".equals(name)) {
             return "WILDCARD";
         }
-        return name;
+        return nameProperty.getPropertyValue();
     }
 
     public boolean isWildcard() {
-        return (nameProperty != null) && nameProperty.getPropertyValue().isEmpty();
+        return (nameProperty == null);
     }
 
     public boolean isAllowWildcard() {
@@ -154,6 +162,7 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         List<ThemeTreeOperation> operations = super.getOperations();
         operations.add(new CloneNodeOperation(element, this));
         ThemeFile.addCreateThemeOperation(operations, this, element);
+        operations.add(new CreateNewWildcardTheme(this, element));
         Param.addCreateParam(operations, this, element);
         return operations;
     }

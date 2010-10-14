@@ -307,6 +307,10 @@
         <theme name="opNewNodeTheme" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;theme&gt; node</string></param>
         </theme>
+        <theme name="opNewNodeWildcardTheme" ref="popupMenuButton">
+            <param name="text"><string>Create a new child theme wildcard node</string></param>
+            <param name="tooltip"><string>A wildcard is a &lt;theme name="" ref="*"&gt; node and can reference all top level nodes which have allowWildcard enabled.</string></param>
+        </theme>
         <theme name="opNewNodeImages" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;images&gt; node</string></param>
         </theme>
