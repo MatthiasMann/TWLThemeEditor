@@ -47,6 +47,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.prefs.Preferences;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.Sys;
@@ -61,24 +62,61 @@ import org.lwjgl.opengl.GL11;
  */
 public class Main extends Frame {
 
+    private static final String KEY_MAINWINDOW_X = "mainwindow.x";
+    private static final String KEY_MAINWINDOW_Y = "mainwindow.y";
+    private static final String KEY_MAINWINDOW_WIDTH = "mainwindow.width";
+    private static final String KEY_MAINWINDOW_HEIGHT = "mainwindow.height";
+
     public static void main(String[] args) throws Exception {
         try {
             System.setProperty("org.lwjgl.input.Mouse.allowNegativeMouseCoords", "true");
         } catch (Throwable ignored) {
         }
 
-        Main main = new Main();
-        main.setSize(
-                Display.getDesktopDisplayMode().getWidth()*4/5,
-                Display.getDesktopDisplayMode().getHeight()*4/5);
-        main.setLocationRelativeTo(null);
+        final int desktopWidth = Display.getDesktopDisplayMode().getWidth();
+        final int desktopHeight = Display.getDesktopDisplayMode().getHeight();
+        final Preferences prefs = Preferences.userNodeForPackage(Main.class);
+
+        int width  = Math.max(400, Math.min(desktopWidth,  prefs.getInt(KEY_MAINWINDOW_WIDTH,  desktopWidth *4/5)));
+        int height = Math.max(300, Math.min(desktopHeight, prefs.getInt(KEY_MAINWINDOW_HEIGHT, desktopHeight*4/5)));
+
+        final Main main = new Main();
+        main.setSize(width, height);
+
+        String strX = prefs.get(KEY_MAINWINDOW_X, null);
+        String strY = prefs.get(KEY_MAINWINDOW_Y, null);
+        if(strX != null && strY != null) {
+            try {
+                int x = Math.max(0, Math.min(desktopWidth  - width,  Integer.parseInt(strX)));
+                int y = Math.max(0, Math.min(desktopHeight - height, Integer.parseInt(strY)));
+                main.setLocation(x, y);
+            } catch(Throwable ex) {
+                main.setLocationRelativeTo(null);
+            }
+        } else {
+            main.setLocationRelativeTo(null);
+        }
+
+        main.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                prefs.putInt(KEY_MAINWINDOW_WIDTH, main.getWidth());
+                prefs.putInt(KEY_MAINWINDOW_HEIGHT, main.getHeight());
+            }
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                prefs.putInt(KEY_MAINWINDOW_X, main.getX());
+                prefs.putInt(KEY_MAINWINDOW_Y, main.getY());
+            }
+        });
+
         main.setVisible(true);
         main.run();
         main.dispose();
         
         System.exit(0);
     }
-
+    
     final Canvas canvas;
     
     volatile boolean closeRequested;
