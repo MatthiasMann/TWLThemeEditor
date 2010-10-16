@@ -98,8 +98,10 @@
         <alias name="buttonBox.background" ref="-borderA" inset="0,-2,-2,-2"/>
 
         <select name="treetable.treebutton.background" inset="2,1,0,4">
-            <area unless="selected" xywh="0,41,9,9"/>
-            <area xywh="10,41,9,9"/>
+            <area xywh="114,33,9,9" if="selected + armed"/>
+            <area xywh="10,41,9,9" if="selected"/>
+            <area xywh="104,33,9,9" if="armed"/>
+            <area xywh="0,41,9,9"/>
         </select>
         <composed name="columnHeader.background" inset="-3,0">
             <alias ref="-borderB"/>
@@ -112,7 +114,10 @@
             </grid>
         </composed>
 
-        <alias name="table.row.background" ref="-gradC" if="rowSelected"/>
+        <select name="table.row.background">
+            <alias ref="-gradC" if="rowSelected"/>
+            <alias ref="white" tint="#CCC" if="rowHover"/>
+        </select>
         <alias name="table.row.overlay" ref="--selection" inset="1" if="keyboardFocus + !hasFocusedChild + leadRow"/>
 
         <alias name="propertysheet.sublist.background" ref="-borderB"/>
