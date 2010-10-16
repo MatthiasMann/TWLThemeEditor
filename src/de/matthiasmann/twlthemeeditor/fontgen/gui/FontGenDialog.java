@@ -193,11 +193,12 @@ public final class FontGenDialog {
             paddingAdjuster[i] = new ValueAdjusterInt(paddingModels[i]);
         }
 
-        paddingAdjuster[0].setDisplayPrefix("T: ");
-        paddingAdjuster[1].setDisplayPrefix("L: ");
-        paddingAdjuster[2].setDisplayPrefix("B: ");
-        paddingAdjuster[3].setDisplayPrefix("R: ");
-        paddingAdjuster[4].setDisplayPrefix("A: ");
+        final String[] paddingPrefix = { "T: ", "L: ", "B: ", "R: ", "A: " };
+        final String[] paddingTooltip = { "Top", "Left", "Bottom", "Right", "Advance" };
+        for(int i=0 ; i<paddingAdjuster.length ; i++) {
+            paddingAdjuster[i].setDisplayPrefix(paddingPrefix[i]);
+            paddingAdjuster[i].setTooltipContent(paddingTooltip[i]);
+        }
 
         effectsPanel.addControl("TTF Font", fontPathEF, selectFontBtn);
         effectsPanel.addControl("Texture size", textureSizeCB);
