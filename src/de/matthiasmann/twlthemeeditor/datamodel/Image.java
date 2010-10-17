@@ -91,11 +91,11 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         addProperty(new BooleanProperty(new AttributeProperty(element, "center", "Centered", true), false));
         addProperty(new BorderProperty(new AttributeProperty(element, "border", "Border", true), 0, false));
         addProperty(new BorderProperty(new AttributeProperty(element, "inset", "Inset", true), Short.MIN_VALUE, false));
+        addProperty(new ColorProperty(new AttributeProperty(element, "tint", "Tint color", true)));
         addProperty(new IntegerProperty(new AttributeProperty(element, "sizeOverwriteH", "Size overwrite horizontal", true), 0, Short.MAX_VALUE));
         addProperty(new IntegerProperty(new AttributeProperty(element, "sizeOverwriteV", "Size overwrite vertical", true), 0, Short.MAX_VALUE));
         addProperty(new BooleanProperty(new AttributeProperty(element, "repeatX", "Repeat horizontal", true), false));
         addProperty(new BooleanProperty(new AttributeProperty(element, "repeatY", "Repeat vertical", true), false));
-        addProperty(new ColorProperty(new AttributeProperty(element, "tint", "Tint color", true)));
     }
 
     public String getName() {

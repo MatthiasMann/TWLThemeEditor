@@ -813,6 +813,10 @@
         <fontParam if="comboboxKeyboardFocus" color="white"/>
     </fontDef>
 
+    <fontDef name="checkbox" filename="font.fnt" color="black">
+        <fontParam if="disabled" color="#444"/>
+    </fontDef>
+
     <inputMapDef name="-defaultInputMap">
         <action name="selectAll">ctrl A</action>
         <action name="selectAll">cmd A</action>
@@ -861,6 +865,14 @@
         <param name=""><image>togglebutton.*</image></param>
         <param name="border"><border>background.border</border></param>
         <param name="font"><font>button-font</font></param>
+    </theme>
+
+    <theme name="checkbox" ref="-defaults" allowWildcard="true">
+        <param name=""><image>checkbox.*</image></param>
+        <param name="minWidth"><int>13</int></param>
+        <param name="minHeight"><int>13</int></param>
+        <param name="border"><border>background.border</border></param>
+        <param name="font"><font>checkbox</font></param>
     </theme>
 
     <theme name="popupMenuButton" ref="button">

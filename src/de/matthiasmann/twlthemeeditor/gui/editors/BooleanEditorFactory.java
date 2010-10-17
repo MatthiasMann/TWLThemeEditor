@@ -37,6 +37,7 @@ import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.SpecialPropertyEditorFactory;
+import de.matthiasmann.twlthemeeditor.properties.HasTooltip;
 
 /**
  *
@@ -48,22 +49,25 @@ public class BooleanEditorFactory implements
 
     public Widget create(final PropertyAccessor<Boolean, Property<Boolean>> pa) {
         Property<Boolean> property = pa.getProperty();
-        ToggleButton btn = new ToggleButton((property instanceof BooleanModel)
-                ? (BooleanModel)property
-                : new PropertyBooleanModel(property));
-        btn.setText(pa.getDisplayName());
-        btn.setTheme("boolean");
-        return btn;
+        return createToggleButton(property, "boolean");
     }
 
     public void createSpecial(Group horz, Group vert, Property<Boolean> property) {
+        ToggleButton btn = createToggleButton(property, "checkbox");
+        horz.addWidget(btn);
+        vert.addWidget(btn);
+    }
+
+    private ToggleButton createToggleButton(Property<Boolean> property, String theme) {
         ToggleButton btn = new ToggleButton((property instanceof BooleanModel)
                 ? (BooleanModel)property
                 : new PropertyBooleanModel(property));
         btn.setText(property.getName());
-        btn.setTheme("checkbox");
-        horz.addWidget(btn);
-        vert.addWidget(btn);
+        btn.setTheme(theme);
+        if(property instanceof HasTooltip) {
+            btn.setTooltipContent(((HasTooltip)property).getTooltip());
+        }
+        return btn;
     }
 
     static class PropertyBooleanModel implements BooleanModel {

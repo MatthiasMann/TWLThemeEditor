@@ -155,13 +155,6 @@
         <alias name="colorselector.cursor" ref="-selH"/>
     </images>
 
-    <theme name="checkbox" ref="-defaults" allowWildcard="true">
-        <param name=""><image>checkbox.*</image></param>
-        <param name="minWidth"><int>13</int></param>
-        <param name="minHeight"><int>13</int></param>
-        <param name="border"><border>background.border</border></param>
-    </theme>
-
     <theme name="editfield-errorinfowindow" ref="-defaults">
         <param name="background"><image>-borderG</image></param>
         <param name="border"><border>background.border</border></param>

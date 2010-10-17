@@ -51,7 +51,8 @@ public class Area extends Image {
         addProperty(rectProperty);
         addProperty(new HSplitProperty());
         addProperty(new VSplitProperty());
-        addProperty(new BooleanProperty(new AttributeProperty(element, "nocenter", "No Center", true), false));
+        addProperty(new BooleanProperty(new AttributeProperty(element, "nocenter", "No Center", true), false)
+                .withTooltip("This parameter is only used when either Split X/Y is enabled"));
         addProperty(new BooleanProperty(new AttributeProperty(element, "tiled", "Tiled", true), false));
     }
 

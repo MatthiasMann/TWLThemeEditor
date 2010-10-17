@@ -148,31 +148,31 @@ public class Param extends ThemeTreeNode implements HasProperties {
     static Property<?> createProperty(Element e, ThemeTreeNode node, ThemeTreeNode limit) {
         String tagName = e.getName();
         if("image".equals(tagName)) {
-            return new NodeReferenceProperty(new ElementTextProperty(e, "image reference"), limit, Kind.IMAGE, true);
+            return new NodeReferenceProperty(new ElementTextProperty(e, "Image reference"), limit, Kind.IMAGE, true);
         }
         if("border".equals(tagName)) {
-            return new BorderProperty(new ElementTextProperty(e, "border"), 0, true);
+            return new BorderProperty(new ElementTextProperty(e, "Border"), 0, true);
         }
         if("int".equals(tagName)) {
-            return new IntegerProperty(new ElementTextProperty(e, "integer value"), Short.MIN_VALUE, Short.MAX_VALUE);
+            return new IntegerProperty(new ElementTextProperty(e, "Integer value"), Short.MIN_VALUE, Short.MAX_VALUE);
         }
         if("bool".equals(tagName)) {
-            return new BooleanProperty(new ElementTextProperty(e, "boolean value"), false);
+            return new BooleanProperty(new ElementTextProperty(e, "Boolean value"), false);
         }
         if("gap".equals(tagName)) {
-            return new GapProperty(new ElementTextProperty(e, "layout gap"));
+            return new GapProperty(new ElementTextProperty(e, "Layout gap"));
         }
         if("dimension".equals(tagName)) {
-            return new DimensionProperty(new ElementTextProperty(e, "dimesnion"));
+            return new DimensionProperty(new ElementTextProperty(e, "Dimesnion"));
         }
         if("string".equals(tagName)) {
-            return new ElementTextProperty(e, "string value");
+            return new ElementTextProperty(e, "String value");
         }
         if("font".equals(tagName)) {
-            return new NodeReferenceProperty(new ElementTextProperty(e, "font reference"), limit, Kind.FONT);
+            return new NodeReferenceProperty(new ElementTextProperty(e, "Font reference"), limit, Kind.FONT);
         }
         if("cursor".equals(tagName)) {
-            return new NodeReferenceProperty(new ElementTextProperty(e, "cursor reference"), limit, Kind.CURSOR);
+            return new NodeReferenceProperty(new ElementTextProperty(e, "Cursor reference"), limit, Kind.CURSOR);
         }
         return null;
     }

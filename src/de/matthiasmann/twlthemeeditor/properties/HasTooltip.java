@@ -29,76 +29,12 @@
  */
 package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twl.model.Property;
-
 /**
  *
  * @author Matthias Mann
  */
-public abstract class DerivedProperty<T> implements Property<T>, HasTooltip {
+public interface HasTooltip {
 
-    protected final Property<String> base;
-    protected final Class<T> type;
-    protected String tooltip;
-
-    protected DerivedProperty(Property<String> base, Class<T> type) {
-        this.base = base;
-        this.type = type;
-
-        if(base == null) {
-            throw new NullPointerException("base");
-        }
-        if(type == null) {
-            throw new NullPointerException("type");
-        }
-    }
-
-    public void removeValueChangedCallback(Runnable cb) {
-        base.removeValueChangedCallback(cb);
-    }
-
-    public void addValueChangedCallback(Runnable cb) {
-        base.addValueChangedCallback(cb);
-    }
-
-    public void addCallback(Runnable callback) {
-        base.addValueChangedCallback(callback);
-    }
-
-    public void removeCallback(Runnable callback) {
-        base.removeValueChangedCallback(callback);
-    }
-
-    public String getName() {
-        return base.getName();
-    }
-
-    public boolean canBeNull() {
-        return base.canBeNull();
-    }
-
-    public Class<T> getType() {
-        return type;
-    }
-
-    public boolean isReadOnly() {
-        return false;
-    }
-
-    public String getTooltip() {
-        if(tooltip != null) {
-            return tooltip;
-        }
-        if(base instanceof HasTooltip) {
-            return ((HasTooltip)base).getTooltip();
-        }
-        return null;
-    }
-
-    public DerivedProperty<T> withTooltip(String tooltip) {
-        assert this.tooltip == null : "Tooltip already set";
-        this.tooltip = tooltip;
-        return this;
-    }
-
+    public String getTooltip();
+    
 }
