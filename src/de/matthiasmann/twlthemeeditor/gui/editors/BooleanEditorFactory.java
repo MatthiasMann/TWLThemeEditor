@@ -29,18 +29,22 @@
  */
 package de.matthiasmann.twlthemeeditor.gui.editors;
 
+import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.SpecialPropertyEditorFactory;
 
 /**
  *
  * @author Matthias Mann
  */
-public class BooleanEditorFactory implements PropertyEditorFactory<Boolean, Property<Boolean>> {
+public class BooleanEditorFactory implements
+        PropertyEditorFactory<Boolean, Property<Boolean>>,
+        SpecialPropertyEditorFactory<Boolean> {
 
     public Widget create(final PropertyAccessor<Boolean, Property<Boolean>> pa) {
         Property<Boolean> property = pa.getProperty();
@@ -50,6 +54,16 @@ public class BooleanEditorFactory implements PropertyEditorFactory<Boolean, Prop
         btn.setText(pa.getDisplayName());
         btn.setTheme("boolean");
         return btn;
+    }
+
+    public void createSpecial(Group horz, Group vert, Property<Boolean> property) {
+        ToggleButton btn = new ToggleButton((property instanceof BooleanModel)
+                ? (BooleanModel)property
+                : new PropertyBooleanModel(property));
+        btn.setText(property.getName());
+        btn.setTheme("checkbox");
+        horz.addWidget(btn);
+        vert.addWidget(btn);
     }
 
     static class PropertyBooleanModel implements BooleanModel {

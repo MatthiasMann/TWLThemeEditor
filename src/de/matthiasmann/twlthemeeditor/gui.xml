@@ -213,6 +213,16 @@
             </select>
             <alias ref="radiobutton.overlay"/>
         </composed>
+
+        <grid name="property-checkbox.background" weightsX="1" weightsY="1,0,0" border="0,18,5,0">
+            <alias ref="checkbox.background"/>
+            <alias ref="none" sizeOverwriteV="3"/>
+            <alias ref="panel.separator"/>
+        </grid>
+        <grid name="property-checkbox.overlay" weightsX="1" weightsY="1,0">
+            <alias ref="checkbox.overlay"/>
+            <alias ref="none" sizeOverwriteV="5"/>
+        </grid>
     </images>
 
     <theme name="themetreepane" ref="dialoglayout">
@@ -566,6 +576,11 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         <theme name="propertypanel" ref="dialoglayout">
             <param name="border"><border>5</border></param>
 
+            <theme name="checkbox" ref="checkbox">
+                <param name=""><image>property-checkbox.*</image></param>
+                <param name="border"><border>background.border</border></param>
+            </theme>
+            
             <theme name="collapsiblepanel" ref="dialoglayout">
                 <param name=""><image>collapsiblepanel.*</image></param>
                 <param name="border"><border>background.border</border></param>

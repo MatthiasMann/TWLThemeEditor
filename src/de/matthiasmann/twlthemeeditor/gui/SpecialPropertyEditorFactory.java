@@ -30,56 +30,14 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.DialogLayout;
-import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twl.model.SimpleBooleanModel;
 
 /**
  *
  * @author Matthias Mann
  */
-public final class PropertyPanel extends DialogLayout {
+public interface SpecialPropertyEditorFactory<T> {
 
-    private final PropertyFactories factories;
-
-    public PropertyPanel(PropertyFactories factories, Property<?>[] properties) {
-        this.factories = factories;
-        
-        setHorizontalGroup(createParallelGroup());
-        setVerticalGroup(createSequentialGroup());
-
-        for(Property<?> p : properties) {
-            addProperty(p);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    protected<T> void addProperty(Property<T> p) {
-        boolean optional = p.canBeNull();
-        
-        PropertyEditorFactory<?, ?> factory = factories.getFactory(p);
-        if(!optional && (factory instanceof SpecialPropertyEditorFactory)) {
-            ((SpecialPropertyEditorFactory<T>)factory).createSpecial(
-                    getHorizontalGroup(), getVerticalGroup(), p);
-        } else if(factory != null) {
-            BooleanModel activeModel = null;
-
-            if(optional) {
-                activeModel = new SimpleBooleanModel();
-            }
-
-            Widget content = factory.create(new PropertyAccessor(p, activeModel));
-
-            CollapsiblePanel panel = new CollapsiblePanel(
-                    CollapsiblePanel.Direction.VERTICAL,
-                    p.getName(), content, activeModel);
-            
-            getVerticalGroup().addWidget(panel);
-            getHorizontalGroup().addWidget(panel);            
-        } else {
-            System.out.println("No factory for property " + p.getName() +
-                    " type " + p.getClass() + "<" + p.getType() + ">");
-        }
-    }
+    public void createSpecial(DialogLayout.Group horz, DialogLayout.Group vert, Property<T> pa);
+    
 }
