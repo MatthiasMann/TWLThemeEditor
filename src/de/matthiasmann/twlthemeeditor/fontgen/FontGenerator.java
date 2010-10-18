@@ -309,7 +309,7 @@ public class FontGenerator {
                 xs.attribute(null, "y", Integer.toString(rect.y));
                 xs.attribute(null, "width", Integer.toString(rect.width));
                 xs.attribute(null, "height", Integer.toString(rect.height));
-                xs.attribute(null, "xoffset", "0");
+                xs.attribute(null, "xoffset", Integer.toString(-rect.xDrawOffset));
                 xs.attribute(null, "yoffset", Integer.toString(ascent + rect.yoffset));
                 xs.attribute(null, "xadvance", Integer.toString(rect.advance));
                 xs.attribute(null, "page", "0");
