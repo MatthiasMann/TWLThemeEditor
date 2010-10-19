@@ -825,7 +825,10 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         <param name="background"><image>popup.background</image></param>
         <param name="border"><border>20</border></param>
         <theme name="fileselector" ref="fileselector">
-            <theme name="fontpreview" ref="-defaults"/>
+            <theme name="fontpreview" ref="-defaults">
+                <param name="background"><image>-borderC</image></param>
+                <param name="border"><border>background.border</border></param>
+            </theme>
         </theme>
     </theme>
 
