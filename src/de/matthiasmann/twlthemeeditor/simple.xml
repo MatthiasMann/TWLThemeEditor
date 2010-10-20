@@ -176,7 +176,6 @@
         </map></param>
         <param name="images"><map>
         </map></param>
-        <theme name="image" ref="-defaults"/>
     </theme>
 
     <theme name="-treecellrenderer" ref="-defaults">
