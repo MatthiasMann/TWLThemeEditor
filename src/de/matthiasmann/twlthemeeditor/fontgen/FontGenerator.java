@@ -62,7 +62,7 @@ public class FontGenerator {
     private Padding padding;
     private BufferedImage image;
     private GlyphRect[] rects;
-    private int[][] kerinings;
+    private int[][] kernings;
     private int ascent;
     private int descent;
     private int leading;
@@ -86,7 +86,7 @@ public class FontGenerator {
 
         FontRenderContext fontRenderContext = g.getFontRenderContext();
 
-        kerinings = fontData.getKernings(set);
+        kernings = fontData.getKernings(set);
         ascent = g.getFontMetrics().getMaxAscent();
         descent = g.getFontMetrics().getMaxDescent();
         leading = g.getFontMetrics().getLeading();
@@ -320,8 +320,8 @@ public class FontGenerator {
             xs.endTag(null, "chars");
             xs.text("\n  ");
             xs.startTag(null, "kernings");
-            xs.attribute(null, "count", Integer.toString(kerinings.length));
-            for(int[] kerning : kerinings) {
+            xs.attribute(null, "count", Integer.toString(kernings.length));
+            for(int[] kerning : kernings) {
                 xs.text("\n    ");
                 xs.startTag(null, "kerning");
                 xs.attribute(null, "first", Integer.toString(kerning[0]));
