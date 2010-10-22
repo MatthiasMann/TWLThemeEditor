@@ -44,6 +44,7 @@ import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
+import de.matthiasmann.twl.model.EnumListModel;
 import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
@@ -76,6 +77,7 @@ import java.util.prefs.Preferences;
  * @author Matthias Mann
  */
 public final class FontGenDialog {
+
     public static final String FONTGEN_FILE_SELECTOR_KEY = "fontgen_settings";
 
     private static final String SETTINGS_EXTENSION = ".twlfontgen";
@@ -98,6 +100,8 @@ public final class FontGenDialog {
     private final ScrollPane effectsPanelSP;
     private final FontDisplay fontDisplay;
     private final ScrollPane fontDisplaySP;
+    private final EnumListModel<FontGenerator.ExportFormat> exportFormatModel;
+    private final ComboBox<FontGenerator.ExportFormat> exportFormatCB;
     private final Button loadSettingsButton;
     private final Button saveSettingsButton;
     private final Button saveFontButton;
@@ -224,6 +228,19 @@ public final class FontGenDialog {
         fontDisplaySP = new ScrollPane(fontDisplay);
         fontDisplaySP.setTheme("fontDisplay");
 
+        exportFormatModel = new EnumListModel<FontGenerator.ExportFormat>(FontGenerator.ExportFormat.class) {
+            @Override
+            public Object getEntryTooltip(int index) {
+                if(getEntry(index) == FontGenerator.ExportFormat.XML) {
+                    return "TWL's font format";
+                } else {
+                    return "This format can be exported but can not used by TWL";
+                }
+            }
+        };
+        exportFormatCB = new ComboBox<FontGenerator.ExportFormat>(exportFormatModel);
+        exportFormatCB.setSelected(exportFormatModel.findEntry(FontGenerator.ExportFormat.XML));
+
         loadSettingsButton = new Button("Load Settings");
         loadSettingsButton.addCallback(new Runnable() {
             public void run() {
@@ -268,12 +285,14 @@ public final class FontGenDialog {
                 .addWidget(loadSettingsButton)
                 .addWidget(saveSettingsButton)
                 .addWidget(statusBar)
+                .addWidget(exportFormatCB)
                 .addWidget(saveFontButton)
                 .addWidget(closeButton);
         DialogLayout.Group vButtons = layout.createParallelGroup()
                 .addWidget(loadSettingsButton)
                 .addWidget(saveSettingsButton)
                 .addWidget(statusBar)
+                .addWidget(exportFormatCB)
                 .addWidget(saveFontButton)
                 .addWidget(closeButton);
         
@@ -340,6 +359,7 @@ public final class FontGenDialog {
     private static final String KEY_FONTPATH = "fontPath";
     private static final String KEY_TEXTURESIZE = "textureSize";
     private static final String KEY_FONTSIZE = "fontSize";
+    private static final String KEY_EXPORTFORMAT = "exportFormat";
     private static final String KEY_PADDING_AUTOMATIC = "padding.automatic";
     private static final String[] KEY_PADDING = {
         "padding.top",
@@ -387,6 +407,13 @@ public final class FontGenDialog {
             fontSizeModel.setValue((fontSize <= 0) ? 14 : fontSize);
         }
 
+        try {
+            FontGenerator.ExportFormat format = FontGenerator.ExportFormat.valueOf(
+                    properties.getProperty(KEY_EXPORTFORMAT, FontGenerator.ExportFormat.XML.name()));
+            exportFormatCB.setSelected(exportFormatModel.findEntry(format));
+        } catch (IllegalArgumentException ignore) {
+        }
+
         manualPaddingModel.setValue(!Boolean.parseBoolean(properties.getProperty(KEY_PADDING_AUTOMATIC, "false")));
         for(int i=0 ; i<5 ; i++) {
             int padding = 0;
@@ -421,6 +448,7 @@ public final class FontGenDialog {
         properties.setProperty(KEY_FONTPATH, fontPath);
         properties.setProperty(KEY_TEXTURESIZE, Integer.toString(getTextureSize()));
         properties.setProperty(KEY_FONTSIZE, Integer.toString(fontSizeModel.getValue()));
+        properties.setProperty(KEY_EXPORTFORMAT, getExportFormat().name());
         charSet.save(properties);
         properties.setProperty(KEY_PADDING_AUTOMATIC, Boolean.toString(!manualPaddingModel.getValue()));
         for(int i=0 ; i<5 ; i++) {
@@ -456,7 +484,7 @@ public final class FontGenDialog {
             }
             public void fileNameSelected(File file) {
                 try {
-                    fontGen.write(file);
+                    fontGen.write(file, getExportFormat());
                 } catch(IOException ex) {
                     Logger.getLogger(FontGenDialog.class.getName()).log(Level.SEVERE, "Cound not save font", ex);
                 }
@@ -553,6 +581,15 @@ public final class FontGenDialog {
         return textureSizesModel.getEntry(textureSizeCB.getSelected());
     }
 
+    private FontGenerator.ExportFormat getExportFormat() {
+        int selected = exportFormatCB.getSelected();
+        if(selected >= 0) {
+            return exportFormatModel.getEntry(selected);
+        } else {
+            return FontGenerator.ExportFormat.XML;
+        }
+    }
+    
     void updateEffects() {
         fontDisplay.setEffects(effectsPanel.getActiveEffects());
     }

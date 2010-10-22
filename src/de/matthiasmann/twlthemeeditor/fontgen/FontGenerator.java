@@ -43,6 +43,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,6 +58,11 @@ import org.xmlpull.v1.XmlSerializer;
  */
 public class FontGenerator {
 
+    public enum ExportFormat {
+        XML,
+        TEXT
+    };
+    
     private final FontData fontData;
 
     private Padding padding;
@@ -231,14 +237,23 @@ public class FontGenerator {
         return false;
     }
 
-    public void write(File file) throws IOException {
+    public void write(File file, ExportFormat format) throws IOException {
         File dir = file.getParentFile();
         String baseName = getBaseName(file);
         
         PNGWriter.write(new File(dir, baseName.concat("_00.png")), image, usedTextureHeight);
         OutputStream os = new FileOutputStream(file);
         try {
-            writeXML(os, baseName);
+            switch(format) {
+                case XML:
+                    writeXML(os, baseName);
+                    break;
+                case TEXT:
+                    writeText(os, baseName);
+                    break;
+                default:
+                    throw new AssertionError();
+            }
         } finally {
             os.close();
         }
@@ -338,6 +353,37 @@ public class FontGenerator {
         } catch (XmlPullParserException ex) {
             throw (IOException)(new IOException().initCause(ex));
         }
+    }
+
+    public void writeText(OutputStream os, String basename) {
+        PrintWriter pw = new PrintWriter(os);
+        
+        pw.printf("info face=%s size=%d bold=%d italic=%d charset=\"\" unicode=1 stretchH=100 smooth=0 aa=1 padding=%d,%d,%d,%d spacing=1,1\n",
+                fontData.getName(), (int)fontData.getSize(),
+                fontData.getJavaFont().isBold() ? 1 : 0,
+                fontData.getJavaFont().isItalic() ? 1 : 0,
+                padding.top, padding.left, padding.bottom, padding.right);
+
+        int lineHeight = descent + ascent + leading + padding.bottom + padding.top;
+        pw.printf("common lineHeight=%d base=%s scaleW=%s scaleH=%d pages=1 packed=0\n",
+                lineHeight, ascent, image.getWidth(), image.getHeight());
+
+        pw.printf("page id=0 file=%s_00.png\n", basename);
+        pw.printf("chars count=%d\n", rects.length);
+
+        for(GlyphRect rect : rects) {
+            pw.printf("char id=%d x=%d y=%d width=%d height=%d xoffset=%d yoffset=%d xadvance=%d page=0 chnl=0\n",
+                    (int)rect.ch, rect.x, rect.y, rect.width, rect.height,
+                    -rect.xDrawOffset, ascent+rect.yoffset, rect.advance);
+        }
+        
+        pw.printf("kernings count=%d\n", kernings.length);
+        for(int[] kerning : kernings){
+            pw.printf("kerning first=%d second=%d amount=%d\n",
+                    kerning[0], kerning[1], kerning[2]);
+        }
+
+        pw.close();
     }
 
     private String ch2str(int ch) {
