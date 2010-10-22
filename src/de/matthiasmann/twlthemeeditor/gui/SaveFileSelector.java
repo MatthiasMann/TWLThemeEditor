@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.FileSelector;
 import de.matthiasmann.twl.FileTable.Entry;
 import de.matthiasmann.twl.GUI;
@@ -162,7 +163,7 @@ public class SaveFileSelector {
 
         public void callback(int key) {
             checkName();
-            if(!editField.hasSelection() && editField.getCursorPos() == editField.getTextLength()) {
+            if(!editField.hasSelection() && editField.getCursorPos() == editField.getTextLength() && key == Event.KEY_NONE) {
                 String name = editField.getText();
                 if(!name.endsWith(extension)) {
                     String newName = name.concat(extension);
