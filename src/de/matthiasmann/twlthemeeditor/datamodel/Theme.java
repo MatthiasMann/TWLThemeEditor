@@ -29,9 +29,14 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twl.model.AbstractProperty;
+import de.matthiasmann.twl.model.IntegerModel;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParam;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewWildcardTheme;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.DeleteNodeOperation;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
@@ -39,6 +44,8 @@ import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdom.Element;
 
 /**
@@ -96,6 +103,11 @@ public class Theme extends ThemeTreeNode implements HasProperties {
                     new AttributeProperty(element, "ref", "Base theme reference", true),
                     this, Kind.THEME));
         }
+
+        addProperty(new IntegerParamProperty("minWidth", 0, Short.MAX_VALUE));
+        addProperty(new IntegerParamProperty("maxWidth", 0, Short.MAX_VALUE));
+        addProperty(new IntegerParamProperty("minHeight", 0, Short.MAX_VALUE));
+        addProperty(new IntegerParamProperty("maxHeight", 0, Short.MAX_VALUE));
     }
 
     public String getName() {
@@ -165,5 +177,138 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         operations.add(new CreateNewWildcardTheme(this, element));
         Param.addCreateParam(operations, this, element);
         return operations;
+    }
+
+    class ParamProperty<T> extends AbstractProperty<T> {
+        final String paramName;
+        final Class<T> type;
+
+        public ParamProperty(String paramName, Class<T> type) {
+            this.paramName = paramName;
+            this.type = type;
+        }
+
+        public boolean canBeNull() {
+            return true;
+        }
+
+        public String getName() {
+            return paramName;
+        }
+
+        public Class<T> getType() {
+            return type;
+        }
+
+        public boolean isReadOnly() {
+            return false;
+        }
+
+        public T getPropertyValue() {
+            Param param = findParam();
+            if(param != null) {
+                Property<?> valueProperty = param.getValueProperty();
+                if(valueProperty.getType() == type) {
+                    return type.cast(valueProperty.getPropertyValue());
+                }
+            }
+            return null;
+        }
+
+        @SuppressWarnings("unchecked")
+        public void setPropertyValue(T value) throws IllegalArgumentException {
+            Param param = findParam();
+            if(param == null && value != null) {
+                String typeName;
+                String defaultValue;
+                if(type == Integer.class) {
+                    typeName = "int";
+                    defaultValue = "0";
+                } else if(type == Boolean.class) {
+                    typeName = "bool";
+                    defaultValue = "false";
+                } else {
+                    typeName = type.getSimpleName().toLowerCase();
+                    defaultValue = "";
+                }
+                CreateNewParam newParam = new CreateNewParam(element, typeName, Theme.this, defaultValue) {
+                    @Override
+                    protected String makeName() {
+                        return paramName;
+                    }
+                };
+                try {
+                    newParam.execute(null);
+                } catch(IOException ex) {
+                    Logger.getLogger(Theme.class.getName()).log(Level.SEVERE, "can't create param", ex);
+                }
+                param = findParam();
+            }
+            
+            if(param != null) {
+                Property<T> valueProperty = (Property<T>)param.getValueProperty();
+                if(valueProperty.getType() == type) {
+                    if(value == null) {
+                        DeleteNodeOperation deleteNodeOperation = new DeleteNodeOperation(param.getDOMElement(), param) {
+                            @Override
+                            public boolean needConfirm() {
+                                return false;
+                            }
+                        };
+                        try {
+                            deleteNodeOperation.execute(null);
+                        } catch(IOException ex) {
+                            Logger.getLogger(Theme.class.getName()).log(Level.SEVERE, "can't delete param", ex);
+                        }
+                    } else {
+                        valueProperty.setPropertyValue(value);
+                    }
+                    fireValueChangedCallback();
+                }
+            }
+        }
+
+        private Param findParam() {
+            for(int i=0 ; i<getNumChildren() ; i++) {
+                TreeTableNode child = getChild(i);
+                if(child instanceof Param) {
+                    Param param = (Param)child;
+                    if(paramName.equals(param.getName())) {
+                        return param;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    class IntegerParamProperty extends ParamProperty<Integer> implements IntegerModel {
+        final int minValue;
+        final int maxValue;
+
+        public IntegerParamProperty(String paramName, int minValue, int maxValue) {
+            super(paramName, Integer.class);
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+        }
+        public void addCallback(Runnable callback) {
+            addValueChangedCallback(callback);
+        }
+        public void removeCallback(Runnable callback) {
+            removeValueChangedCallback(callback);
+        }
+        public int getValue() {
+            Integer value = getPropertyValue();
+            return (value == null) ? 0 : value;
+        }
+        public void setValue(int value) {
+            setPropertyValue(value);
+        }
+        public int getMaxValue() {
+            return maxValue;
+        }
+        public int getMinValue() {
+            return minValue;
+        }
     }
 }

@@ -57,6 +57,7 @@ public class Param extends ThemeTreeNode implements HasProperties {
     protected final Theme theme;
     protected final NameProperty nameProperty;
     protected final Element valueElement;
+    protected final Property<?> valueProperty;
 
     public Param(Theme theme, TreeTableNode parent, Element element) {
         super(theme.getThemeFile(), parent, element);
@@ -71,10 +72,12 @@ public class Param extends ThemeTreeNode implements HasProperties {
 
         valueElement = getFirstChildElement(element);
         if(valueElement != null) {
-            Property<?> property = createProperty(valueElement, this, theme.getLimit());
-            if(property != null) {
-                addProperty(property);
+            valueProperty = createProperty(valueElement, this, theme.getLimit());
+            if(valueProperty != null) {
+                addProperty(valueProperty);
             }
+        } else {
+            valueProperty = null;
         }
     }
     
@@ -96,6 +99,14 @@ public class Param extends ThemeTreeNode implements HasProperties {
         return "param-" + valueElement.getName();
     }
 
+    public Element getValueElement() {
+        return valueElement;
+    }
+
+    public Property<?> getValueProperty() {
+        return valueProperty;
+    }
+    
     public void addChildren() throws IOException {
         if(isMap()) {
             addChildren(theme.getThemeFile(), valueElement, new DomWrapper() {
