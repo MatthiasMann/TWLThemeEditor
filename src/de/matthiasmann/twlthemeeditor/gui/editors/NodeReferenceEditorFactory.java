@@ -67,20 +67,20 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
 
     public Widget create(final PropertyAccessor<NodeReference, NodeReferenceProperty> pa) {
         ThemeTreeNode limit = pa.getProperty().getLimit();
+        NodeReference ref = pa.getValue(null);
         final Kind kind = pa.getProperty().getKind();
-        final NodeReference ref = pa.getValue(null);
         final ListModel<String> refableNodes = ctx.getRefableNodes(limit, kind);
-        final Button btnJump = new Button();
+        final Button jumpBtn = new Button();
 
-        btnJump.setTheme("jumpbutton");
-        btnJump.setEnabled(ref != null && !ref.isNone());
-        btnJump.addCallback(new Runnable() {
+        jumpBtn.setTheme("jumpbutton");
+        jumpBtn.setEnabled(ref != null && !ref.isNone());
+        jumpBtn.addCallback(new Runnable() {
             public void run() {
                 NodeReference targetRef = pa.getValue(null);
                 if(targetRef != null && !targetRef.isNone()) {
                     if(targetRef.isWildcard()) {
                         ArrayList<ThemeTreeNode> nodes = new ArrayList<ThemeTreeNode>();
-                        ctx.resolveReference(ref, nodes);
+                        ctx.resolveReference(targetRef, nodes);
                         Menu menu = new Menu();
                         if(nodes.isEmpty()) {
                             menu.add("No target found", (Runnable)null);
@@ -93,7 +93,7 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
                                 });
                             }
                         }
-                        menu.openPopupMenu(btnJump);
+                        menu.openPopupMenu(jumpBtn);
                     } else {
                         ctx.selectTarget(targetRef);
                     }
@@ -124,10 +124,19 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
             applyBtn.setEnabled(false);
             ef.setText((ref != null) ? ref.toString() : "none");
             ef.addCallback(new EditField.Callback() {
+                boolean lastKeyWasEscape;
                 public void callback(int key) {
                     if(key == Event.KEY_RETURN) {
                         if(applyBtn.isEnabled()) {
                             applyCB.run();
+                        }
+                    } else if(key == Event.KEY_ESCAPE) {
+                        if(lastKeyWasEscape) {
+                            NodeReference curRef = pa.getValue(null);
+                            ef.setText((curRef != null) ? curRef.toString() : "none");
+                            ef.setErrorMessage(null);
+                            jumpBtn.setEnabled(targetExists(curRef));
+                            applyBtn.setEnabled(false);
                         }
                     } else {
                         String errMsg = null;
@@ -150,9 +159,10 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
                             }
                         }
                         ef.setErrorMessage(errMsg);
-                        btnJump.setEnabled(canJump);
+                        jumpBtn.setEnabled(canJump);
                         applyBtn.setEnabled(canApply);
                     }
+                    lastKeyWasEscape = (key == Event.KEY_ESCAPE);
                 }
             });
             ef.setAutoCompletion(new AutoCompletionDataSource() {
@@ -180,8 +190,8 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
                     return new SimpleAutoCompletionResult(text, cursorPos, results);
                 }
             });
-            l.setHorizontalGroup(l.createSequentialGroup(ef, applyBtn, btnJump));
-            l.setVerticalGroup(l.createParallelGroup(ef, applyBtn, btnJump));
+            l.setHorizontalGroup(l.createSequentialGroup(ef, applyBtn, jumpBtn));
+            l.setVerticalGroup(l.createParallelGroup(ef, applyBtn, jumpBtn));
         } else {
             final ComboBox<String> cb = new ComboBox<String>(refableNodes);
             cb.setSelected((ref != null) ? Utils.find(refableNodes, ref.getName()) : -1);
@@ -191,12 +201,12 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
                     if(selected >= 0) {
                         NodeReference newRef = new NodeReference(refableNodes.getEntry(selected), kind);
                         pa.setValue(newRef);
-                        btnJump.setEnabled(!newRef.isNone());
+                        jumpBtn.setEnabled(!newRef.isNone());
                     }
                 }
             });
-            l.setHorizontalGroup(l.createSequentialGroup(cb, btnJump));
-            l.setVerticalGroup(l.createParallelGroup(cb, btnJump));
+            l.setHorizontalGroup(l.createSequentialGroup(cb, jumpBtn));
+            l.setVerticalGroup(l.createParallelGroup(cb, jumpBtn));
         }
 
         return l;
