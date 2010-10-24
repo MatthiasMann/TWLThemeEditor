@@ -41,6 +41,7 @@ import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
+import de.matthiasmann.twlthemeeditor.properties.DerivedNodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import java.io.IOException;
 import java.util.List;
@@ -57,7 +58,7 @@ public class Theme extends ThemeTreeNode implements HasProperties {
     protected final NameProperty nameProperty;
     protected final BooleanProperty allowWildcardProperty;
     protected final BooleanProperty mergeProperty;
-    protected final NodeReferenceProperty refProperty;
+    protected final DerivedNodeReferenceProperty refProperty;
 
     public Theme(ThemeFile themeFile, TreeTableNode parent, Element element) {
         super(themeFile, parent, element);
@@ -99,11 +100,15 @@ public class Theme extends ThemeTreeNode implements HasProperties {
                 addProperty(mergeProperty);
             }
 
-            addProperty(refProperty = new NodeReferenceProperty(
+            addProperty(refProperty = new DerivedNodeReferenceProperty(
                     new AttributeProperty(element, "ref", "Base theme reference", true),
                     this, Kind.THEME));
         }
 
+        addProperty(new NodeRefParamProperty("background", Kind.IMAGE, true));
+        addProperty(new NodeRefParamProperty("overlay", Kind.IMAGE, true));
+        addProperty(new NodeRefParamProperty("font", Kind.FONT, false));
+        addProperty(new NodeRefParamProperty("mouseCursor", Kind.CURSOR, false));
         addProperty(new IntegerParamProperty("minWidth", 0, Short.MAX_VALUE));
         addProperty(new IntegerParamProperty("maxWidth", 0, Short.MAX_VALUE));
         addProperty(new IntegerParamProperty("minHeight", 0, Short.MAX_VALUE));
@@ -215,23 +220,31 @@ public class Theme extends ThemeTreeNode implements HasProperties {
             return null;
         }
 
+        protected String getTypeName() {
+            if(type == Integer.class) {
+                return "int";
+            } else if(type == Boolean.class) {
+                return "bool";
+            } else {
+                return type.getSimpleName().toLowerCase();
+            }
+        }
+
+        protected String getDefaultValue() {
+            if(type == Integer.class) {
+                return "0";
+            } else if(type == Boolean.class) {
+                return "false";
+            } else {
+                return "";
+            }
+        }
+
         @SuppressWarnings("unchecked")
         public void setPropertyValue(T value) throws IllegalArgumentException {
             Param param = findParam();
             if(param == null && value != null) {
-                String typeName;
-                String defaultValue;
-                if(type == Integer.class) {
-                    typeName = "int";
-                    defaultValue = "0";
-                } else if(type == Boolean.class) {
-                    typeName = "bool";
-                    defaultValue = "false";
-                } else {
-                    typeName = type.getSimpleName().toLowerCase();
-                    defaultValue = "";
-                }
-                CreateNewParam newParam = new CreateNewParam(element, typeName, Theme.this, defaultValue) {
+                CreateNewParam newParam = new CreateNewParam(element, getTypeName(), Theme.this, getDefaultValue()) {
                     @Override
                     protected String makeName() {
                         return paramName;
@@ -249,12 +262,7 @@ public class Theme extends ThemeTreeNode implements HasProperties {
                 Property<T> valueProperty = (Property<T>)param.getValueProperty();
                 if(valueProperty.getType() == type) {
                     if(value == null) {
-                        DeleteNodeOperation deleteNodeOperation = new DeleteNodeOperation(param.getDOMElement(), param) {
-                            @Override
-                            public boolean needConfirm() {
-                                return false;
-                            }
-                        };
+                        DeleteNodeOperation deleteNodeOperation = new DeleteNodeOperation(param.getDOMElement(), param);
                         try {
                             deleteNodeOperation.execute(null);
                         } catch(IOException ex) {
@@ -268,7 +276,7 @@ public class Theme extends ThemeTreeNode implements HasProperties {
             }
         }
 
-        private Param findParam() {
+        protected final Param findParam() {
             for(int i=0 ; i<getNumChildren() ; i++) {
                 TreeTableNode child = getChild(i);
                 if(child instanceof Param) {
@@ -309,6 +317,57 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         }
         public int getMinValue() {
             return minValue;
+        }
+    }
+
+    class NodeRefParamProperty extends ParamProperty<NodeReference> implements NodeReferenceProperty {
+        private final Kind kind;
+        private final boolean supportsWildcard;
+
+        public NodeRefParamProperty(String paramName, Kind kind, boolean supportsWildcard) {
+            super(paramName, NodeReference.class);
+            this.kind = kind;
+            this.supportsWildcard = supportsWildcard;
+        }
+
+        public Kind getKind() {
+            return kind;
+        }
+
+        public ThemeTreeNode getLimit() {
+            NodeReferenceProperty nrp = findNodeRefProperty();
+            if(nrp != null) {
+                return nrp.getLimit();
+            }
+            return null;
+        }
+
+        public void handleNodeRenamed(String from, String to, Kind kind) {
+        }
+
+        public boolean isSupportsWildcard() {
+            return supportsWildcard;
+        }
+
+        @Override
+        protected String getDefaultValue() {
+            return "none";
+        }
+
+        @Override
+        protected String getTypeName() {
+            return kind.name().toLowerCase();
+        }
+
+        private NodeReferenceProperty findNodeRefProperty() {
+            Param param = findParam();
+            if(param != null) {
+                Property<?> valueProperty = param.getValueProperty();
+                if(valueProperty instanceof NodeReferenceProperty) {
+                    return (NodeReferenceProperty)valueProperty;
+                }
+            }
+            return null;
         }
     }
 }

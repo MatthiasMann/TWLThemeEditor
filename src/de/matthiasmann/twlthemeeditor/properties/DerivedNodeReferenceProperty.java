@@ -38,14 +38,49 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
  *
  * @author Matthias Mann
  */
-public interface NodeReferenceProperty extends Property<NodeReference> {
+public class DerivedNodeReferenceProperty extends DerivedProperty<NodeReference> implements NodeReferenceProperty {
 
-    public Kind getKind();
+    private final ThemeTreeNode limit;
+    private final Kind kind;
+    private final boolean supportsWildcard;
 
-    public ThemeTreeNode getLimit();
+    public DerivedNodeReferenceProperty(Property<String> base, ThemeTreeNode limit, Kind kind, boolean supportsWildcard) {
+        super(base, NodeReference.class);
+        this.limit = limit;
+        this.kind = kind;
+        this.supportsWildcard = supportsWildcard;
+    }
 
-    public void handleNodeRenamed(String from, String to, Kind kind);
+    public DerivedNodeReferenceProperty(Property<String> base, ThemeTreeNode limit, Kind kind) {
+        this(base, limit, kind, false);
+    }
 
-    public boolean isSupportsWildcard();
+    public NodeReference getPropertyValue() {
+        String value = base.getPropertyValue();
+        return (value != null) ? new NodeReference(value, kind) : null;
+    }
 
+    public void setPropertyValue(NodeReference value) throws IllegalArgumentException {
+        if(value == null || value.getKind() == kind) {
+            base.setPropertyValue((value != null) ? value.getName() : null);
+        }
+    }
+
+    public ThemeTreeNode getLimit() {
+        return limit;
+    }
+
+    public Kind getKind() {
+        return kind;
+    }
+
+    public boolean isSupportsWildcard() {
+        return supportsWildcard;
+    }
+
+    public void handleNodeRenamed(String from, String to, Kind kind) {
+        if(this.kind == kind && from.equals(base.getPropertyValue())) {
+            base.setPropertyValue(to);
+        }
+    }
 }

@@ -42,7 +42,7 @@ import de.matthiasmann.twlthemeeditor.properties.GapProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
-import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
+import de.matthiasmann.twlthemeeditor.properties.DerivedNodeReferenceProperty;
 import java.io.IOException;
 import java.util.List;
 import org.jdom.Content;
@@ -159,7 +159,7 @@ public class Param extends ThemeTreeNode implements HasProperties {
     static Property<?> createProperty(Element e, ThemeTreeNode node, ThemeTreeNode limit) {
         String tagName = e.getName();
         if("image".equals(tagName)) {
-            return new NodeReferenceProperty(new ElementTextProperty(e, "Image reference"), limit, Kind.IMAGE, true);
+            return new DerivedNodeReferenceProperty(new ElementTextProperty(e, "Image reference"), limit, Kind.IMAGE, true);
         }
         if("border".equals(tagName)) {
             return new BorderProperty(new ElementTextProperty(e, "Border"), 0, true);
@@ -180,10 +180,10 @@ public class Param extends ThemeTreeNode implements HasProperties {
             return new ElementTextProperty(e, "String value");
         }
         if("font".equals(tagName)) {
-            return new NodeReferenceProperty(new ElementTextProperty(e, "Font reference"), limit, Kind.FONT);
+            return new DerivedNodeReferenceProperty(new ElementTextProperty(e, "Font reference"), limit, Kind.FONT);
         }
         if("cursor".equals(tagName)) {
-            return new NodeReferenceProperty(new ElementTextProperty(e, "Cursor reference"), limit, Kind.CURSOR);
+            return new DerivedNodeReferenceProperty(new ElementTextProperty(e, "Cursor reference"), limit, Kind.CURSOR);
         }
         return null;
     }
