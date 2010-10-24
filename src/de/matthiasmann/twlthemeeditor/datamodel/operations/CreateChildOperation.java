@@ -76,6 +76,8 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
         int pos = element.getContentSize();
         if(pos>0 && element.getContent(pos-1) instanceof Text) {
             pos--;
+        } else {
+            element.addContent(pos, new Text(createIndentation(indentation - INDENTATION_SIZE)));
         }
         element.addContent(pos++, new Text(createIndentation(indentation)));
         element.addContent(pos, child);
