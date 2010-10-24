@@ -131,6 +131,7 @@ public final class CollapsiblePanel extends DialogLayout {
         expanded ^= true;
         arrow.getAnimationState().setAnimationState(STATE_EXPANDED, expanded);
         container.startAnimate();
+        container.setEnabled(expanded);
     }
 
     class Arrow extends Label {
