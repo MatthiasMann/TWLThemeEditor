@@ -30,7 +30,6 @@
 package de.matthiasmann.twlthemeeditor;
 
 import de.matthiasmann.twl.GUI;
-import de.matthiasmann.twl.input.Input;
 import de.matthiasmann.twl.input.lwjgl.LWJGLInput;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
@@ -48,11 +47,11 @@ import java.awt.event.WindowEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.Sys;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
@@ -67,6 +66,9 @@ public class Main extends Frame {
     private static final String KEY_MAINWINDOW_WIDTH = "mainwindow.width";
     private static final String KEY_MAINWINDOW_HEIGHT = "mainwindow.height";
 
+    private static final int REQUIRED_LWJGL_VERSION_MAJOR = 2;
+    private static final int REQUIRED_LWJGL_VERSION_MINOR = 6;
+    
     public static void main(String[] args) throws Exception {
         try {
             System.setProperty("org.lwjgl.input.Mouse.allowNegativeMouseCoords", "true");
@@ -170,47 +172,18 @@ public class Main extends Frame {
                     } catch (LWJGLException ex2) {
                         throw ex2;
                     } catch (SecurityException ex2) {
+                        // rethrow the original error if we can't change the system property
                         throw ex;
                     }
+                } else {
+                    throw ex;
                 }
             }
             Display.setVSyncEnabled(true);
 
-            Input input;
-            if(LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_LINUX) {
-                // don't call Display.isActive() on linux - it returns bogus values with LWJGL 2.5
-                input = new Input() {
-                    public boolean pollInput(GUI gui) {
-                        if(Keyboard.isCreated()) {
-                            while(Keyboard.next()) {
-                                gui.handleKey(
-                                        Keyboard.getEventKey(),
-                                        Keyboard.getEventCharacter(),
-                                        Keyboard.getEventKeyState());
-                            }
-                        }
-                        if(Mouse.isCreated()) {
-                            while(Mouse.next()) {
-                                gui.handleMouse(
-                                        Mouse.getEventX(), gui.getHeight() - Mouse.getEventY() - 1,
-                                        Mouse.getEventButton(), Mouse.getEventButtonState());
-
-                                int wheelDelta = Mouse.getEventDWheel();
-                                if(wheelDelta != 0) {
-                                    gui.handleMouseWheel(wheelDelta / 120);
-                                }
-                            }
-                        }
-                        return true;
-                    }
-                };
-            } else {
-                input = new LWJGLInput();
-            }
-            
             LWJGLRenderer renderer = new LWJGLRenderer();
             MainUI root = new MainUI();
-            GUI gui = new GUI(root, renderer, input);
+            GUI gui = new GUI(root, renderer, new LWJGLInput());
 
             root.setFocusKeyEnabled(true);
 
@@ -226,6 +199,27 @@ public class Main extends Frame {
                 root.openMessagesDialog();
             }
 
+            String lwjglVersionMsg = null;
+            Matcher matcher = Pattern.compile("^(\\d)\\.(\\d)").matcher(Sys.getVersion());
+            if(matcher.matches()) {
+                int major = Integer.parseInt(matcher.group(1));
+                int minor = Integer.parseInt(matcher.group(2));
+                if(major < REQUIRED_LWJGL_VERSION_MAJOR || (major == REQUIRED_LWJGL_VERSION_MAJOR && minor < REQUIRED_LWJGL_VERSION_MINOR)) {
+                    lwjglVersionMsg = "is too old and could result in mouse handling issues";
+                }
+            } else {
+                lwjglVersionMsg = "could not be parsed";
+            }
+
+            if(lwjglVersionMsg != null) {
+                Category cat = new MessageLog.Category("LWJGL", MessageLog.CombineMode.NONE, DecoratedText.WARNING);
+                root.addMessage(new MessageLog.Entry(cat, "LWJGL version",
+                        "The used version of LWJGL (" + Sys.getVersion() + ") " + lwjglVersionMsg +
+                        ".\nIt is suggested to upgrade to LWJGL " + REQUIRED_LWJGL_VERSION_MAJOR +
+                        "." + REQUIRED_LWJGL_VERSION_MINOR + " or later.", null));
+                root.openMessagesDialog();
+            }
+
             while(!Display.isCloseRequested() && !closeRequested && !root.isCloseRequested()) {
                 if(canvasSizeChanged) {
                     canvasSizeChanged = false;
@@ -236,8 +230,7 @@ public class Main extends Frame {
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
                 gui.update();
-                Display.update(false);
-                reduceInputLag();
+                Display.update();
             }
 
             gui.destroy();
@@ -246,20 +239,6 @@ public class Main extends Frame {
             showErrMsg(ex);
         }
         Display.destroy();
-    }
-
-    /**
-     * reduce input lag by polling input devices after waiting for vsync
-     *
-     * Call after Display.update()
-     */
-    private static void reduceInputLag() {
-        // calling glGetError() will cause high CPU usage - so disable it for now
-        //GL11.glGetError();          // this call will burn the time between vsyncs
-        Display.processMessages();  // process new native messages since Display.update();
-        // *.poll() is called already by processMessages() above
-        //Mouse.poll();               // now update Mouse events
-        //Keyboard.poll();            // and Keyboard too
     }
 
     @SuppressWarnings("CallToThreadDumpStack")
