@@ -49,36 +49,12 @@ public class OutlineEffect extends Effect {
     private final SimpleProperty<Color> color = new SimpleProperty<Color>(Color.class, "color", Color.GRAY);
     private final SimpleProperty<Join> join = new SimpleProperty<Join>(Join.class, "join", Join.BEVEL);
 
-    private BasicStroke stroke;
-
     @Override
-    public void prePageRender(Graphics2D g, FontInfo fontInfo) {
-        stroke = new BasicStroke(
-                Math.max(0.001f, width.getPropertyValue()),
-                BasicStroke.CAP_SQUARE, join.getPropertyValue().awtJoin);
-    }
-
-    @Override
-    public void postGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {
-        int offY = glyph.yDrawOffset - glyph.yoffset;
-        g.setColor(color.getPropertyValue());
-        g.setStroke(stroke);
-        g.setPaint(null);
-        g.translate(glyph.xDrawOffset, offY);
-        g.draw(glyph.glyphShape);
-        g.translate(-glyph.xDrawOffset, -offY);
-    }
-
-    @Override
-    public Padding getPadding() {
-        int advance = Math.round(width.getPropertyValue());
-        int padding = Math.round(width.getPropertyValue() * 0.5f);
-        return new Padding(padding, padding, padding, padding, advance);
-    }
-
-    @Override
-    protected Effect createNew() {
-        return new OutlineEffect();
+    public Renderer createRenderer() {
+        return new RendererImpl(
+                width.getPropertyValue(),
+                join.getPropertyValue().awtJoin,
+                color.getPropertyValue());
     }
 
     @Override
@@ -98,6 +74,42 @@ public class OutlineEffect extends Effect {
         int awtJoin;
         private Join(int awtJoin) {
             this.awtJoin = awtJoin;
+        }
+    }
+
+    private static class RendererImpl extends Renderer {
+        private final float width;
+        private final int awtJoin;
+        private final Color color;
+        private BasicStroke stroke;
+
+        public RendererImpl(float width, int awtJoin, Color color) {
+            this.width = width;
+            this.awtJoin = awtJoin;
+            this.color = color;
+        }
+
+        @Override
+        public void prePageRender(Graphics2D g, FontInfo fontInfo) {
+            stroke = new BasicStroke(Math.max(0.001f, width), BasicStroke.CAP_SQUARE, awtJoin);
+        }
+
+        @Override
+        public void postGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {
+            int offY = glyph.yDrawOffset - glyph.yoffset;
+            g.setColor(color);
+            g.setStroke(stroke);
+            g.setPaint(null);
+            g.translate(glyph.xDrawOffset, offY);
+            g.draw(glyph.glyphShape);
+            g.translate(-glyph.xDrawOffset, -offY);
+        }
+
+        @Override
+        public Padding getPadding() {
+            int advance = Math.round(width);
+            int padding = Math.round(width * 0.5f);
+            return new Padding(padding, padding, padding, padding, advance);
         }
     }
 }

@@ -38,30 +38,21 @@ import java.awt.Graphics2D;
  * @author Matthias Mann
  */
 public abstract class Effect {
-    
-    public void prePageRender(Graphics2D g, FontInfo fontInfo) {}
-    public void preGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {}
-    public void postGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {}
-    public void postPageRender(Graphics2D g, FontInfo fontInfo) {}
 
-    public Padding getPadding() {
-        return null;
+    public abstract static class Renderer {
+        public void prePageRender(Graphics2D g, FontInfo fontInfo) {}
+        public void preGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {}
+        public void postGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {}
+        public void postPageRender(Graphics2D g, FontInfo fontInfo) {}
+
+        public Padding getPadding() {
+            return null;
+        }
     }
     
     public abstract Property<?>[] getProperties();
 
-    protected abstract Effect createNew();
-
-    @SuppressWarnings("unchecked")
-    public final Effect makeCopy() {
-        Effect result = createNew();
-        Property[] srcProp = getProperties();
-        Property[] dstProp = result.getProperties();
-        for(int i=0 ; i<srcProp.length ; i++) {
-            dstProp[i].setPropertyValue(srcProp[i].getPropertyValue());
-        }
-        return result;
-    }
+    public abstract Renderer createRenderer();
 
     protected static final class ColorConvertProperty implements Property<Color> {
         private final Property<java.awt.Color> base;

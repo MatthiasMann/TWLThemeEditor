@@ -59,7 +59,7 @@ public class FontDisplay extends Widget {
     private Padding padding;
     private boolean paddingAutomatic;
     private CharSet charSet;
-    private Effect[] effects;
+    private Effect.Renderer[] effects;
 
     private boolean pendingUpdate;
     private boolean updateRunning;
@@ -100,9 +100,9 @@ public class FontDisplay extends Widget {
     }
 
     public void setEffects(Effect[] effects) {
-        Effect[] tmp = new Effect[effects.length];
+        Effect.Renderer[] tmp = new Effect.Renderer[effects.length];
         for(int i=0 ; i<effects.length ; i++) {
-            tmp[i] = effects[i].makeCopy();
+            tmp[i] = effects[i].createRenderer();
         }
         this.effects = tmp;
         update();
@@ -127,7 +127,7 @@ public class FontDisplay extends Widget {
     private Padding computePadding() {
         if(paddingAutomatic) {
             Padding p = Padding.ZERO;
-            for(Effect effect : effects) {
+            for(Effect.Renderer effect : effects) {
                 Padding ep = effect.getPadding();
                 if(ep != null) {
                     p = p.max(ep);
@@ -215,9 +215,9 @@ public class FontDisplay extends Widget {
         private final FontGenerator fontGen;
         private final Padding padding;
         private final CharSet charSet;
-        private final Effect[] effects;
+        private final Effect.Renderer[] effects;
 
-        public GenFont(GUI gui, int textureSize, FontData fontData, Padding padding, CharSet charSet, Effect[] effects) {
+        public GenFont(GUI gui, int textureSize, FontData fontData, Padding padding, CharSet charSet, Effect.Renderer[] effects) {
             this.gui = gui;
             this.textureSize = textureSize;
             this.fontGen = new FontGenerator(fontData);

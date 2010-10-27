@@ -577,11 +577,11 @@ public final class FontGenDialog {
         fontDisplay.setTextureSize(getTextureSize());
     }
 
-    private Integer getTextureSize() {
+    Integer getTextureSize() {
         return textureSizesModel.getEntry(textureSizeCB.getSelected());
     }
 
-    private FontGenerator.ExportFormat getExportFormat() {
+    FontGenerator.ExportFormat getExportFormat() {
         int selected = exportFormatCB.getSelected();
         if(selected >= 0) {
             return exportFormatModel.getEntry(selected);

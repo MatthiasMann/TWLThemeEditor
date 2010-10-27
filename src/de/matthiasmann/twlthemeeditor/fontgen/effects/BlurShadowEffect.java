@@ -51,71 +51,26 @@ import java.awt.image.Kernel;
 public class BlurShadowEffect extends Effect {
 
     /** The number of kernels to apply */
-    private static final int NUM_KERNELS = 16;
+    static final int NUM_KERNELS = 16;
     /** The blur kernels applied across the effect */
-    private static final float[][] GAUSSIAN_BLUR_KERNELS = generateGaussianBlurKernels(NUM_KERNELS);
+    static final float[][] GAUSSIAN_BLUR_KERNELS = generateGaussianBlurKernels(NUM_KERNELS);
+    /** Hints for ConvolveOp */
+    static final RenderingHints hints = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
     private final SimpleProperty<Float> distance = new SimpleProperty<Float>(Float.class, "distance", 3.0f);
     private final SimpleProperty<Integer> kernelsize = new SimpleProperty<Integer>(Integer.class, "kernel size", 3);
     private final SimpleProperty<Integer> passes = new SimpleProperty<Integer>(Integer.class, "num passes", 1);
     private final SimpleProperty<Color> color = new SimpleProperty<Color>(Color.class, "color", new Color(0, 0, 0, 128));
 
-    private final RenderingHints hints = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-    private ConvolveOp filterH;
-    private ConvolveOp filterV;
-
     @Override
-    public void prePageRender(Graphics2D g, FontInfo fontInfo) {
-        int kernelSize = kernelsize.getPropertyValue();
-        int numPasses = this.passes.getPropertyValue();
-        if (kernelSize > 1 && numPasses >= 1) {
-            final float[] matrix = GAUSSIAN_BLUR_KERNELS[Math.min(NUM_KERNELS, kernelSize) - 1];
-
-            Kernel kernelH = new Kernel(matrix.length, 1, matrix);
-            Kernel kernelV = new Kernel(1, matrix.length, matrix);
-            filterH = new ConvolveOp(kernelH, ConvolveOp.EDGE_NO_OP, hints);
-            filterV = new ConvolveOp(kernelV, ConvolveOp.EDGE_NO_OP, hints);
-        } else {
-            filterH = null;
-            filterV = null;
-        }
+    public Renderer createRenderer() {
+        return new RendererImpl(
+                kernelsize.getPropertyValue(),
+                passes.getPropertyValue(),
+                color.getPropertyValue(),
+                distance.getPropertyValue());
     }
 
-    @Override
-    public void preGlyphRender(Graphics2D g, FontInfo context, GlyphRect glyph) {
-        float dist = distance.getPropertyValue();
-        BufferedImage image1 = new BufferedImage(glyph.width, glyph.height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g1 = image1.createGraphics();
-        g1.setColor(color.getPropertyValue());
-        g1.translate(glyph.xDrawOffset + dist, glyph.yDrawOffset - glyph.yoffset + dist);
-        g1.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g1.fill(glyph.glyphShape);
-        g1.dispose();
-
-        if (filterH != null && filterV != null) {
-            BufferedImage image2 = new BufferedImage(glyph.width, glyph.height, BufferedImage.TYPE_INT_ARGB);
-
-            int numPasses = this.passes.getPropertyValue();
-            for (int i=0 ; i<numPasses ; i++) {
-                filterH.filter(image1, image2);
-                filterV.filter(image2, image1);
-            }
-        }
-        
-        g.drawImage(image1, 0, 0, null);
-    }
-
-    @Override
-    public void postPageRender(Graphics2D g, FontInfo fontInfo) {
-        filterH = null;
-        filterV = null;
-    }
-
-    @Override
-    public Padding getPadding() {
-        int dist = Math.round((float)Math.ceil(distance.getPropertyValue()));
-        return new Padding(0, 0,dist, dist, 0);
-    }
 
     @Override
     public Property<?>[] getProperties() {
@@ -127,9 +82,66 @@ public class BlurShadowEffect extends Effect {
         };
     }
 
-    @Override
-    protected Effect createNew() {
-        return new BlurShadowEffect();
+    private static class RendererImpl extends Renderer {
+        private final int kernelSize;
+        private final int numPasses;
+        private final Color color;
+        private final float dist;
+
+        public RendererImpl(int kernelSize, int numPasses, Color color, float dist) {
+            this.kernelSize = kernelSize;
+            this.numPasses = numPasses;
+            this.color = color;
+            this.dist = dist;
+        }
+
+        private ConvolveOp filterH;
+        private ConvolveOp filterV;
+
+        @Override
+        public void prePageRender(Graphics2D g, FontInfo fontInfo) {
+            if(kernelSize > 1 && numPasses >= 1) {
+                final float[] matrix = GAUSSIAN_BLUR_KERNELS[Math.min(NUM_KERNELS, kernelSize) - 1];
+                Kernel kernelH = new Kernel(matrix.length, 1, matrix);
+                Kernel kernelV = new Kernel(1, matrix.length, matrix);
+                filterH = new ConvolveOp(kernelH, ConvolveOp.EDGE_NO_OP, hints);
+                filterV = new ConvolveOp(kernelV, ConvolveOp.EDGE_NO_OP, hints);
+            } else {
+                filterH = null;
+                filterV = null;
+            }
+        }
+
+        @Override
+        public void preGlyphRender(Graphics2D g, FontInfo context, GlyphRect glyph) {
+            BufferedImage image1 = new BufferedImage(glyph.width, glyph.height, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g1 = image1.createGraphics();
+            g1.setColor(color);
+            g1.translate(glyph.xDrawOffset + dist, glyph.yDrawOffset - glyph.yoffset + dist);
+            g1.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g1.fill(glyph.glyphShape);
+            g1.dispose();
+            if(filterH != null && filterV != null) {
+                BufferedImage image2 = new BufferedImage(glyph.width, glyph.height, BufferedImage.TYPE_INT_ARGB);
+                for(int i = 0; i < numPasses; i++) {
+                    filterH.filter(image1, image2);
+                    filterV.filter(image2, image1);
+                }
+            }
+            g.drawImage(image1, 0, 0, null);
+        }
+
+        @Override
+        public void postPageRender(Graphics2D g, FontInfo fontInfo) {
+            filterH = null;
+            filterV = null;
+        }
+
+        @Override
+        public Padding getPadding() {
+            int padding = Math.round((float)Math.ceil(dist));
+            return new Padding(0, 0, padding, padding, 0);
+        }
     }
 
     /**
@@ -186,5 +198,4 @@ public class BlurShadowEffect extends Effect {
 
         return triangle;
     }
-
 }

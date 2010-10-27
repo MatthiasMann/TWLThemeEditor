@@ -78,7 +78,7 @@ public class FontGenerator {
         this.fontData = fontData;
     }
 
-    public void generate(int width, int height, CharSet set, Padding padding, Effect[] effects) {
+    public void generate(int width, int height, CharSet set, Padding padding, Effect.Renderer[] effects) {
         this.padding = padding;
         
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -148,7 +148,7 @@ public class FontGenerator {
             }
         });
 
-        for(Effect effect : effects) {
+        for(Effect.Renderer effect : effects) {
             effect.prePageRender(g, fontInfo);
         }
 
@@ -187,11 +187,11 @@ public class FontGenerator {
             
             Graphics2D gGlyph = (Graphics2D) g.create(xp, yp, rect.width, rect.height);
             try {
-                for(Effect effect : effects) {
+                for(Effect.Renderer effect : effects) {
                     effect.preGlyphRender(gGlyph, fontInfo, rect);
                 }
                 rect.drawGlyph(gGlyph);
-                for(Effect effect : effects) {
+                for(Effect.Renderer effect : effects) {
                     effect.postGlyphRender(gGlyph, fontInfo, rect);
                 }
             } finally {
@@ -214,7 +214,7 @@ public class FontGenerator {
             }
         }
 
-        for(Effect effect : effects) {
+        for(Effect.Renderer effect : effects) {
             effect.postPageRender(g, fontInfo);
         }
 

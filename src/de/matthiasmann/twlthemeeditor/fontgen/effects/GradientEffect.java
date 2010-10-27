@@ -50,10 +50,10 @@ public class GradientEffect extends Effect {
     private final SimpleProperty<Color> colorBottom = new SimpleProperty<Color>(Color.class, "bottom color", Color.RED);
 
     @Override
-    public void preGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {
-        g.setPaint(new GradientPaint(
-                0, -fontInfo.maxGlyphHeight, colorTop.getPropertyValue(),
-                0, fontInfo.maxGlyphDecent, colorBottom.getPropertyValue()));
+    public Renderer createRenderer() {
+        return new RendererImpl(
+                colorTop.getPropertyValue(),
+                colorBottom.getPropertyValue());
     }
 
     @Override
@@ -64,8 +64,20 @@ public class GradientEffect extends Effect {
         };
     }
 
-    @Override
-    protected Effect createNew() {
-        return new GradientEffect();
+    private static class RendererImpl extends Renderer {
+        private final Color colorTop;
+        private final Color colorBottom;
+
+        public RendererImpl(Color colorTop, Color colorBottom) {
+            this.colorTop = colorTop;
+            this.colorBottom = colorBottom;
+        }
+
+        @Override
+        public void preGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {
+            g.setPaint(new GradientPaint(
+                    0, -fontInfo.maxGlyphHeight, colorTop,
+                    0,  fontInfo.maxGlyphDecent, colorBottom));
+        }
     }
 }
