@@ -52,10 +52,11 @@ public class BooleanEditorFactory implements
         return createToggleButton(property, "boolean");
     }
 
-    public void createSpecial(Group horz, Group vert, Property<Boolean> property) {
+    public boolean createSpecial(Group horz, Group vert, Property<Boolean> property) {
         ToggleButton btn = createToggleButton(property, "checkbox");
         horz.addWidget(btn);
         vert.addWidget(btn);
+        return true;
     }
 
     private ToggleButton createToggleButton(Property<Boolean> property, String theme) {

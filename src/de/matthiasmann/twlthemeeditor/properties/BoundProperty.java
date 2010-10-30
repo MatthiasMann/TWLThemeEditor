@@ -97,6 +97,10 @@ public class BoundProperty<T> extends AbstractProperty<T> {
         this(bean, name, getReadMethod(bean, name, type), getWriteMethod(bean, name, type), type);
     }
 
+    public BoundProperty(Object bean, String displayName, String propertyName, Class<T> type) {
+        this(bean, displayName, getReadMethod(bean, propertyName, type), getWriteMethod(bean, propertyName, type), type);
+    }
+
     public BoundProperty(Object bean, PropertyDescriptor pd, Class<T> type) {
         this(bean, pd.getName(), pd.getReadMethod(), pd.getWriteMethod(), type);
     }
@@ -141,7 +145,7 @@ public class BoundProperty<T> extends AbstractProperty<T> {
         }
     }
 
-    void propertyChanged() {
+    protected void propertyChanged() {
         gotPropertyChangeEvent = true;
         fireValueChangedCallback();
     }

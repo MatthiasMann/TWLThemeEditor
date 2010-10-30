@@ -34,6 +34,7 @@ import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
+import java.util.Collection;
 
 /**
  *
@@ -43,12 +44,21 @@ public final class PropertyPanel extends DialogLayout {
 
     private final PropertyFactories factories;
 
-    public PropertyPanel(PropertyFactories factories, Property<?>[] properties) {
+    public PropertyPanel(PropertyFactories factories) {
         this.factories = factories;
-        
         setHorizontalGroup(createParallelGroup());
         setVerticalGroup(createSequentialGroup());
+    }
 
+    public PropertyPanel(PropertyFactories factories, Property<?>[] properties) {
+        this(factories);
+        for(Property<?> p : properties) {
+            addProperty(p);
+        }
+    }
+
+    public PropertyPanel(PropertyFactories factories, Collection<Property<?>> properties) {
+        this(factories);
         for(Property<?> p : properties) {
             addProperty(p);
         }
@@ -60,9 +70,13 @@ public final class PropertyPanel extends DialogLayout {
         
         PropertyEditorFactory<?, ?> factory = factories.getFactory(p);
         if(!optional && (factory instanceof SpecialPropertyEditorFactory)) {
-            ((SpecialPropertyEditorFactory<T>)factory).createSpecial(
-                    getHorizontalGroup(), getVerticalGroup(), p);
-        } else if(factory != null) {
+            if(((SpecialPropertyEditorFactory<T>)factory).createSpecial(
+                    getHorizontalGroup(), getVerticalGroup(), p)) {
+                return;
+            }
+        }
+
+        if(factory != null) {
             BooleanModel activeModel = null;
 
             if(optional) {

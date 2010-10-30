@@ -580,7 +580,16 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
                 <param name=""><image>property-checkbox.*</image></param>
                 <param name="border"><border>background.border</border></param>
             </theme>
-            
+
+            <theme name="readOnlyInteger" ref="dialoglayout">
+                <param name=""><image>collapsiblepanel.*</image></param>
+                <param name="border"><border>background.border</border></param>
+                <theme name="label" ref="label"/>
+                <theme name="value" ref="label">
+                    <param name="textAlignment"><enum type="alignment">right</enum></param>
+                </theme>
+            </theme>
+
             <theme name="collapsiblepanel" ref="dialoglayout">
                 <param name=""><image>collapsiblepanel.*</image></param>
                 <param name="border"><border>background.border</border></param>

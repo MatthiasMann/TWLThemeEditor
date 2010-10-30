@@ -31,7 +31,9 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twl.Dimension;
+import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.ScrollPane;
+import de.matthiasmann.twl.Timer;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractProperty;
 import de.matthiasmann.twl.model.IntegerModel;
@@ -54,6 +56,8 @@ import java.util.logging.Logger;
 public class WidgetPropertyEditor extends ScrollPane {
 
     private Context ctx;
+    private Timer timer;
+    private ArrayList<Property<?>> properties;
 
     public WidgetPropertyEditor() {
         setFixed(ScrollPane.Fixed.HORIZONTAL);
@@ -67,10 +71,14 @@ public class WidgetPropertyEditor extends ScrollPane {
     public void setWidget(final Widget testWidget) {
         if(testWidget == null || ctx == null) {
             setContent(null);
+            properties = null;
             return;
         }
-        ArrayList<Property<?>> properties = new ArrayList<Property<?>>();
+        
+        properties = new ArrayList<Property<?>>();
         properties.add(new WidgetRectProperty(testWidget));
+        properties.add(new PolledBoundProperty<Integer>(testWidget, "Preferred Width", "preferredWidth", Integer.class));
+        properties.add(new PolledBoundProperty<Integer>(testWidget, "Preferred Height", "preferredHeight", Integer.class));
         properties.add(new WidgetThemeProperty(testWidget, ctx));
         properties.add(new AbstractProperty<AnimationState>() {
             public boolean canBeNull() {
@@ -104,7 +112,7 @@ public class WidgetPropertyEditor extends ScrollPane {
         });
         addBeanProperties(testWidget, properties);
 
-        PropertyPanel panel = new PropertyPanel(ctx, properties.toArray(new Property<?>[properties.size()]));
+        PropertyPanel panel = new PropertyPanel(ctx, properties);
         setContent(panel);
     }
 
@@ -122,6 +130,38 @@ public class WidgetPropertyEditor extends ScrollPane {
             }
         } catch(Throwable ex) {
             Logger.getLogger(WidgetPropertyEditor.class.getName()).log(Level.SEVERE, "can't collect bean properties", ex);
+        }
+    }
+
+    @Override
+    protected void afterAddToGUI(GUI gui) {
+        super.afterAddToGUI(gui);
+        timer = gui.createTimer();
+        timer.setContinuous(true);
+        timer.setDelay(500);
+        timer.setCallback(new Runnable() {
+            public void run() {
+                pollProperties();
+            }
+        });
+        timer.start();
+    }
+
+    @Override
+    protected void beforeRemoveFromGUI(GUI gui) {
+        timer.stop();
+        timer = null;
+        super.beforeRemoveFromGUI(gui);
+    }
+
+    void pollProperties() {
+        if(properties != null) {
+            for(int i=0,n=properties.size() ; i<n ; i++) {
+                Property<?> p = properties.get(i);
+                if(p instanceof PolledBoundProperty<?>) {
+                    ((PolledBoundProperty<?>)p).poll();
+                }
+            }
         }
     }
 
@@ -219,4 +259,42 @@ public class WidgetPropertyEditor extends ScrollPane {
         }
     }
 
+    static class PolledBoundProperty<T> extends BoundProperty<T> {
+        private T lastValue;
+
+        public PolledBoundProperty(Object bean, String name, Class<T> type) {
+            super(bean, name, type);
+        }
+
+        public PolledBoundProperty(Object bean, String displayName, String propertyName, Class<T> type) {
+            super(bean, displayName, propertyName, type);
+        }
+
+        @Override
+        public T getPropertyValue() {
+            updateValue();
+            return lastValue;
+        }
+
+        @Override
+        protected void propertyChanged() {
+            updateValue();
+            super.propertyChanged();
+        }
+
+        public void poll() {
+            T value = super.getPropertyValue();
+            if(value != lastValue) {
+                boolean changed = value == null || (value != null && !value.equals(lastValue));
+                lastValue = value;
+                if(changed) {
+                    fireValueChangedCallback();
+                }
+            }
+        }
+
+        private void updateValue() {
+            lastValue = super.getPropertyValue();
+        }
+    }
 }

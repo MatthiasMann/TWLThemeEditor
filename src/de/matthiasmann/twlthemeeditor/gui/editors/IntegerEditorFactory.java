@@ -29,29 +29,71 @@
  */
 package de.matthiasmann.twlthemeeditor.gui.editors;
 
+import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.DialogLayout.Group;
+import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.SpecialPropertyEditorFactory;
 
 /**
  *
  * @author Matthias Mann
  */
-public class IntegerEditorFactory implements PropertyEditorFactory<Integer, Property<Integer>> {
-
+public class IntegerEditorFactory implements
+        PropertyEditorFactory<Integer, Property<Integer>>,
+        SpecialPropertyEditorFactory<Integer>
+{
     public Widget create(final PropertyAccessor<Integer, Property<Integer>> pa) {
         Property<Integer> property = pa.getProperty();
-        ValueAdjusterInt va = new ValueAdjusterInt((property instanceof IntegerModel)
-                ? (IntegerModel)property
-                : new PropertyIntegerModel(property));
+        ValueAdjusterInt va = new ValueAdjusterInt(asIntegerModel(property));
         pa.setWidgetsToEnable(va);
-
         return va;
     }
 
+    public boolean createSpecial(Group horz, Group vert, Property<Integer> property) {
+        if(property.isReadOnly()) {
+            final IntegerModel integerModel = asIntegerModel(property);
+            final Label valueLabel = new Label();
+            final Runnable callback = new Runnable() {
+                public void run() {
+                    valueLabel.setText(Integer.toString(integerModel.getValue()));
+                }
+            };
+            integerModel.addCallback(callback);
+            valueLabel.setTheme("value");
+            callback.run();
+
+            Label nameLabel = new Label(property.getName());
+            nameLabel.setLabelFor(valueLabel);
+
+            DialogLayout layout = new DialogLayout();
+            layout.setTheme("readOnlyInteger");
+            layout.setHorizontalGroup(layout.createSequentialGroup()
+                    .addWidget(nameLabel)
+                    .addGap()
+                    .addWidget(valueLabel));
+            layout.setVerticalGroup(layout.createParallelGroup()
+                    .addWidget(nameLabel)
+                    .addWidget(valueLabel));
+
+            horz.addWidget(layout);
+            vert.addWidget(layout);
+            return true;
+        }
+        return false;
+    }
+
+    private static IntegerModel asIntegerModel(Property<Integer> property) {
+        return (property instanceof IntegerModel)
+                ? (IntegerModel)property
+                : new PropertyIntegerModel(property);
+    }
+    
     static class PropertyIntegerModel implements IntegerModel {
         final Property<Integer> property;
         public PropertyIntegerModel(Property<Integer> property) {

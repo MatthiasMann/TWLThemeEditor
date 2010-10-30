@@ -38,6 +38,6 @@ import de.matthiasmann.twl.model.Property;
  */
 public interface SpecialPropertyEditorFactory<T> {
 
-    public void createSpecial(DialogLayout.Group horz, DialogLayout.Group vert, Property<T> pa);
+    public boolean createSpecial(DialogLayout.Group horz, DialogLayout.Group vert, Property<T> pa);
     
 }
