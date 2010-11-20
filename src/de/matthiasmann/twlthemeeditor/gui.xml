@@ -858,6 +858,7 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
                         <theme name="selectFontBtn" ref="button">
                             <param name="text"><string>...</string></param>
                         </theme>
+                        <theme name="useAACheckbox" ref="checkbox"/>
 
                         <theme name="collapsiblepanel" ref="dialoglayout">
                             <param name=""><image>collapsiblepanel.*</image></param>

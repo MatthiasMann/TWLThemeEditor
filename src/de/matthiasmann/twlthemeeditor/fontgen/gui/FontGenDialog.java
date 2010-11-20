@@ -96,6 +96,7 @@ public final class FontGenDialog {
     private final ScrollPane unicodeBlocksSP;
     private final SimpleIntegerModel fontSizeModel;
     private final ValueAdjusterInt fontSizeAdjuster;
+    private final ToggleButton useAACheckbox;
     private final EffectsPanel effectsPanel;
     private final ScrollPane effectsPanelSP;
     private final FontDisplay fontDisplay;
@@ -115,7 +116,9 @@ public final class FontGenDialog {
     private FontData fontData;
     
     public FontGenDialog(Widget owner) {
-        this.charSet = new CharSet();
+        charSet = new CharSet();
+        charSet.setBlock(UnicodeBlock.BASIC_LATIN, true);
+        charSet.setBlock(UnicodeBlock.LATIN_1_SUPPLEMENT, true);
 
         effectsPanel = new EffectsPanel();
 
@@ -158,6 +161,15 @@ public final class FontGenDialog {
         textureSizeCB.addCallback(new Runnable() {
             public void run() {
                 updateTextureSize();
+            }
+        });
+
+        useAACheckbox = new ToggleButton("Use Antialiasing rendering");
+        useAACheckbox.setTheme("useAACheckbox");
+        useAACheckbox.setActive(true);
+        useAACheckbox.addCallback(new Runnable() {
+            public void run() {
+                updateAA();
             }
         });
 
@@ -207,6 +219,7 @@ public final class FontGenDialog {
         effectsPanel.addControl("TTF Font", fontPathEF, selectFontBtn);
         effectsPanel.addControl("Texture size", textureSizeCB);
         effectsPanel.addControl("Font size", fontSizeAdjuster);
+        effectsPanel.addControl(useAACheckbox);
         effectsPanel.addControl("Preview BG", fontDisplayBgCB);
         effectsPanel.addCollapsible("Unicode blocks", unicodeBlocksSP, null).setExpanded(true);
         effectsPanel.addCollapsible("Manual Padding", paddingAdjuster, manualPaddingModel);
@@ -312,6 +325,7 @@ public final class FontGenDialog {
         updateTextureSize();
         updateCharset();
         updateFont();
+        updateAA();
         updatePadding();
         updateEffects();
         updateStatusBar();
@@ -361,6 +375,7 @@ public final class FontGenDialog {
     private static final String KEY_FONTSIZE = "fontSize";
     private static final String KEY_EXPORTFORMAT = "exportFormat";
     private static final String KEY_PADDING_AUTOMATIC = "padding.automatic";
+    private static final String KEY_USEAA = "useAA";
     private static final String[] KEY_PADDING = {
         "padding.top",
         "padding.left",
@@ -414,6 +429,8 @@ public final class FontGenDialog {
         } catch (IllegalArgumentException ignore) {
         }
 
+        useAACheckbox.setActive(Boolean.parseBoolean(properties.getProperty(KEY_USEAA, "true")));
+
         manualPaddingModel.setValue(!Boolean.parseBoolean(properties.getProperty(KEY_PADDING_AUTOMATIC, "false")));
         for(int i=0 ; i<5 ; i++) {
             int padding = 0;
@@ -449,6 +466,7 @@ public final class FontGenDialog {
         properties.setProperty(KEY_TEXTURESIZE, Integer.toString(getTextureSize()));
         properties.setProperty(KEY_FONTSIZE, Integer.toString(fontSizeModel.getValue()));
         properties.setProperty(KEY_EXPORTFORMAT, getExportFormat().name());
+        properties.setProperty(KEY_USEAA, Boolean.toString(useAACheckbox.isActive()));
         charSet.save(properties);
         properties.setProperty(KEY_PADDING_AUTOMATIC, Boolean.toString(!manualPaddingModel.getValue()));
         for(int i=0 ; i<5 ; i++) {
@@ -571,6 +589,10 @@ public final class FontGenDialog {
         } else {
             fontDisplay.setFontData(null);
         }
+    }
+
+    void updateAA() {
+        fontDisplay.setUseAA(useAACheckbox.isActive());
     }
 
     void updateTextureSize() {

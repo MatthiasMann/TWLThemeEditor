@@ -58,6 +58,7 @@ public class FontDisplay extends Widget {
     private FontData fontData;
     private Padding padding;
     private boolean paddingAutomatic;
+    private boolean useAA;
     private CharSet charSet;
     private Effect.Renderer[] effects;
 
@@ -94,6 +95,11 @@ public class FontDisplay extends Widget {
         update();
     }
 
+    public void setUseAA(boolean useAA) {
+        this.useAA = useAA;
+        update();
+    }
+
     public void setCharSet(CharSet charSet) {
         this.charSet = new CharSet(charSet);
         update();
@@ -118,7 +124,7 @@ public class FontDisplay extends Widget {
             if(updateRunning) {
                 pendingUpdate = true;
             } else {
-                executor.execute(new GenFont(gui, textureSize, fontData, computePadding(), charSet, effects));
+                executor.execute(new GenFont(gui, textureSize, fontData, computePadding(), charSet, effects, useAA));
                 updateRunning = true;
             }
         }
@@ -216,21 +222,23 @@ public class FontDisplay extends Widget {
         private final Padding padding;
         private final CharSet charSet;
         private final Effect.Renderer[] effects;
+        private final boolean useAA;
 
-        public GenFont(GUI gui, int textureSize, FontData fontData, Padding padding, CharSet charSet, Effect.Renderer[] effects) {
+        public GenFont(GUI gui, int textureSize, FontData fontData, Padding padding, CharSet charSet, Effect.Renderer[] effects, boolean useAA) {
             this.gui = gui;
             this.textureSize = textureSize;
             this.fontGen = new FontGenerator(fontData);
             this.padding = padding;
             this.charSet = charSet;
             this.effects = effects;
+            this.useAA = useAA;
         }
 
         public void run() {
             UploadImage result;
 
             try {
-                fontGen.generate(textureSize, textureSize, charSet, padding, effects);
+                fontGen.generate(textureSize, textureSize, charSet, padding, effects, useAA);
                 result = new UploadImage(fontGen, textureSize);
             } catch(Throwable ex) {
                 result = new UploadImage(null, 0);
