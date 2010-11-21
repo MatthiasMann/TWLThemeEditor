@@ -78,6 +78,7 @@
         <parallel>
             <jar destfile="${dist.dir}/lwjgl-win.jar" basedir="${natives.lwjgl}" compress="true" level="9">
                 <include name="lwjgl*.dll"/>
+                <include name="freetype6.dll"/>
             </jar>
             <jar destfile="${dist.dir}/lwjgl-linux.jar" basedir="${natives.lwjgl}" compress="true" level="9">
                 <include name="liblwjgl*.so"/>
