@@ -95,7 +95,7 @@
             classpath="${libs.p200ant.classpath}"/>
 
         <delete file="hudson.keystore"/>
-        <genkey validity="14" dname="CN=TWL Theme Editor" alias="TWLThemeEditor" storepass="hudson" keystore="hudson.keystore"/>
+        <genkey validity="180" dname="CN=TWL Theme Editor" alias="TWLThemeEditor" storepass="hudson" keystore="hudson.keystore"/>
 
         <copy file="${reference.TWL.jar}" todir="${dist.dir}"/>
 
