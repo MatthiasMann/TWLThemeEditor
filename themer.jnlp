@@ -22,6 +22,8 @@
     <jar download="eager" href="xpp3-1.1.4c.jar" main="false" version=""/>
     <jar download="eager" href="lwjgl.jar" main="false" version=""/>
     <jar download="eager" href="TWL.jar" main="false" version=""/>
+    <jar download="eager" href="jna.jar" main="false" version=""/>
+    <jar download="eager" href="JavaFreeType.jar" main="false" version=""/>
     <jar download="eager" href="jdom.jar" main="false" version=""/>
   </resources>
   <resources locale="" os="Windows">
