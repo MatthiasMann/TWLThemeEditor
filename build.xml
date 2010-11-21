@@ -104,6 +104,8 @@
                 <pathelement path="${libs.LWJGL.classpath}"/>
                 <pathelement path="${libs.MXP1.classpath}"/>
                 <pathelement path="${libs.jdom.classpath}"/>
+                <pathelement path="${libs.jna.classpath}"/>
+                <pathelement path="${libs.JavaFreeType.classpath}"/>
                 <fileset dir="." includes="*.jnlp"/>
             </path>
         </copy>
