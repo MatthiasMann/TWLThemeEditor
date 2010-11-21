@@ -98,14 +98,14 @@
         <genkey validity="180" dname="CN=TWL Theme Editor" alias="TWLThemeEditor" storepass="hudson" keystore="hudson.keystore"/>
 
         <copy file="${reference.TWL.jar}" todir="${dist.dir}"/>
+        <copy file="${reference.JavaFreeType.jar}" todir="${dist.dir}"/>
 
         <copy todir="${dist.dir}" flatten="true">
             <path>
                 <pathelement path="${libs.LWJGL.classpath}"/>
                 <pathelement path="${libs.MXP1.classpath}"/>
                 <pathelement path="${libs.jdom.classpath}"/>
-                <pathelement path="${libs.jna.classpath}"/>
-                <pathelement path="${libs.JavaFreeType.classpath}"/>
+                <pathelement path="${libs.JNA.classpath}"/>
                 <fileset dir="." includes="*.jnlp"/>
             </path>
         </copy>
