@@ -54,8 +54,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 import org.xmlpull.v1.XmlSerializer;
@@ -158,8 +156,6 @@ public class FontGenerator {
                     continue;
                 }
 
-                numCodePoints++;
-
                 FT2Glyph glyph = glyphMap.get(glyphIndex);
                 if(glyph == null) {
                     try {
@@ -169,10 +165,17 @@ public class FontGenerator {
                         numGlyphs++;
                         maxHeight = Math.max(glyph.info.getHeight(), maxHeight);
                     } catch (IOException ex) {
+                        // ignore
+                        /*
                         Logger.getLogger(FontGenerator.class.getName()).log(Level.SEVERE,
                                 "Can't retrieve glyph " + glyphIndex + " codepoint " + codepoint +
                                 " (" + new String(Character.toChars(codepoint)) + ")", ex);
+                         */
                     }
+                }
+
+                if(glyph != null) {
+                    numCodePoints++;
                 }
             }
 
@@ -237,7 +240,7 @@ public class FontGenerator {
             
             rects = new GlyphRect[numCodePoints];
             iter = font.iterateCodePoints();
-            for(int rectNr=0 ; iter.nextCodePoint() ; rectNr++) {
+            for(int rectNr=0 ; iter.nextCodePoint() ;) {
                 int codepoint = iter.getCodePoint();
                 int glyphIndex = iter.getGlyphIndex();
 
@@ -253,7 +256,7 @@ public class FontGenerator {
                             -glyph.info.getOffsetX(), 0, null);
                     rect.x = glyph.x;
                     rect.y = glyph.y;
-                    rects[rectNr] = rect;
+                    rects[rectNr++] = rect;
                 }
             }
             
