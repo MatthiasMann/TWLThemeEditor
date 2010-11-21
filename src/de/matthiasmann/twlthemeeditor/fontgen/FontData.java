@@ -47,6 +47,7 @@ import java.util.logging.Logger;
  */
 public final class FontData {
 
+    private final File fontFile;
     private final Font javaFont;
     private final float size;
     private final int upem;
@@ -68,6 +69,10 @@ public final class FontData {
 
     public Font getJavaFont() {
         return javaFont;
+    }
+
+    public File getFontFile() {
+        return fontFile;
     }
 
     public int[][] getKernings(CharSet charSet) {
@@ -104,6 +109,7 @@ public final class FontData {
     }
     
     public FontData(File file, float size) throws IOException {
+        this.fontFile = file;
         this.size = size;
         this.defined = new BitSet();
         this.kerning = new IntMap<IntMap<Integer>>();
@@ -154,6 +160,7 @@ public final class FontData {
     }
 
     private FontData(FontData src, float size, int style) {
+        this.fontFile = src.fontFile;
         this.size = size;
         this.javaFont = src.javaFont.deriveFont(style, size);
         this.upem = src.upem;

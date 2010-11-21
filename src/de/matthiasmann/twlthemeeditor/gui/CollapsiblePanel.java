@@ -127,6 +127,12 @@ public final class CollapsiblePanel extends DialogLayout {
         }
     }
 
+    @Override
+    protected void widgetDisabled() {
+        super.widgetDisabled();
+        setExpanded(false);
+    }
+
     void toggleExpand() {
         expanded ^= true;
         arrow.getAnimationState().setAnimationState(STATE_EXPANDED, expanded);

@@ -36,6 +36,7 @@ import de.matthiasmann.twlthemeeditor.fontgen.CharSet;
 import de.matthiasmann.twlthemeeditor.fontgen.Effect;
 import de.matthiasmann.twlthemeeditor.fontgen.FontData;
 import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator;
+import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator.GeneratorMethod;
 import de.matthiasmann.twlthemeeditor.fontgen.Padding;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -61,6 +62,7 @@ public class FontDisplay extends Widget {
     private boolean useAA;
     private CharSet charSet;
     private Effect.Renderer[] effects;
+    private FontGenerator.GeneratorMethod generatorMethod;
 
     private boolean pendingUpdate;
     private boolean updateRunning;
@@ -100,6 +102,11 @@ public class FontDisplay extends Widget {
         update();
     }
 
+    public void setGeneratorMethod(GeneratorMethod generatorMethod) {
+        this.generatorMethod = generatorMethod;
+        update();
+    }
+
     public void setCharSet(CharSet charSet) {
         this.charSet = new CharSet(charSet);
         update();
@@ -120,11 +127,12 @@ public class FontDisplay extends Widget {
 
     private void update() {
         GUI gui = getGUI();
-        if(gui != null && textureSize > 0 && fontData != null && (paddingAutomatic || padding != null) && charSet != null && effects != null) {
+        if(gui != null && textureSize > 0 && fontData != null && (paddingAutomatic || padding != null) && 
+                charSet != null && effects != null && generatorMethod != null) {
             if(updateRunning) {
                 pendingUpdate = true;
             } else {
-                executor.execute(new GenFont(gui, textureSize, fontData, computePadding(), charSet, effects, useAA));
+                executor.execute(new GenFont(gui, textureSize, fontData, computePadding(), charSet, effects, useAA, generatorMethod));
                 updateRunning = true;
             }
         }
@@ -224,10 +232,11 @@ public class FontDisplay extends Widget {
         private final Effect.Renderer[] effects;
         private final boolean useAA;
 
-        public GenFont(GUI gui, int textureSize, FontData fontData, Padding padding, CharSet charSet, Effect.Renderer[] effects, boolean useAA) {
+        public GenFont(GUI gui, int textureSize, FontData fontData, Padding padding, CharSet charSet,
+                Effect.Renderer[] effects, boolean useAA, FontGenerator.GeneratorMethod generatorMethod) {
             this.gui = gui;
             this.textureSize = textureSize;
-            this.fontGen = new FontGenerator(fontData);
+            this.fontGen = new FontGenerator(fontData, generatorMethod);
             this.padding = padding;
             this.charSet = charSet;
             this.effects = effects;
@@ -242,6 +251,7 @@ public class FontDisplay extends Widget {
                 result = new UploadImage(fontGen, textureSize);
             } catch(Throwable ex) {
                 result = new UploadImage(null, 0);
+                Logger.getLogger(FontDisplay.class.getName()).log(Level.SEVERE, "Can't generate font", ex);
             }
 
             gui.invokeLater(result);

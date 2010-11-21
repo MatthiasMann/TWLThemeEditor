@@ -53,6 +53,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.fontgen.CharSet;
 import de.matthiasmann.twlthemeeditor.fontgen.FontData;
 import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator;
+import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator.GeneratorMethod;
 import de.matthiasmann.twlthemeeditor.fontgen.Padding;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.BlurShadowEffect;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.GradientEffect;
@@ -91,6 +92,8 @@ public final class FontGenDialog {
     private final SimpleChangableListModel<Integer> textureSizesModel;
     private final ComboBox<Integer> textureSizeCB;
     private final ComboBox<FontDisplayBG> fontDisplayBgCB;
+    private final SimpleChangableListModel<FontGenerator.GeneratorMethod> generatorModesModel;
+    private final ComboBox<FontGenerator.GeneratorMethod> generatorModeCB;
     private final CharSetBlockCB[] unicodeBockCBs;
     private final BoxLayout unicodeBlocksBox;
     private final ScrollPane unicodeBlocksSP;
@@ -164,6 +167,21 @@ public final class FontGenDialog {
             }
         });
 
+        generatorModesModel = new SimpleChangableListModel<FontGenerator.GeneratorMethod>();
+        for(FontGenerator.GeneratorMethod m : FontGenerator.GeneratorMethod.values()) {
+            if(m.isAvailable) {
+                generatorModesModel.addElement(m);
+            }
+        }
+
+        generatorModeCB = new ComboBox<FontGenerator.GeneratorMethod>(generatorModesModel);
+        generatorModeCB.setSelected(0);
+        generatorModeCB.addCallback(new Runnable() {
+            public void run() {
+                updateGeneratorMode();
+            }
+        });
+
         useAACheckbox = new ToggleButton("Use Antialiasing rendering");
         useAACheckbox.setTheme("useAACheckbox");
         useAACheckbox.setActive(true);
@@ -218,6 +236,7 @@ public final class FontGenDialog {
 
         effectsPanel.addControl("TTF Font", fontPathEF, selectFontBtn);
         effectsPanel.addControl("Texture size", textureSizeCB);
+        effectsPanel.addControl("Generator", generatorModeCB);
         effectsPanel.addControl("Font size", fontSizeAdjuster);
         effectsPanel.addControl(useAACheckbox);
         effectsPanel.addControl("Preview BG", fontDisplayBgCB);
@@ -329,6 +348,7 @@ public final class FontGenDialog {
         updatePadding();
         updateEffects();
         updateStatusBar();
+        updateGeneratorMode();
     }
 
     public void openPopup() {
@@ -376,6 +396,7 @@ public final class FontGenDialog {
     private static final String KEY_EXPORTFORMAT = "exportFormat";
     private static final String KEY_PADDING_AUTOMATIC = "padding.automatic";
     private static final String KEY_USEAA = "useAA";
+    private static final String KEY_GENERATOR_METHOD = "generatorMethod";
     private static final String[] KEY_PADDING = {
         "padding.top",
         "padding.left",
@@ -431,6 +452,16 @@ public final class FontGenDialog {
 
         useAACheckbox.setActive(Boolean.parseBoolean(properties.getProperty(KEY_USEAA, "true")));
 
+        try {
+            FontGenerator.GeneratorMethod generatorMethod = FontGenerator.GeneratorMethod.valueOf(
+                    properties.getProperty(KEY_GENERATOR_METHOD, FontGenerator.GeneratorMethod.AWT_VECTOR.name()));
+            if(!generatorMethod.isAvailable) {
+                generatorMethod = FontGenerator.GeneratorMethod.AWT_VECTOR;
+            }
+            generatorModeCB.setSelected(generatorModesModel.findElement(generatorMethod));
+        } catch (IllegalArgumentException ignore) {
+        }
+
         manualPaddingModel.setValue(!Boolean.parseBoolean(properties.getProperty(KEY_PADDING_AUTOMATIC, "false")));
         for(int i=0 ; i<5 ; i++) {
             int padding = 0;
@@ -467,6 +498,7 @@ public final class FontGenDialog {
         properties.setProperty(KEY_FONTSIZE, Integer.toString(fontSizeModel.getValue()));
         properties.setProperty(KEY_EXPORTFORMAT, getExportFormat().name());
         properties.setProperty(KEY_USEAA, Boolean.toString(useAACheckbox.isActive()));
+        properties.setProperty(KEY_GENERATOR_METHOD, getGeneratorMethod().name());
         charSet.save(properties);
         properties.setProperty(KEY_PADDING_AUTOMATIC, Boolean.toString(!manualPaddingModel.getValue()));
         for(int i=0 ; i<5 ; i++) {
@@ -595,6 +627,13 @@ public final class FontGenDialog {
         fontDisplay.setUseAA(useAACheckbox.isActive());
     }
 
+    void updateGeneratorMode() {
+        GeneratorMethod generatorMethod = getGeneratorMethod();
+        fontDisplay.setGeneratorMethod(generatorMethod);
+        effectsPanel.enableEffectsPanels(generatorMethod.supportsEffects);
+        useAACheckbox.setEnabled(generatorMethod.supportsAAflag);
+    }
+
     void updateTextureSize() {
         fontDisplay.setTextureSize(getTextureSize());
     }
@@ -603,6 +642,10 @@ public final class FontGenDialog {
         return textureSizesModel.getEntry(textureSizeCB.getSelected());
     }
 
+    FontGenerator.GeneratorMethod getGeneratorMethod() {
+        return generatorModesModel.getEntry(generatorModeCB.getSelected());
+    }
+    
     FontGenerator.ExportFormat getExportFormat() {
         int selected = exportFormatCB.getSelected();
         if(selected >= 0) {

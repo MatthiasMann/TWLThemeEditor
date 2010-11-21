@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.fontgen;
 
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 
 /**
  *
@@ -61,10 +62,14 @@ public class GlyphRect {
         this.glyphShape = glyphShape;
     }
 
-    public void drawGlyph(Graphics2D g) {
+    public void drawGlyph(Graphics2D g, boolean useDrawString) {
         int offY = yDrawOffset - yoffset;
-        g.translate(xDrawOffset, offY);
-        g.fill(glyphShape);
-        g.translate(-xDrawOffset, -offY);
+        if(useDrawString) {
+            g.drawString(Character.toString(ch), xDrawOffset, offY);
+        } else {
+            g.translate(xDrawOffset, offY);
+            g.fill(glyphShape);
+            g.translate(-xDrawOffset, -offY);
+        }
     }
 }

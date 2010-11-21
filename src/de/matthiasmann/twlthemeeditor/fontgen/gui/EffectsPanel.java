@@ -54,6 +54,7 @@ public class EffectsPanel extends DialogLayout {
     
     private final PropertyFactories factories;
     private final ArrayList<EffectPropertyPanel> effectPanels;
+    private final ArrayList<CollapsiblePanel> effectCollapsiblePanels;
 
     private Runnable[] callbacks;
 
@@ -64,6 +65,7 @@ public class EffectsPanel extends DialogLayout {
 
         factories = new PropertyFactories();
         effectPanels = new ArrayList<EffectPropertyPanel>();
+        effectCollapsiblePanels = new ArrayList<CollapsiblePanel>();
 
         setHorizontalGroup(createParallelGroup()
                 .addGroup(createSequentialGroup(hLabels, hControls)));
@@ -78,8 +80,8 @@ public class EffectsPanel extends DialogLayout {
             }
         });
 
-        addCollapsible(name, epp, epp.getEffectActive());
         effectPanels.add(epp);
+        effectCollapsiblePanels.add(addCollapsible(name, epp, epp.getEffectActive()));
     }
 
     public CollapsiblePanel addCollapsible(String name, Widget content, BooleanModel active) {
@@ -136,6 +138,12 @@ public class EffectsPanel extends DialogLayout {
 
     public void removeCallback(Runnable cb) {
         callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
+    }
+
+    public void enableEffectsPanels(boolean enabled) {
+        for(CollapsiblePanel cp : effectCollapsiblePanels) {
+            cp.setEnabled(enabled);
+        }
     }
 
     void fireCallback() {

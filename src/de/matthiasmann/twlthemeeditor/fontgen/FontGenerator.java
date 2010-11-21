@@ -29,6 +29,9 @@
  */
 package de.matthiasmann.twlthemeeditor.fontgen;
 
+import de.matthiasmann.javafreetype.FreeTypeCodePointIterator;
+import de.matthiasmann.javafreetype.FreeTypeFont;
+import de.matthiasmann.javafreetype.FreeTypeGlyphInfo;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -38,16 +41,21 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphMetrics;
 import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 import org.xmlpull.v1.XmlSerializer;
@@ -62,8 +70,25 @@ public class FontGenerator {
         XML,
         TEXT
     };
+
+    public enum GeneratorMethod {
+        AWT_VECTOR(true, true, true),
+        AWT_DRAWSTRING(true, true, false),
+        FREETYPE2(FreeTypeFont.isAvailable(), false, false);
+
+        public final boolean isAvailable;
+        public final boolean supportsAAflag;
+        public final boolean supportsEffects;
+
+        private GeneratorMethod(boolean isAvailable, boolean supportsAAflag, boolean supportsEffects) {
+            this.isAvailable = isAvailable;
+            this.supportsAAflag = supportsAAflag;
+            this.supportsEffects = supportsEffects;
+        }
+    }
     
     private final FontData fontData;
+    private final GeneratorMethod generatorMethod;
 
     private Padding padding;
     private BufferedImage image;
@@ -71,14 +96,195 @@ public class FontGenerator {
     private int[][] kernings;
     private int ascent;
     private int descent;
-    private int leading;
+    private int lineHeight;
     private int usedTextureHeight;
-    
-    public FontGenerator(FontData fontData) {
+
+    public FontGenerator(FontData fontData, GeneratorMethod generatorMethod) {
         this.fontData = fontData;
+        this.generatorMethod = generatorMethod;
+    }
+    
+    public void generate(int width, int height, CharSet set, Padding padding, Effect.Renderer[] effects, boolean useAA) throws IOException {
+        if(generatorMethod == GeneratorMethod.FREETYPE2) {
+            generateFT2(width, height, set, padding);
+        } else {
+            generateAWT(width, height, set, padding, effects, useAA, generatorMethod == GeneratorMethod.AWT_DRAWSTRING);
+        }
     }
 
-    public void generate(int width, int height, CharSet set, Padding padding, Effect.Renderer[] effects, boolean useAA) {
+    static class FT2Glyph implements Comparable<FT2Glyph> {
+        final FreeTypeGlyphInfo info;
+        final int glyphIndex;
+        int x;
+        int y;
+
+        public FT2Glyph(FreeTypeGlyphInfo info, int glyphIndex) {
+            this.info = info;
+            this.glyphIndex = glyphIndex;
+        }
+
+        public int compareTo(FT2Glyph o) {
+            int diff = o.info.getHeight() - info.getHeight();
+            if(diff == 0) {
+                diff = o.info.getWidth() - info.getWidth();
+            }
+            return diff;
+        }
+    }
+
+    private void generateFT2(int width, int height, CharSet set, Padding padding) throws IOException {
+        this.padding = new Padding(0, 0, 0, 0, padding.advance);
+        this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        FreeTypeFont font = FreeTypeFont.create(fontData.getFontFile());
+        try {
+            font.setCharSize(0, fontData.getSize(), 72, 72);
+            
+            ascent = font.getAscent();
+            descent = font.getDescent();
+            lineHeight = font.getLineHeight();
+            int maxHeight = ascent;
+
+            IntMap<FT2Glyph> glyphMap = new IntMap<FT2Glyph>();
+            int numCodePoints = 0;
+            int numGlyphs = 0;
+
+            FreeTypeCodePointIterator iter = font.iterateCodePoints();
+            while(iter.nextCodePoint()) {
+                int codepoint = iter.getCodePoint();
+                int glyphIndex = iter.getGlyphIndex();
+
+                if (!set.isIncluded(codepoint)) {
+                    continue;
+                }
+
+                numCodePoints++;
+
+                FT2Glyph glyph = glyphMap.get(glyphIndex);
+                if(glyph == null) {
+                    try {
+                        glyph = new FT2Glyph(font.loadGlyph(glyphIndex), glyphIndex);
+                        glyphMap.put(glyphIndex, glyph);
+
+                        numGlyphs++;
+                        maxHeight = Math.max(glyph.info.getHeight(), maxHeight);
+                    } catch (IOException ex) {
+                        Logger.getLogger(FontGenerator.class.getName()).log(Level.SEVERE,
+                                "Can't retrieve glyph " + glyphIndex + " codepoint " + codepoint +
+                                " (" + new String(Character.toChars(codepoint)) + ")", ex);
+                    }
+                }
+            }
+
+            FT2Glyph[] glyphs = new FT2Glyph[numGlyphs];
+            Iterator<IntMap.Entry<FT2Glyph>> glyphIter = glyphMap.iterator();
+            for(int idx=0 ; glyphIter.hasNext() ; idx++) {
+                glyphs[idx] = glyphIter.next().value;
+            }
+            
+            Arrays.sort(glyphs);
+
+            int xp = 0;
+            int dir = 1;
+            int[] usedY = new int[width];
+            usedTextureHeight = 0;
+
+            for (int glyphNr=0 ; glyphNr<numGlyphs ; glyphNr++) {
+                final FT2Glyph glyph = glyphs[glyphNr];
+                final int glyphWidth = glyph.info.getWidth();
+
+                if (dir > 0) {
+                    if (xp + glyphWidth > width) {
+                        xp = width - glyphWidth;
+                        dir = -1;
+                    }
+                } else {
+                    xp -= glyphWidth;
+                    if (xp < 0) {
+                        xp = 0;
+                        dir = 1;
+                    }
+                }
+
+                int yp = 0;
+                for(int x=0 ; x<glyphWidth ; x++) {
+                    yp = Math.max(yp, usedY[xp + x]);
+                }
+
+                glyph.x = xp;
+                glyph.y = yp;
+
+                //System.out.println("xp="+xp+" yp="+yp+" w="+rect.width+" h="+rect.height+" adv="+rect.advance);
+
+                font.loadGlyph(glyph.glyphIndex);
+                font.copyGlpyhToBufferedImage(image, xp, yp, Color.WHITE);
+
+                yp += glyph.info.getHeight() + 1;
+                for(int x=0 ; x<glyphWidth ; x++) {
+                    usedY[xp + x] = yp;
+                }
+
+                if(yp > usedTextureHeight) {
+                    usedTextureHeight = yp;
+                }
+
+                if(dir > 0) {
+                    xp += glyphWidth + 1;
+                } else {
+                    xp -= 1;
+                }
+            }
+            
+            rects = new GlyphRect[numCodePoints];
+            iter = font.iterateCodePoints();
+            for(int rectNr=0 ; iter.nextCodePoint() ; rectNr++) {
+                int codepoint = iter.getCodePoint();
+                int glyphIndex = iter.getGlyphIndex();
+
+                if (!set.isIncluded(codepoint)) {
+                    continue;
+                }
+
+                FT2Glyph glyph = glyphMap.get(glyphIndex);
+                if(glyph != null) {
+                    GlyphRect rect = new GlyphRect((char)codepoint,
+                            glyph.info.getWidth(), glyph.info.getHeight(),
+                            glyph.info.getAdvanceX(), -glyph.info.getOffsetY(),
+                            -glyph.info.getOffsetX(), 0, null);
+                    rect.x = glyph.x;
+                    rect.y = glyph.y;
+                    rects[rectNr] = rect;
+                }
+            }
+            
+            if(font.hasKerning()) {
+                ArrayList<int[]> kerns = new ArrayList<int[]>();
+                for(int i=0 ; i<numCodePoints ; i++) {
+                    int leftCh = rects[i].ch;
+                    int leftGlyphIdx = font.getGlyphForCodePoint(leftCh);
+                    for(int j=0 ; j<numCodePoints ; j++) {
+                        if(i != j) {
+                            int rightCh = rects[j].ch;
+                            int rightGlyphIdx = font.getGlyphForCodePoint(rightCh);
+                            if(leftGlyphIdx != rightGlyphIdx) {
+                                int value = font.getKerning(leftGlyphIdx, rightGlyphIdx).x;
+                                if(value != 0) {
+                                    kerns.add(new int[] { leftCh, rightCh, value });
+                                }
+                            }
+                        }
+                    }
+                }
+                this.kernings = kerns.toArray(new int[kerns.size()][]);
+            } else {
+                this.kernings = new int[0][];
+            }
+        } finally {
+            font.close();
+        }
+    }
+
+    private void generateAWT(int width, int height, CharSet set, Padding padding, Effect.Renderer[] effects, boolean useAA, boolean useDrawString) {
         this.padding = padding;
         
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -86,6 +292,10 @@ public class FontGenerator {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, useAA ? RenderingHints.VALUE_ANTIALIAS_ON : RenderingHints.VALUE_ANTIALIAS_OFF);
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, useAA ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON : RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
         g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
 
         Font font = fontData.getJavaFont();
         g.setFont(font);
@@ -95,7 +305,7 @@ public class FontGenerator {
         kernings = fontData.getKernings(set);
         ascent = g.getFontMetrics().getMaxAscent();
         descent = g.getFontMetrics().getMaxDescent();
-        leading = g.getFontMetrics().getLeading();
+        lineHeight = g.getFontMetrics().getLeading() + ascent + descent;
         int maxHeight = ascent;
 
         //data = new DataSet(font.getName(), (int) font.getSize(), lineHeight, width, height, set.getName(), "font.png");
@@ -190,7 +400,7 @@ public class FontGenerator {
                 for(Effect.Renderer effect : effects) {
                     effect.preGlyphRender(gGlyph, fontInfo, rect);
                 }
-                rect.drawGlyph(gGlyph);
+                rect.drawGlyph(gGlyph, useDrawString);
                 for(Effect.Renderer effect : effects) {
                     effect.postGlyphRender(gGlyph, fontInfo, rect);
                 }
@@ -229,9 +439,24 @@ public class FontGenerator {
         return usedTextureHeight;
     }
 
+    public int getImageType() {
+        if(image != null) {
+            return image.getType();
+        }
+        return -1;
+    }
+
     public boolean getTextureData(IntBuffer ib) {
         if(image != null) {
             ib.put(((DataBufferInt)image.getRaster().getDataBuffer()).getData());
+            return true;
+        }
+        return false;
+    }
+
+    public boolean getTextureData(ByteBuffer bb) {
+        if(image != null) {
+            bb.put(((DataBufferByte)image.getRaster().getDataBuffer()).getData());
             return true;
         }
         return false;
@@ -296,8 +521,7 @@ public class FontGenerator {
             xs.endTag(null, "info");
             xs.text("\n  ");
             xs.startTag(null, "common");
-            int lineHeight = descent + ascent + leading + padding.bottom + padding.top;
-            xs.attribute(null, "lineHeight", Integer.toString(lineHeight));
+            xs.attribute(null, "lineHeight", Integer.toString(lineHeight + padding.top + padding.bottom));
             xs.attribute(null, "base", Integer.toString(ascent));
             xs.attribute(null, "scaleW", Integer.toString(image.getWidth()));
             xs.attribute(null, "scaleH", Integer.toString(image.getHeight()));
@@ -364,9 +588,8 @@ public class FontGenerator {
                 fontData.getJavaFont().isItalic() ? 1 : 0,
                 padding.top, padding.left, padding.bottom, padding.right);
 
-        int lineHeight = descent + ascent + leading + padding.bottom + padding.top;
         pw.printf("common lineHeight=%d base=%s scaleW=%s scaleH=%d pages=1 packed=0\n",
-                lineHeight, ascent, image.getWidth(), image.getHeight());
+                lineHeight + padding.bottom + padding.top, ascent, image.getWidth(), image.getHeight());
 
         pw.printf("page id=0 file=%s_00.png\n", basename);
         pw.printf("chars count=%d\n", rects.length);
