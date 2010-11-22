@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.fontgen;
 
+import com.sun.jna.Platform;
 import de.matthiasmann.javafreetype.FreeTypeCodePointIterator;
 import de.matthiasmann.javafreetype.FreeTypeFont;
 import de.matthiasmann.javafreetype.FreeTypeGlyphInfo;
@@ -72,7 +73,7 @@ public class FontGenerator {
     public enum GeneratorMethod {
         AWT_VECTOR(true, true, true),
         AWT_DRAWSTRING(true, true, false),
-        FREETYPE2(FreeTypeFont.isAvailable(), false, false);
+        FREETYPE2(isFreeTypeAvailable(), false, false);
 
         public final boolean isAvailable;
         public final boolean supportsAAflag;
@@ -627,5 +628,13 @@ public class FontGenerator {
             baseName = baseName.substring(0, idx);
         }
         return baseName;
+    }
+
+    static boolean isFreeTypeAvailable() {
+        if(Platform.isWindows()) {
+            FreeTypeFont.setNativeLibraryName(Platform.is64Bit()
+                    ? "freetype6_amd64" : "freetype6_x86");
+        }
+        return FreeTypeFont.isAvailable();
     }
 }

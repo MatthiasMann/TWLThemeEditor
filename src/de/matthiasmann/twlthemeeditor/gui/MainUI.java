@@ -373,56 +373,56 @@ public final class MainUI extends DialogLayout {
         StringBuilder sb = new StringBuilder();
         sb.append("<img id=\"logo\" src=\"twl-logo\" alt=\"TWL Logo\"/><br/><br/>" +
                 "<p>TWL Theme Editor (c) 2010 Matthias Mann</p><br/>" +
-                "<table id=\"sysinfo\">");
+                "<table id=\"sysinfo\">\n");
 
         // Java version
         sb.append("<tr><td class=\"parameter\">Java</td><td class=\"value\">");
         appendHTMLEscape(sb, System.getProperty("java.version")).append(" (");
-        appendHTMLEscape(sb, System.getProperty("java.vendor")).append(")</td></tr>");
+        appendHTMLEscape(sb, System.getProperty("java.vendor")).append(")</td></tr>\n");
 
         // Platform name
         sb.append("<tr><td class=\"parameter\">Platform</td><td class=\"value\">");
-        appendHTMLEscape(sb, LWJGLUtil.getPlatformName()).append("</td></tr>");
+        appendHTMLEscape(sb, LWJGLUtil.getPlatformName()).append("</td></tr>\n");
 
         // OS version
         sb.append("<tr><td class=\"parameter\">OS</td><td class=\"value\">");
         appendHTMLEscape(sb, System.getProperty("os.name")).append("  ");
         appendHTMLEscape(sb, System.getProperty("os.arch")).append("  Version ");
-        appendHTMLEscape(sb, System.getProperty("os.version")).append("</td></tr>");
+        appendHTMLEscape(sb, System.getProperty("os.version")).append("</td></tr>\n");
 
         // LWJGL version
         sb.append("<tr><td class=\"parameter\"><a href=\"http://www.lwjgl.org\">LWJGL</a></td><td class=\"value\">");
-        appendHTMLEscape(sb, Sys.getVersion()).append("</td></tr>");
+        appendHTMLEscape(sb, Sys.getVersion()).append("</td></tr>\n");
 
         // OpenGL version
         sb.append("<tr><td class=\"parameter\">OpenGL</td><td class=\"value\">");
         appendHTMLEscape(sb, GL11.glGetString(GL11.GL_VERSION)).append("  ");
-        appendHTMLEscape(sb, GL11.glGetString(GL11.GL_VENDOR)).append("</td></tr>");
+        appendHTMLEscape(sb, GL11.glGetString(GL11.GL_VENDOR)).append("</td></tr>\n");
 
         // java.library.path
         sb.append("<tr><td class=\"parameter\">java.library.path</td><td class=\"value\">");
-        appendHTMLEscape(sb, System.getProperty("java.library.path")).append("</td></tr>");
+        appendHTMLEscape(sb, System.getProperty("java.library.path")).append("</td></tr>\n");
 
         // jna.library.path
         sb.append("<tr><td class=\"parameter\">jna.library.path</td><td class=\"value\">");
-        appendHTMLEscape(sb, System.getProperty("jna.library.path")).append("</td></tr>");
+        appendHTMLEscape(sb, System.getProperty("jna.library.path")).append("</td></tr>\n");
 
         // org.lwjgl.librarypath
         sb.append("<tr><td class=\"parameter\">org.lwjgl.librarypath</td><td class=\"value\">");
-        appendHTMLEscape(sb, System.getProperty("org.lwjgl.librarypath")).append("</td></tr>");
+        appendHTMLEscape(sb, System.getProperty("org.lwjgl.librarypath")).append("</td></tr>\n");
 
         String webStartVerison = System.getProperty("javawebstart.version");
         if(webStartVerison != null) {
             // Webstart version
             sb.append("<tr><td class=\"parameter\">Webstart</td><td class=\"value\">");
-            appendHTMLEscape(sb, webStartVerison).append("</td></tr>");
+            appendHTMLEscape(sb, webStartVerison).append("</td></tr>\n");
 
             try {
-                String freetype6Path = Native.getWebStartLibraryPath("freetype6");
+                String freetype6Path = Native.getWebStartLibraryPath("freetype6_x86");
                 if(freetype6Path != null) {
-                    // Path to freetype6.dll
-                    sb.append("<tr><td class=\"parameter\">Freetype6</td><td class=\"value\">");
-                    appendHTMLEscape(sb, freetype6Path).append("</td></tr>");
+                    // Path to freetype6_x86.dll
+                    sb.append("<tr><td class=\"parameter\">Freetype6_x86</td><td class=\"value\">");
+                    appendHTMLEscape(sb, freetype6Path).append("</td></tr>\n");
                 }
             } catch (Throwable ignore) {
             }
