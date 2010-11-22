@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.fontgen.gui;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.renderer.DynamicImage;
+import de.matthiasmann.twlthemeeditor.DelayedAction;
 import de.matthiasmann.twlthemeeditor.fontgen.CharSet;
 import de.matthiasmann.twlthemeeditor.fontgen.Effect;
 import de.matthiasmann.twlthemeeditor.fontgen.FontData;
@@ -54,6 +55,7 @@ public class FontDisplay extends Widget {
 
     private final Executor executor;
     private final Runnable callback;
+    private DelayedAction delayedAction;
 
     private int textureSize;
     private FontData fontData;
@@ -125,7 +127,13 @@ public class FontDisplay extends Widget {
         return lastFontGen;
     }
 
-    private void update() {
+    void update() {
+        if(delayedAction != null) {
+            delayedAction.run();
+        }
+    }
+    
+    void doUpdate() {
         GUI gui = getGUI();
         if(gui != null && textureSize > 0 && fontData != null && (paddingAutomatic || padding != null) && 
                 charSet != null && effects != null && generatorMethod != null) {
@@ -152,6 +160,22 @@ public class FontDisplay extends Widget {
             assert padding != null : "padding is null";
             return padding;
         }
+    }
+
+    @Override
+    protected void afterAddToGUI(GUI gui) {
+        super.afterAddToGUI(gui);
+        delayedAction = new DelayedAction(gui, new Runnable() {
+            public void run() {
+                doUpdate();
+            }
+        });
+    }
+
+    @Override
+    protected void beforeRemoveFromGUI(GUI gui) {
+        delayedAction = null;
+        super.beforeRemoveFromGUI(gui);
     }
 
     @Override

@@ -75,6 +75,10 @@ public final class FontData {
         return fontFile;
     }
 
+    public IntMap<IntMap<Integer>> getRawKerning() {
+        return kerning;
+    }
+
     public int[][] getKernings(CharSet charSet) {
         ArrayList<int[]> kernings = new ArrayList<int[]>();
         for(IntMap.Entry<IntMap<Integer>> from : kerning) {

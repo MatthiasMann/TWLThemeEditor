@@ -260,20 +260,22 @@ public class FontGenerator {
                     rects[rectNr++] = rect;
                 }
             }
-            
+
             if(font.hasKerning()) {
                 ArrayList<int[]> kerns = new ArrayList<int[]>();
-                for(int i=0 ; i<numCodePoints ; i++) {
-                    int leftCh = rects[i].ch;
-                    int leftGlyphIdx = font.getGlyphForCodePoint(leftCh);
-                    for(int j=0 ; j<numCodePoints ; j++) {
-                        if(i != j) {
-                            int rightCh = rects[j].ch;
-                            int rightGlyphIdx = font.getGlyphForCodePoint(rightCh);
-                            if(leftGlyphIdx != rightGlyphIdx) {
-                                int value = font.getKerning(leftGlyphIdx, rightGlyphIdx).x;
-                                if(value != 0) {
-                                    kerns.add(new int[] { leftCh, rightCh, value });
+                for(IntMap.Entry<IntMap<Integer>> from : fontData.getRawKerning()) {
+                    if(set.isIncluded(from.key)) {
+                        int leftGlyphIdx = font.getGlyphForCodePoint(from.key);
+                        if(leftGlyphIdx > 0) {
+                            for(IntMap.Entry<Integer> to : from.value) {
+                                if(set.isIncluded(to.key)) {
+                                    int rightGlyphIdx = font.getGlyphForCodePoint(to.key);
+                                    if(rightGlyphIdx != 0) {
+                                        int value = font.getKerning(leftGlyphIdx, rightGlyphIdx).x;
+                                        if(value != 0) {
+                                            kerns.add(new int[]{ from.key, to.key, value });
+                                        }
+                                    }
                                 }
                             }
                         }
