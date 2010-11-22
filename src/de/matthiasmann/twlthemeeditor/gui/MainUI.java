@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import com.sun.jna.Native;
+import de.matthiasmann.twl.Clipboard;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Menu;
@@ -427,7 +428,7 @@ public final class MainUI extends DialogLayout {
             }
         }
 
-        sb.append("</table>");
+        sb.append("</table><a href=\"javascript:copyToClipboard()\">Copy above report to clipboard</a>");
 
         StyleSheet styleSheet = new StyleSheet();
         try {
@@ -436,12 +437,20 @@ public final class MainUI extends DialogLayout {
             Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, "Can't load style sheet", ex);
         }
 
-        HTMLTextAreaModel areaModel = new HTMLTextAreaModel(sb.toString());
+        final String aboutHTML = sb.toString();
+        HTMLTextAreaModel areaModel = new HTMLTextAreaModel(aboutHTML);
         TextArea textArea = new TextArea(areaModel);
         textArea.setStyleClassResolver(styleSheet);
         textArea.addCallback(new TextArea.Callback() {
             public void handleLinkClicked(String href) {
-                Sys.openURL(href);
+                if(href.startsWith("javascript:")) {
+                    String key = href.substring(11);
+                    if("copyToClipboard()".equals(key)) {
+                        Clipboard.setClipboard(aboutHTML);
+                    }
+                } else {
+                    Sys.openURL(href);
+                }
             }
         });
 
