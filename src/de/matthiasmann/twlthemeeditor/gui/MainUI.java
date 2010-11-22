@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import com.sun.jna.Native;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Menu;
@@ -61,6 +62,7 @@ import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import org.lwjgl.LWJGLUtil;
 import org.lwjgl.Sys;
 import org.lwjgl.opengl.GL11;
 
@@ -370,15 +372,62 @@ public final class MainUI extends DialogLayout {
         StringBuilder sb = new StringBuilder();
         sb.append("<img id=\"logo\" src=\"twl-logo\" alt=\"TWL Logo\"/><br/><br/>" +
                 "<p>TWL Theme Editor (c) 2010 Matthias Mann</p><br/>" +
-                "<table id=\"sysinfo\">" +
-                "<tr><td class=\"parameter\">Java</td><td class=\"value\">")
-                .append(System.getProperty("java.version")).append(" (").append(System.getProperty("java.vendor")).append(")</td></tr>" +
-                "<tr><td class=\"parameter\">OS</td><td class=\"value\">").append(System.getProperty("os.name"))
-                    .append("  ").append(System.getProperty("os.arch"))
-                    .append("  Version ").append(System.getProperty("os.version")).append("</td></tr>" +
-                "<tr><td class=\"parameter\"><a href=\"http://www.lwjgl.org\">LWJGL</a></td><td class=\"value\">").append(Sys.getVersion()).append("</td></tr>" +
-                "<tr><td class=\"parameter\">OpenGL</td><td class=\"value\">").append(GL11.glGetString(GL11.GL_VERSION))
-                    .append("  ").append(GL11.glGetString(GL11.GL_VENDOR)).append("</td></tr></table>");
+                "<table id=\"sysinfo\">");
+
+        // Java version
+        sb.append("<tr><td class=\"parameter\">Java</td><td class=\"value\">");
+        appendHTMLEscape(sb, System.getProperty("java.version")).append(" (");
+        appendHTMLEscape(sb, System.getProperty("java.vendor")).append(")</td></tr>");
+
+        // Platform name
+        sb.append("<tr><td class=\"parameter\">Platform</td><td class=\"value\">");
+        appendHTMLEscape(sb, LWJGLUtil.getPlatformName()).append("</td></tr>");
+
+        // OS version
+        sb.append("<tr><td class=\"parameter\">OS</td><td class=\"value\">");
+        appendHTMLEscape(sb, System.getProperty("os.name")).append("  ");
+        appendHTMLEscape(sb, System.getProperty("os.arch")).append("  Version ");
+        appendHTMLEscape(sb, System.getProperty("os.version")).append("</td></tr>");
+
+        // LWJGL version
+        sb.append("<tr><td class=\"parameter\"><a href=\"http://www.lwjgl.org\">LWJGL</a></td><td class=\"value\">");
+        appendHTMLEscape(sb, Sys.getVersion()).append("</td></tr>");
+
+        // OpenGL version
+        sb.append("<tr><td class=\"parameter\">OpenGL</td><td class=\"value\">");
+        appendHTMLEscape(sb, GL11.glGetString(GL11.GL_VERSION)).append("  ");
+        appendHTMLEscape(sb, GL11.glGetString(GL11.GL_VENDOR)).append("</td></tr>");
+
+        // java.library.path
+        sb.append("<tr><td class=\"parameter\">java.library.path</td><td class=\"value\">");
+        appendHTMLEscape(sb, System.getProperty("java.library.path")).append("</td></tr>");
+
+        // jna.library.path
+        sb.append("<tr><td class=\"parameter\">jna.library.path</td><td class=\"value\">");
+        appendHTMLEscape(sb, System.getProperty("jna.library.path")).append("</td></tr>");
+
+        // org.lwjgl.librarypath
+        sb.append("<tr><td class=\"parameter\">org.lwjgl.librarypath</td><td class=\"value\">");
+        appendHTMLEscape(sb, System.getProperty("org.lwjgl.librarypath")).append("</td></tr>");
+
+        String webStartVerison = System.getProperty("javawebstart.version");
+        if(webStartVerison != null) {
+            // Webstart version
+            sb.append("<tr><td class=\"parameter\">Webstart</td><td class=\"value\">");
+            appendHTMLEscape(sb, webStartVerison).append("</td></tr>");
+
+            try {
+                String freetype6Path = Native.getWebStartLibraryPath("freetype6");
+                if(freetype6Path != null) {
+                    // Path to freetype6.dll
+                    sb.append("<tr><td class=\"parameter\">Freetype6</td><td class=\"value\">");
+                    appendHTMLEscape(sb, freetype6Path).append("</td></tr>");
+                }
+            } catch (Throwable ignore) {
+            }
+        }
+
+        sb.append("</table>");
 
         StyleSheet styleSheet = new StyleSheet();
         try {
@@ -400,6 +449,23 @@ public final class MainUI extends DialogLayout {
         dialog.setMessage(textArea);
         dialog.setTheme("aboutDialog");
         dialog.showDialog(this);
+    }
+
+    static final String[] HTML_ESCAPES = {"&amp;", "&lt;", "&gt;"};
+    private static StringBuilder appendHTMLEscape(StringBuilder sb, String str) {
+        if(str == null) {
+            return sb.append(str);
+        }
+        int start = 0;
+        for(int pos=0 ; pos<str.length() ; pos++) {
+            char ch = str.charAt(pos);
+            int idx = "&<>".indexOf(ch);
+            if(idx >= 0) {
+                sb.append(str, start, pos).append(HTML_ESCAPES[idx]);
+                start = pos + 1;
+            }
+        }
+        return sb.append(str, start, str.length());
     }
 
     public static class ExtFilter implements FileFilter {
