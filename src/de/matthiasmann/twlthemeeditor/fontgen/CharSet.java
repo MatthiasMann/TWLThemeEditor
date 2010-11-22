@@ -33,6 +33,7 @@ import java.lang.Character.UnicodeBlock;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -42,15 +43,23 @@ import java.util.Properties;
  */
 public class CharSet {
 
+    private static final String KEY_MANUAL = "ChatSetManual";
+    
     private final HashMap<Character.UnicodeBlock, Boolean> blocks;
+    private final BitSet manualCharactersBitSet;
+    private String manualCharacters;
 
     public CharSet() {
         this.blocks = new HashMap<Character.UnicodeBlock, Boolean>();
+        this.manualCharactersBitSet = new BitSet();
+        this.manualCharacters = "";
     }
 
     public CharSet(CharSet charSet) {
         this();
         blocks.putAll(charSet.blocks);
+        manualCharactersBitSet.or(charSet.manualCharactersBitSet);
+        manualCharacters = charSet.manualCharacters;
     }
 
     public void setBlock(Character.UnicodeBlock block, boolean included) {
@@ -60,15 +69,28 @@ public class CharSet {
     public boolean getBlockEnabled(Character.UnicodeBlock block) {
         return blocks.get(block) == Boolean.TRUE;
     }
+
+    public String getManualCharacters() {
+        return manualCharacters;
+    }
+
+    public void setManualCharacters(String characters) {
+        manualCharacters = characters;
+        manualCharactersBitSet.clear();
+        for(int i=0,n=characters.length() ; i<n ; i++) {
+            manualCharactersBitSet.set(characters.charAt(i));
+        }
+    }
     
     public boolean isIncluded(int ch) {
-        return getBlockEnabled(Character.UnicodeBlock.of(ch));
+        return manualCharactersBitSet.get(ch) || getBlockEnabled(Character.UnicodeBlock.of(ch));
     }
 
     public void save(Properties prop) {
         for(Character.UnicodeBlock block : getSupportedBlocks()) {
             prop.setProperty(getKey(block), Boolean.toString(getBlockEnabled(block)));
         }
+        prop.setProperty(KEY_MANUAL, getManualCharacters());
     }
 
     public void load(Properties prop) {
@@ -78,6 +100,7 @@ public class CharSet {
                 setBlock(block, true);
             }
         }
+        setManualCharacters(prop.getProperty(KEY_MANUAL, ""));
     }
 
     private static String getKey(Character.UnicodeBlock block) {

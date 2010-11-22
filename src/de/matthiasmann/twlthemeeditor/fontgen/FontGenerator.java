@@ -443,6 +443,18 @@ public class FontGenerator {
         return usedTextureHeight;
     }
 
+    public int getAscent() {
+        return ascent;
+    }
+
+    public int getDescent() {
+        return descent;
+    }
+
+    public int getLineHeight() {
+        return lineHeight;
+    }
+
     public int getImageType() {
         if(image != null) {
             return image.getType();

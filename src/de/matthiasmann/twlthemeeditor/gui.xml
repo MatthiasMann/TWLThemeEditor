@@ -858,7 +858,11 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
                         <theme name="selectFontBtn" ref="button">
                             <param name="text"><string>...</string></param>
                         </theme>
-                        <theme name="useAACheckbox" ref="checkbox"/>
+                        <theme name="fontMetricInfo" ref="label"/>
+                        <theme name="useAACheckbox" ref="checkbox">
+                            <param name=""><image>property-checkbox.*</image></param>
+                            <param name="border"><border>background.border</border></param>
+                        </theme>
 
                         <theme name="collapsiblepanel" ref="dialoglayout">
                             <param name=""><image>collapsiblepanel.*</image></param>
@@ -891,6 +895,10 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
                                         <param name="spacing"><int>5</int></param>
                                     </theme>
                                     <param name="maxHeight"><int>200</int></param>
+                                </theme>
+
+                                <theme name="manualCharacters" ref="editfield">
+                                    <param name="tooltip"><string>Enter characters to include in addition to the selected unicode blocks</string></param>
                                 </theme>
 
                                 <theme name="dialoglayout" ref="dialoglayout">

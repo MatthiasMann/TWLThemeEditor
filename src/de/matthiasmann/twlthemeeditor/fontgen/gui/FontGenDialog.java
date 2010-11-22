@@ -97,8 +97,10 @@ public final class FontGenDialog {
     private final CharSetBlockCB[] unicodeBockCBs;
     private final BoxLayout unicodeBlocksBox;
     private final ScrollPane unicodeBlocksSP;
+    private final EditField manualCharactersEditfield;
     private final SimpleIntegerModel fontSizeModel;
     private final ValueAdjusterInt fontSizeAdjuster;
+    private final Label fontMetricInfoLabel;
     private final ToggleButton useAACheckbox;
     private final EffectsPanel effectsPanel;
     private final ScrollPane effectsPanelSP;
@@ -145,6 +147,14 @@ public final class FontGenDialog {
             unicodeBockCBs[i] = new CharSetBlockCB(charSetBlockModel);
             unicodeBlocksBox.add(unicodeBockCBs[i]);
         }
+
+        manualCharactersEditfield = new EditField();
+        manualCharactersEditfield.setTheme("manualCharacters");
+        manualCharactersEditfield.addCallback(new EditField.Callback() {
+            public void callback(int key) {
+                updateManualCharacters();
+            }
+        });
 
         fontPathEF = new EditField();
         fontPathEF.setReadOnly(true);
@@ -211,6 +221,9 @@ public final class FontGenDialog {
         });
         fontSizeAdjuster = new ValueAdjusterInt(fontSizeModel);
 
+        fontMetricInfoLabel = new Label();
+        fontMetricInfoLabel.setTheme("fontMetricInfo");
+
         Runnable updatePaddingCB = new Runnable() {
             public void run() {
                 updatePadding();
@@ -234,14 +247,16 @@ public final class FontGenDialog {
             paddingAdjuster[i].setTooltipContent(paddingTooltip[i]);
         }
 
-        effectsPanel.addControl("TTF Font", fontPathEF, selectFontBtn);
+        effectsPanel.addControl("TTF font", fontPathEF, selectFontBtn);
         effectsPanel.addControl("Texture size", textureSizeCB);
         effectsPanel.addControl("Generator", generatorModeCB);
         effectsPanel.addControl("Font size", fontSizeAdjuster);
-        effectsPanel.addControl(useAACheckbox);
+        effectsPanel.addControl("Font metric", fontMetricInfoLabel);
         effectsPanel.addControl("Preview BG", fontDisplayBgCB);
+        effectsPanel.addControl(useAACheckbox);
         effectsPanel.addCollapsible("Unicode blocks", unicodeBlocksSP, null).setExpanded(true);
-        effectsPanel.addCollapsible("Manual Padding", paddingAdjuster, manualPaddingModel);
+        effectsPanel.addCollapsible("Manual characters", manualCharactersEditfield, null);
+        effectsPanel.addCollapsible("Manual padding", paddingAdjuster, manualPaddingModel);
 
         effectsPanel.addEffect("Shadow", new BlurShadowEffect());
         effectsPanel.addEffect("Gradient", new GradientEffect());
@@ -478,6 +493,7 @@ public final class FontGenDialog {
         for(CharSetBlockCB cs : unicodeBockCBs) {
             cs.charSetModel.fireCallback();
         }
+        manualCharactersEditfield.setText(charSet.getManualCharacters());
         
         if(fontPath != null) {
             try {
@@ -552,9 +568,12 @@ public final class FontGenDialog {
     void updateStatusBar() {
         FontGenerator fontGen = fontDisplay.getLastFontGen();
         if(fontGen == null) {
+            fontMetricInfoLabel.setText("");
             setStatusBar("Select a font", DecoratedText.ERROR);
             return;
         }
+        fontMetricInfoLabel.setText("height: " + fontGen.getLineHeight() +
+                " ascent: " + fontGen.getAscent() + " descent: " + fontGen.getDescent());
         int usedTextureHeight = fontGen.getUsedTextureHeight();
         if(usedTextureHeight == 0) {
             setStatusBar("Select unicode blocks to include", DecoratedText.ERROR);
@@ -607,6 +626,11 @@ public final class FontGenDialog {
         }
     }
 
+    void updateManualCharacters() {
+        charSet.setManualCharacters(manualCharactersEditfield.getText());
+        updateCharset();
+    }
+    
     void updateCharset() {
         fontDisplay.setCharSet(charSet);
     }
