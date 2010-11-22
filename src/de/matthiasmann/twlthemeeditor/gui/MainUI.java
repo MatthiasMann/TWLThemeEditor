@@ -29,7 +29,6 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import com.sun.jna.Native;
 import de.matthiasmann.twl.Clipboard;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.GUI;
@@ -416,16 +415,6 @@ public final class MainUI extends DialogLayout {
             // Webstart version
             sb.append("<tr><td class=\"parameter\">Webstart</td><td class=\"value\">");
             appendHTMLEscape(sb, webStartVerison).append("</td></tr>\n");
-
-            try {
-                String freetype6Path = Native.getWebStartLibraryPath("freetype6_x86");
-                if(freetype6Path != null) {
-                    // Path to freetype6_x86.dll
-                    sb.append("<tr><td class=\"parameter\">Freetype6_x86</td><td class=\"value\">");
-                    appendHTMLEscape(sb, freetype6Path).append("</td></tr>\n");
-                }
-            } catch (Throwable ignore) {
-            }
         }
 
         sb.append("</table><a href=\"javascript:copyToClipboard()\">Copy above report to clipboard</a>");
