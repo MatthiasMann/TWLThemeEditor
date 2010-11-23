@@ -704,9 +704,7 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
     </theme>
 
     <theme name="menumanager" ref="-defaults">
-        <theme name="menupopup" ref="dialoglayout">
-            <param name="background"><image>popup.background</image></param>
-            <param name="border"><border>5</border></param>
+        <theme name="menupopup" ref="opNewNode-popupMenu">
             <theme name="button" ref="popupMenuButton"/>
             <theme name="checkbox" ref="popupMenuCheckbox"/>
             <theme name="radiobtn" ref="popupMenuRadioButton"/>
@@ -714,6 +712,14 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
             <theme name="spacer" ref="-defaults">
                 <param name="background"><image>popupmenu.separator</image></param>
                 <param name="maxWidth"><int>32767</int></param>
+            </theme>
+            <theme name="opCloneNode" ref="popupMenuButton">
+                <param name="text"><string>Clone</string></param>
+                <param name="tooltip"><string>Clones the current node</string></param>
+            </theme>
+            <theme name="opDeleteNode" ref="popupMenuButton">
+                <param name="text"><string>Delete</string></param>
+                <param name="tooltip"><string>Deletes the selected node</string></param>
             </theme>
             <param name="namedGaps"><map>
                 <param name="menuitem"><gap>0</gap></param>
