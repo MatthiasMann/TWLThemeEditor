@@ -34,6 +34,7 @@ import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
@@ -140,6 +141,12 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
                 clonedElement.removeAttribute("default");
             }
         });
+        return operations;
+    }
+
+    @Override
+    public List<CreateChildOperation> getCreateChildOperations() {
+        List<CreateChildOperation> operations = super.getCreateChildOperations();
         addFontParamOperations(operations, this, element);
         return operations;
     }
@@ -154,7 +161,7 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
         node.addProperty(new IntegerProperty(new AttributeProperty(element, "offsetY", "Offset Y", true), -100, 100));
     }
 
-    static void addFontParamOperations(List<ThemeTreeOperation> operations, ThemeTreeNode parent, Element element) {
+    static void addFontParamOperations(List<CreateChildOperation> operations, ThemeTreeNode parent, Element element) {
         operations.add(new CreateNewSimple(parent, element, "fontParam", "if", "hover"));
     }
 

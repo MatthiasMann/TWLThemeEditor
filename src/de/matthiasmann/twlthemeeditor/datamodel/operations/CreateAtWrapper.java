@@ -30,7 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Utils;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
 import java.io.IOException;
 import org.jdom.Element;
 
@@ -38,25 +38,48 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class CreateNewSimple extends CreateChildOperation {
+public class CreateAtWrapper extends ThemeTreeOperation {
 
-    private final String tagName;
-    private final String[] attributes;
+    public enum Location {
+        BEFORE,
+        AFTER
+    }
 
-    public CreateNewSimple(ThemeTreeNode parent, Element element, String tagName, String ... attributes) {
-        super("opNewNode" + Utils.capitalize(tagName), parent, element);
-        this.tagName = tagName;
-        this.attributes = attributes;
+    private final CreateChildOperation operation;
+    private final Location location;
+    private final ThemeTreeNode node;
+
+    public CreateAtWrapper(CreateChildOperation operation, Location location, ThemeTreeNode node) {
+        super(operation.getActionID());
+        this.operation = operation;
+        this.location = location;
+        this.node = node;
     }
 
     @Override
-    public ThemeTreeNode executeAt(Object[] parameter, int pos) throws IOException {
-        Element e = new Element(tagName);
-        addNameAttributeIfNeeded(e);
-        for(int i=0 ; i<attributes.length ; i+=2) {
-            e.setAttribute(attributes[i], attributes[i+1]);
-        }
-        return addChild(e, pos);
+    public Parameter[] getParameter() {
+        return operation.getParameter();
     }
-    
+
+    @Override
+    public boolean isEnabled() {
+        return operation.isEnabled();
+    }
+
+    @Override
+    public boolean needConfirm() {
+        return operation.needConfirm();
+    }
+
+    @Override
+    public ThemeTreeNode execute(Object[] parameter) throws IOException {
+        Element nodeElement = node.getDOMElement();
+        Element parentElement = nodeElement.getParentElement();
+        int pos = parentElement.indexOf(nodeElement);
+        if(location == Location.AFTER) {
+            pos++;
+        }
+        return operation.executeAt(parameter, pos);
+    }
+
 }

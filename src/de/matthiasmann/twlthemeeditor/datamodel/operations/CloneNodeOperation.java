@@ -41,7 +41,7 @@ import org.jdom.Element;
 public class CloneNodeOperation extends ElementOperation {
 
     public CloneNodeOperation(Element element, ThemeTreeNode node) {
-        super(null, "opCloneNode", element, node);
+        super("opCloneNode", element, node);
     }
 
     @Override

@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import java.io.IOException;
 import java.util.List;
 import org.jdom.Element;
@@ -38,7 +39,7 @@ import org.jdom.Element;
  *
  * @author Matthias Mann
  */
-public class Include extends ThemeTreeNode {
+public final class Include extends ThemeTreeNode {
 
     private final ThemeFile includedThemeFile;
 
@@ -79,8 +80,8 @@ public class Include extends ThemeTreeNode {
     }
 
     @Override
-    public List<ThemeTreeOperation> getOperations() {
-        List<ThemeTreeOperation> operations = super.getOperations();
+    public List<CreateChildOperation> getCreateChildOperations() {
+        List<CreateChildOperation> operations = super.getCreateChildOperations();
         includedThemeFile.addCreateOperations(operations, this);
         return operations;
     }

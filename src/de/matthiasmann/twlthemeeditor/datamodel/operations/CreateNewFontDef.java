@@ -50,11 +50,11 @@ public class CreateNewFontDef extends CreateChildOperation {
     }
 
     @Override
-    public ThemeTreeNode execute(Object[] parameter) throws IOException {
+    public ThemeTreeNode executeAt(Object[] parameter, int pos) throws IOException {
         Element e = new Element("fontDef");
         addNameAttributeIfNeeded(e);
         initFontDefElement(e, parameter);
-        return addChild(e);
+        return addChild(e, pos);
     }
 
     static Parameter[] getFontDefParameter() {

@@ -66,7 +66,7 @@ public class CreateNewParam extends CreateChildOperation {
     }
 
     @Override
-    public ThemeTreeNode execute(Object[] parameter) throws IOException {
+    public ThemeTreeNode executeAt(Object[] parameter, int pos) throws IOException {
         Element e = new Element("param");
         e.setAttribute("name", makeName());
         if("enum".equals(tagName)) {
@@ -77,7 +77,7 @@ public class CreateNewParam extends CreateChildOperation {
         initParamElement(v, parameter);
         e.addContent(v);
 
-        return addChild(e);
+        return addChild(e, pos);
     }
 
     protected void initParamElement(Element v, Object[] parameter) {

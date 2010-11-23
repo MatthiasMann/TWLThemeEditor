@@ -42,7 +42,7 @@ import org.jdom.Text;
  *
  * @author Matthias Mann
  */
-abstract class CreateChildOperation extends ThemeTreeOperation {
+public abstract class CreateChildOperation extends ThemeTreeOperation {
 
     private static final int INDENTATION_SIZE = 4;
 
@@ -51,7 +51,7 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
     protected boolean indentChildren = true;
 
     public CreateChildOperation(String actionID, ThemeTreeNode parent, Element element) {
-        super("opNewNode", actionID);
+        super(actionID);
         this.parent = parent;
         this.element = element;
     }
@@ -71,9 +71,15 @@ abstract class CreateChildOperation extends ThemeTreeOperation {
         return new String(buf);
     }
 
-    protected ThemeTreeNode addChild(Element child) throws IOException {
+    @Override
+    public final ThemeTreeNode execute(Object[] parameter) throws IOException {
+        return executeAt(parameter, element.getContentSize());
+    }
+
+    public abstract ThemeTreeNode executeAt(Object[] parameter, int pos) throws IOException;
+
+    protected ThemeTreeNode addChild(Element child, int pos) throws IOException {
         int indentation = getBaseIndentation();
-        int pos = element.getContentSize();
         if(pos>0 && element.getContent(pos-1) instanceof Text) {
             pos--;
         } else {

@@ -30,8 +30,10 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -70,7 +72,12 @@ public class ThemeTreeRootNode extends ThemeTreeNode {
 
     @Override
     public List<ThemeTreeOperation> getOperations() {
-        ArrayList<ThemeTreeOperation> operations = new ArrayList<ThemeTreeOperation>();
+        return Collections.<ThemeTreeOperation>emptyList();
+    }
+
+    @Override
+    public List<CreateChildOperation> getCreateChildOperations() {
+        ArrayList<CreateChildOperation> operations = new ArrayList<CreateChildOperation>();
         themeFile.addCreateOperations(operations, this);
         return operations;
     }

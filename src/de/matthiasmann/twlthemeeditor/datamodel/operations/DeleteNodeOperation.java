@@ -42,7 +42,7 @@ import org.jdom.Text;
 public class DeleteNodeOperation extends ElementOperation {
 
     public DeleteNodeOperation(Element element, ThemeTreeNode node) {
-        super(null, "opDeleteNode", element, node);
+        super("opDeleteNode", element, node);
     }
 
     @Override

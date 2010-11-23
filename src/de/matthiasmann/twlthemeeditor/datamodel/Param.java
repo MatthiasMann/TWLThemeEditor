@@ -33,6 +33,7 @@ import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParam;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParamFontDef;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
@@ -178,6 +179,12 @@ public class Param extends ThemeTreeNode implements HasProperties {
     public List<ThemeTreeOperation> getOperations() {
         List<ThemeTreeOperation> operations = super.getOperations();
         operations.add(new CloneNodeOperation(element, this));
+        return operations;
+    }
+
+    @Override
+    public List<CreateChildOperation> getCreateChildOperations() {
+        List<CreateChildOperation> operations = super.getCreateChildOperations();
         if(isMap()) {
             addCreateParam(operations, this, valueElement);
         }
@@ -186,6 +193,7 @@ public class Param extends ThemeTreeNode implements HasProperties {
         }
         return operations;
     }
+
 
     private URL getFontFileURL() throws MalformedURLException {
         String value = fileNameProperty.getPropertyValue();
@@ -196,7 +204,7 @@ public class Param extends ThemeTreeNode implements HasProperties {
         FontDef.registerFontFiles(getThemeFile().getEnv(), virtualFontFiles, getFontFileURL());
     }
     
-    static void addCreateParam(List<ThemeTreeOperation> operations, ThemeTreeNode node, Element element) {
+    static void addCreateParam(List<CreateChildOperation> operations, ThemeTreeNode node, Element element) {
         operations.add(new CreateNewParam(element, "image", node, "none"));
         operations.add(new CreateNewParam(element, "border", node, "0"));
         operations.add(new CreateNewParam(element, "int", node, "0"));

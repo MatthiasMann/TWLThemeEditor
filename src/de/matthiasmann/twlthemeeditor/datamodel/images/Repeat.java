@@ -36,7 +36,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.datamodel.NameGenerator;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewArea;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
@@ -93,7 +93,7 @@ public class Repeat extends WithSubImages implements NameGenerator {
     }
 
     @Override
-    protected void addOperations(List<ThemeTreeOperation> operations) {
+    protected void addCreateOperations(List<CreateChildOperation> operations) {
         operations.add(new CreateNewSimple(this, element, "repeat", "count", "1"));
         operations.add(new CreateNewSimple(this, element, "frame", "duration", "100", "ref", "none"));
         operations.add(new CreateNewArea(this, element, "frames", "duration", "100", "count", "2", "offsetx", "10"));

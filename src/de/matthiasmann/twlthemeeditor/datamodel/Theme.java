@@ -34,6 +34,7 @@ import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParam;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewWildcardTheme;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.DeleteNodeOperation;
@@ -178,6 +179,12 @@ public class Theme extends ThemeTreeNode implements HasProperties {
     public List<ThemeTreeOperation> getOperations() {
         List<ThemeTreeOperation> operations = super.getOperations();
         operations.add(new CloneNodeOperation(element, this));
+        return operations;
+    }
+
+    @Override
+    public List<CreateChildOperation> getCreateChildOperations() {
+        List<CreateChildOperation> operations = super.getCreateChildOperations();
         ThemeFile.addCreateThemeOperation(operations, this, element);
         operations.add(new CreateNewWildcardTheme(this, element));
         Param.addCreateParam(operations, this, element);

@@ -38,22 +38,10 @@ import java.io.IOException;
  */
 public abstract class ThemeTreeOperation {
 
-    private final String groupID;
     private final String actionID;
 
-    protected ThemeTreeOperation(String groupID, String actionID) {
-        this.groupID = groupID;
+    protected ThemeTreeOperation(String actionID) {
         this.actionID = actionID;
-    }
-
-    /**
-     * Operations can be put into groups, then they will get only one button
-     * plus a popup menu
-     * 
-     * @return the group ID or null
-     */
-    public String getGroupID() {
-        return groupID;
     }
 
     public String getActionID() {

@@ -52,7 +52,7 @@ public class CreateNewInclude extends CreateChildOperation {
     }
 
     @Override
-    public ThemeTreeNode execute(Object[] parameter) throws IOException {
+    public ThemeTreeNode executeAt(Object[] parameter, int pos) throws IOException {
         if (parameter.length != 1) {
             throw new IllegalArgumentException("Wrong number of arguments");
         }
@@ -63,7 +63,7 @@ public class CreateNewInclude extends CreateChildOperation {
 
         Element e = new Element("include");
         e.setAttribute("filename", themeFile);
-        return addChild(e);
+        return addChild(e, pos);
     }
     
 }

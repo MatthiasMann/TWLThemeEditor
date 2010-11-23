@@ -34,7 +34,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.DomXPPParser;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Images;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import java.io.IOException;
 import java.util.List;
 import org.jdom.Element;
@@ -75,13 +75,13 @@ abstract class WithSubImages extends Image {
     }
 
     @Override
-    public List<ThemeTreeOperation> getOperations() {
-        List<ThemeTreeOperation> operations = super.getOperations();
-        addOperations(operations);
+    public List<CreateChildOperation> getCreateChildOperations() {
+        List<CreateChildOperation> operations = super.getCreateChildOperations();
+        addCreateOperations(operations);
         return operations;
     }
 
-    protected void addOperations(List<ThemeTreeOperation> operations) {
+    protected void addCreateOperations(List<CreateChildOperation> operations) {
         Images.addCreateImageOperations(operations, this);
     }
 }

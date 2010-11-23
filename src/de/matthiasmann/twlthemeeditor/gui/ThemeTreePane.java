@@ -49,9 +49,10 @@ import de.matthiasmann.twlthemeeditor.datamodel.FilteredModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateAtWrapper;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -187,8 +188,9 @@ public class ThemeTreePane extends DialogLayout {
         buttons.removeAllChildren();
         if(selected instanceof ThemeTreeNode) {
             ThemeTreeNode node = (ThemeTreeNode)selected;
-            List<ThemeTreeOperation> operations = node.getOperations();
-            Menu m = createButtons(node, operations);
+            Menu m = new Menu();
+            addButtons(m, node, node.getOperations());
+            addCreateSubMenu(m, node, node.getCreateChildOperations());
             m.createMenuBar(buttons);
         }
     }
@@ -201,23 +203,18 @@ public class ThemeTreePane extends DialogLayout {
 
             if(node.getParent() instanceof ThemeTreeNode) {
                 ThemeTreeNode parentNode = (ThemeTreeNode)node.getParent();
-                List<ThemeTreeOperation> parentOperations = parentNode.getOperations();
-                if(hasOperation(parentOperations, "opNewNode", null)) {
-                    // TODO: need a way to specify the insert location
-                }
+                List<CreateChildOperation> parentOperations = parentNode.getCreateChildOperations();
+                addCreateAtSubMenu(menu, "opNewNodeBefore", parentNode, parentOperations, CreateAtWrapper.Location.BEFORE, node);
+                addCreateAtSubMenu(menu, "opNewNodeAfter", parentNode, parentOperations, CreateAtWrapper.Location.AFTER, node);
             }
             
+            addCreateSubMenu(menu, node, node.getCreateChildOperations());
             List<ThemeTreeOperation> operations = node.getOperations();
-            Menu createSubMenu = new Menu("New child");
-            if(createSubMenu(createSubMenu, node, operations, "opNewNode", null) > 0) {
-                menu.add(createSubMenu);
-            }
-            if(hasOperation(operations, null, "opDeleteNode") || hasOperation(operations, null, "opCloneNode")) {
+            if(!operations.isEmpty()) {
                 if(menu.getNumElements() > 0) {
                     menu.addSpacer();
                 }
-                createSubMenu(menu, node, operations, null, "opCloneNode");
-                createSubMenu(menu, node, operations, null, "opDeleteNode");
+                addButtons(menu, node, operations);
             }
 
             if(menu.getNumElements() > 0) {
@@ -242,53 +239,39 @@ public class ThemeTreePane extends DialogLayout {
         updateFilter();
     }
 
-    private boolean hasOperation(List<ThemeTreeOperation> operations, String groupID, String actionID) {
+    private void addButtons(Menu menu, ThemeTreeNode node, List<ThemeTreeOperation> operations) {
         for(final ThemeTreeOperation operation : operations) {
-            if(groupID != null && groupID.equals(operation.getGroupID())) {
-                return true;
-            }
-            if(actionID != null && actionID.equals(operation.getActionID())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private int createSubMenu(Menu menu, final ThemeTreeNode node, List<ThemeTreeOperation> operations, String groupID, String actionID) {
-        int count = 0;
-        for(final ThemeTreeOperation operation : operations) {
-            if((groupID != null && groupID.equals(operation.getGroupID())) ||
-                    (actionID != null && actionID.equals(operation.getActionID()))) {
-                menu.add(createMenuAction(node, operation));
-                count++;
-            }
-        }
-        return count;
-    }
-
-    private Menu createButtons(final ThemeTreeNode node, List<ThemeTreeOperation> operations) {
-        Menu menu = new Menu();
-        HashMap<String, Menu> submenus = new HashMap<String, Menu>();
-        for(final ThemeTreeOperation operation : operations) {
-            String groupID = operation.getGroupID();
-
-            Menu subPopupMenu = null;
-            if(groupID != null) {
-                subPopupMenu = submenus.get(groupID);
-                if(subPopupMenu == null) {
-                     subPopupMenu = new Menu();
-                     subPopupMenu.setTheme(groupID);
-                     subPopupMenu.setPopupTheme(groupID + "-popupMenu");
-                     submenus.put(groupID, subPopupMenu);
-                     menu.add(subPopupMenu);
-                }
-            }
-
             MenuAction action = createMenuAction(node, operation);
-
-            ((subPopupMenu != null) ? subPopupMenu : menu).add(action);
+            menu.add(action);
         }
-        return menu;
+    }
+
+    private void addCreateSubMenu(Menu menu, final ThemeTreeNode node, List<CreateChildOperation> operations) {
+        if(!operations.isEmpty()) {
+            Menu subPopupMenu = new Menu();
+            subPopupMenu.setTheme("opNewNode");
+            subPopupMenu.setPopupTheme("opNewNode-popupMenu");
+            menu.add(subPopupMenu);
+
+            for(CreateChildOperation operation : operations) {
+                MenuAction action = createMenuAction(node, operation);
+                subPopupMenu.add(action);
+            }
+        }
+    }
+
+    private void addCreateAtSubMenu(Menu menu, String id, ThemeTreeNode node, List<CreateChildOperation> operations, CreateAtWrapper.Location location, ThemeTreeNode pos) {
+        if(!operations.isEmpty()) {
+            Menu subPopupMenu = new Menu();
+            subPopupMenu.setTheme(id);
+            subPopupMenu.setPopupTheme("opNewNode-popupMenu");
+            menu.add(subPopupMenu);
+
+            for(CreateChildOperation operation : operations) {
+                MenuAction action = createMenuAction(node, new CreateAtWrapper(operation, location, pos));
+                subPopupMenu.add(action);
+            }
+        }
     }
 
     private MenuAction createMenuAction(final ThemeTreeNode node, final ThemeTreeOperation operation) {
@@ -296,7 +279,6 @@ public class ThemeTreePane extends DialogLayout {
         action.setTheme(operation.getActionID());
         action.setEnabled(operation.isEnabled());
         action.setCallback(new Runnable() {
-
             public void run() {
                 queryOperationParameter(node, operation);
             }

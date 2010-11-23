@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 import de.matthiasmann.twl.model.AbstractTreeTableNode;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.DeleteNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.MoveNodeOperations;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
@@ -154,6 +155,10 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
         result.add(new MoveNodeOperations("opMoveNodeUp", element, this, -1));
         result.add(new MoveNodeOperations("opMoveNodeDown", element, this, +1));
         return result;
+    }
+
+    public List<CreateChildOperation> getCreateChildOperations() {
+        return new ArrayList<CreateChildOperation>();
     }
 
     public Object getData(int column) {

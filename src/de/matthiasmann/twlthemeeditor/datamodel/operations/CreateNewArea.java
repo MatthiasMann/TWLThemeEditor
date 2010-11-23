@@ -44,9 +44,9 @@ public class CreateNewArea extends CreateNewSimple {
     }
 
     @Override
-    protected ThemeTreeNode addChild(Element e) throws IOException {
+    protected ThemeTreeNode addChild(Element e, int pos) throws IOException {
         e.setAttribute("xywh", "0,0,1,1");
-        return super.addChild(e);
+        return super.addChild(e, pos);
     }
     
 }

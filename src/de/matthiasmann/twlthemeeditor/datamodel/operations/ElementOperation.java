@@ -45,8 +45,8 @@ abstract class ElementOperation extends ThemeTreeOperation {
     protected final Element parent;
     protected final ThemeTreeNode node;
 
-    protected ElementOperation(String groupName, String actionName, Element element, ThemeTreeNode node) {
-        super(groupName, actionName);
+    protected ElementOperation(String actionName, Element element, ThemeTreeNode node) {
+        super(actionName);
         this.element = element;
         this.parent = element.getParentElement();
         this.node = node;

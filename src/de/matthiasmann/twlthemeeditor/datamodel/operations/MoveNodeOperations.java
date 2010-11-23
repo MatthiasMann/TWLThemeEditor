@@ -44,7 +44,7 @@ public class MoveNodeOperations extends ElementOperation {
     private final int direction;
 
     public MoveNodeOperations(String actionID, Element element, ThemeTreeNode node, int direction) {
-        super(null, actionID, element, node);
+        super(actionID, element, node);
         this.direction = direction;
     }
 

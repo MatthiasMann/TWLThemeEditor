@@ -44,11 +44,11 @@ public class CreateNewWildcardTheme extends CreateChildOperation {
     }
 
     @Override
-    public ThemeTreeNode execute(Object[] parameter) throws IOException {
+    public ThemeTreeNode executeAt(Object[] parameter, int pos) throws IOException {
         Element e = new Element("theme");
         e.setAttribute("name", "");
         e.setAttribute("ref", "*");
-        return addChild(e);
+        return addChild(e, pos);
     }
     
 }

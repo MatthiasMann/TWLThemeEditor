@@ -34,6 +34,7 @@ import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.renderer.lwjgl.PNGDecoder;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewArea;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
@@ -157,13 +158,13 @@ public class Images extends ThemeTreeNode implements HasProperties {
     }
 
     @Override
-    public List<ThemeTreeOperation> getOperations() {
-        List<ThemeTreeOperation> operations = super.getOperations();
+    public List<CreateChildOperation> getCreateChildOperations() {
+        List<CreateChildOperation> operations = super.getCreateChildOperations();
         addCreateImageOperations(operations, this);
         return operations;
     }
 
-    public static void addCreateImageOperations(List<ThemeTreeOperation> operations, ThemeTreeNode parent) {
+    public static void addCreateImageOperations(List<CreateChildOperation> operations, ThemeTreeNode parent) {
         operations.add(new CreateNewArea(parent, parent.getDOMElement(), "area"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "select"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "composed"));
