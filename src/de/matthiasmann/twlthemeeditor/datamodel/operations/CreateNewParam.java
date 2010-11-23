@@ -74,10 +74,14 @@ public class CreateNewParam extends CreateChildOperation {
         }
 
         Element v = new Element(tagName);
-        v.setText(initialText);
+        initParamElement(v, parameter);
         e.addContent(v);
 
         return addChild(e);
+    }
+
+    protected void initParamElement(Element v, Object[] parameter) {
+        v.setText(initialText);
     }
 
     protected String makeName() {

@@ -351,6 +351,9 @@
         <theme name="opNewParamFont" ref="popupMenuButton">
             <param name="text"><string>Create a new font parameter</string></param>
         </theme>
+        <theme name="opNewParamFontDef" ref="popupMenuButton">
+            <param name="text"><string>Create a new fontDef parameter</string></param>
+        </theme>
         <theme name="opNewParamCursor" ref="popupMenuButton">
             <param name="text"><string>Create a new cursor parameter</string></param>
         </theme>
@@ -416,6 +419,7 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
             </theme>
         </theme>
     </theme>
+    <theme name="parameterDlg-opNewParamFontDef" ref="parameterDlg-opNewNodeFontDef"/>
 
     <theme name="parameterDlg-opNewNodeInclude" ref="-parameterDlg">
         <theme name="content" merge="true">

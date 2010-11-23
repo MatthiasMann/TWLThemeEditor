@@ -46,13 +46,24 @@ public class CreateNewFontDef extends CreateChildOperation {
 
     @Override
     public Parameter[] getParameter() {
+        return getFontDefParameter();
+    }
+
+    @Override
+    public ThemeTreeNode execute(Object[] parameter) throws IOException {
+        Element e = new Element("fontDef");
+        addNameAttributeIfNeeded(e);
+        initFontDefElement(e, parameter);
+        return addChild(e);
+    }
+
+    static Parameter[] getFontDefParameter() {
         return new Parameter[] {
             new FileParameter("BMFont file", new ExtFilter(".fnt"))
         };
     }
 
-    @Override
-    public ThemeTreeNode execute(Object[] parameter) throws IOException {
+    static void initFontDefElement(Element e, Object[] parameter) {
         if (parameter.length != 1) {
             throw new IllegalArgumentException("Wrong number of arguments");
         }
@@ -61,11 +72,7 @@ public class CreateNewFontDef extends CreateChildOperation {
         }
         String fontFile = (String) parameter[0];
 
-        Element e = new Element("fontDef");
-        addNameAttributeIfNeeded(e);
         e.setAttribute("filename", fontFile);
         e.setAttribute("color", "white");
-        return addChild(e);
     }
-    
 }

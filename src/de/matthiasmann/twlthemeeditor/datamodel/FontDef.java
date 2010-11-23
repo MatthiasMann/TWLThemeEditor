@@ -60,6 +60,7 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
     protected final Property<String> fileNameProperty;
     protected final BooleanProperty defaultProperty;
 
+    @SuppressWarnings("LeakingThisInConstructor")
     public FontDef(ThemeFile themeFile, TreeTableNode parent, Element element) throws IOException {
         super(themeFile, parent, element);
         this.virtualFontFiles = new ArrayList<VirtualFile>();
@@ -88,9 +89,7 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
         defaultProperty = new BooleanProperty(new AttributeProperty(element, "default", "Default font", true), false);
 
         addProperty(defaultProperty);
-        addProperty(new ColorProperty(new AttributeProperty(element, "color", "Font color", true)));
-        addProperty(new IntegerProperty(new AttributeProperty(element, "offsetX", "Offset X", true), -100, 100));
-        addProperty(new IntegerProperty(new AttributeProperty(element, "offsetY", "Offset Y", true), -100, 100));
+        addCommonFontDefProperties(this, element);
 
         registerFontFiles();
     }
@@ -123,14 +122,7 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
     }
 
     public void addChildren() throws IOException {
-        addChildren(themeFile, element, new DomWrapper() {
-            public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
-                if("fontParam".equals(element.getName())) {
-                    return new FontParam(themeFile, parent, element);
-                }
-                return null;
-            }
-        });
+        addChildren(themeFile, element, new DomWrapperImpl());
     }
 
     @SuppressWarnings("unchecked")
@@ -148,16 +140,28 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
                 clonedElement.removeAttribute("default");
             }
         });
-        operations.add(new CreateNewSimple(this, element, "fontParam", "if", "hover"));
+        addFontParamOperations(operations, this, element);
         return operations;
     }
 
     private void registerFontFiles() throws IOException {
-        TestEnv env = getThemeFile().getEnv();
+        registerFontFiles(getThemeFile().getEnv(), virtualFontFiles, getFontFileURL());
+    }
+
+    static void addCommonFontDefProperties(ThemeTreeNode node, Element element) {
+        node.addProperty(new ColorProperty(new AttributeProperty(element, "color", "Font color", true)));
+        node.addProperty(new IntegerProperty(new AttributeProperty(element, "offsetX", "Offset X", true), -100, 100));
+        node.addProperty(new IntegerProperty(new AttributeProperty(element, "offsetY", "Offset Y", true), -100, 100));
+    }
+
+    static void addFontParamOperations(List<ThemeTreeOperation> operations, ThemeTreeNode parent, Element element) {
+        operations.add(new CreateNewSimple(parent, element, "fontParam", "if", "hover"));
+    }
+
+    static void registerFontFiles(TestEnv env, ArrayList<VirtualFile> virtualFontFiles, URL fontFileURL) throws IOException {
         env.unregisterFiles(virtualFontFiles);
         virtualFontFiles.clear();
 
-        URL fontFileURL = getFontFileURL();
         if(fontFileURL != null) {
             virtualFontFiles.add(env.registerFile(fontFileURL));
 
@@ -172,6 +176,15 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
                     }
                 }
             }
+        }
+    }
+
+    static class DomWrapperImpl implements DomWrapper {
+        public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
+            if("fontParam".equals(element.getName())) {
+                return new FontParam(themeFile, parent, element);
+            }
+            return null;
         }
     }
 }

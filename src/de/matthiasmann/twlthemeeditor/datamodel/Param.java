@@ -31,8 +31,10 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParam;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParamFontDef;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
@@ -44,6 +46,9 @@ import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.DerivedNodeReferenceProperty;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import org.jdom.Content;
 import org.jdom.Element;
@@ -57,9 +62,12 @@ public class Param extends ThemeTreeNode implements HasProperties {
     protected final Theme theme;
     protected final NameProperty nameProperty;
     protected final Element valueElement;
-    protected final Property<?> valueProperty;
+    
+    protected Property<?> valueProperty;
+    protected ArrayList<VirtualFile> virtualFontFiles;
+    protected Property<String> fileNameProperty;
 
-    public Param(Theme theme, TreeTableNode parent, Element element) {
+    public Param(Theme theme, TreeTableNode parent, Element element) throws IOException {
         super(theme.getThemeFile(), parent, element);
         this.theme = theme;
         
@@ -72,17 +80,43 @@ public class Param extends ThemeTreeNode implements HasProperties {
 
         valueElement = getFirstChildElement(element);
         if(valueElement != null) {
-            valueProperty = createProperty(valueElement, this, theme.getLimit());
-            if(valueProperty != null) {
-                addProperty(valueProperty);
+            if(isFontDef()) {
+                initFontDef();
+            } else {
+                initValueProperty();
             }
-        } else {
-            valueProperty = null;
         }
     }
     
-    protected boolean isMap() {
-        return "map".equals(valueElement.getName());
+    protected final boolean isMap() {
+        return valueElement != null && "map".equals(valueElement.getName());
+    }
+
+    protected final boolean isFontDef() {
+        return valueElement != null && "fontDef".equals(valueElement.getName());
+    }
+
+    private void initFontDef() throws IOException {
+        virtualFontFiles = new ArrayList<VirtualFile>();
+        fileNameProperty = new AttributeProperty(valueElement, "filename", "Font file name", true);
+        fileNameProperty.addValueChangedCallback(new Runnable() {
+            public void run() {
+                try {
+                    registerFontFiles();
+                } catch(IOException ignore) {
+                }
+            }
+        });
+        addProperty(fileNameProperty);
+        FontDef.addCommonFontDefProperties(this, valueElement);
+        registerFontFiles();
+    }
+
+    private void initValueProperty() {
+        valueProperty = createProperty(valueElement, this, theme.getLimit());
+        if(valueProperty != null) {
+            addProperty(valueProperty);
+        }
     }
 
     @Override
@@ -118,6 +152,9 @@ public class Param extends ThemeTreeNode implements HasProperties {
                 }
             });
         }
+        if(isFontDef()) {
+            addChildren(theme.getThemeFile(), valueElement, new FontDef.DomWrapperImpl());
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -127,6 +164,10 @@ public class Param extends ThemeTreeNode implements HasProperties {
             xpp.addStartTag(this, "map");
             Utils.addToXPP(xpp, this);
             xpp.addEndTag("map");
+            xpp.addEndTag(element.getName());
+        } else if(isFontDef()) {
+            xpp.addStartTag(this, element.getName(), element.getAttributes());
+            Utils.addToXPP(xpp, "fontDef", this, valueElement.getAttributes());
             xpp.addEndTag(element.getName());
         } else {
             xpp.addElement(this, element);
@@ -140,9 +181,21 @@ public class Param extends ThemeTreeNode implements HasProperties {
         if(isMap()) {
             addCreateParam(operations, this, valueElement);
         }
+        if(isFontDef()) {
+            FontDef.addFontParamOperations(operations, this, valueElement);
+        }
         return operations;
     }
 
+    private URL getFontFileURL() throws MalformedURLException {
+        String value = fileNameProperty.getPropertyValue();
+        return (value != null) ? themeFile.getURL(value) : null;
+    }
+    
+    private void registerFontFiles() throws IOException {
+        FontDef.registerFontFiles(getThemeFile().getEnv(), virtualFontFiles, getFontFileURL());
+    }
+    
     static void addCreateParam(List<ThemeTreeOperation> operations, ThemeTreeNode node, Element element) {
         operations.add(new CreateNewParam(element, "image", node, "none"));
         operations.add(new CreateNewParam(element, "border", node, "0"));
@@ -152,6 +205,7 @@ public class Param extends ThemeTreeNode implements HasProperties {
         operations.add(new CreateNewParam(element, "dimension", node, "0,0"));
         operations.add(new CreateNewParam(element, "string", node, ""));
         operations.add(new CreateNewParam(element, "font", node, "default"));
+        operations.add(new CreateNewParamFontDef(element, node));
         operations.add(new CreateNewParam(element, "cursor", node, "text"));
         operations.add(new CreateNewParam(element, "map", node, "\n"));
     }
