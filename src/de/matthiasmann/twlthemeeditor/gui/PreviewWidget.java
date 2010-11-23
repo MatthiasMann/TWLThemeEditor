@@ -143,7 +143,7 @@ public class PreviewWidget extends Widget {
             Widget found = null;
             for(int i=widget.getNumChildren() ; i-->0 ;) {
                 Widget c = widget.getChild(i);
-                if(testWidgetInside(c, x, y)) {
+                if(c.isVisible() && testWidgetInside(c, x, y)) {
                     found = c;
                     break;
                 }
