@@ -48,13 +48,12 @@ import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestLabel;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestListBox;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollPane;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollbar;
+import de.matthiasmann.twlthemeeditor.util.SolidFileClassLoader;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -77,7 +76,7 @@ public class TestWidgetManager {
 
     private final MessageLog messageLog;
     private final ArrayList<TestWidgetFactory> builtinWidgets;
-    private final HashMap<ArrayList<String>, ArrayList<TestWidgetFactory>> userWidgets;
+    private final HashMap<ArrayList<String>, LoadedUserWidgets> userWidgets;
 
     private Runnable callback;
     private TestWidgetFactory currentTestWidgetFactory;
@@ -85,7 +84,7 @@ public class TestWidgetManager {
     public TestWidgetManager(MessageLog messageLog) {
         this.messageLog = messageLog;
         this.builtinWidgets = new ArrayList<TestWidgetFactory>();
-        this.userWidgets = new LinkedHashMap<ArrayList<String>, ArrayList<TestWidgetFactory>>();
+        this.userWidgets = new LinkedHashMap<ArrayList<String>, LoadedUserWidgets>();
 
         builtinWidgets.add(new TestWidgetFactory(Widget.class, "Widget"));
         builtinWidgets.add(new TestWidgetFactory(TestLabel.class, "Label"));
@@ -118,8 +117,8 @@ public class TestWidgetManager {
 
     public void clearCache() {
         clearCache(builtinWidgets);
-        for(ArrayList<TestWidgetFactory> factories : userWidgets.values()) {
-            clearCache(factories);
+        for(LoadedUserWidgets luw : userWidgets.values()) {
+            clearCache(luw.factories);
         }
     }
 
@@ -166,12 +165,12 @@ public class TestWidgetManager {
 
     public void updateMenu(Menu menu) {
         addMenu(menu, "Built-in widgets", builtinWidgets);
-        for(Map.Entry<ArrayList<String>, ArrayList<TestWidgetFactory>> entry : userWidgets.entrySet()) {
+        for(Map.Entry<ArrayList<String>,LoadedUserWidgets> entry : userWidgets.entrySet()) {
             String name = entry.getKey().get(0);
             if(!name.endsWith("/")) {
                 name = name.substring(name.lastIndexOf('/') + 1);
             }
-            addMenu(menu, name, entry.getValue());
+            addMenu(menu, name, entry.getValue().factories);
         }
     }
 
@@ -187,27 +186,29 @@ public class TestWidgetManager {
         try {
             StringBuilder infoMsg = new StringBuilder();
             infoMsg.append("Loaded from the following class path:\n");
-            
-            URL[] urls = new URL[toScan.size() + dependencies.size()];
+
+            File files[] = new File[toScan.size() + dependencies.size()];
             ArrayList<String> key = new ArrayList<String>();
             for(int i=0,n=toScan.size() ; i<n ; i++) {
-                URI file = toScan.get(i);
-                String path = new File(file).toString();
-                urls[i] = file.toURL();
+                URI fileUri = toScan.get(i);
+                File file = new File(fileUri);
+                files[i] = file;
+                String path = file.toString();
                 key.add(path);
                 infoMsg.append(path).append("\n");
             }
             if(!dependencies.isEmpty()) {
                 infoMsg.append("Additional class path:\n");
                 for(int i=0,n=dependencies.size() ; i<n ; i++) {
-                    URI file = dependencies.get(i);
-                    urls[i+toScan.size()] = file.toURL();
+                    URI fileUri = dependencies.get(i);
+                    File file = new File(fileUri);
+                    files[i+toScan.size()] = file;
                     infoMsg.append(file.getPath()).append("\n");
                 }
             }
 
             ArrayList<TestWidgetFactory> testWidgetFactories = new ArrayList<TestWidgetFactory>();
-            URLClassLoader classLoader = new URLClassLoader(urls, getClass().getClassLoader());
+            SolidFileClassLoader classLoader = SolidFileClassLoader.create(getClass().getClassLoader(), files);
             for(URI uri : toScan) {
                 File file = new File(uri);
                 if(file.isFile()) {
@@ -218,12 +219,18 @@ public class TestWidgetManager {
             }
 
             if(!testWidgetFactories.isEmpty()) {
-                userWidgets.put(key, testWidgetFactories);
+                LoadedUserWidgets luw = new LoadedUserWidgets(testWidgetFactories, classLoader);
+                LoadedUserWidgets old = userWidgets.put(key, luw);
+                if(old != null) {
+                    old.classLoader.close();
+                }
 
                 infoMsg.append("\nThe following classes have been loaded:\n");
                 for(TestWidgetFactory twf : testWidgetFactories) {
                     infoMsg.append(twf.getClazz().getName()).append("\n");
                 }
+            } else {
+                classLoader.close();
             }
 
             messageLog.add(new MessageLog.Entry(
@@ -323,6 +330,16 @@ public class TestWidgetManager {
                 }
                 doCallback();
             }
+        }
+    }
+
+    static class LoadedUserWidgets {
+        final ArrayList<TestWidgetFactory> factories;
+        final SolidFileClassLoader classLoader;
+
+        public LoadedUserWidgets(ArrayList<TestWidgetFactory> factories, SolidFileClassLoader classLoader) {
+            this.factories = factories;
+            this.classLoader = classLoader;
         }
     }
 }
