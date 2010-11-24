@@ -80,6 +80,7 @@ public class TestWidgetManager {
 
     private Runnable callback;
     private TestWidgetFactory currentTestWidgetFactory;
+    private LoadedUserWidgets currentUserWidgets;
 
     public TestWidgetManager(MessageLog messageLog) {
         this.messageLog = messageLog;
@@ -119,6 +120,30 @@ public class TestWidgetManager {
         clearCache(builtinWidgets);
         for(LoadedUserWidgets luw : userWidgets.values()) {
             clearCache(luw.factories);
+        }
+    }
+
+    public void reloadCurrentWidget() {
+        LoadedUserWidgets luw = currentUserWidgets;
+        if(luw != null) {
+            String currentClassName = currentTestWidgetFactory.getClazz().getName();
+            if(loadUserWidgets(luw.toScan, luw.dependencies)) {
+                luw = userWidgets.get(luw.key);
+                TestWidgetFactory newFactory;
+                if(luw == null) {
+                    newFactory = null;
+                } else {
+                    newFactory = luw.findFactory(currentClassName);
+                }
+                if(newFactory != null) {
+                    setCurrentTestWidgetFactory(newFactory, luw);
+                } else {
+                    setCurrentTestWidgetFactory(null, null);
+                }
+            }
+        } else if(currentTestWidgetFactory != null) {
+            currentTestWidgetFactory.clearCache();
+            doCallback();
         }
     }
 
@@ -164,20 +189,33 @@ public class TestWidgetManager {
     }
 
     public void updateMenu(Menu menu) {
-        addMenu(menu, "Built-in widgets", builtinWidgets);
+        addMenu(menu, "Built-in widgets", builtinWidgets, null);
         for(Map.Entry<ArrayList<String>,LoadedUserWidgets> entry : userWidgets.entrySet()) {
             String name = entry.getKey().get(0);
             if(!name.endsWith("/")) {
                 name = name.substring(name.lastIndexOf('/') + 1);
             }
-            addMenu(menu, name, entry.getValue().factories);
+            LoadedUserWidgets luw = entry.getValue();
+            addMenu(menu, name, luw.factories, luw);
         }
     }
 
-    private void addMenu(Menu parent, String name, ArrayList<TestWidgetFactory> factories) {
+    void setCurrentTestWidgetFactory(TestWidgetFactory factory, LoadedUserWidgets userWidgets) {
+        currentTestWidgetFactory = factory;
+        currentUserWidgets = userWidgets;
+        doCallback();
+    }
+
+    private void doCallback() {
+        if(callback != null) {
+            callback.run();
+        }
+    }
+
+    private void addMenu(Menu parent, String name, ArrayList<TestWidgetFactory> factories, LoadedUserWidgets userWidgets) {
         Menu menu = new Menu(name);
         for(TestWidgetFactory f : factories) {
-            menu.add(new MenuCheckbox(f.getName(), new SelectedWidgetModel(f)).setTheme("radiobtn"));
+            menu.add(new MenuCheckbox(f.getName(), new SelectedWidgetModel(f, userWidgets)).setTheme("radiobtn"));
         }
         parent.add(menu);
     }
@@ -219,7 +257,7 @@ public class TestWidgetManager {
             }
 
             if(!testWidgetFactories.isEmpty()) {
-                LoadedUserWidgets luw = new LoadedUserWidgets(testWidgetFactories, classLoader);
+                LoadedUserWidgets luw = new LoadedUserWidgets(toScan, dependencies, key, testWidgetFactories, classLoader);
                 LoadedUserWidgets old = userWidgets.put(key, luw);
                 if(old != null) {
                     old.classLoader.close();
@@ -313,9 +351,11 @@ public class TestWidgetManager {
 
     class SelectedWidgetModel extends HasCallback implements BooleanModel {
         private final TestWidgetFactory factory;
+        private final LoadedUserWidgets userWidgets;
 
-        public SelectedWidgetModel(TestWidgetFactory factory) {
+        public SelectedWidgetModel(TestWidgetFactory factory, LoadedUserWidgets userWidgets) {
             this.factory = factory;
+            this.userWidgets = userWidgets;
         }
 
         public boolean getValue() {
@@ -324,22 +364,34 @@ public class TestWidgetManager {
 
         public void setValue(boolean value) {
             if(value && currentTestWidgetFactory != factory) {
-                currentTestWidgetFactory = factory;
-                if(callback != null) {
-                    callback.run();
-                }
+                setCurrentTestWidgetFactory(factory, userWidgets);
                 doCallback();
             }
         }
     }
 
     static class LoadedUserWidgets {
+        final ArrayList<URI> toScan;
+        final ArrayList<URI> dependencies;
+        final ArrayList<String> key;
         final ArrayList<TestWidgetFactory> factories;
         final SolidFileClassLoader classLoader;
 
-        public LoadedUserWidgets(ArrayList<TestWidgetFactory> factories, SolidFileClassLoader classLoader) {
+        public LoadedUserWidgets(ArrayList<URI> toScan, ArrayList<URI> dependencies, ArrayList<String> key, ArrayList<TestWidgetFactory> factories, SolidFileClassLoader classLoader) {
+            this.toScan = toScan;
+            this.dependencies = dependencies;
+            this.key = key;
             this.factories = factories;
             this.classLoader = classLoader;
+        }
+
+        TestWidgetFactory findFactory(String className) {
+            for(TestWidgetFactory factory : factories) {
+                if(className.equals(factory.getClazz().getName())) {
+                    return factory;
+                }
+            }
+            return null;
         }
     }
 }

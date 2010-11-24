@@ -616,6 +616,10 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         <theme name="scrollpane" ref="scrollpane">
             <theme name="themetree" ref="table"/>
         </theme>
+        <theme name="btnReloadWidget" ref="button">
+            <param name="text"><string>Reload</string></param>
+            <param name="tooltip"><string>Reloads the current widget</string></param>
+        </theme>
         <theme name="btnFlash" ref="button">
             <param name=""><image>flashbutton.*</image></param>
             <param name="tooltip"><string>Highlight selected widget with a flashing red/blue frame</string></param>
@@ -626,8 +630,10 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
             <param name="mouseCursorDragging"><cursor>cursor.dragSelect</cursor></param>
         </theme>
         <param name="namedGaps"><map>
-            <param name="buttons-left"><gap>5,5,32767</gap></param>
-            <param name="buttons-right"><gap>5</gap></param>
+            <param name="left-reload"><gap>5</gap></param>
+            <param name="reload-select"><gap>5,5,32767</gap></param>
+            <param name="select-flash"><gap>5</gap></param>
+            <param name="flash-right"><gap>5</gap></param>
         </map></param>
     </theme>
 

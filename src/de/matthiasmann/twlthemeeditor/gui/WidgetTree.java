@@ -52,6 +52,7 @@ public class WidgetTree extends DialogLayout {
     private final TableSingleSelectionModel selectionModel;
     private final TreeTable treeTable;
     private final ScrollPane scrollPane;
+    private final Button btnReloadWidget;
     private final Button btnFlashSelectedWidget;
     private final Widget btnSelectWidget;
 
@@ -71,6 +72,10 @@ public class WidgetTree extends DialogLayout {
         scrollPane = new ScrollPane(treeTable);
         scrollPane.setFixed(Fixed.HORIZONTAL);
 
+        btnReloadWidget = new Button();
+        btnReloadWidget.setTheme("btnReloadWidget");
+        btnReloadWidget.setEnabled(false);
+        
         btnFlashSelectedWidget = new Button();
         btnFlashSelectedWidget.setTheme("btnFlash");
         btnFlashSelectedWidget.setEnabled(false);
@@ -121,13 +126,16 @@ public class WidgetTree extends DialogLayout {
         setHorizontalGroup(createParallelGroup()
                 .addWidget(scrollPane)
                 .addGroup(createSequentialGroup()
-                    .addGap("buttons-left")
+                    .addGap("left-reload")
+                    .addWidget(btnReloadWidget)
+                    .addGap("reload-select")
                     .addWidget(btnSelectWidget)
+                    .addGap("select-flash")
                     .addWidget(btnFlashSelectedWidget)
-                    .addGap("buttons-right")));
+                    .addGap("flash-right")));
         setVerticalGroup(createSequentialGroup()
                 .addWidget(scrollPane)
-                .addGroup(createParallelGroup(btnSelectWidget, btnFlashSelectedWidget)));
+                .addGroup(createParallelGroup(btnReloadWidget, btnSelectWidget, btnFlashSelectedWidget)));
     }
 
     public void setRootWidget(Context ctx, Widget rootWidget) {
@@ -137,8 +145,13 @@ public class WidgetTree extends DialogLayout {
             selectionModel.setSelection(0, 0);
             treeTable.setRowExpanded(0, true);
         }
+        btnReloadWidget.setEnabled(rootWidget != null);
     }
 
+    public void addReloadButtenCallback(Runnable cb) {
+        btnReloadWidget.addCallback(cb);
+    }
+    
     public void addSelectionChangeListener(Runnable cb) {
         selectionModel.addSelectionChangeListener(cb);
     }

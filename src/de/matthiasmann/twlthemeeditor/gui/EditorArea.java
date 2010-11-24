@@ -152,6 +152,12 @@ public final class EditorArea extends Widget {
             }
         });
 
+        widgetTree.addReloadButtenCallback(new Runnable() {
+            public void run() {
+                reloadTestWidget();
+            }
+        });
+
         testWidgetManager.setCallback(new Runnable() {
             public void run() {
                 changeTestWidget();
@@ -258,15 +264,7 @@ public final class EditorArea extends Widget {
     }
 
     public void addMenus(Menu menu) {
-        MenuAction maRecreateTestWidgets = new MenuAction("Recreate widgets", new Runnable() {
-            public void run() {
-                recreateTestWidgets();
-            }
-        });
-        maRecreateTestWidgets.setTooltipContent("Clears widget cache and recreates current widget");
-
         menu.add(testWidgetMenu);
-        menu.add(maRecreateTestWidgets);
     }
 
     public void addSettingsMenuItems(Menu settingsMenu) {
@@ -488,6 +486,11 @@ public final class EditorArea extends Widget {
         Widget widget = widgetTree.getSelectedWidget();
         widgetPropertyEditor.setWidget(widget);
     }
+
+    void reloadTestWidget() {
+        testWidgetManager.reloadCurrentWidget();
+        updateTestWidgetMenu();
+    }
     
     void changeTestWidget() {
         previewWidget.setWidgetFactory(testWidgetManager.getCurrentTestWidgetFactory());
@@ -566,10 +569,18 @@ public final class EditorArea extends Widget {
     }
 
     void updateTestWidgetMenu() {
+        MenuAction maRecreateTestWidgets = new MenuAction("Recreate widgets", new Runnable() {
+            public void run() {
+                recreateTestWidgets();
+            }
+        });
+        maRecreateTestWidgets.setTooltipContent("Clears widget cache and recreates current widget");
+
         testWidgetMenu.clear();
         testWidgetManager.updateMenu(testWidgetMenu);
         testWidgetMenu.addSpacer();
         testWidgetMenu.add(classpathsMenu);
+        testWidgetMenu.add(maRecreateTestWidgets);
     }
     
     private void removeFromParent(Widget w) {
