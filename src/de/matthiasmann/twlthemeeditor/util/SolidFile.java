@@ -35,9 +35,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -158,8 +161,17 @@ public class SolidFile extends URLStreamHandler {
         };
     }
 
-    public URL makeURL(String name, int idx) throws IOException {
-        return new URL("solid", "localhost", idx, "/".concat(name), this);
+    public URL makeURL(final String name, final int idx) {
+        return AccessController.doPrivileged(new PrivilegedAction<URL>() {
+            public URL run() {
+                try {
+                    return new URL("solid", "localhost", idx, "/".concat(name), SolidFile.this);
+                } catch(MalformedURLException ex) {
+                    Logger.getLogger(SolidFile.class.getName()).log(Level.SEVERE, "Can't create URL", ex);
+                    return null;
+                }
+            }
+        });
     }
 
     public InputStream getInputStream(final Entry entry) {

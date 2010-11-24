@@ -65,11 +65,7 @@ public class SolidFileClassLoader extends ClassLoader {
     @Override
     protected URL findResource(String name) {
         if(solidFile.getEntry(name) != null) {
-            try {
-                return solidFile.makeURL(name, 0);
-            } catch(IOException ex) {
-                getLogger().log(Level.SEVERE, "Can't create URL", ex);
-            }
+            return solidFile.makeURL(name, 0);
         }
         return null;
     }
@@ -79,10 +75,9 @@ public class SolidFileClassLoader extends ClassLoader {
         ArrayList<URL> list = Collections.list(getParent().getResources(name));
         SolidFile.Entry entry = solidFile.getEntry(name);
         for(int idx=0 ; entry != null ; idx++,entry=entry.getNext()) {
-            try {
-                list.add(solidFile.makeURL(name, idx));
-            } catch(IOException ex) {
-                getLogger().log(Level.SEVERE, "Can't create URL", ex);
+            URL url = solidFile.makeURL(name, idx);
+            if(url != null) {
+                list.add(url);
             }
         }
         return Collections.enumeration(list);
