@@ -99,32 +99,36 @@ public class SolidFileClassLoader extends ClassLoader {
     }
 
     public static SolidFileClassLoader create(ClassLoader parent, File ... roots) throws IOException {
-        SolidFile solidFile = new SolidFile(File.createTempFile("sfcl", ".bin"));
-
-        for(File root : roots) {
-            try {
-                if(root.isDirectory()) {
-                    collectFolder(solidFile, root, "");
-                } else {
-                    collectJAR(solidFile, root);
+        SolidFile solidFile = new SolidFile();
+        SolidFile.Writer writer = solidFile.createWriter();
+        try {
+            for(File root : roots) {
+                try {
+                    if(root.isDirectory()) {
+                        collectFolder(writer, root, "");
+                    } else {
+                        collectJAR(writer, root);
+                    }
+                } catch(IOException ex) {
+                    getLogger().log(Level.SEVERE, "Can't process root: " + root, ex);
                 }
-            } catch(IOException ex) {
-                getLogger().log(Level.SEVERE, "Can't process root: " + root, ex);
             }
+        } finally {
+            writer.close();
         }
 
         return new SolidFileClassLoader(parent, solidFile);
     }
 
-    private static void collectFolder(SolidFile solidFile, File folder, String path) {
+    private static void collectFolder(SolidFile.Writer solidFileWriter, File folder, String path) {
         for(File file : folder.listFiles()) {
             if(file.isDirectory()) {
-                collectFolder(solidFile, file, path + file.getName() + "/");
+                collectFolder(solidFileWriter, file, path + file.getName() + "/");
             } else {
                 try {
                     FileInputStream fis = new FileInputStream(file);
                     try {
-                        solidFile.addEntry(path.concat(file.getName()), fis);
+                        solidFileWriter.addEntry(path.concat(file.getName()), fis);
                     } finally {
                         fis.close();
                     }
@@ -135,7 +139,7 @@ public class SolidFileClassLoader extends ClassLoader {
         }
     }
 
-    private static void collectJAR(SolidFile solidFile, File file) throws IOException {
+    private static void collectJAR(SolidFile.Writer solidFileWriter, File file) throws IOException {
         FileInputStream fis = new FileInputStream(file);
         try {
             ZipInputStream zis = new ZipInputStream(fis);
@@ -143,7 +147,7 @@ public class SolidFileClassLoader extends ClassLoader {
                 ZipEntry zipEntry;
                 while((zipEntry=zis.getNextEntry()) != null) {
                     if(!zipEntry.isDirectory()) {
-                        solidFile.addEntry(zipEntry.getName(), zis);
+                        solidFileWriter.addEntry(zipEntry.getName(), zis);
                     }
                 }
             } finally {
