@@ -116,6 +116,7 @@
 
         <select name="table.row.background">
             <alias ref="-gradC" if="rowSelected"/>
+            <alias ref="white" tint="#6890D0" if="rowDropTarget"/>
             <alias ref="white" tint="#CCC" if="rowHover"/>
         </select>
         <alias name="table.row.overlay" ref="--selection" inset="1" if="keyboardFocus + !hasFocusedChild + leadRow"/>
@@ -208,6 +209,7 @@
         <param name="columnResizeCursor"><cursor>cursor.resizecolumn</cursor></param>
         <param name="columnDivider"><image>none</image></param>
         <param name="columnWidths"><map/></param>
+        <param name="dragNotPossibleCursor"><cursor>cursor.nodrag</cursor></param>
         <param name="row"><image>table.row.*</image></param>
         <param name="inputMap"><inputMapDef ref="-defaultInputMap">
             <action name="toggleSelectionOnLeadRow">ctrl SPACE</action>

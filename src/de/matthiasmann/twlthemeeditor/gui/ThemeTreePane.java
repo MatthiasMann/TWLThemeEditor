@@ -39,10 +39,12 @@ import de.matthiasmann.twl.MenuAction;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.Table;
 import de.matthiasmann.twl.TableBase.Callback;
+import de.matthiasmann.twl.TableBase.DragListener;
 import de.matthiasmann.twl.TableRowSelectionManager;
 import de.matthiasmann.twl.TreeTable;
 import de.matthiasmann.twl.model.TableSingleSelectionModel;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twl.renderer.MouseCursor;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.datamodel.FilteredModel;
@@ -133,6 +135,23 @@ public class ThemeTreePane extends DialogLayout {
                 }
             }
             public void columnHeaderClicked(int column) {
+            }
+        });
+        treeTable.setDragListener(new DragListener() {
+            public boolean dragStarted(int row, int col, Event evt) {
+                return true;
+            }
+            public MouseCursor dragged(Event evt) {
+                if(!treeTable.setDropMarker(evt)) {
+                    treeTable.clearDropMarker();
+                }
+                return null;
+            }
+            public void dragStopped(Event evt) {
+                treeTable.clearDropMarker();
+            }
+            public void dragCanceled() {
+                treeTable.clearDropMarker();
             }
         });
         table.addCallback(new Callback() {

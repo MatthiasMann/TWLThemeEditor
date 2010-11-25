@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE themes PUBLIC "-//www.matthiasmann.de//TWL-Theme//EN" "http://hg.l33tlabs.org/twl/raw-file/tip/src/de/matthiasmann/twl/theme/theme.dtd">
 <themes>
-    <images file="gui.png" format="RGBA">
+    <images file="gui.png" format="RGBA" comment="Buttons">
         <area name="--area1L" xywh="0,0,4,18"/>
         <area name="--area1F" xywh="3,0,1,18"/>
         <area name="--area1M" xywh="4,0,1,18"/>
@@ -301,7 +301,7 @@
         <alias name="button.overlay" ref="-outlineX" tint="#6f97df" if="keyboardFocus"/>
     </images>
 
-    <images file="gui.png" format="RGBA">
+    <images file="gui.png" format="RGBA" comment="Adjuster">
         <area name="-adjuster1TL" xywh="0,28,12,17"/>
         <area name="-adjuster1TM" xywh="8,28,4,17"/>
         <area name="-adjuster1TR" xywh="8,28,12,17"/>
@@ -440,7 +440,7 @@
         <alias name="valueadjuster.edit.overlay" ref="none"/>
     </images>
 
-    <images file="gui.png" format="RGBA">
+    <images file="gui.png" format="RGBA" comment="VButtons">
         <area name="-vbutton1TL" xywh="100,0,4,17"/>
         <area name="-vbutton1TM" xywh="103,0,1,17"/>
         <area name="-vbutton1TR" xywh="103,0,4,17"/>
@@ -783,6 +783,13 @@
                 <alias ref="-fileselector.home" inset="1,1,-1,-1"/>
             </select>
         </composed>
+        
+        <grid name="table.row.dropmarker" weightsX="1,1" weightsY="1">
+            <area xywh="127,87,14,7" splitx="L7,B6" inset="0,-2" sizeOverwriteH="50" sizeOverwriteV="1"/>
+            <alias ref="none"/>
+        </grid>
+        
+        <cursor name="cursor.nodrag" hotSpotX="0" hotSpotY="0" xywh="125,70,16,16"/>
     </images>
 
     <fontDef name="button-font" filename="font.fnt" color="white">
