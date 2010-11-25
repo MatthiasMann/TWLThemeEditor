@@ -144,14 +144,18 @@ public class ThemeTreePane extends DialogLayout {
             public MouseCursor dragged(Event evt) {
                 if(!treeTable.setDropMarker(evt)) {
                     treeTable.clearDropMarker();
+                } else {
+                    scrollPane.checkAutoScroll(evt);
                 }
                 return null;
             }
             public void dragStopped(Event evt) {
                 treeTable.clearDropMarker();
+                scrollPane.stopAutoScroll();
             }
             public void dragCanceled() {
                 treeTable.clearDropMarker();
+                scrollPane.stopAutoScroll();
             }
         });
         table.addCallback(new Callback() {

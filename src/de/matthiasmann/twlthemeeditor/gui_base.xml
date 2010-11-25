@@ -788,7 +788,24 @@
             <area xywh="127,87,14,7" splitx="L7,B6" inset="0,-2" sizeOverwriteH="50" sizeOverwriteV="1"/>
             <alias ref="none"/>
         </grid>
-        
+        <grid name="scrollpane.overlay" weightsX="1" weightsY="0,1,0" inset="23,3,2,16">
+            <grid weightsX="0,1,0,1,0" weightsY="1" if="autoScrollUp">
+                <area xywh="131,115,4,6" tint="#C0FFFFFF"/>
+                <area xywh="135,115,1,6" tint="#C0FFFFFF"/>
+                <area xywh="136,115,9,6" tint="#C0FFFFFF"/>
+                <area xywh="145,115,1,6" tint="#C0FFFFFF"/>
+                <area xywh="146,115,4,6" tint="#C0FFFFFF"/>
+            </grid>
+            <alias ref="none"/>
+            <grid weightsX="0,1,0,1,0" weightsY="1" if="autoScrollDown">
+                <area xywh="131,122,4,6" tint="#C0FFFFFF"/>
+                <area xywh="135,122,1,6" tint="#C0FFFFFF"/>
+                <area xywh="136,122,9,6" tint="#C0FFFFFF"/>
+                <area xywh="145,122,1,6" tint="#C0FFFFFF"/>
+                <area xywh="146,122,4,6" tint="#C0FFFFFF"/>
+            </grid>
+        </grid>
+    
         <cursor name="cursor.nodrag" hotSpotX="0" hotSpotY="0" xywh="125,70,16,16"/>
     </images>
 
@@ -1051,6 +1068,9 @@
         <param name="maxWidth"><int>32767</int></param>
         <param name="maxHeight"><int>32767</int></param>
         <param name="hasDragButton"><bool>false</bool></param>
+        <param name="autoScrollArea"><int>5</int></param>
+        <param name="autoScrollSpeed"><int>10</int></param>
+        <param name=""><image>scrollpane.*</image></param>
     </theme>
 
     <theme name="listbox" ref="-defaults" allowWildcard="true">
