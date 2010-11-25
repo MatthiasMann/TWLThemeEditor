@@ -174,7 +174,6 @@ public class PreviewWidget extends Widget {
             GL11.glGetInteger(GL11.GL_VIEWPORT, viewPortBuffer);
             int viewPortTop = viewPortBuffer.get(1) + viewPortBuffer.get(3);
 
-            GL11.glPushAttrib(GL11.GL_VIEWPORT_BIT);
             GL11.glViewport(
                     viewPortBuffer.get(0) + getInnerX(),
                     viewPortTop - (getInnerY() + getInnerHeight()),
@@ -187,7 +186,11 @@ public class PreviewWidget extends Widget {
             } catch (Throwable ex) {
                 messageLog.add(new MessageLog.Entry(CAT_EXECUTE, "Exception while executing test widget", null, ex));
             } finally {
-                GL11.glPopAttrib();
+                GL11.glViewport(
+                        viewPortBuffer.get(0),
+                        viewPortBuffer.get(1),
+                        viewPortBuffer.get(2),
+                        viewPortBuffer.get(3));
                 // END OF CRITICAL REGION
             }
 
