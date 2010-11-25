@@ -75,6 +75,12 @@ public class Param extends ThemeTreeNode implements HasProperties {
         this.nameProperty = new NameProperty(new AttributeProperty(element, "name"), null, null, false) {
             @Override
             public void validateName(String name) throws IllegalArgumentException {
+                if(name.endsWith(".") || name.startsWith(".")) {
+                    throw new IllegalArgumentException("Name can not start or end with '.'");
+                }
+                if(name.indexOf('*') >= 0) {
+                    throw new IllegalArgumentException("name can not contain '*'");
+                }
             }
         };
         addProperty(nameProperty);
@@ -123,6 +129,32 @@ public class Param extends ThemeTreeNode implements HasProperties {
     @Override
     public String getName() {
         return nameProperty.getPropertyValue();
+    }
+
+    boolean isWildcard() {
+        return (valueProperty instanceof DerivedNodeReferenceProperty) &&
+                ((DerivedNodeReferenceProperty)valueProperty).isWildcard();
+    }
+
+    @Override
+    public String getDisplayName() {
+        String name = getName();
+        if(isWildcard()) {
+            if(name.isEmpty()) {
+                return "*";
+            } else {
+                return name.concat(".*");
+            }
+        }
+        return name;
+    }
+
+    @Override
+    public Object getTooltipContent(int column) {
+        if(isWildcard()) {
+            return "Wildcard reference";
+        }
+        return null;
     }
 
     public Kind getKind() {

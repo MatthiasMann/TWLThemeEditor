@@ -78,6 +78,16 @@ public class DerivedNodeReferenceProperty extends DerivedProperty<NodeReference>
         return supportsWildcard;
     }
 
+    public boolean isWildcard() {
+        if(supportsWildcard) {
+            NodeReference value = getPropertyValue();
+            if(value != null) {
+                return value.isWildcard();
+            }
+        }
+        return false;
+    }
+
     public void handleNodeRenamed(String from, String to, Kind kind) {
         if(this.kind == kind && from.equals(base.getPropertyValue())) {
             base.setPropertyValue(to);
