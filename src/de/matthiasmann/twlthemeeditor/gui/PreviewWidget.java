@@ -218,7 +218,7 @@ public class PreviewWidget extends Widget {
                 ctx.clearWidgetMessages();
                 testWidget = widgetFactory.getOrCreate();
                 testGUI.getRootPane().add(testWidget);
-                if(testWidget instanceof DesktopArea) {
+                if(testWidget instanceof DesktopArea || MainUI.class.getName().equals(testWidget.getClass().getName())) {
                     testWidget.setSize(getInnerWidth(), getInnerHeight());
                 } else {
                     testWidget.adjustSize();

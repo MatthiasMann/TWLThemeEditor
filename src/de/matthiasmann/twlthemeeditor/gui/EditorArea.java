@@ -271,6 +271,11 @@ public final class EditorArea extends Widget {
         textureViewerPane.addSettingsMenuItems(settingsMenu);
     }
 
+    public void setDemoMode(boolean demoMode) {
+        testWidgetManager.setDemoMode(demoMode);
+        updateTestWidgetMenu();
+    }
+
     public void reloadTheme() {
         ctx.getThemeTreeModel().setErrorLocation(null);
         previewWidget.reloadTheme();

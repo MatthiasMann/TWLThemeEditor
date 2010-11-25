@@ -55,9 +55,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -79,6 +81,7 @@ public class TestWidgetManager {
     private final HashMap<ArrayList<String>, LoadedUserWidgets> userWidgets;
 
     private Runnable callback;
+    private TestWidgetFactory demoModeTestWidgetFactory;
     private TestWidgetFactory currentTestWidgetFactory;
     private LoadedUserWidgets currentUserWidgets;
 
@@ -114,6 +117,18 @@ public class TestWidgetManager {
 
     public TestWidgetFactory getCurrentTestWidgetFactory() {
         return currentTestWidgetFactory;
+    }
+
+    public void setDemoMode(boolean demoMode) {
+        if(demoMode) {
+            demoModeTestWidgetFactory = new TestWidgetFactory(MainUI.class, "Theme Editor");
+            setCurrentTestWidgetFactory(demoModeTestWidgetFactory, null);
+        } else {
+            if(currentTestWidgetFactory == demoModeTestWidgetFactory) {
+                setCurrentTestWidgetFactory(null, null);
+            }
+            demoModeTestWidgetFactory = null;
+        }
     }
 
     public void clearCache() {
@@ -190,6 +205,9 @@ public class TestWidgetManager {
 
     public void updateMenu(Menu menu) {
         addMenu(menu, "Built-in widgets", builtinWidgets, null);
+        if(demoModeTestWidgetFactory != null) {
+            addMenu(menu, "Demo mode", Collections.singletonList(demoModeTestWidgetFactory), null);
+        }
         for(Map.Entry<ArrayList<String>,LoadedUserWidgets> entry : userWidgets.entrySet()) {
             String name = entry.getKey().get(0);
             if(!name.endsWith("/")) {
@@ -212,12 +230,16 @@ public class TestWidgetManager {
         }
     }
 
-    private void addMenu(Menu parent, String name, ArrayList<TestWidgetFactory> factories, LoadedUserWidgets userWidgets) {
+    private void addMenu(Menu parent, String name, List<TestWidgetFactory> factories, LoadedUserWidgets userWidgets) {
         Menu menu = new Menu(name);
         for(TestWidgetFactory f : factories) {
-            menu.add(new MenuCheckbox(f.getName(), new SelectedWidgetModel(f, userWidgets)).setTheme("radiobtn"));
+            addMenuItem(menu, f, userWidgets);
         }
         parent.add(menu);
+    }
+
+    private void addMenuItem(Menu menu, TestWidgetFactory f, LoadedUserWidgets userWidgets) {
+        menu.add(new MenuCheckbox(f.getName(), new SelectedWidgetModel(f, userWidgets)).setTheme("radiobtn"));
     }
 
     private boolean loadUserWidgets(ArrayList<URI> toScan, ArrayList<URI> dependencies) {

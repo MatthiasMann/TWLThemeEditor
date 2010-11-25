@@ -46,6 +46,7 @@ import de.matthiasmann.twl.model.JavaFileSystemModel;
 import de.matthiasmann.twl.model.MRUListModel;
 import de.matthiasmann.twl.model.PersistentMRUListModel;
 import de.matthiasmann.twl.textarea.StyleSheet;
+import de.matthiasmann.twlthemeeditor.Main;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.datamodel.Include;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
@@ -107,6 +108,11 @@ public final class MainUI extends DialogLayout {
                 openProject();
             }
         });
+        menuFile.add("Start demo mode", new Runnable() {
+            public void run() {
+                startDemoMode();
+            }
+        }).setTooltipContent("Opens the TWL Theme Editor in read-only mode");
         menuFile.add(recentProjectsMenu = new Menu("Open recent Project"));
         menuFile.add(btnSaveProject = new MenuAction("Save project", new Runnable() {
             public void run() {
@@ -246,6 +252,20 @@ public final class MainUI extends DialogLayout {
         lfs.openPopup();
     }
 
+    void startDemoMode() {
+        closeProject();
+        try {
+            model = new ThemeTreeModel(messageLog, Main.class.getResource("gui.xml"));
+            projectDir = null;
+            editorArea.setModel(model);
+            btnSaveProject.setEnabled(false);
+            editorArea.setDemoMode(true);
+            messageLog.add(new MessageLog.Entry(CAT_PROJECT, "Demo mode started", null, null));
+        } catch(IOException ex) {
+            messageLog.add(new MessageLog.Entry(CAT_PROJECT_ERROR, "Could not start demo mode", null, ex));
+        }
+    }
+
     public boolean isCloseRequested() {
         return closeRequested;
     }
@@ -254,6 +274,7 @@ public final class MainUI extends DialogLayout {
         model = null;
         projectDir = null;
         editorArea.setModel(null);
+        editorArea.setDemoMode(false);
     }
     
     public void newProject(NewProjectSettings settings) {
@@ -274,6 +295,7 @@ public final class MainUI extends DialogLayout {
             projectDir = file.getParentFile();
             editorArea.setModel(model);
             btnSaveProject.setEnabled(true);
+            editorArea.setDemoMode(false);
             recentProjectsModel.addEntry(file.toString());
             popuplateRecentProjectsMenu();
             messageLog.add(new MessageLog.Entry(CAT_PROJECT, "Project loaded", file.toString(), null));
