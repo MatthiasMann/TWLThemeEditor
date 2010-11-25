@@ -47,6 +47,7 @@ import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.Util;
 
 /**
  *
@@ -182,6 +183,7 @@ public class PreviewWidget extends Widget {
             // CRITICAL REGION: GL STATE IS MODIFIED - DON'T CALL ANY APP CODE
             try {
                 executeTestEnv(gui);
+                Util.checkGLError();
             } catch (Throwable ex) {
                 messageLog.add(new MessageLog.Entry(CAT_EXECUTE, "Exception while executing test widget", null, ex));
             } finally {
