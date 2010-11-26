@@ -161,6 +161,18 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
         return new ArrayList<CreateChildOperation>();
     }
 
+    public final MoveNodeOperations getMoveOperation(int dir) {
+        for(ThemeTreeOperation operation : getOperations()) {
+            if(operation instanceof MoveNodeOperations) {
+                MoveNodeOperations moveNodeOperations = (MoveNodeOperations)operation;
+                if(moveNodeOperations.getDirection() == dir) {
+                    return moveNodeOperations;
+                }
+            }
+        }
+        return null;
+    }
+
     public Object getData(int column) {
         switch (column) {
             case 0: {

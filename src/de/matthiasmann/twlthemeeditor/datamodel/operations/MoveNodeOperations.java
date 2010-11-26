@@ -48,6 +48,10 @@ public class MoveNodeOperations extends ElementOperation {
         this.direction = direction;
     }
 
+    public int getDirection() {
+        return direction;
+    }
+
     @Override
     public boolean isEnabled() {
         TreeTableNode parentNode = node.getParent();

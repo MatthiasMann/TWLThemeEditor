@@ -53,6 +53,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateAtWrapper;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.MoveNodeOperations;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -138,24 +139,83 @@ public class ThemeTreePane extends DialogLayout {
             }
         });
         treeTable.setDragListener(new DragListener() {
+            TreeTableNode dragParent;
+            MoveNodeOperations moveUp;
+            MoveNodeOperations moveDown;
             public boolean dragStarted(int row, int col, Event evt) {
+                if((evt.getModifiers() & Event.MODIFIER_BUTTON) != Event.MODIFIER_LBUTTON) {
+                    return false;
+                }
+                if(!(selected instanceof ThemeTreeNode)) {
+                    return false;
+                }
+                dragParent = selected.getParent();
+                if(dragParent == null) {
+                    return false;
+                }
+                ThemeTreeNode selectedThemeNode = (ThemeTreeNode)selected;
+                moveUp = selectedThemeNode.getMoveOperation(-1);
+                moveDown = selectedThemeNode.getMoveOperation(+1);
+                if(moveUp == null || moveDown == null) {
+                    return false;
+                }
                 return true;
             }
             public MouseCursor dragged(Event evt) {
-                if(!treeTable.setDropMarker(evt)) {
+                if(!treeTable.setDropMarker(evt) || getNewNodeIndex() < 0) {
                     treeTable.clearDropMarker();
-                } else {
-                    scrollPane.checkAutoScroll(evt);
                 }
+                scrollPane.checkAutoScroll(evt);
                 return null;
             }
             public void dragStopped(Event evt) {
-                treeTable.clearDropMarker();
-                scrollPane.stopAutoScroll();
+                int newIndex = getNewNodeIndex();
+                if(newIndex >= 0) {
+                    int oldIndex = dragParent.getChildIndex(selected);
+                    if(newIndex < oldIndex) {
+                        while(moveUp.isEnabled() && newIndex < oldIndex) {
+                            executeOperation(moveUp, null);
+                            --oldIndex;
+                        }
+                    } else {
+                        --newIndex;
+                        while(moveDown.isEnabled() && newIndex > oldIndex) {
+                            executeOperation(moveDown, null);
+                            ++oldIndex;
+                        }
+                    }
+                }
+                dragCanceled();
             }
             public void dragCanceled() {
                 treeTable.clearDropMarker();
                 scrollPane.stopAutoScroll();
+                moveUp = null;
+                moveDown = null;
+                dragParent = null;
+            }
+            private int getNewNodeIndex() {
+                if(!treeTable.isDropMarkerBeforeRow()) {
+                    return -1;
+                }
+                int row = treeTable.getDropMarkerRow();
+                if(row < treeTable.getNumRows()) {
+                    TreeTableNode node = treeTable.getNodeFromRow(row);
+                    if(node.getParent() == dragParent) {
+                        return dragParent.getChildIndex(node);
+                    }
+                }
+                if(row > 0) {
+                    // special case: allow to drop at the end of the parent
+                    TreeTableNode node = treeTable.getNodeFromRow(row - 1);
+                    if(node.getParent() == dragParent) {
+                        int idx = dragParent.getChildIndex(node);
+                        if(idx == dragParent.getNumChildren()-1) {
+                            return idx + 1;
+                        }
+                    }
+                }
+                return -1;
             }
         });
         table.addCallback(new Callback() {
