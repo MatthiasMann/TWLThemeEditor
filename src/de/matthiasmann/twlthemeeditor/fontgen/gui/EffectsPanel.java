@@ -67,6 +67,7 @@ public class EffectsPanel extends DialogLayout {
         effectPanels = new ArrayList<EffectPropertyPanel>();
         effectCollapsiblePanels = new ArrayList<CollapsiblePanel>();
 
+        setIncludeInvisibleWidgets(false);
         setHorizontalGroup(createParallelGroup()
                 .addGroup(createSequentialGroup(hLabels, hControls)));
         setVerticalGroup(vRows);
@@ -96,14 +97,16 @@ public class EffectsPanel extends DialogLayout {
         l.setVerticalGroup(l.createSequentialGroup().addWidgetsWithGap("adjuster", adjuster));
 
         if(active != null) {
-            active.addCallback(new Runnable() {
+            Runnable cb = new Runnable() {
                 public void run() {
                     boolean enabled = active.getValue();
                     for(ValueAdjuster va : adjuster) {
                         va.setEnabled(enabled);
                     }
                 }
-            });
+            };
+            active.addCallback(cb);
+            cb.run();
         }
 
         return addCollapsible(name, l, active);
@@ -142,7 +145,7 @@ public class EffectsPanel extends DialogLayout {
 
     public void enableEffectsPanels(boolean enabled) {
         for(CollapsiblePanel cp : effectCollapsiblePanels) {
-            cp.setEnabled(enabled);
+            cp.setVisible(enabled);
         }
     }
 

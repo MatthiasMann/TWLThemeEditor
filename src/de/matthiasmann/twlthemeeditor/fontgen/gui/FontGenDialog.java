@@ -568,7 +568,7 @@ public final class FontGenDialog {
     void updateStatusBar() {
         FontGenerator fontGen = fontDisplay.getLastFontGen();
         if(fontGen == null) {
-            fontMetricInfoLabel.setText("");
+            fontMetricInfoLabel.setText("<not available>");
             setStatusBar("Select a font", DecoratedText.ERROR);
             return;
         }
@@ -655,7 +655,7 @@ public final class FontGenDialog {
         GeneratorMethod generatorMethod = getGeneratorMethod();
         fontDisplay.setGeneratorMethod(generatorMethod);
         effectsPanel.enableEffectsPanels(generatorMethod.supportsEffects);
-        useAACheckbox.setEnabled(generatorMethod.supportsAAflag);
+        useAACheckbox.setVisible(generatorMethod.supportsAAflag);
     }
 
     void updateTextureSize() {
