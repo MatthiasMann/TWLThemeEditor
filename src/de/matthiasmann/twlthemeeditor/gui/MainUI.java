@@ -108,11 +108,11 @@ public final class MainUI extends DialogLayout {
                 openProject();
             }
         });
-        menuFile.add("Start demo mode", new Runnable() {
+        menuFile.add(new MenuAction("Start demo mode", new Runnable() {
             public void run() {
                 startDemoMode();
             }
-        }).setTooltipContent("Opens the TWL Theme Editor in read-only mode");
+        }).setTooltipContent("Opens the TWL Theme Editor in read-only mode"));
         menuFile.add(recentProjectsMenu = new Menu("Open recent Project"));
         menuFile.add(btnSaveProject = new MenuAction("Save project", new Runnable() {
             public void run() {
