@@ -18,7 +18,35 @@
         <area name="-icon-moveup" center="true" xywh="74,19,12,8"/>
         <area name="-icon-movedown" center="true" xywh="87,19,12,8"/>
         <area name="-icon-apply" center="true" inset="0,1,0,-1" xywh="86,37,13,10"/>
-        <area name="-icon-clone" center="true" xywh="142,70,13,10"/>
+
+        <area name="--icon-clone" center="true" xywh="142,70,13,10"/>
+        <area name="--icon-clone-arrow0" xywh="147,92,4,6" inset="2,2,2,7"/>
+        <area name="--icon-clone-arrow1" xywh="146,92,5,6" inset="2,2,2,6"/>
+        <area name="--icon-clone-arrow2" xywh="145,92,6,6" inset="2,2,2,5"/>
+        <area name="--icon-clone-arrow3" xywh="144,92,7,6" inset="2,2,2,4"/>
+        <area name="--icon-clone-arrow4" xywh="143,92,8,6" inset="2,2,2,3"/>
+        <area name="--icon-clone-arrow5" xywh="142,92,9,6" inset="2"/>
+        <area name="--icon-clone-dest" xywh="148,81,7,10" inset="0,6,0,0"/>
+        <select name="-icon-clone" sizeOverwriteH="13" sizeOverwriteV="10">
+            <composed if="hover" center="true">
+                <area xywh="142,81,5,10" inset="0,0,0,8"/>
+                <animation timeSource="hover">
+                    <frame duration="500" ref="--icon-clone-dest" tint="#00FFFFFF"/>
+                    <frame duration="500" ref="--icon-clone-dest"/>
+                    <frame duration="0" ref="--icon-clone-dest"/>
+                </animation>
+                <animation timeSource="hover">
+                    <frame duration="100" ref="--icon-clone-arrow0"/>
+                    <frame duration="100" ref="--icon-clone-arrow1"/>
+                    <frame duration="100" ref="--icon-clone-arrow2"/>
+                    <frame duration="100" ref="--icon-clone-arrow3"/>
+                    <frame duration="100" ref="--icon-clone-arrow4"/>
+                    <frame duration="500" ref="--icon-clone-arrow5"/>
+                </animation>
+            </composed>
+            <alias ref="--icon-clone"/>
+        </select>
+        
         <area name="-icon-copy" center="true" xywh="84,48,11,12"/>
         <area name="-icon-jump" center="true" xywh="83,61,14,9"/>
         <area name="-icon-add" center="true" xywh="48,19,12,12"/>
@@ -1065,5 +1093,6 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
             <theme name="" ref="*"/>
         </theme>
     </theme>
+
     
 </themes>
