@@ -167,7 +167,7 @@ public final class FontGenDialog {
             }
         });
 
-        textureSizesModel = new SimpleChangableListModel<Integer>(256, 512, 1024, 2048, 4096);
+        textureSizesModel = new SimpleChangableListModel<Integer>(64, 128, 256, 512, 1024, 2048, 4096);
 
         textureSizeCB = new ComboBox<Integer>(textureSizesModel);
         textureSizeCB.setSelected(2);
