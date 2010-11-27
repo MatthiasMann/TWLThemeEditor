@@ -53,6 +53,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Comparator;
 import java.util.Iterator;
 import org.xmlpull.v1.XmlPullParserException;
@@ -145,6 +146,7 @@ public class FontGenerator {
             int maxHeight = ascent;
 
             IntMap<FT2Glyph> glyphMap = new IntMap<FT2Glyph>();
+            BitSet usedGlyphCodes = new BitSet();
             int numCodePoints = 0;
             int numGlyphs = 0;
 
@@ -162,6 +164,7 @@ public class FontGenerator {
                     try {
                         glyph = new FT2Glyph(font.loadGlyph(glyphIndex), glyphIndex);
                         glyphMap.put(glyphIndex, glyph);
+                        usedGlyphCodes.set(glyphIndex);
 
                         numGlyphs++;
                         maxHeight = Math.max(glyph.info.getHeight(), maxHeight);
@@ -264,18 +267,12 @@ public class FontGenerator {
             if(font.hasKerning()) {
                 ArrayList<int[]> kerns = new ArrayList<int[]>();
                 for(IntMap.Entry<IntMap<Integer>> from : fontData.getRawKerning()) {
-                    if(set.isIncluded(from.key)) {
-                        int leftGlyphIdx = font.getGlyphForCodePoint(from.key);
-                        if(leftGlyphIdx > 0) {
-                            for(IntMap.Entry<Integer> to : from.value) {
-                                if(set.isIncluded(to.key)) {
-                                    int rightGlyphIdx = font.getGlyphForCodePoint(to.key);
-                                    if(rightGlyphIdx != 0) {
-                                        int value = font.getKerning(leftGlyphIdx, rightGlyphIdx).x;
-                                        if(value != 0) {
-                                            kerns.add(new int[]{ from.key, to.key, value });
-                                        }
-                                    }
+                    if(usedGlyphCodes.get(from.key)) {
+                        for(IntMap.Entry<Integer> to : from.value) {
+                            if(usedGlyphCodes.get(to.key)) {
+                                int value = font.getKerning(from.key, to.key).x;
+                                if(value != 0) {
+                                    fontData.expandKerning(kerns, from.key, to.key, value, set);
                                 }
                             }
                         }
@@ -484,7 +481,8 @@ public class FontGenerator {
         File dir = file.getParentFile();
         String baseName = getBaseName(file);
         
-        PNGWriter.write(new File(dir, baseName.concat("_00.png")), image, usedTextureHeight);
+        PNGWriter.write(new File(dir, baseName.concat("_00.png")), image,
+                Math.min(usedTextureHeight, image.getHeight()));
         OutputStream os = new FileOutputStream(file);
         try {
             switch(format) {

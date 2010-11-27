@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.logging.Level;
@@ -52,6 +53,7 @@ public final class FontData {
     private final float size;
     private final int upem;
     private final IntMap<IntMap<Integer>> kerning;
+    private final IntMap<int[]> glyphToUnicode;
     private final BitSet defined;
     private final String postScriptName;
 
@@ -82,18 +84,40 @@ public final class FontData {
     public int[][] getKernings(CharSet charSet) {
         ArrayList<int[]> kernings = new ArrayList<int[]>();
         for(IntMap.Entry<IntMap<Integer>> from : kerning) {
-            if(charSet.isIncluded(from.key)) {
+            int[] fromUnicode = glyphToUnicode.get(from.key);
+            if(fromUnicode != null && charSet.isIncluded(fromUnicode)) {
                 for(IntMap.Entry<Integer> to : from.value) {
-                    if(charSet.isIncluded(to.key)) {
+                    int[] toUnicode = glyphToUnicode.get(to.key);
+                    if(toUnicode != null && charSet.isIncluded(toUnicode)) {
                         int value = convertUnitToEm(to.value);
                         if(value != 0) {
-                            kernings.add(new int[] { from.key, to.key, value});
+                            expandKerning(kernings, fromUnicode, toUnicode, value, charSet);
                         }
                     }
                 }
             }
         }
         return kernings.toArray(new int[kernings.size()][]);
+    }
+    
+    public void expandKerning(ArrayList<int[]> kernings, int leftGlyphIndex, int rightGlyphIndex, int value, CharSet charSet) {
+        int[] leftCodePoints = glyphToUnicode.get(leftGlyphIndex);
+        int[] rightCodePoints = glyphToUnicode.get(rightGlyphIndex);
+        if(leftCodePoints != null && rightCodePoints != null) {
+            expandKerning(kernings, leftCodePoints, rightCodePoints, value, charSet);
+        }
+    }
+
+    public void expandKerning(ArrayList<int[]> kernings, int[] leftCodePoints, int[] rightCodePoints, int value, CharSet charSet) {
+        for(int lc : leftCodePoints) {
+            if(charSet.isIncluded(lc)) {
+                for(int rc : rightCodePoints) {
+                    if(charSet.isIncluded(rc)) {
+                        kernings.add(new int[] { lc, rc, value});
+                    }
+                }
+            }
+        }
     }
 
     public int getNextCodepoint(int codepoint) {
@@ -117,7 +141,8 @@ public final class FontData {
         this.size = size;
         this.defined = new BitSet();
         this.kerning = new IntMap<IntMap<Integer>>();
-
+        this.glyphToUnicode = new IntMap<int[]>();
+        
         try {
             RandomAccessFile raf = new RandomAccessFile(file, "r");
             try {
@@ -127,14 +152,12 @@ public final class FontData {
                 byte[] nameSection = readSection(raf, dirTable, "name");
                 byte[] kernSection = readSectionOptional(raf, dirTable, "kern");
 
-                IntMap<Integer> glyphToUnicode = new IntMap<Integer>();
-                
                 upem = readUPEM(headSection);
                 postScriptName = readNAME(nameSection);
                 readCMAP(cmapSection, glyphToUnicode);
 
                 if(kernSection != null) {
-                    readKERN(kernSection, glyphToUnicode);
+                    readKERN(kernSection);
                 }
             } finally {
                 raf.close();
@@ -171,6 +194,7 @@ public final class FontData {
         this.kerning = src.kerning;
         this.defined = src.defined;
         this.postScriptName = src.postScriptName;
+        this.glyphToUnicode = src.glyphToUnicode;
     }
 
     public FontData deriveFont(float size) {
@@ -185,7 +209,7 @@ public final class FontData {
         return Math.round((units * size) / upem);
     }
 
-    private void readCMAP(byte[] cmapSection, IntMap<Integer> glyphToUnicode) throws IOException {
+    private void readCMAP(byte[] cmapSection, IntMap<int[]> glyphToUnicode) throws IOException {
         int numCMap = readUShort(cmapSection, 2);
         int cmapUniOffset = 0;
 
@@ -237,14 +261,22 @@ public final class FontData {
                 }
 
                 if (glyphIdx != 0) {
-                    glyphToUnicode.put(glyphIdx, unicode);
+                    int[] codepoints = glyphToUnicode.get(glyphIdx);
+                    if(codepoints == null) {
+                        codepoints = new int[] { unicode };
+                    } else {
+                        int len = codepoints.length;
+                        codepoints = Arrays.copyOf(codepoints, len+1);
+                        codepoints[len] = unicode;
+                    }
+                    glyphToUnicode.put(glyphIdx, codepoints);
                     defined.set(unicode);
                 }
             }
         }
     }
 
-    private void readKERN(byte[] kernSection, IntMap<Integer> glyphToUnicode) {
+    private void readKERN(byte[] kernSection) {
         int version = readUShort(kernSection, 0);
         int nTables = readUShort(kernSection, 2);
         //System.out.println("version="+version+" nTables="+nTables);
@@ -266,8 +298,7 @@ public final class FontData {
                             int to   = readUShort(kernSection, offset + 2);
                             int kpx  = readShort (kernSection, offset + 4);
                             if (kpx != 0) {
-                                // CID kerning table entry, using unicode indexes
-                                addKerning( glyphToUnicode, from, to, kpx);
+                                addKerning(from, to, kpx);
                             }
                         }
                         break;
@@ -283,17 +314,13 @@ public final class FontData {
         }
     }
 
-    private void addKerning(IntMap<Integer> glyphToUnicode, int fromGlyph, int toGlyph, int kpx) {
-        final Integer fromUnicode = glyphToUnicode.get(fromGlyph);
-        final Integer toUnicode = glyphToUnicode.get(toGlyph);
-        if (fromUnicode != null && toUnicode != null) {
-            IntMap<Integer> adjTab = kerning.get(fromUnicode.intValue());
-            if (adjTab == null) {
-                adjTab = new IntMap<Integer>();
-                kerning.put(fromUnicode.intValue(), adjTab);
-            }
-            adjTab.put(toUnicode.intValue(), kpx);
+    private void addKerning(int fromGlyph, int toGlyph, int kpx) {
+        IntMap<Integer> adjTab = kerning.get(fromGlyph);
+        if (adjTab == null) {
+            adjTab = new IntMap<Integer>();
+            kerning.put(fromGlyph, adjTab);
         }
+        adjTab.put(toGlyph, kpx);
     }
 
     private static byte[] readDirTable(RandomAccessFile raf) throws IOException {

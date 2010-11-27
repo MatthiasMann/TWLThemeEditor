@@ -82,8 +82,17 @@ public class CharSet {
         }
     }
     
-    public boolean isIncluded(int ch) {
-        return manualCharactersBitSet.get(ch) || getBlockEnabled(Character.UnicodeBlock.of(ch));
+    public boolean isIncluded(int cp) {
+        return manualCharactersBitSet.get(cp) || getBlockEnabled(Character.UnicodeBlock.of(cp));
+    }
+
+    public boolean isIncluded(int[] codepoints) {
+        for(int cp : codepoints) {
+            if(isIncluded(cp)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void save(Properties prop) {
