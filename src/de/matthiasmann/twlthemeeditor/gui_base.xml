@@ -353,6 +353,8 @@
         <area name="-adjusterSelXL" xywh="63,85,8,18"/>
         <area name="-adjusterSelXM" xywh="72,85,1,18"/>
         <area name="-adjusterSelXR" xywh="74,85,8,18"/>
+        <area name="-adjuster-icon-plus" xywh="144,99,7,7"/>
+        <area name="-adjuster-icon-minus" xywh="145,102,5,1"/>
 
         <select name="valueadjuster.display.background">
             <select if="!adjusterNotFirst + !adjusterNotLast">
@@ -391,7 +393,7 @@
             <alias ref="-adjuster2ML" if="hover + !disabled"/>
             <alias ref="-adjuster1ML"/>
         </select>
-        <alias name="valueadjuster.dec.overlay" ref="none"/>
+        <alias name="valueadjuster.dec.overlay" ref="-adjuster-icon-minus" inset="9,5,8,2"/>
         <select name="valueadjuster.inc.background">
             <select if="!adjusterNotFirst + !adjusterNotLast">
                 <alias ref="-adjuster3XR" if="armed"/>
@@ -412,7 +414,7 @@
             <alias ref="-adjuster2MR" if="hover + !disabled"/>
             <alias ref="-adjuster1MR"/>
         </select>
-        <alias name="valueadjuster.inc.overlay" ref="none"/>
+        <alias name="valueadjuster.inc.overlay" ref="-adjuster-icon-plus" inset="6,1,5,4"/>
         <alias name="valueadjuster.background" ref="none"/>
         <select name="valueadjuster.overlay" inset="1,0" tint="#6f97df">
             <grid if="keyboardFocus + !adjusterNotFirst + !adjusterNotLast" weightsX="0,1,0" weightsY="1">
@@ -961,13 +963,11 @@
         <param name=""><image>valueadjuster.*</image></param>
         <theme name="decButton" ref="button">
             <param name=""><image>valueadjuster.dec.*</image></param>
-            <param name="text"><string>-</string></param>
             <param name="border"><border>0</border></param>
             <param name="minWidth"><int>12</int></param>
         </theme>
         <theme name="incButton" ref="button">
             <param name=""><image>valueadjuster.inc.*</image></param>
-            <param name="text"><string>+</string></param>
             <param name="border"><border>0</border></param>
             <param name="minWidth"><int>12</int></param>
         </theme>

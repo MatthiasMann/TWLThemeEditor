@@ -216,6 +216,37 @@
             <alias ref="vbutton.overlay"/>
         </composed>
 
+        <grid name="-icon-linked" weightsX="0,1,0" weightsY="1" inset="1,0,-1,0">
+            <area xywh="144,107,10,7" center="true"/>
+            <alias ref="none"/>
+            <area xywh="154,107,10,7" center="true"/>
+        </grid>
+        <alias name="--icon-linked0" ref="-icon-linked" sizeOverwriteH="20"/>
+        <alias name="--icon-linked1" ref="-icon-linked" sizeOverwriteH="22"/>
+        <alias name="--icon-linked2" ref="-icon-linked" sizeOverwriteH="24"/>
+        <alias name="--icon-linked3" ref="-icon-linked" sizeOverwriteH="26"/>
+        <alias name="-icon-linked0" ref="--icon-linked0" sizeOverwriteH="26" center="true"/>
+        <alias name="-icon-linked1" ref="--icon-linked1" sizeOverwriteH="26" center="true"/>
+        <alias name="-icon-linked2" ref="--icon-linked2" sizeOverwriteH="26" center="true"/>
+        <alias name="-icon-linked3" ref="--icon-linked3" sizeOverwriteH="26" center="true"/>
+        <composed name="button.link.overlay">
+            <select>
+                <animation timeSource="selected" if="selected" count="1" frozenTime="200">
+                    <frame duration="50" ref="-icon-linked3"/>
+                    <frame duration="50" ref="-icon-linked2"/>
+                    <frame duration="50" ref="-icon-linked1"/>
+                    <frame duration="50" ref="-icon-linked0"/>
+                </animation>
+                <animation timeSource="selected" count="1" frozenTime="200">
+                    <frame duration="50" ref="-icon-linked0"/>
+                    <frame duration="50" ref="-icon-linked1"/>
+                    <frame duration="50" ref="-icon-linked2"/>
+                    <frame duration="50" ref="-icon-linked3"/>
+                </animation>
+            </select>
+            <alias ref="togglebutton.overlay"/>
+        </composed>
+
         <composed name="relativebutton.left.overlay">
             <select>
                 <alias ref="-icon-relative-left" if="disabled" tint="#6fff"/>
@@ -723,8 +754,9 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         <param name="border"><border>background.border</border></param>
         
         <theme name="linkZoomFactors" ref="togglebutton">
-            <param name="text"><string>&lt;-&gt;</string></param>
+            <param name=""><image>button.link.*</image></param>
             <param name="tooltip"><string>Link X and Y zoom factors</string></param>
+            <param name="minWidth"><int>34</int></param>
         </theme>
         <theme name="showCompleteTexture" ref="togglebutton">
             <param name="text"><string>ALL</string></param>
