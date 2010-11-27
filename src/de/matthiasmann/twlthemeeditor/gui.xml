@@ -18,7 +18,7 @@
         <area name="-icon-moveup" center="true" xywh="74,19,12,8"/>
         <area name="-icon-movedown" center="true" xywh="87,19,12,8"/>
         <area name="-icon-apply" center="true" inset="0,1,0,-1" xywh="86,37,13,10"/>
-        <area name="-icon-clone" center="true" xywh="142,70,13,9"/>
+        <area name="-icon-clone" center="true" xywh="142,70,13,10"/>
         <area name="-icon-copy" center="true" xywh="84,48,11,12"/>
         <area name="-icon-jump" center="true" xywh="83,61,14,9"/>
         <area name="-icon-add" center="true" xywh="48,19,12,12"/>
