@@ -32,9 +32,11 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 import de.matthiasmann.twl.model.AbstractTreeTableNode;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CopyNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.DeleteNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.MoveNodeOperations;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.PasteNodeOperation;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -91,6 +93,14 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
             }
         }
         return result;
+    }
+    
+    public boolean canPasteElement(Element element) {
+        return false;
+    }
+
+    public boolean childrenNeedName() {
+        return false;
     }
 
     public abstract Kind getKind();
@@ -154,11 +164,14 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
         result.add(new DeleteNodeOperation(element, this));
         result.add(new MoveNodeOperations("opMoveNodeUp", element, this, -1));
         result.add(new MoveNodeOperations("opMoveNodeDown", element, this, +1));
+        result.add(new CopyNodeOperation(element, this));
         return result;
     }
 
     public List<CreateChildOperation> getCreateChildOperations() {
-        return new ArrayList<CreateChildOperation>();
+        List<CreateChildOperation> result = new ArrayList<CreateChildOperation>();
+        result.add(new PasteNodeOperation(this, element));
+        return result;
     }
 
     public final MoveNodeOperations getMoveOperation(int dir) {

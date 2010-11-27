@@ -27,69 +27,64 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
+import de.matthiasmann.twl.Clipboard;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
+import org.jdom.Document;
 import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ThemeTreeRootNode extends ThemeTreeNode {
+public class PasteNodeOperation extends CreateChildOperation {
 
-    public ThemeTreeRootNode(ThemeFile themeFile, TreeTableNode parent) {
-        super(themeFile, parent, themeFile.getRootElement());
+    private final Element pasteElement;
+
+    public PasteNodeOperation(ThemeTreeNode parent, Element element) {
+        super("opPasteNode", parent, element);
+
+        pasteElement = getFromClipboard();
+    }
+
+    private Element getFromClipboard() {
+        String str = Clipboard.getClipboard();
+        if(str == null || str.isEmpty() || !str.startsWith("<")) {
+            return null;
+        }
+        try {
+            Document document = Utils.loadDocument(str);
+            return document.detachRootElement();
+        } catch(IOException ex) {
+            return null;
+        }
     }
 
     @Override
-    public String getName() {
-        String name = themeFile.getVirtualFileName();
-        int idx = name.lastIndexOf('/');
-        return name.substring(idx+1);
-    }
-
-    public void addChildren() throws IOException {
-        themeFile.addChildren(this);
-    }
-
-    public void addToXPP(DomXPPParser xpp) {
-        throw new IllegalStateException("Should not reach here");
-    }
-
-    public Kind getKind() {
-        return Kind.NONE;
+    public boolean isEnabled() {
+        return pasteElement != null && parent.canPasteElement(pasteElement);
     }
 
     @Override
-    protected boolean isModified() {
-        return themeFile.isModified();
+    public ThemeTreeNode executeAt(Object[] parameter, int pos) throws IOException {
+        if(isEnabled()) {
+            Element e = (Element)pasteElement.clone();
+            boolean hasName = e.getAttribute("name") != null;
+            if(!parent.childrenNeedName()) {
+                if(hasName) {
+                    e.removeAttribute("name");
+                }
+            } else if(!hasName) {
+                e.setAttribute("name", makeRandomName());
+            }
+
+            return addChild(e, pos);
+        }
+
+        return null;
     }
 
-    @Override
-    public boolean canPasteElement(Element element) {
-        String tag = element.getName();
-        return "theme".equals(tag);
-    }
-
-    @Override
-    public boolean childrenNeedName() {
-        return true;
-    }
-
-    @Override
-    public List<ThemeTreeOperation> getOperations() {
-        return Collections.<ThemeTreeOperation>emptyList();
-    }
-
-    @Override
-    public List<CreateChildOperation> getCreateChildOperations() {
-        List<CreateChildOperation> operations = super.getCreateChildOperations();
-        themeFile.addCreateOperations(operations, this);
-        return operations;
-    }
 }

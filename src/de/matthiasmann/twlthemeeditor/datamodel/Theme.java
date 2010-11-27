@@ -154,6 +154,17 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         }
         return node;
     }
+
+    @Override
+    public boolean canPasteElement(Element element) {
+        String tag = element.getName();
+        return "theme".equals(tag) || "param".equals(tag);
+    }
+
+    @Override
+    public boolean childrenNeedName() {
+        return true;
+    }
     
     public void addChildren() throws IOException {
         addChildren(themeFile, element, new DomWrapper() {

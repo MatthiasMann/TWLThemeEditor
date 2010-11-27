@@ -198,6 +198,22 @@ public final class Utils {
         }
     }
 
+    public static Document loadDocument(String str) throws IOException {
+        try {
+            SAXBuilder saxb = new SAXBuilder(false);
+            saxb.setEntityResolver(new EntityResolver() {
+                public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+                    return new InputSource(new StringReader(""));
+                }
+            });
+            return saxb.build(new StringReader(str));
+        } catch(IOException ex) {
+            throw ex;
+        } catch(Exception ex) {
+            throw new IOException(ex);
+        }
+    }
+
     public static<T> int find(ListModel<T> list, T entry) {
         for(int i=0,n=list.getNumEntries() ; i<n ; i++) {
             if(equals(list.getEntry(i), entry)) {

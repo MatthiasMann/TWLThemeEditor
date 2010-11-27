@@ -148,6 +148,30 @@ public class Images extends ThemeTreeNode implements HasProperties {
         return textureDimensions;
     }
 
+
+    private static final String[] ALLOWED_CHILDREN = {
+        "area", "select", "composed", "grid", "animation", "alias"
+    };
+    public static boolean isAllowedChildImage(String tag) {
+        for(String allowed : ALLOWED_CHILDREN) {
+            if(allowed.equals(tag)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canPasteElement(Element element) {
+        String tag = element.getName();
+        return isAllowedChildImage(tag) || "cursor".equals(tag);
+    }
+
+    @Override
+    public boolean childrenNeedName() {
+        return true;
+    }
+
     public void addChildren() throws IOException {
         addChildren(themeFile, element, Image.getImageDomWrapper(this));
     }

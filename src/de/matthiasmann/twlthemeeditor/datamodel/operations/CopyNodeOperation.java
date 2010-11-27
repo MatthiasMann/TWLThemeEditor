@@ -27,69 +27,36 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
+import de.matthiasmann.twl.Clipboard;
+import de.matthiasmann.twlthemeeditor.XMLWriter;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
+import java.io.StringWriter;
+import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ThemeTreeRootNode extends ThemeTreeNode {
+public class CopyNodeOperation extends ElementOperation {
 
-    public ThemeTreeRootNode(ThemeFile themeFile, TreeTableNode parent) {
-        super(themeFile, parent, themeFile.getRootElement());
+    public CopyNodeOperation(Element element, ThemeTreeNode node) {
+        super("opCopyNode", element, node);
     }
 
     @Override
-    public String getName() {
-        String name = themeFile.getVirtualFileName();
-        int idx = name.lastIndexOf('/');
-        return name.substring(idx+1);
+    public ThemeTreeNode execute(Object[] parameter) throws IOException {
+        Document document = new Document((Element)element.clone());
+        StringWriter sw = new StringWriter();
+        XMLWriter w = new XMLWriter(sw);
+        new XMLOutputter().output(document, w);
+        w.flush();
+        Clipboard.setClipboard(sw.toString());
+        return node;
     }
 
-    public void addChildren() throws IOException {
-        themeFile.addChildren(this);
-    }
-
-    public void addToXPP(DomXPPParser xpp) {
-        throw new IllegalStateException("Should not reach here");
-    }
-
-    public Kind getKind() {
-        return Kind.NONE;
-    }
-
-    @Override
-    protected boolean isModified() {
-        return themeFile.isModified();
-    }
-
-    @Override
-    public boolean canPasteElement(Element element) {
-        String tag = element.getName();
-        return "theme".equals(tag);
-    }
-
-    @Override
-    public boolean childrenNeedName() {
-        return true;
-    }
-
-    @Override
-    public List<ThemeTreeOperation> getOperations() {
-        return Collections.<ThemeTreeOperation>emptyList();
-    }
-
-    @Override
-    public List<CreateChildOperation> getCreateChildOperations() {
-        List<CreateChildOperation> operations = super.getCreateChildOperations();
-        themeFile.addCreateOperations(operations, this);
-        return operations;
-    }
 }

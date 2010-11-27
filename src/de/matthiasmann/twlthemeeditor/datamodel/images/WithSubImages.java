@@ -75,6 +75,11 @@ abstract class WithSubImages extends Image {
     }
 
     @Override
+    public boolean canPasteElement(Element element) {
+        return Images.isAllowedChildImage(element.getName());
+    }
+
+    @Override
     public List<CreateChildOperation> getCreateChildOperations() {
         List<CreateChildOperation> operations = super.getCreateChildOperations();
         addCreateOperations(operations);

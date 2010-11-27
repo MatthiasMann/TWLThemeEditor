@@ -18,7 +18,8 @@
         <area name="-icon-moveup" center="true" xywh="74,19,12,8"/>
         <area name="-icon-movedown" center="true" xywh="87,19,12,8"/>
         <area name="-icon-apply" center="true" inset="0,1,0,-1" xywh="86,37,13,10"/>
-        <area name="-icon-clone" center="true" xywh="84,48,11,12"/>
+        <area name="-icon-clone" center="true" xywh="142,70,13,9"/>
+        <area name="-icon-copy" center="true" xywh="84,48,11,12"/>
         <area name="-icon-jump" center="true" xywh="83,61,14,9"/>
         <area name="-icon-add" center="true" xywh="48,19,12,12"/>
         <area name="-icon-remove" center="true" xywh="61,19,12,12"/>
@@ -136,6 +137,15 @@
                 <alias ref="-icon-clone" if="disabled" tint="#6fff"/>
                 <alias ref="-icon-clone" if="armed" inset="1,1,-1,-1"/>
                 <alias ref="-icon-clone"/>
+            </select>
+            <alias ref="vbutton.overlay"/>
+        </composed>
+
+        <composed name="button.opCopyNode.overlay">
+            <select>
+                <alias ref="-icon-copy" if="disabled" tint="#6fff"/>
+                <alias ref="-icon-copy" if="armed" inset="1,1,-1,-1"/>
+                <alias ref="-icon-copy"/>
             </select>
             <alias ref="vbutton.overlay"/>
         </composed>
@@ -277,6 +287,10 @@
                         <param name=""><image>button.opCloneNode.*</image></param>
                         <param name="tooltip"><string>Clones the current node</string></param>
                     </theme>
+                    <theme name="opCopyNode" ref="button">
+                        <param name=""><image>button.opCopyNode.*</image></param>
+                        <param name="tooltip"><string>Puts the XML for the current node on the clipboard</string></param>
+                    </theme>
                 </theme>
             </theme>
         </theme>
@@ -287,6 +301,9 @@
         <param name="background"><image>popup.background</image></param>
         <param name="border"><border>5</border></param>
 
+        <theme name="opPasteNode" ref="popupMenuButton">
+            <param name="text"><string>Paste</string></param>
+        </theme>
         <theme name="opNewNodeArea" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;area&gt; node</string></param>
         </theme>
@@ -722,6 +739,18 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
             <theme name="opCloneNode" ref="popupMenuButton">
                 <param name="text"><string>Clone</string></param>
                 <param name="tooltip"><string>Clones the current node</string></param>
+            </theme>
+            <theme name="opCopyNode" ref="popupMenuButton">
+                <param name="text"><string>Copy</string></param>
+                <param name="tooltip"><string>Puts the XML for the current node on the clipboard</string></param>
+            </theme>
+            <theme name="opMoveNodeUp" ref="popupMenuButton">
+                <param name="text"><string>Move up</string></param>
+                <param name="tooltip"><string>Moves the selected node upwards</string></param>
+            </theme>
+            <theme name="opMoveNodeDown" ref="popupMenuButton">
+                <param name="text"><string>Move down</string></param>
+                <param name="tooltip"><string>Moves the selected node downwards</string></param>
             </theme>
             <theme name="opDeleteNode" ref="popupMenuButton">
                 <param name="text"><string>Delete</string></param>
