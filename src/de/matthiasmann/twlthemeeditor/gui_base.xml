@@ -389,9 +389,9 @@
                 <alias ref="-adjuster1MM"/>
             </select>
             <grid weightsX="0,1,0" weightsY="1" if="hover + !disabled">
-                <area xywh="159,115,3,5" inset="7,3,6,0"/>
+                <area xywh="159,115,4,5" inset="7,3,6,0"/>
                 <alias ref="none"/>
-                <area xywh="159,121,3,5" inset="7,0,6,3"/>
+                <area xywh="159,121,4,5" inset="7,0,6,3"/>
             </grid>
         </composed>
         <alias name="valueadjuster.display.overlay" ref="none"/>
