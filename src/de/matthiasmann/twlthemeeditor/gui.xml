@@ -196,13 +196,24 @@
             <alias ref="vbutton.overlay"/>
         </composed>
         
-        <alias name="--icon-flash" ref="-white-frame" sizeOverwriteH="12" sizeOverwriteV="12"/>
-        <alias name="-icon-flash" ref="--icon-flash" center="true"/>
+        <grid name="-icon-flash" weightsX="1" weightsY="0,1,0" center="true">
+            <alias ref="white" sizeOverwriteV="2"/>
+            <grid weightsX="0,1,0" weightsY="1" sizeOverwriteV="8">
+                <alias ref="white" sizeOverwriteH="2"/>
+                <alias ref="none" sizeOverwriteH="8"/>
+                <alias ref="white" sizeOverwriteH="2"/>
+            </grid>
+            <alias ref="white" sizeOverwriteV="2"/>
+        </grid>
         <composed name="flashbutton.overlay">
             <select>
                 <alias ref="-icon-flash" tint="#6fff" if="disabled"/>
-                <alias ref="-icon-flash" tint="red" if="armed" inset="1,1,-1,-1"/>
-                <alias ref="-icon-flash" tint="red"/>
+                <alias ref="-icon-flash" tint="#C00" if="armed" inset="1,1,-1,-1"/>
+                <animation timeSource="hover" if="hover">
+                    <frame duration="100" ref="-icon-flash" tint="#C00"/>
+                    <frame duration="100" ref="-icon-flash" tint="#00C"/>
+                </animation>
+                <alias ref="-icon-flash" tint="#C00"/>
             </select>
             <alias ref="vbutton.overlay"/>
         </composed>
