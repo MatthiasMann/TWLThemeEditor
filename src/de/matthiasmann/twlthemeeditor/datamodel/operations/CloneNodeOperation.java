@@ -55,7 +55,8 @@ public class CloneNodeOperation extends ElementOperation {
             Content content = parent.getContent(i);
             Content clone = (Content)content.clone();
             if(clone instanceof Element) {
-                adjustClonedElement((Element)clone);
+                cloneElement = (Element)clone;
+                adjustClonedElement(cloneElement);
             }
             parent.addContent(elementPos+1, clone);
         }
