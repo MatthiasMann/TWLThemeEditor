@@ -370,23 +370,30 @@
         <area name="-adjusterSelXR" xywh="74,85,8,18"/>
         <area name="-adjuster-icon-plus" xywh="144,99,7,7"/>
         <area name="-adjuster-icon-minus" xywh="145,102,5,1"/>
-
-        <select name="valueadjuster.display.background">
-            <select if="!adjusterNotFirst + !adjusterNotLast">
-                <alias ref="-adjuster2XM" if="hover + !disabled"/>
-                <alias ref="-adjuster1XM"/>
+        
+        <composed name="valueadjuster.display.background">
+            <select>
+                <select if="!adjusterNotFirst + !adjusterNotLast">
+                    <alias ref="-adjuster2XM" if="hover + !disabled"/>
+                    <alias ref="-adjuster1XM"/>
+                </select>
+                <select if="!adjusterNotFirst">
+                    <alias ref="-adjuster2TM" if="hover + !disabled"/>
+                    <alias ref="-adjuster1TM"/>
+                </select>
+                <select if="!adjusterNotLast">
+                    <alias ref="-adjuster2BM" if="hover + !disabled"/>
+                    <alias ref="-adjuster1BM"/>
+                </select>
+                <alias ref="-adjuster2MM" if="hover + !disabled"/>
+                <alias ref="-adjuster1MM"/>
             </select>
-            <select if="!adjusterNotFirst">
-                <alias ref="-adjuster2TM" if="hover + !disabled"/>
-                <alias ref="-adjuster1TM"/>
-            </select>
-            <select if="!adjusterNotLast">
-                <alias ref="-adjuster2BM" if="hover + !disabled"/>
-                <alias ref="-adjuster1BM"/>
-            </select>
-            <alias ref="-adjuster2MM" if="hover + !disabled"/>
-            <alias ref="-adjuster1MM"/>
-        </select>
+            <grid weightsX="0,1,0" weightsY="1" if="hover + !disabled">
+                <area xywh="159,115,3,5" inset="7,3,6,0"/>
+                <alias ref="none"/>
+                <area xywh="159,121,3,5" inset="7,0,6,3"/>
+            </grid>
+        </composed>
         <alias name="valueadjuster.display.overlay" ref="none"/>
         <select name="valueadjuster.dec.background">
             <select if="!adjusterNotFirst + !adjusterNotLast">
