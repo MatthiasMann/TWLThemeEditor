@@ -33,8 +33,10 @@ import de.matthiasmann.twl.Clipboard;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import java.io.IOException;
+import org.jdom.Content;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.Text;
 
 /**
  *
@@ -47,6 +49,7 @@ public class PasteNodeOperation extends CreateChildOperation {
     public PasteNodeOperation(ThemeTreeNode parent, Element element) {
         super("opPasteNode", parent, element);
 
+        indentChildren = false;
         pasteElement = getFromClipboard();
     }
 
@@ -81,10 +84,43 @@ public class PasteNodeOperation extends CreateChildOperation {
                 e.setAttribute("name", makeRandomName());
             }
 
+            adjustIndentation(e, getBaseIndentation());
             return addChild(e, pos);
         }
 
         return null;
     }
 
+    private static void adjustIndentation(Element e, int indentation) {
+        boolean first = true;
+        for(int i=e.getContentSize() ; i-->0 ;) {
+            Content c = e.getContent(i);
+            if(c instanceof Text) {
+                Text te = (Text)c;
+                String text = te.getText();
+                if(text.trim().isEmpty()) {
+                    int count = 0;
+                    for(int idx=-1 ; (idx=text.indexOf('\n', idx+1))>=0 ;) {
+                        count++;
+                    }
+                    String indentStr = createIndentation(indentation);
+                    if(count > 1) {
+                        StringBuilder sb = new StringBuilder();
+                        for(int j=0 ; j<count ; j++) {
+                            sb.append(indentStr);
+                        }
+                        indentStr = sb.toString();
+                    }
+                    te.setText(indentStr);
+                }
+            }
+            if(first) {
+                indentation += INDENTATION_SIZE;
+                first = false;
+            }
+            if(c instanceof Element) {
+                adjustIndentation((Element)c, indentation);
+            }
+        }
+    }
 }

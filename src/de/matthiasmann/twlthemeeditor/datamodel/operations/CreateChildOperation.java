@@ -44,7 +44,7 @@ import org.jdom.Text;
  */
 public abstract class CreateChildOperation extends ThemeTreeOperation {
 
-    private static final int INDENTATION_SIZE = 4;
+    protected static final int INDENTATION_SIZE = 4;
 
     protected final ThemeTreeNode parent;
     protected final Element element;
@@ -64,7 +64,7 @@ public abstract class CreateChildOperation extends ThemeTreeOperation {
         return indentation;
     }
     
-    protected String createIndentation(int indentation) {
+    protected static String createIndentation(int indentation) {
         char[] buf = new char[indentation + 1];
         Arrays.fill(buf, ' ');
         buf[0] = '\n';
