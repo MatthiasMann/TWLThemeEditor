@@ -71,17 +71,20 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
     static class AnimStateEditor extends DialogLayout implements Runnable, EditField.Callback {
         private final AnimationState animationState;
         private final Field stateTableField;
+        private final Field parentField;
         private final TreeMap<String, ToggleButton> buttons;
         private final ArrayList<StateBooleanModel> models;
         private final EditField stateNameField;
         private final Button addStateNameButton;
         private Timer timer;
 
+        @SuppressWarnings("LeakingThisInConstructor")
         public AnimStateEditor(Context ctx, Property<AnimationState> property) {
             this.animationState = property.getPropertyValue();
 
             Class<AnimationState> clazz = AnimationState.class;
             stateTableField = getField(clazz, "stateTable");
+            parentField = getField(clazz, "parent");
 
             buttons = new TreeMap<String, ToggleButton>();
             models = new ArrayList<StateBooleanModel>();
@@ -164,23 +167,36 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
         private boolean createStateButtons() {
             boolean redoLayout = false;
             if(stateTableField != null) {
-                try {
-                    @SuppressWarnings("unchecked")
-                    HashEntry<String, ?>[] stateTable = (HashEntry<String, ?>[])stateTableField.get(animationState);
-                    for(HashEntry<String, ?> entry : stateTable) {
-                         for(; entry != null ; entry=entry.next()) {
-                             redoLayout |= createStateButton(entry.key);
-                         }
+                AnimationState animState = animationState;
+                do {
+                    try {
+                        @SuppressWarnings("unchecked")
+                        HashEntry<String, ?>[] stateTable = (HashEntry<String, ?>[])stateTableField.get(animState);
+                        for(HashEntry<String, ?> entry : stateTable) {
+                             for(; entry != null ; entry=entry.next()) {
+                                 redoLayout |= createStateButton(entry.key);
+                             }
+                        }
+                    } catch(Throwable ex) {
+                        Logger.getLogger(AnimStateEditorFactory.class.getName()).log(
+                                Level.SEVERE, "Can't access state table", ex);
                     }
-                } catch(Throwable ex) {
-                    Logger.getLogger(AnimStateEditorFactory.class.getName()).log(
-                            Level.SEVERE, "Can't access state table", ex);
-                }
+                    if(parentField == null) {
+                        break;
+                    }
+                    try {
+                        animState = (AnimationState)parentField.get(animState);
+                    } catch(Throwable ex) {
+                        Logger.getLogger(AnimStateEditorFactory.class.getName()).log(
+                                Level.SEVERE, "Can't access parent field", ex);
+                        break;
+                    }
+                } while(animState != null);
             }
             return redoLayout;
         }
 
-        private boolean createStateButton(final String state) {
+        private boolean createStateButton(String state) {
             ToggleButton btn = buttons.get(state);
             if(btn == null) {
                 StateBooleanModel model = new StateBooleanModel(animationState, state);
