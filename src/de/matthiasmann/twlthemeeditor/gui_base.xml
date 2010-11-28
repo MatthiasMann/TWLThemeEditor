@@ -740,6 +740,7 @@
         </select>
 
         <area name="-table.frame.pixel" xywh="162,0,1,1"/>
+        <area name="table.background" xywh="152,101,7,5" splitx="L3,B3" splity="L3,B1"/>
         <grid name="table.frame" weightsX="1" weightsY="0,1,0">
             <area xywh="127,95,9,3" splitx="L4,B4"/>
             <grid weightsX="0,1,0" weightsY="1">
@@ -770,6 +771,7 @@
             <area xywh="127,87,14,7" splitx="L7,B6" inset="0,-2" sizeOverwriteH="50" sizeOverwriteV="1"/>
             <alias ref="none"/>
         </grid>
+    
     </images>
 
     <images file="gui.png" format="RGBA">
