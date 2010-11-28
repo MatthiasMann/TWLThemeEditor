@@ -103,16 +103,6 @@
             <area xywh="104,33,9,9" if="armed"/>
             <area xywh="0,41,9,9"/>
         </select>
-        <composed name="columnHeader.background" inset="-3,0">
-            <alias ref="-borderB"/>
-            <grid weightsX="1,0" weightsY="1">
-                <alias ref="none"/>
-                <select center="true" inset="0,0,0,3">
-                    <alias ref="-iconD" if="sortAscending"/>
-                    <alias ref="-iconA" if="sortDescending"/>
-                </select>
-            </grid>
-        </composed>
 
         <select name="table.row.background">
             <alias ref="-gradC" if="rowSelected"/>
@@ -239,6 +229,7 @@
         <theme name="EditFieldCellRenderer">
             <param name="editFieldHeight"><int>20</int></param>
         </theme>
+        <param name="overlay"><image>table.frame</image></param>
     </theme>
 
     <theme name="treepathdisplay" ref="-defaults" allowWildcard="true">
