@@ -370,24 +370,26 @@
         <area name="-adjusterSelXR" xywh="74,85,8,18"/>
         <area name="-adjuster-icon-plus" xywh="144,99,7,7"/>
         <area name="-adjuster-icon-minus" xywh="145,102,5,1"/>
-        
-        <composed name="valueadjuster.display.background">
-            <select>
-                <select if="!adjusterNotFirst + !adjusterNotLast">
-                    <alias ref="-adjuster2XM" if="hover + !disabled"/>
-                    <alias ref="-adjuster1XM"/>
-                </select>
-                <select if="!adjusterNotFirst">
-                    <alias ref="-adjuster2TM" if="hover + !disabled"/>
-                    <alias ref="-adjuster1TM"/>
-                </select>
-                <select if="!adjusterNotLast">
-                    <alias ref="-adjuster2BM" if="hover + !disabled"/>
-                    <alias ref="-adjuster1BM"/>
-                </select>
-                <alias ref="-adjuster2MM" if="hover + !disabled"/>
-                <alias ref="-adjuster1MM"/>
+
+        <select name="valueadjuster.edit.background">
+            <select if="!adjusterNotFirst + !adjusterNotLast">
+                <alias ref="-adjuster2XM" if="hover + !disabled"/>
+                <alias ref="-adjuster1XM"/>
             </select>
+            <select if="!adjusterNotFirst">
+                <alias ref="-adjuster2TM" if="hover + !disabled"/>
+                <alias ref="-adjuster1TM"/>
+            </select>
+            <select if="!adjusterNotLast">
+                <alias ref="-adjuster2BM" if="hover + !disabled"/>
+                <alias ref="-adjuster1BM"/>
+            </select>
+            <alias ref="-adjuster2MM" if="hover + !disabled"/>
+            <alias ref="-adjuster1MM"/>
+        </select>
+        <alias name="valueadjuster.edit.overlay" ref="none"/>
+        <composed name="valueadjuster.display.background">
+            <alias ref="valueadjuster.edit.background"/>
             <grid weightsX="0,1,0" weightsY="1" if="hover + !disabled">
                 <area xywh="159,115,4,5" inset="7,3,6,0"/>
                 <alias ref="none"/>
@@ -460,8 +462,6 @@
                 <alias ref="-adjusterSelMR"/>
             </grid>
         </select>
-        <alias name="valueadjuster.edit.background" ref="valueadjuster.display.background"/>
-        <alias name="valueadjuster.edit.overlay" ref="none"/>
     </images>
 
     <images file="gui.png" format="RGBA" comment="VButtons">
