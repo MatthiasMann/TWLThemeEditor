@@ -64,6 +64,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.objectweb.asm.AnnotationVisitor;
@@ -356,9 +357,9 @@ public class TestWidgetManager {
     }
 
     static enum FailReason {
-        NOT_PUBLIC(" is not public"),
-        NO_DEFAULT_CONSTRUCTOR(" has no default constructor"),
-        DEFAULT_CONSTRUCTOR_NOT_PUBLIC(" has non public default constructor");
+        NOT_PUBLIC(" : not public"),
+        NO_DEFAULT_CONSTRUCTOR(" : no default constructor"),
+        DEFAULT_CONSTRUCTOR_NOT_PUBLIC(" : non public default constructor");
         
         final String msg;
         private FailReason(String msg) {
@@ -376,7 +377,7 @@ public class TestWidgetManager {
         final ArrayList<String> key;
         final HashMap<String, Object> superClassMap;
         final HashSet<String> subClassSet;
-        final HashMap<String, FailReason> failedMap;
+        final TreeMap<String, FailReason> failedMap;
         final ArrayList<String> candidates;
         final StringBuilder infoMsg;
 
@@ -400,7 +401,7 @@ public class TestWidgetManager {
             this.key = new ArrayList<String>();
             this.superClassMap = new HashMap<String, Object>();
             this.subClassSet = new HashSet<String>();
-            this.failedMap = new HashMap<String, FailReason>();
+            this.failedMap = new TreeMap<String, FailReason>();
             this.candidates = new ArrayList<String>();
             this.buffer = new byte[4096];
             this.infoMsg = new StringBuilder();
@@ -435,14 +436,15 @@ public class TestWidgetManager {
 
                 for(String candidate : candidates) {
                     if(checkSuperClass(candidate)) {
+                        String candidateClassName = candidate.replace('/', '.');
                         try {
-                            Class<?> clz = Class.forName(candidate.replace('/', '.'), false, classLoader);
+                            Class<?> clz = Class.forName(candidateClassName, false, classLoader);
                             @SuppressWarnings("unchecked")
                             Class<? extends Widget> widgetClazz = (Class<? extends Widget>)clz;
                             testWidgetFactories.add(new TestWidgetFactory(
                                     widgetClazz, widgetClazz.getSimpleName()));
                         } catch(Exception ex) {
-                            warnings.append(candidate).append(": can't load class: ").append(ex.getMessage()).append("\n");
+                            warnings.append(candidateClassName).append(" : can't load class: ").append(ex.getMessage()).append("\n");
                         }
                     }
                 }
