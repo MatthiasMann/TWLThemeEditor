@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
+import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import java.io.IOException;
 import org.jdom.Content;
@@ -68,7 +69,33 @@ public class CloneNodeOperation extends ElementOperation {
     protected void adjustClonedElement(Element clonedElement) {
         String name = clonedElement.getAttributeValue("name");
         if(name != null) {
-            clonedElement.setAttribute("name", name + System.nanoTime());
+            String newName = null;
+            Kind kind = node.getKind();
+            if(kind != Kind.NONE) {
+                int len = name.length();
+                int digitStart = len;
+                while(digitStart > 0 && Character.isDigit(name.charAt(digitStart-1))) {
+                    digitStart--;
+                }
+                if(digitStart < len) {
+                    String baseName = name.substring(0, digitStart);
+                    try {
+                        long number = Long.parseLong(name.substring(digitStart));
+                        for(int i=1 ; i<100 ; i++) {
+                            String testName = baseName + (number + i);
+                            if(node.getThemeTreeModel().findNode(testName, kind) == null) {
+                                newName = testName;
+                                break;
+                            }
+                        }
+                    } catch(IllegalArgumentException ex) {
+                    }
+                }
+            }
+            if(newName == null) {
+                newName = name + System.nanoTime();
+            }
+            clonedElement.setAttribute("name", newName);
         }
     }
 
