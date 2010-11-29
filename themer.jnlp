@@ -23,6 +23,7 @@
     <jar download="eager" href="lwjgl.jar" main="false" version=""/>
     <jar download="eager" href="TWL.jar" main="false" version=""/>
     <jar download="eager" href="jna.jar" main="false" version=""/>
+    <jar download="eager" href="asm3.jar" main="false" version=""/>
     <jar download="eager" href="JavaFreeType.jar" main="false" version=""/>
     <jar download="eager" href="jdom.jar" main="false" version=""/>
   </resources>
