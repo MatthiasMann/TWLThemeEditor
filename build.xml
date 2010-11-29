@@ -106,6 +106,7 @@
                 <pathelement path="${libs.MXP1.classpath}"/>
                 <pathelement path="${libs.jdom.classpath}"/>
                 <pathelement path="${libs.JNA.classpath}"/>
+                <pathelement path="${libs.ASM3.classpath}"/>
                 <fileset dir="." includes="*.jnlp"/>
             </path>
         </copy>
