@@ -29,7 +29,6 @@
  */
 package de.matthiasmann.twlthemeeditor.util;
 
-import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -52,12 +51,12 @@ import java.util.logging.Logger;
  */
 public class SolidFile extends URLStreamHandler {
 
-    private File file;
-    private Thread shutdownHook;
-    private final RandomAccessFile raf;
-    private final HashMap<String, Entry> entries;
+    File file;
+    Thread shutdownHook;
+    final RandomAccessFile raf;
+    final HashMap<String, Entry> entries;
 
-    public SolidFile() throws IOException {
+    SolidFile() throws IOException {
         this.file = File.createTempFile("SFD", ".bin");
         this.raf = new RandomAccessFile(file, "rw");
         this.entries = new HashMap<String, Entry>();
@@ -74,10 +73,6 @@ public class SolidFile extends URLStreamHandler {
         };
 
         Runtime.getRuntime().addShutdownHook(shutdownHook);
-    }
-
-    public Writer createWriter() throws IOException {
-        return new Writer();
     }
     
     public Entry getEntry(String name) {
@@ -175,6 +170,19 @@ public class SolidFile extends URLStreamHandler {
         }
     }
 
+    void addEntry(String name, long pos, long size) {
+        Entry entry = new Entry(pos, size);
+        Entry prev = entries.get(name);
+        if(prev != null) {
+            while(prev.next != null) {
+                prev = prev.next;
+            }
+            prev.next = entry;
+        } else {
+            entries.put(name, entry);
+        }
+    }
+
     public static class Entry {
         final long offset;
         final long size;
@@ -187,56 +195,6 @@ public class SolidFile extends URLStreamHandler {
 
         public Entry getNext() {
             return next;
-        }
-    }
-
-    public class Writer implements Closeable {
-        final byte[] buffer;
-        int bufferPosition;
-        long filePosition;
-
-        Writer() throws IOException {
-            buffer = new byte[65536];
-            filePosition = raf.getFilePointer();
-        }
-
-        public void addEntry(String name, InputStream is) throws IOException {
-            long pos = getFilePosition();
-            long size = 0;
-            int read;
-            while((read=is.read(buffer, bufferPosition, buffer.length - bufferPosition)) > 0) {
-                bufferPosition += read;
-                if(bufferPosition*3 > buffer.length*2) {
-                    flush();
-                }
-                size += read;
-            }
-            Entry entry = new Entry(pos, size);
-            Entry prev = entries.get(name);
-            if(prev != null) {
-                while(prev.next != null) {
-                    prev = prev.next;
-                }
-                prev.next = entry;
-            } else {
-                entries.put(name, entry);
-            }
-        }
-
-        private long getFilePosition() {
-            return filePosition + bufferPosition;
-        }
-        
-        public void flush() throws IOException {
-            if(bufferPosition > 0) {
-                raf.write(buffer, 0, bufferPosition);
-                filePosition += bufferPosition;
-                bufferPosition = 0;
-            }
-        }
-
-        public void close() throws IOException {
-            flush();
         }
     }
 

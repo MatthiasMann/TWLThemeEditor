@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.MenuCheckbox;
 import de.matthiasmann.twl.Scrollbar;
@@ -49,20 +50,29 @@ import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestListBox;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollPane;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollbar;
 import de.matthiasmann.twlthemeeditor.util.SolidFileClassLoader;
+import de.matthiasmann.twlthemeeditor.util.SolidFileInspector;
+import de.matthiasmann.twlthemeeditor.util.SolidFileWriter;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -72,6 +82,11 @@ import org.xmlpull.v1.XmlPullParserException;
  */
 public class TestWidgetManager {
 
+    public interface Callback {
+        public void testWidgetChanged();
+        public void newWidgetsLoaded();
+    }
+    
     private static final MessageLog.Category CAT_ERROR   = new MessageLog.Category("Test widgets", MessageLog.CombineMode.NONE, DecoratedText.ERROR);
     private static final MessageLog.Category CAT_WARNING = new MessageLog.Category("Test widgets", MessageLog.CombineMode.NONE, DecoratedText.WARNING);
     private static final MessageLog.Category CAT_INFO    = new MessageLog.Category("Test widgets", MessageLog.CombineMode.NONE, 0);
@@ -80,10 +95,12 @@ public class TestWidgetManager {
     private final ArrayList<TestWidgetFactory> builtinWidgets;
     private final HashMap<ArrayList<String>, LoadedUserWidgets> userWidgets;
 
-    private Runnable callback;
+    private Callback callback;
     private TestWidgetFactory demoModeTestWidgetFactory;
     private TestWidgetFactory currentTestWidgetFactory;
     private LoadedUserWidgets currentUserWidgets;
+    private ProgressDialog progressDialog;
+    private ExecutorService executorService;
 
     public TestWidgetManager(MessageLog messageLog) {
         this.messageLog = messageLog;
@@ -107,12 +124,12 @@ public class TestWidgetManager {
         currentTestWidgetFactory = builtinWidgets.get(0);
     }
 
-    public Runnable getCallback() {
-        return callback;
+    public void setCallback(Callback callback) {
+        this.callback = callback;
     }
 
-    public void setCallback(Runnable callback) {
-        this.callback = callback;
+    public void setProgressDialog(ProgressDialog progressDialog) {
+        this.progressDialog = progressDialog;
     }
 
     public TestWidgetFactory getCurrentTestWidgetFactory() {
@@ -129,6 +146,7 @@ public class TestWidgetManager {
             }
             demoModeTestWidgetFactory = null;
         }
+        callback.newWidgetsLoaded();
     }
 
     public void clearCache() {
@@ -139,26 +157,29 @@ public class TestWidgetManager {
     }
 
     public void reloadCurrentWidget() {
-        LoadedUserWidgets luw = currentUserWidgets;
+        final LoadedUserWidgets luw = currentUserWidgets;
         if(luw != null) {
-            String currentClassName = currentTestWidgetFactory.getClazz().getName();
-            if(loadUserWidgets(luw.toScan, luw.dependencies)) {
-                luw = userWidgets.get(luw.key);
-                TestWidgetFactory newFactory;
-                if(luw == null) {
-                    newFactory = null;
-                } else {
-                    newFactory = luw.findFactory(currentClassName);
+            final String currentClassName = currentTestWidgetFactory.getClazz().getName();
+            loadUserWidgets(luw.toScan, luw.dependencies, new Runnable() {
+                public void run() {
+                    callback.newWidgetsLoaded();
+                    LoadedUserWidgets newLuw = userWidgets.get(luw.key);
+                    TestWidgetFactory newFactory;
+                    if(newLuw == null) {
+                        newFactory = null;
+                    } else {
+                        newFactory = newLuw.findFactory(currentClassName);
+                    }
+                    if(newFactory != null) {
+                        setCurrentTestWidgetFactory(newFactory, newLuw);
+                    } else {
+                        setCurrentTestWidgetFactory(null, null);
+                    }
                 }
-                if(newFactory != null) {
-                    setCurrentTestWidgetFactory(newFactory, luw);
-                } else {
-                    setCurrentTestWidgetFactory(null, null);
-                }
-            }
+            });
         } else if(currentTestWidgetFactory != null) {
             currentTestWidgetFactory.clearCache();
-            doCallback();
+            callback.testWidgetChanged();
         }
     }
 
@@ -181,7 +202,12 @@ public class TestWidgetManager {
             xmlp.nextTag();
             xmlp.require(XmlPullParser.END_TAG, null, "classpath");
             if(toScan.size() > 0) {
-                return loadUserWidgets(toScan, dependencies);
+                loadUserWidgets(toScan, dependencies, new Runnable() {
+                    public void run() {
+                        callback.newWidgetsLoaded();
+                    }
+                });
+                return true;
             }
         } catch(Exception ex) {
             messageLog.add(new MessageLog.Entry(CAT_ERROR, "Can't load class path", null, ex));
@@ -221,13 +247,7 @@ public class TestWidgetManager {
     void setCurrentTestWidgetFactory(TestWidgetFactory factory, LoadedUserWidgets userWidgets) {
         currentTestWidgetFactory = factory;
         currentUserWidgets = userWidgets;
-        doCallback();
-    }
-
-    private void doCallback() {
-        if(callback != null) {
-            callback.run();
-        }
+        callback.testWidgetChanged();
     }
 
     private void addMenu(Menu parent, String name, List<TestWidgetFactory> factories, LoadedUserWidgets userWidgets) {
@@ -242,132 +262,50 @@ public class TestWidgetManager {
         menu.add(new MenuCheckbox(f.getName(), new SelectedWidgetModel(f, userWidgets)).setTheme("radiobtn"));
     }
 
-    private boolean loadUserWidgets(ArrayList<URI> toScan, ArrayList<URI> dependencies) {
-        try {
-            StringBuilder infoMsg = new StringBuilder();
-            infoMsg.append("Loaded from the following class path:\n");
+    private void loadUserWidgets(ArrayList<URI> toScan, ArrayList<URI> dependencies, final Runnable cb) {
+        progressDialog.setTitle("Scanning class files");
+        progressDialog.setMessage("");
+        progressDialog.setIndeterminate("");
+        progressDialog.openPopupCentered();
+        
+        final Inspector inspector = new Inspector(toScan, dependencies,
+                progressDialog, getClass().getClassLoader());
 
-            File files[] = new File[toScan.size() + dependencies.size()];
-            ArrayList<String> key = new ArrayList<String>();
-            for(int i=0,n=toScan.size() ; i<n ; i++) {
-                URI fileUri = toScan.get(i);
-                File file = new File(fileUri);
-                files[i] = file;
-                String path = file.toString();
-                key.add(path);
-                infoMsg.append(path).append("\n");
-            }
-            if(!dependencies.isEmpty()) {
-                infoMsg.append("Additional class path:\n");
-                for(int i=0,n=dependencies.size() ; i<n ; i++) {
-                    URI fileUri = dependencies.get(i);
-                    File file = new File(fileUri);
-                    files[i+toScan.size()] = file;
-                    infoMsg.append(file.getPath()).append("\n");
-                }
-            }
+        inspector.callback = new Runnable() {
+            public void run() {
+                progressDialog.closePopup();
+                if(inspector.exception != null) {
+                    messageLog.add(new MessageLog.Entry(CAT_ERROR,
+                            "Can't load user classes", null, inspector.exception));
+                } else if(inspector.luw != null) {
+                    LoadedUserWidgets old = userWidgets.put(inspector.key, inspector.luw);
+                    if(old != null) {
+                        old.classLoader.close();
+                    }
 
-            ArrayList<TestWidgetFactory> testWidgetFactories = new ArrayList<TestWidgetFactory>();
-            SolidFileClassLoader classLoader = SolidFileClassLoader.create(getClass().getClassLoader(), files);
-            for(URI uri : toScan) {
-                File file = new File(uri);
-                if(file.isFile()) {
-                    scanJARFile(classLoader, file, testWidgetFactories);
-                } else if(file.isDirectory()) {
-                    scanFolder(classLoader, uri, file, testWidgetFactories);
-                }
-            }
+                    messageLog.add(new MessageLog.Entry(CAT_INFO,
+                            "Loaded " + inspector.luw.factories.size() + " user widgets",
+                            inspector.infoMsg.toString(), null));
 
-            if(!testWidgetFactories.isEmpty()) {
-                LoadedUserWidgets luw = new LoadedUserWidgets(toScan, dependencies, key, testWidgetFactories, classLoader);
-                LoadedUserWidgets old = userWidgets.put(key, luw);
-                if(old != null) {
-                    old.classLoader.close();
-                }
-
-                infoMsg.append("\nThe following classes have been loaded:\n");
-                for(TestWidgetFactory twf : testWidgetFactories) {
-                    infoMsg.append(twf.getClazz().getName()).append("\n");
-                }
-            } else {
-                classLoader.close();
-            }
-
-            messageLog.add(new MessageLog.Entry(
-                    testWidgetFactories.isEmpty() ? CAT_WARNING : CAT_INFO,
-                    "Loaded " + testWidgetFactories.size() + " user widgets", infoMsg.toString(), null));
-            
-            return true;
-        } catch (Throwable ex) {
-            messageLog.add(new MessageLog.Entry(CAT_ERROR, "Can't load user classes", null, ex));
-            return false;
-        }
-    }
-
-    private void scanJARFile(ClassLoader classLoader, File file, ArrayList<TestWidgetFactory> testWidgetFactories) {
-        try {
-            JarFile jarFile = new JarFile(file);
-            try {
-                StringBuilder warnings = new StringBuilder();
-                Enumeration<JarEntry> entries = jarFile.entries();
-                while(entries.hasMoreElements()) {
-                    JarEntry e = entries.nextElement();
-                    checkClassFile(e.getName(), classLoader, testWidgetFactories, warnings);
-                }
-                if(warnings.length() > 0) {
-                    messageLog.add(new MessageLog.Entry(CAT_WARNING, "Warnings while scanning JAR file: " + file.getName(), warnings.toString(), null));
-                }
-            } finally {
-                jarFile.close();
-            }
-        } catch (IOException ex) {
-            messageLog.add(new MessageLog.Entry(CAT_ERROR, "Can't scan JAR file: " + file.getName(), file.toString(), ex));
-        }
-    }
-
-    private void scanFolder(ClassLoader classLoader, URI base, File folder, ArrayList<TestWidgetFactory> testWidgetFactories) {
-        StringBuilder warnings = new StringBuilder();
-        scanFolder(classLoader, base, folder, testWidgetFactories, warnings);
-        if(warnings.length() > 0) {
-            messageLog.add(new MessageLog.Entry(CAT_WARNING, "Warnings while scanning folder: " + folder, warnings.toString(), null));
-        }
-    }
-
-    private void scanFolder(ClassLoader classLoader, URI base, File folder, ArrayList<TestWidgetFactory> testWidgetFactories, StringBuilder warnings) {
-        for(File file : folder.listFiles()) {
-            if(file.isDirectory()) {
-                scanFolder(classLoader, base, file, testWidgetFactories, warnings);
-            } else if(file.canRead() && file.getName().endsWith(".class")) {
-                checkClassFile(base.relativize(file.toURI()).getPath(), classLoader, testWidgetFactories, warnings);
-            }
-        }
-    }
-
-    private void checkClassFile(String name, ClassLoader classLoader, ArrayList<TestWidgetFactory> testWidgetFactories, StringBuilder warnings) {
-        if(name.endsWith(".class") && !name.startsWith("de/matthiasmann/twl/")) {
-            name = name.substring(0, name.length() - 6).replace('/', '.');
-            testClass(classLoader, name, testWidgetFactories, warnings);
-        }
-    }
-
-    private void testClass(ClassLoader classLoader, String name, ArrayList<TestWidgetFactory> testWidgetFactories, StringBuilder warnings) {
-        try {
-            Class<?> clazz = Class.forName(name, false, classLoader);
-            if(Widget.class.isAssignableFrom(clazz) && !clazz.isMemberClass() && !clazz.isLocalClass()) {
-                @SuppressWarnings("unchecked")
-                Class<? extends Widget> widgetClazz = (Class<? extends Widget>)clazz;
-                Constructor<?> c = clazz.getConstructor();
-                if(Modifier.isPublic(c.getModifiers())) {
-                    testWidgetFactories.add(new TestWidgetFactory(
-                            widgetClazz, clazz.getSimpleName()));
+                    if(cb != null) {
+                        cb.run();
+                    }
                 } else {
-                    warnings.append(name).append(": default constructor is not public\n");
+                    messageLog.add(new MessageLog.Entry(CAT_WARNING,
+                            "Could not loaded any user widget",
+                            inspector.infoMsg.toString(), null));
                 }
             }
-        } catch(NoSuchMethodException ignore) {
-            warnings.append(name).append(": no default constructor\n");
-        } catch(Throwable ex) {
-            warnings.append(name).append(": can't load class: ").append(ex.getMessage()).append("\n");
+        };
+
+        if(progressDialog.isOpen()) {
+            if(executorService == null) {
+                executorService = Executors.newSingleThreadExecutor();
+            }
+
+            executorService.submit(inspector);
+        } else {
+            inspector.run();
         }
     }
 
@@ -414,6 +352,251 @@ public class TestWidgetManager {
                 }
             }
             return null;
+        }
+    }
+
+    static enum FailReason {
+        NOT_PUBLIC(" is not public"),
+        NO_DEFAULT_CONSTRUCTOR(" has no default constructor"),
+        DEFAULT_CONSTRUCTOR_NOT_PUBLIC(" has non public default constructor");
+        
+        final String msg;
+        private FailReason(String msg) {
+            this.msg = msg;
+        }
+    }
+    
+    static class Inspector implements Runnable, SolidFileInspector, ClassVisitor {
+        final ArrayList<URI> toScan;
+        final ArrayList<URI> dependencies;
+        final ProgressDialog progressDialog;
+        final ClassLoader parentClassLoader;
+        final GUI gui;
+
+        final ArrayList<String> key;
+        final HashMap<String, Object> superClassMap;
+        final HashSet<String> subClassSet;
+        final HashMap<String, FailReason> failedMap;
+        final ArrayList<String> candidates;
+        final StringBuilder infoMsg;
+
+        Runnable callback;
+        String curClassName;
+        boolean isPublic;
+        boolean foundDefaultConstructor;
+        boolean isCandidate;
+        boolean isInnerClass;
+        byte[] buffer;
+        LoadedUserWidgets luw;
+        Throwable exception;
+
+        public Inspector(ArrayList<URI> toScan, ArrayList<URI> dependencies, ProgressDialog progressDialog, ClassLoader parentClassLoader) {
+            this.toScan = toScan;
+            this.dependencies = dependencies;
+            this.progressDialog = progressDialog;
+            this.parentClassLoader = parentClassLoader;
+            this.gui = progressDialog.getGUI();
+
+            this.key = new ArrayList<String>();
+            this.superClassMap = new HashMap<String, Object>();
+            this.subClassSet = new HashSet<String>();
+            this.failedMap = new HashMap<String, FailReason>();
+            this.candidates = new ArrayList<String>();
+            this.buffer = new byte[4096];
+            this.infoMsg = new StringBuilder();
+        }
+
+        public void run() {
+            try {
+                infoMsg.append("Loaded from the following class path:\n");
+
+                File roots[] = new File[toScan.size() + dependencies.size()];
+                for(int i=0,n=toScan.size() ; i<n ; i++) {
+                    URI fileUri = toScan.get(i);
+                    File file = new File(fileUri);
+                    roots[i] = file;
+                    String path = file.toString();
+                    key.add(path);
+                    infoMsg.append(path).append("\n");
+                }
+                if(!dependencies.isEmpty()) {
+                    infoMsg.append("Additional class path:\n");
+                    for(int i=0,n=dependencies.size() ; i<n ; i++) {
+                        URI fileUri = dependencies.get(i);
+                        File file = new File(fileUri);
+                        roots[i+toScan.size()] = file;
+                        infoMsg.append(file.getPath()).append("\n");
+                    }
+                }
+
+                ArrayList<TestWidgetFactory> testWidgetFactories = new ArrayList<TestWidgetFactory>();
+                SolidFileClassLoader classLoader = SolidFileClassLoader.create(parentClassLoader, this, roots);
+                StringBuilder warnings = new StringBuilder();
+
+                for(String candidate : candidates) {
+                    if(checkSuperClass(candidate)) {
+                        try {
+                            Class<?> clz = Class.forName(candidate.replace('/', '.'), false, classLoader);
+                            @SuppressWarnings("unchecked")
+                            Class<? extends Widget> widgetClazz = (Class<? extends Widget>)clz;
+                            testWidgetFactories.add(new TestWidgetFactory(
+                                    widgetClazz, widgetClazz.getSimpleName()));
+                        } catch(Exception ex) {
+                            warnings.append(candidate).append(": can't load class: ").append(ex.getMessage()).append("\n");
+                        }
+                    }
+                }
+                failedMap.keySet().removeAll(subClassSet);
+                for(Map.Entry<String, FailReason> e : failedMap.entrySet()) {
+                    if(checkSuperClass(e.getKey())) {
+                        warnings.append(e.getKey().replace('/', '.')).append(e.getValue().msg).append("\n");
+                    }
+                }
+
+                if(!testWidgetFactories.isEmpty()) {
+                    luw = new LoadedUserWidgets(toScan, dependencies, key,
+                            testWidgetFactories, classLoader);
+
+                    infoMsg.append("\nThe following classes have been loaded:\n");
+                    for(TestWidgetFactory twf : testWidgetFactories) {
+                        infoMsg.append(twf.getClazz().getName()).append("\n");
+                    }
+                } else {
+                    classLoader.close();
+                }
+
+                if(warnings.length() > 0) {
+                    infoMsg.append("\nThe following class could not be loaded:\n")
+                            .append(warnings);
+                }
+            } catch(Throwable ex) {
+                exception = ex;
+            }
+            
+            if(gui != null) {
+                gui.invokeLater(callback);
+            } else {
+                assert !progressDialog.isOpen();
+                callback.run();
+            }
+        }
+
+        public void processingRoot(final File root) {
+            if(progressDialog != null) {
+                progressDialog.setMessage(root.toString());
+            }
+        }
+
+        public boolean shouldInspectFile(String name) {
+            return name.endsWith(".class") && !name.startsWith("de/matthiasmann/twl/");
+        }
+
+        public void inspectFile(SolidFileWriter writer, String name, InputStream is) throws IOException {
+            int size = readFile(is);
+            writer.addEntry(name, buffer, 0, size);
+            ClassReader cr = new ClassReader(buffer, 0, size);
+            cr.accept(this, ClassReader.SKIP_CODE|ClassReader.SKIP_DEBUG|ClassReader.SKIP_FRAMES);
+        }
+
+        public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+            superClassMap.put(name, superName);
+            subClassSet.add(superName);
+            curClassName = name;
+            isPublic = (access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC;
+            isCandidate = false;
+            isInnerClass = false;
+            foundDefaultConstructor = false;
+        }
+
+        public void visitSource(String source, String debug) {
+        }
+
+        public void visitOuterClass(String owner, String name, String desc) {
+            isInnerClass = true;
+        }
+
+        public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+            return null;
+        }
+
+        public void visitAttribute(Attribute attr) {
+        }
+
+        public void visitInnerClass(String name, String outerName, String innerName, int access) {
+            if(!isInnerClass && curClassName.equals(name)) {
+                isInnerClass = true;
+            }
+        }
+
+        public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
+            return null;
+        }
+
+        public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+            if(isPublic && "<init>".equals(name)) {
+                if("()V".equals(desc)) {
+                    foundDefaultConstructor = true;
+                    if((access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
+                        candidates.add(curClassName);
+                        isCandidate = true;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public void visitEnd() {
+            if(!isCandidate && !isInnerClass) {
+                FailReason reason;
+                if(!isPublic) {
+                    reason = FailReason.NOT_PUBLIC;
+                } else if(foundDefaultConstructor) {
+                    reason = FailReason.DEFAULT_CONSTRUCTOR_NOT_PUBLIC;
+                } else {
+                    reason = FailReason.NO_DEFAULT_CONSTRUCTOR;
+                }
+                failedMap.put(curClassName, reason);
+            }
+            curClassName = null;
+        }
+
+        private int readFile(InputStream is) throws IOException {
+            int pos = 0;
+            int read;
+            while((read=is.read(buffer, pos, buffer.length - pos)) > 0) {
+                pos += read;
+                if(pos == buffer.length) {
+                    buffer = Arrays.copyOf(buffer, pos*2);
+                }
+            }
+            return pos;
+        }
+
+        private boolean checkSuperClass(String name) {
+            Object o = superClassMap.get(name);
+            if(o instanceof Boolean) {
+                return (Boolean)o;
+            }
+            boolean result;
+            if(o == null) {
+                result = checkTWLWidget(name);
+            } else {
+                result = checkSuperClass((String)o);
+            }
+            superClassMap.put(name, result);
+            return result;
+        }
+
+        private boolean checkTWLWidget(String name) {
+            if(name.startsWith("de/matthiasmann/twl/")) {
+                name = name.replace('/', '.');
+                try {
+                    return Widget.class.isAssignableFrom(Class.forName(name, false, Widget.class.getClassLoader()));
+                } catch(ClassNotFoundException ex) {
+                    return false;
+                }
+            }
+            return false;
         }
     }
 }

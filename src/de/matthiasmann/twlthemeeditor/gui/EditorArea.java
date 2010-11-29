@@ -73,6 +73,7 @@ public final class EditorArea extends Widget {
     private static final String KEY_CLASSPATH_FS = "userWidgetJARs";
     
     private final MessageLog messageLog;
+    private final ProgressDialog progressDialog;
     private final TestWidgetManager testWidgetManager;
     private final Menu testWidgetMenu;
     private final ThemeTreePane themeTreePane;
@@ -100,7 +101,9 @@ public final class EditorArea extends Widget {
 
     public EditorArea(MessageLog messageLog) {
         this.messageLog = messageLog;
-        
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTheme("/progressdialog");
         testWidgetManager = new TestWidgetManager(messageLog);
         testWidgetMenu = new Menu("Widgets");
         themeTreePane = new ThemeTreePane(messageLog);
@@ -158,9 +161,13 @@ public final class EditorArea extends Widget {
             }
         });
 
-        testWidgetManager.setCallback(new Runnable() {
-            public void run() {
+        testWidgetManager.setProgressDialog(progressDialog);
+        testWidgetManager.setCallback(new TestWidgetManager.Callback() {
+            public void testWidgetChanged() {
                 changeTestWidget();
+            }
+            public void newWidgetsLoaded() {
+                updateTestWidgetMenu();
             }
         });
 
@@ -273,7 +280,6 @@ public final class EditorArea extends Widget {
 
     public void setDemoMode(boolean demoMode) {
         testWidgetManager.setDemoMode(demoMode);
-        updateTestWidgetMenu();
     }
 
     public void reloadTheme() {
@@ -494,7 +500,6 @@ public final class EditorArea extends Widget {
 
     void reloadTestWidget() {
         testWidgetManager.reloadCurrentWidget();
-        updateTestWidgetMenu();
     }
     
     void changeTestWidget() {
@@ -529,7 +534,6 @@ public final class EditorArea extends Widget {
 
     void loadClasspath(File file) {
         if(testWidgetManager.loadUserWidgets(file)) {
-            updateTestWidgetMenu();
             recentClasspathsModel.addEntry(file.toString());
             updateRecentClasspathsMenu();
         } else {

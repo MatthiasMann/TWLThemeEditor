@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,37 +99,38 @@ public class SolidFileClassLoader extends ClassLoader {
         throw new ClassNotFoundException(name);
     }
 
-    public static SolidFileClassLoader create(ClassLoader parent, File ... roots) throws IOException {
-        SolidFile solidFile = new SolidFile();
-        SolidFile.Writer writer = solidFile.createWriter();
+    public static SolidFileClassLoader create(ClassLoader parent, SolidFileInspector inspector, File ... roots) throws IOException {
+        SolidFileWriter writer = new SolidFileWriter();
         try {
             for(File root : roots) {
+                if(inspector != null) {
+                    inspector.processingRoot(root);
+                }
                 try {
                     if(root.isDirectory()) {
-                        collectFolder(writer, root, "");
-                    } else {
-                        collectJAR(writer, root);
+                        collectFolder(writer, root, inspector, "");
+                    } else if(root.isFile()) {
+                        collectJAR(writer, root, inspector);
                     }
                 } catch(IOException ex) {
                     getLogger().log(Level.SEVERE, "Can't process root: " + root, ex);
                 }
             }
+            return new SolidFileClassLoader(parent, writer.finish());
         } finally {
             writer.close();
         }
-
-        return new SolidFileClassLoader(parent, solidFile);
     }
 
-    private static void collectFolder(SolidFile.Writer solidFileWriter, File folder, String path) {
+    private static void collectFolder(SolidFileWriter solidFileWriter, File folder, SolidFileInspector inspector, String path) {
         for(File file : folder.listFiles()) {
             if(file.isDirectory()) {
-                collectFolder(solidFileWriter, file, path + file.getName() + "/");
+                collectFolder(solidFileWriter, file, inspector, path + file.getName() + "/");
             } else {
                 try {
                     FileInputStream fis = new FileInputStream(file);
                     try {
-                        solidFileWriter.addEntry(path.concat(file.getName()), fis);
+                        collectFile(solidFileWriter, inspector, path.concat(file.getName()), fis);
                     } finally {
                         fis.close();
                     }
@@ -139,7 +141,7 @@ public class SolidFileClassLoader extends ClassLoader {
         }
     }
 
-    private static void collectJAR(SolidFile.Writer solidFileWriter, File file) throws IOException {
+    private static void collectJAR(SolidFileWriter solidFileWriter, File file, SolidFileInspector inspector) throws IOException {
         FileInputStream fis = new FileInputStream(file);
         try {
             ZipInputStream zis = new ZipInputStream(fis);
@@ -147,7 +149,7 @@ public class SolidFileClassLoader extends ClassLoader {
                 ZipEntry zipEntry;
                 while((zipEntry=zis.getNextEntry()) != null) {
                     if(!zipEntry.isDirectory()) {
-                        solidFileWriter.addEntry(zipEntry.getName(), zis);
+                        collectFile(solidFileWriter, inspector, zipEntry.getName(), zis);
                     }
                 }
             } finally {
@@ -155,6 +157,14 @@ public class SolidFileClassLoader extends ClassLoader {
             }
         } finally {
             fis.close();
+        }
+    }
+
+    private static void collectFile(SolidFileWriter solidFileWriter, SolidFileInspector inspector, String name, InputStream is) throws IOException {
+        if(inspector != null && inspector.shouldInspectFile(name)) {
+            inspector.inspectFile(solidFileWriter, name, is);
+        } else {
+            solidFileWriter.addEntry(name, is);
         }
     }
 

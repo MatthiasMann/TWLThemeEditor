@@ -303,6 +303,42 @@
             <alias ref="checkbox.overlay"/>
             <alias ref="none" sizeOverwriteV="5"/>
         </grid>
+
+        <area name="-progressbar.indeterminate-icon" xywh="158,19,28,13" tiled="true"/>
+        <alias name="-progressbar.indeterminate0" ref="-progressbar.indeterminate-icon" inset="0,-26,0,0"/>
+        <alias name="-progressbar.indeterminate1" ref="-progressbar.indeterminate-icon" inset="0,-24,0,0"/>
+        <alias name="-progressbar.indeterminate2" ref="-progressbar.indeterminate-icon" inset="0,-22,0,0"/>
+        <alias name="-progressbar.indeterminate3" ref="-progressbar.indeterminate-icon" inset="0,-20,0,0"/>
+        <alias name="-progressbar.indeterminate4" ref="-progressbar.indeterminate-icon" inset="0,-18,0,0"/>
+        <alias name="-progressbar.indeterminate5" ref="-progressbar.indeterminate-icon" inset="0,-16,0,0"/>
+        <alias name="-progressbar.indeterminate6" ref="-progressbar.indeterminate-icon" inset="0,-14,0,0"/>
+        <alias name="-progressbar.indeterminate7" ref="-progressbar.indeterminate-icon" inset="0,-12,0,0"/>
+        <alias name="-progressbar.indeterminate8" ref="-progressbar.indeterminate-icon" inset="0,-10,0,0"/>
+        <alias name="-progressbar.indeterminate9" ref="-progressbar.indeterminate-icon" inset="0,-8,0,0"/>
+        <alias name="-progressbar.indeterminate10" ref="-progressbar.indeterminate-icon" inset="0,-6,0,0"/>
+        <alias name="-progressbar.indeterminate11" ref="-progressbar.indeterminate-icon" inset="0,-4,0,0"/>
+        <alias name="-progressbar.indeterminate12" ref="-progressbar.indeterminate-icon" inset="0,-2,0,0"/>
+        <alias name="-progressbar.indeterminate13" ref="-progressbar.indeterminate-icon"/>
+        <composed name="progressbar.background" sizeOverwriteV="13">
+            <alias ref="white" tint="#CCCCCC"/>
+            <animation timeSource="hover">
+                <frame duration="50" ref="-progressbar.indeterminate0"/>
+                <frame duration="50" ref="-progressbar.indeterminate1"/>
+                <frame duration="50" ref="-progressbar.indeterminate2"/>
+                <frame duration="50" ref="-progressbar.indeterminate3"/>
+                <frame duration="50" ref="-progressbar.indeterminate4"/>
+                <frame duration="50" ref="-progressbar.indeterminate5"/>
+                <frame duration="50" ref="-progressbar.indeterminate6"/>
+                <frame duration="50" ref="-progressbar.indeterminate7"/>
+                <frame duration="50" ref="-progressbar.indeterminate8"/>
+                <frame duration="50" ref="-progressbar.indeterminate9"/>
+                <frame duration="50" ref="-progressbar.indeterminate10"/>
+                <frame duration="50" ref="-progressbar.indeterminate11"/>
+                <frame duration="50" ref="-progressbar.indeterminate12"/>
+                <frame duration="50" ref="-progressbar.indeterminate13"/>
+            </animation>
+        </composed>
+        <area name="progressbar.overlay" xywh="158,33,7,7" splitx="L3,B3" splity="L3,B3"/>
     </images>
 
     <theme name="themetreepane" ref="dialoglayout">
@@ -934,6 +970,26 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         </theme>
     </theme>
 
+    <theme name="progressdialog" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>10</border></param>
+        <theme name="dialoglayout" ref="dialoglayout">
+            <param name="background"><image>panel.background</image></param>
+            <param name="border"><border>5</border></param>
+            <theme name="title" ref="label"/>
+            <theme name="message" ref="label"/>
+            <theme name="progressbar" ref="-defaults">
+                <param name="minWidth"><int>600</int></param>
+                <param name=""><image>progressbar.*</image></param>
+                <param name="progressImage"><image>none</image></param>
+            </theme>
+            <param name="namedGaps"><map>
+                <param name="title-message"><gap>10</gap></param>
+                <param name="message-progressbar"><gap>5</gap></param>
+            </map></param>
+        </theme>
+    </theme>
+
     <images file="TWL Logo.png" format="RGBA">
         <area name="twl-logo" inset="-8" xywh="*"/>
     </images>
@@ -1135,6 +1191,6 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
             <theme name="" ref="*"/>
         </theme>
     </theme>
-
     
+
 </themes>
