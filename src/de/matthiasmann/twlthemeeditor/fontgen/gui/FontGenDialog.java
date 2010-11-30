@@ -602,6 +602,9 @@ public final class FontGenDialog {
             }
         });
         fsd.openPopup();
+        if(fontPath != null) {
+            fsd.selectFile(fontPath);
+        }
     }
 
     void fontSelected(String fontPath, FontData fontData) {

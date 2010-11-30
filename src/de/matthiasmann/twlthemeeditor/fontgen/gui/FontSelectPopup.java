@@ -99,6 +99,10 @@ public class FontSelectPopup extends PopupWindow {
         callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
     }
 
+    public boolean selectFile(String path) {
+        return fileSelector.selectFile(new File(path));
+    }
+
     @Override
     public boolean openPopup() {
         if(super.openPopup()) {
@@ -108,6 +112,7 @@ public class FontSelectPopup extends PopupWindow {
             setPosition(
                     width/2 - getWidth()/2,
                     height/2 - getHeight()/2);
+            validateLayout();
             return true;
         }
         return false;
