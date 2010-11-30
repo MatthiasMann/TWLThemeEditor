@@ -42,8 +42,7 @@ import de.matthiasmann.twlthemeeditor.fontgen.Padding;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,8 +52,8 @@ import java.util.logging.Logger;
  */
 public class FontDisplay extends Widget {
 
-    private final Executor executor;
     private final Runnable callback;
+    private final GUI.AsyncCompletionListener<FontGenerator> completionHandler;
     private DelayedAction delayedAction;
 
     private int textureSize;
@@ -73,8 +72,17 @@ public class FontDisplay extends Widget {
     private FontGenerator lastFontGen;
 
     public FontDisplay(Runnable callback) {
-        this.executor = Executors.newSingleThreadExecutor();
         this.callback = callback;
+        this.completionHandler = new GUI.AsyncCompletionListener<FontGenerator>() {
+            public void completed(FontGenerator fontGen) {
+                updateImage(fontGen);
+            }
+
+            public void failed(Throwable ex) {
+                Logger.getLogger(FontDisplay.class.getName()).log(Level.SEVERE, "Can't generate font", ex);
+                updateDone();
+            }
+        };
     }
 
     public void setTextureSize(int textureSize) {
@@ -140,7 +148,7 @@ public class FontDisplay extends Widget {
             if(updateRunning) {
                 pendingUpdate = true;
             } else {
-                executor.execute(new GenFont(gui, textureSize, fontData, computePadding(), charSet, effects, useAA, generatorMethod));
+                gui.invokeAsync(new GenFont(textureSize, fontData, computePadding(), charSet, effects, useAA, generatorMethod), completionHandler);
                 updateRunning = true;
             }
         }
@@ -216,13 +224,15 @@ public class FontDisplay extends Widget {
         return buffer;
     }
 
-    void updateImage(FontGenerator fontGen, int size) {
+    void updateImage(FontGenerator fontGen) {
         this.lastFontGen = fontGen;
-        if(image == null || image.getWidth() != size) {
+        int width = fontGen.getImageWidth();
+        if(image == null || image.getWidth() != width) {
             destroyImage();
             GUI gui = getGUI();
             if(gui != null) {
-                image = gui.getRenderer().createDynamicImage(size, size);
+                // the size of the FontGenerator is always square - see doUpdate
+                image = gui.getRenderer().createDynamicImage(width, width);
             }
         }
         if(image != null) {
@@ -236,6 +246,7 @@ public class FontDisplay extends Widget {
             }
             invalidateLayout();
         }
+        updateDone();
     }
 
     void updateDone() {
@@ -247,8 +258,7 @@ public class FontDisplay extends Widget {
         callback.run();
     }
 
-    final class GenFont implements Runnable {
-        private final GUI gui;
+    final class GenFont implements Callable<FontGenerator> {
         private final int textureSize;
         private final FontGenerator fontGen;
         private final Padding padding;
@@ -256,9 +266,8 @@ public class FontDisplay extends Widget {
         private final Effect.Renderer[] effects;
         private final boolean useAA;
 
-        public GenFont(GUI gui, int textureSize, FontData fontData, Padding padding, CharSet charSet,
+        public GenFont(int textureSize, FontData fontData, Padding padding, CharSet charSet,
                 Effect.Renderer[] effects, boolean useAA, FontGenerator.GeneratorMethod generatorMethod) {
-            this.gui = gui;
             this.textureSize = textureSize;
             this.fontGen = new FontGenerator(fontData, generatorMethod);
             this.padding = padding;
@@ -267,35 +276,9 @@ public class FontDisplay extends Widget {
             this.useAA = useAA;
         }
 
-        public void run() {
-            UploadImage result;
-
-            try {
-                fontGen.generate(textureSize, textureSize, charSet, padding, effects, useAA);
-                result = new UploadImage(fontGen, textureSize);
-            } catch(Throwable ex) {
-                result = new UploadImage(null, 0);
-                Logger.getLogger(FontDisplay.class.getName()).log(Level.SEVERE, "Can't generate font", ex);
-            }
-
-            gui.invokeLater(result);
-        }
-    }
-
-    class UploadImage implements Runnable {
-        private final FontGenerator fontGen;
-        private final int textureSize;
-
-        public UploadImage(FontGenerator fontGen, int textureSize) {
-            this.fontGen = fontGen;
-            this.textureSize = textureSize;
-        }
-
-        public void run() {
-            if(fontGen != null) {
-                updateImage(fontGen, textureSize);
-            }
-            updateDone();
+        public FontGenerator call() throws Exception {
+            fontGen.generate(textureSize, textureSize, charSet, padding, effects, useAA);
+            return fontGen;
         }
     }
 }

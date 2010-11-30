@@ -438,6 +438,10 @@ public class FontGenerator {
         });
     }
 
+    public int getImageWidth() {
+        return image.getWidth();
+    }
+
     public int getUsedTextureHeight() {
         return usedTextureHeight;
     }
