@@ -65,8 +65,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Callable;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
@@ -101,7 +100,6 @@ public class TestWidgetManager {
     private TestWidgetFactory currentTestWidgetFactory;
     private LoadedUserWidgets currentUserWidgets;
     private ProgressDialog progressDialog;
-    private ExecutorService executorService;
 
     public TestWidgetManager(MessageLog messageLog) {
         this.messageLog = messageLog;
@@ -272,20 +270,18 @@ public class TestWidgetManager {
         final Inspector inspector = new Inspector(toScan, dependencies,
                 progressDialog, getClass().getClassLoader());
 
-        inspector.callback = new Runnable() {
-            public void run() {
+        GUI.AsyncCompletionListener<LoadedUserWidgets> acl =
+                new GUI.AsyncCompletionListener<LoadedUserWidgets>() {
+            public void completed(LoadedUserWidgets luw) {
                 progressDialog.closePopup();
-                if(inspector.exception != null) {
-                    messageLog.add(new MessageLog.Entry(CAT_ERROR,
-                            "Can't load user classes", null, inspector.exception));
-                } else if(inspector.luw != null) {
-                    LoadedUserWidgets old = userWidgets.put(inspector.key, inspector.luw);
+                if(luw != null) {
+                    LoadedUserWidgets old = userWidgets.put(inspector.key, luw);
                     if(old != null) {
                         old.classLoader.close();
                     }
 
                     messageLog.add(new MessageLog.Entry(CAT_INFO,
-                            "Loaded " + inspector.luw.factories.size() + " user widgets",
+                            "Loaded " + luw.factories.size() + " user widgets",
                             inspector.infoMsg.toString(), null));
 
                     if(cb != null) {
@@ -297,16 +293,22 @@ public class TestWidgetManager {
                             inspector.infoMsg.toString(), null));
                 }
             }
+
+            public void failed(Throwable ex) {
+                progressDialog.closePopup();
+                messageLog.add(new MessageLog.Entry(CAT_ERROR,
+                        "Can't load user classes", null, ex));
+            }
         };
 
         if(progressDialog.isOpen()) {
-            if(executorService == null) {
-                executorService = Executors.newSingleThreadExecutor();
-            }
-
-            executorService.submit(inspector);
+            progressDialog.getGUI().invokeAsync(inspector, acl);
         } else {
-            inspector.run();
+            try {
+                acl.completed(inspector.call());
+            } catch(Throwable ex) {
+                acl.failed(ex);
+            }
         }
     }
 
@@ -367,12 +369,11 @@ public class TestWidgetManager {
         }
     }
     
-    static class Inspector implements Runnable, SolidFileInspector, ClassVisitor {
+    static class Inspector implements Callable<LoadedUserWidgets>, SolidFileInspector, ClassVisitor {
         final ArrayList<URI> toScan;
         final ArrayList<URI> dependencies;
         final ProgressDialog progressDialog;
         final ClassLoader parentClassLoader;
-        final GUI gui;
 
         final ArrayList<String> key;
         final HashMap<String, Object> superClassMap;
@@ -381,22 +382,18 @@ public class TestWidgetManager {
         final ArrayList<String> candidates;
         final StringBuilder infoMsg;
 
-        Runnable callback;
         String curClassName;
         boolean isPublic;
         boolean foundDefaultConstructor;
         boolean isCandidate;
         boolean isInnerClass;
         byte[] buffer;
-        LoadedUserWidgets luw;
-        Throwable exception;
 
         public Inspector(ArrayList<URI> toScan, ArrayList<URI> dependencies, ProgressDialog progressDialog, ClassLoader parentClassLoader) {
             this.toScan = toScan;
             this.dependencies = dependencies;
             this.progressDialog = progressDialog;
             this.parentClassLoader = parentClassLoader;
-            this.gui = progressDialog.getGUI();
 
             this.key = new ArrayList<String>();
             this.superClassMap = new HashMap<String, Object>();
@@ -407,80 +404,74 @@ public class TestWidgetManager {
             this.infoMsg = new StringBuilder();
         }
 
-        public void run() {
-            try {
-                infoMsg.append("Loaded from the following class path:\n");
+        public LoadedUserWidgets call() throws Exception {
+            infoMsg.append("Loaded from the following class path:\n");
 
-                File roots[] = new File[toScan.size() + dependencies.size()];
-                for(int i=0,n=toScan.size() ; i<n ; i++) {
-                    URI fileUri = toScan.get(i);
+            File roots[] = new File[toScan.size() + dependencies.size()];
+            for(int i=0,n=toScan.size() ; i<n ; i++) {
+                URI fileUri = toScan.get(i);
+                File file = new File(fileUri);
+                roots[i] = file;
+                String path = file.toString();
+                key.add(path);
+                infoMsg.append(path).append("\n");
+            }
+            if(!dependencies.isEmpty()) {
+                infoMsg.append("Additional class path:\n");
+                for(int i=0,n=dependencies.size() ; i<n ; i++) {
+                    URI fileUri = dependencies.get(i);
                     File file = new File(fileUri);
-                    roots[i] = file;
-                    String path = file.toString();
-                    key.add(path);
-                    infoMsg.append(path).append("\n");
+                    roots[i+toScan.size()] = file;
+                    infoMsg.append(file.getPath()).append("\n");
                 }
-                if(!dependencies.isEmpty()) {
-                    infoMsg.append("Additional class path:\n");
-                    for(int i=0,n=dependencies.size() ; i<n ; i++) {
-                        URI fileUri = dependencies.get(i);
-                        File file = new File(fileUri);
-                        roots[i+toScan.size()] = file;
-                        infoMsg.append(file.getPath()).append("\n");
-                    }
-                }
-
-                ArrayList<TestWidgetFactory> testWidgetFactories = new ArrayList<TestWidgetFactory>();
-                SolidFileClassLoader classLoader = SolidFileClassLoader.create(parentClassLoader, this, roots);
-                StringBuilder warnings = new StringBuilder();
-
-                for(String candidate : candidates) {
-                    if(checkSuperClass(candidate)) {
-                        String candidateClassName = candidate.replace('/', '.');
-                        try {
-                            Class<?> clz = Class.forName(candidateClassName, false, classLoader);
-                            @SuppressWarnings("unchecked")
-                            Class<? extends Widget> widgetClazz = (Class<? extends Widget>)clz;
-                            testWidgetFactories.add(new TestWidgetFactory(
-                                    widgetClazz, widgetClazz.getSimpleName()));
-                        } catch(Exception ex) {
-                            warnings.append(candidateClassName).append(" : can't load class: ").append(ex.getMessage()).append("\n");
-                        }
-                    }
-                }
-                failedMap.keySet().removeAll(subClassSet);
-                for(Map.Entry<String, FailReason> e : failedMap.entrySet()) {
-                    if(checkSuperClass(e.getKey())) {
-                        warnings.append(e.getKey().replace('/', '.')).append(e.getValue().msg).append("\n");
-                    }
-                }
-
-                if(!testWidgetFactories.isEmpty()) {
-                    luw = new LoadedUserWidgets(toScan, dependencies, key,
-                            testWidgetFactories, classLoader);
-
-                    infoMsg.append("\nThe following classes have been loaded:\n");
-                    for(TestWidgetFactory twf : testWidgetFactories) {
-                        infoMsg.append(twf.getClazz().getName()).append("\n");
-                    }
-                } else {
-                    classLoader.close();
-                }
-
-                if(warnings.length() > 0) {
-                    infoMsg.append("\nThe following class could not be loaded:\n")
-                            .append(warnings);
-                }
-            } catch(Throwable ex) {
-                exception = ex;
             }
-            
-            if(gui != null) {
-                gui.invokeLater(callback);
+
+            ArrayList<TestWidgetFactory> testWidgetFactories = new ArrayList<TestWidgetFactory>();
+            SolidFileClassLoader classLoader = SolidFileClassLoader.create(parentClassLoader, this, roots);
+            StringBuilder warnings = new StringBuilder();
+
+            for(String candidate : candidates) {
+                if(checkSuperClass(candidate)) {
+                    String candidateClassName = candidate.replace('/', '.');
+                    try {
+                        Class<?> clz = Class.forName(candidateClassName, false, classLoader);
+                        @SuppressWarnings("unchecked")
+                        Class<? extends Widget> widgetClazz = (Class<? extends Widget>)clz;
+                        testWidgetFactories.add(new TestWidgetFactory(
+                                widgetClazz, widgetClazz.getSimpleName()));
+                    } catch(Exception ex) {
+                        warnings.append(candidateClassName).append(" : can't load class: ").append(ex.getMessage()).append("\n");
+                    }
+                }
+            }
+            failedMap.keySet().removeAll(subClassSet);
+            for(Map.Entry<String, FailReason> e : failedMap.entrySet()) {
+                if(checkSuperClass(e.getKey())) {
+                    warnings.append(e.getKey().replace('/', '.')).append(e.getValue().msg).append("\n");
+                }
+            }
+
+            LoadedUserWidgets luw;
+
+            if(!testWidgetFactories.isEmpty()) {
+                luw = new LoadedUserWidgets(toScan, dependencies, key,
+                        testWidgetFactories, classLoader);
+
+                infoMsg.append("\nThe following classes have been loaded:\n");
+                for(TestWidgetFactory twf : testWidgetFactories) {
+                    infoMsg.append(twf.getClazz().getName()).append("\n");
+                }
             } else {
-                assert !progressDialog.isOpen();
-                callback.run();
+                luw = null;
+                classLoader.close();
             }
+
+            if(warnings.length() > 0) {
+                infoMsg.append("\nThe following class could not be loaded:\n")
+                        .append(warnings);
+            }
+
+            return luw;
         }
 
         public void processingRoot(final File root) {
