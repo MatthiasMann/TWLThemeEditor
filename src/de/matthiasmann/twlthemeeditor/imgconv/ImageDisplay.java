@@ -35,8 +35,7 @@ import de.matthiasmann.twl.renderer.DynamicImage;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,8 +45,8 @@ import java.util.logging.Logger;
  */
 public class ImageDisplay extends Widget {
 
-    private final Executor executor;
     private final Runnable callback;
+    private final GUI.AsyncCompletionListener<ImageGenerator> completionHandler;
 
     private ImageData imageData;
     private boolean skipZeroDelayFrames;
@@ -59,8 +58,16 @@ public class ImageDisplay extends Widget {
     private ImageGenerator lastImageGen;
 
     public ImageDisplay(Runnable callback) {
-        this.executor = Executors.newSingleThreadExecutor();
         this.callback = callback;
+        this.completionHandler = new GUI.AsyncCompletionListener<ImageGenerator>() {
+            public void completed(ImageGenerator imageGen) {
+                updateImage(imageGen);
+            }
+
+            public void failed(Throwable ex) {
+                updateDone();
+            }
+        };
     }
 
     public void setImageData(ImageData imageData) {
@@ -84,7 +91,7 @@ public class ImageDisplay extends Widget {
             if(updateRunning) {
                 pendingUpdate = true;
             } else {
-                executor.execute(new GenImage(gui, imageData, skipZeroDelayFrames));
+                gui.invokeAsync(new GenImage(imageData, skipZeroDelayFrames), completionHandler);
                 updateRunning = true;
             }
         }
@@ -148,6 +155,7 @@ public class ImageDisplay extends Widget {
             }
             invalidateLayout();
         }
+        updateDone();
     }
 
     void updateDone() {
@@ -159,43 +167,17 @@ public class ImageDisplay extends Widget {
         callback.run();
     }
 
-    final class GenImage implements Runnable {
-        private final GUI gui;
+    final class GenImage implements Callable<ImageGenerator> {
         private final ImageData imageData;
         private final boolean skipZeroDelayFrames;
 
-        public GenImage(GUI gui, ImageData imageData, boolean skipZeroDelayFrames) {
-            this.gui = gui;
+        public GenImage(ImageData imageData, boolean skipZeroDelayFrames) {
             this.imageData = imageData;
             this.skipZeroDelayFrames = skipZeroDelayFrames;
         }
 
-        public void run() {
-            UploadImage result;
-
-            try {
-                ImageGenerator imageGen = new ImageGenerator(imageData, skipZeroDelayFrames);
-                result = new UploadImage(imageGen);
-            } catch(Throwable ignore) {
-                result = new UploadImage(null);
-            }
-
-            gui.invokeLater(result);
-        }
-    }
-
-    class UploadImage implements Runnable {
-        private final ImageGenerator imageGen;
-
-        public UploadImage(ImageGenerator imageGen) {
-            this.imageGen = imageGen;
-        }
-
-        public void run() {
-            if(imageGen != null) {
-                updateImage(imageGen);
-            }
-            updateDone();
+        public ImageGenerator call() throws Exception {
+            return new ImageGenerator(imageData, skipZeroDelayFrames);
         }
     }
 }
