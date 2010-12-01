@@ -335,7 +335,7 @@ public class FontGenerator {
             int yoffset = bounds.y - 1;
 
             GlyphRect rect = new GlyphRect(chBuffer[0],
-                    glyphWidth, glyphHeight,
+                    Math.min(glyphWidth, width), glyphHeight,
                     advance + padding.advance, yoffset,
                     xoffset + padding.left, padding.top,
                     vector.getGlyphOutline(0));
