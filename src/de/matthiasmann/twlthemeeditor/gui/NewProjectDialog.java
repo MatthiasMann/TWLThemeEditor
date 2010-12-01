@@ -49,7 +49,6 @@ import de.matthiasmann.twl.model.SimpleMRUListModel;
 import de.matthiasmann.twl.model.TreeTableModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import java.io.File;
-import java.util.concurrent.Executors;
 import java.util.prefs.Preferences;
 
 /**
