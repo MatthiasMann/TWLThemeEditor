@@ -78,7 +78,7 @@ public class FontDisplay extends Widget {
                 updateImage(fontGen);
             }
 
-            public void failed(Throwable ex) {
+            public void failed(Exception ex) {
                 Logger.getLogger(FontDisplay.class.getName()).log(Level.SEVERE, "Can't generate font", ex);
                 updateDone();
             }

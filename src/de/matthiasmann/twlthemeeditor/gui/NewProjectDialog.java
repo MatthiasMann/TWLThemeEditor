@@ -138,7 +138,7 @@ public class NewProjectDialog extends DialogLayout {
         });
 
         autoCompletion = new EditFieldAutoCompletionWindow(currentFolder.getEditField());
-        autoCompletion.setExecutorService(Executors.newSingleThreadExecutor());
+        autoCompletion.setUseInvokeAsync(true);
         autoCompletion.setDataSource(new FileSystemAutoCompletionDataSource(fsm,
                 FileSystemTreeModel.FolderFilter.instance));
 

@@ -64,7 +64,7 @@ public class ImageDisplay extends Widget {
                 updateImage(imageGen);
             }
 
-            public void failed(Throwable ex) {
+            public void failed(Exception ex) {
                 updateDone();
             }
         };

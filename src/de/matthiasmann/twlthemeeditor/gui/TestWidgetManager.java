@@ -294,7 +294,7 @@ public class TestWidgetManager {
                 }
             }
 
-            public void failed(Throwable ex) {
+            public void failed(Exception ex) {
                 progressDialog.closePopup();
                 messageLog.add(new MessageLog.Entry(CAT_ERROR,
                         "Can't load user classes", null, ex));
@@ -306,7 +306,7 @@ public class TestWidgetManager {
         } else {
             try {
                 acl.completed(inspector.call());
-            } catch(Throwable ex) {
+            } catch(Exception ex) {
                 acl.failed(ex);
             }
         }
