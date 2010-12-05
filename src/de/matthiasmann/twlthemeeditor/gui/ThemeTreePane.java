@@ -82,7 +82,15 @@ public class ThemeTreePane extends DialogLayout {
 
     public ThemeTreePane(MessageLog messageLog) {
         this.messageLog = messageLog;
-        this.treeTable = new TreeTable();
+        this.treeTable = new TreeTable() {
+            @Override
+            protected boolean handleKeyStrokeAction(String action, Event event) {
+                if(handleOperationKeyStrokeAction(action, event)) {
+                    return true;
+                }
+                return super.handleKeyStrokeAction(action, event);
+            }
+        };
         this.treeTableSelectionModel = new TableSingleSelectionModel();
         this.table = new Table();
         this.tableSelectionModel = new TableSingleSelectionModel();
@@ -363,7 +371,7 @@ public class ThemeTreePane extends DialogLayout {
         action.setEnabled(operation.isEnabled());
         action.setCallback(new Runnable() {
             public void run() {
-                queryOperationParameter(node, operation);
+                queryOperationParameter(node, operation, false);
             }
         });
         return action;
@@ -407,7 +415,7 @@ public class ThemeTreePane extends DialogLayout {
         }
     }
 
-    void queryOperationParameter(ThemeTreeNode node, final ThemeTreeOperation operation) {
+    void queryOperationParameter(ThemeTreeNode node, final ThemeTreeOperation operation, final boolean skipConfirm) {
         ThemeTreeOperation.Parameter[] parameter = operation.getParameter();
         if(parameter != null && parameter.length > 0) {
             File startDir = null;
@@ -427,17 +435,17 @@ public class ThemeTreePane extends DialogLayout {
             dialog.setMessage(qop);
             dialog.setOkCallback(new Runnable() {
                 public void run() {
-                    maybeConfirmOperation(operation, qop.getResults());
+                    maybeConfirmOperation(operation, qop.getResults(), skipConfirm);
                 }
             });
             dialog.showDialog(this);
         } else {
-            maybeConfirmOperation(operation, null);
+            maybeConfirmOperation(operation, null, skipConfirm);
         }
     }
 
-    void maybeConfirmOperation(ThemeTreeOperation operation, Object[] paramter) {
-        if(operation.needConfirm()) {
+    void maybeConfirmOperation(ThemeTreeOperation operation, Object[] paramter, boolean skipConfirm) {
+        if(!skipConfirm && operation.needConfirm()) {
             confirmOperation(operation, paramter);
         } else {
             executeOperation(operation, paramter);
@@ -455,6 +463,30 @@ public class ThemeTreePane extends DialogLayout {
             }
         });
         dialog.showDialog(this);
+    }
+
+    boolean handleOperationKeyStrokeAction(String action, Event event) {
+        if(event.isKeyPressedEvent() && !event.isKeyRepeated() && selected instanceof ThemeTreeNode) {
+            ThemeTreeNode node = (ThemeTreeNode)selected;
+            ThemeTreeOperation o = findOperation(node.getOperations(), action);
+            if(o == null) {
+                o = findOperation(node.getCreateChildOperations(), action);
+            }
+            if(o != null) {
+                queryOperationParameter(node, o, (event.getModifiers() & Event.MODIFIER_SHIFT) != 0);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private ThemeTreeOperation findOperation(List<? extends ThemeTreeOperation> operations, String action) {
+        for(ThemeTreeOperation o : operations) {
+            if(o.getActionID().equals(action)) {
+                return o;
+            }
+        }
+        return null;
     }
 
     static class MyFilter implements FilteredModel.Filter {

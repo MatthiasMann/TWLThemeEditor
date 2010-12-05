@@ -350,6 +350,12 @@
                 <param name="columnWidths"><map>
                     <param name="1"><int>80</int></param>
                 </map></param>
+                <param name="inputMap"><inputMapDef merge="true">
+                    <action name="opDeleteNode">DELETE</action>
+                    <action name="opDeleteNode">SHIFT DELETE</action>
+                    <action name="opCopyNode">CTRL C</action>
+                    <action name="opCloneNode">CTRL SHIFT DOWN</action>
+                </inputMapDef></param>
             </theme>
             <theme name="table" ref="table"/>
         </theme>
@@ -744,7 +750,7 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         </theme>
         <theme name="btnFlash" ref="button">
             <param name=""><image>flashbutton.*</image></param>
-            <param name="tooltip"><string>Highlight selected widget with a flashing red/blue frame</string></param>
+            <param name="tooltip"><string>Highlight selected widget with a flashing red/blue frame for 1 second</string></param>
         </theme>
         <theme name="btnSelect" ref="button">
             <param name=""><image>selectbutton.*</image></param>
