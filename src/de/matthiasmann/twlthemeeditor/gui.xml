@@ -916,6 +916,9 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
             <param name="menubar-editorarea"><gap>0</gap></param>
             <param name="editorarea-statusbar"><gap>0</gap></param>
         </map></param>
+        <param name="inputMap"><inputMapDef merge="true">
+            <action name="reloadTestWidget">F5</action>
+        </inputMapDef></param>
     </theme>
 
     <theme name="fileselector-popup" ref="-defaults">

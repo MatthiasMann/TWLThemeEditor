@@ -348,9 +348,11 @@ public class PreviewWidget extends Widget {
 
                     case KEY_PRESSED:
                     case KEY_RELEASED:
-                        handled = true;
-                        testGUI.handleKey(translateKeyCode(evt.getKeyCode()),
-                                evt.getKeyChar(), evt.getType() == Event.Type.KEY_PRESSED);
+                        if(evt.getKeyCode() != Event.KEY_F5) {
+                            handled = true;
+                            testGUI.handleKey(translateKeyCode(evt.getKeyCode()),
+                                    evt.getKeyChar(), evt.getType() == Event.Type.KEY_PRESSED);
+                        }
                         break;
                 }
             } catch(Throwable ex) {

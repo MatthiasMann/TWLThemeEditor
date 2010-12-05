@@ -189,6 +189,8 @@ public final class MainUI extends DialogLayout {
                 .addWidget(statusBar));
 
         popuplateRecentProjectsMenu();
+
+        addActionMapping("reloadTestWidget", "reloadTestWidget");
     }
 
     @Override
@@ -358,6 +360,10 @@ public final class MainUI extends DialogLayout {
                 messageLog.add(new MessageLog.Entry(CAT_PROJECT_ERROR, "Could not determine file location for: " + themeFile.getURL(), null, null));
             }
         }
+    }
+
+    public void reloadTestWidget() {
+        editorArea.reloadTestWidget();
     }
 
     void setLayout(Layout layout) {
