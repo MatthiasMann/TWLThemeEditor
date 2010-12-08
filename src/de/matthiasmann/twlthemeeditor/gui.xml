@@ -3,7 +3,6 @@
 <themes>
     <include filename="cursors.xml"/>
     <include filename="gui_base.xml"/>
-    <include filename="simple.xml"/>
 
     <images file="gui.png" format="RGBA">
         <area name="checkerboard" tiled="true" xywh="56,106,8,8"/>
@@ -560,16 +559,7 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
     <theme name="-property-editors" ref="dialoglayout">
         <theme name="" ref="*"/>
         <theme name="boolean" ref="togglebutton"/>
-        <theme name="colorselector" ref="colorselector">
-            <theme name="colorarea1d" merge="true">
-                <param name="background"><image>-borderC</image></param>
-                <param name="border"><border>2</border></param>
-            </theme>
-            <theme name="colorarea2d" merge="true">
-                <param name="background"><image>-borderC</image></param>
-                <param name="border"><border>2</border></param>
-            </theme>
-        </theme>
+        <theme name="colorselector" ref="colorselector"/>
 
         <theme name="conditioneditor" ref="dialoglayout">
             <theme name="condition-none" ref="radiobutton">
@@ -1027,7 +1017,7 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         <param name="border"><border>20</border></param>
         <theme name="fileselector" ref="fileselector">
             <theme name="fontpreview" ref="-defaults">
-                <param name="background"><image>-borderC</image></param>
+                <param name="background"><image>innerframe.background</image></param>
                 <param name="border"><border>background.border</border></param>
             </theme>
         </theme>
@@ -1143,7 +1133,7 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         <theme name="content" merge="true">
             <theme name="scrollpane" ref="scrollpane">
                 <theme name="treetable" ref="table">
-                    <param name="background"><image>-borderH</image></param>
+                    <param name="background"><image>table.background</image></param>
                     <param name="border"><border>2</border></param>
                     <param name="columnHeaderHeight"><int>0</int></param>
                 </theme>
@@ -1200,6 +1190,18 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
             <theme name="" ref="*"/>
         </theme>
     </theme>
-    
 
+
+    <!-- The following themes are for the preview window -->
+
+    <theme name="previewwidgets" ref="dialoglayout">
+        <param name="border"><border>10</border></param>
+        <theme name="" ref="*"/>
+    </theme>
+
+    <theme name="testformular" ref="dialoglayout">
+        <param name="background"><image>panel.background</image></param>
+        <param name="border"><border>10</border></param>
+        <theme name="" ref="*"/>
+    </theme>
 </themes>

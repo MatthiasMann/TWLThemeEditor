@@ -654,14 +654,19 @@
 
     <images file="gui.png" format="RGBA">
         <area name="white" xywh="66,66,1,1"/>
+        <area name="black" xywh="96,66,1,1"/>
 
         <area name="panel.background" xywh="0,19,1,1"/>
         <area name="panel.separator" xywh="6,19,1,2"/>
 
         <area name="frame.background" border="3" xywh="0,121,7,7" splitx="L3,R3" splity="T3,B3"/>
+        <area name="innerframe.background" xywh="8,121,5,5" splitx="L2,B2" splity="L2,B2"/>
+        <area name="tooltipwindow.background" xywh="0,100,3,3" splitx="L1,B1" splity="L1,B1" border="3"/>
+    
 
         <area name="popup.background" border="4" tint="#E0FFFFFF" xywh="66,104,10,10" splitx="L4,R4" splity="T4,B4"/>
-        
+        <area name="popupmenu.separator" xywh="8,124,1,2"/>
+
         <area name="-popupmenubutton.hover" border="2,0" xywh="83,82,6,18" splitx="L2,R2"/>
         <area name="-popupmenubutton.selected" border="2,0" tint="#808080" xywh="83,82,6,18" splitx="L2,R2"/>
         <select name="popupmenubutton.background" border="4,1">
@@ -724,6 +729,10 @@
         <alias name="combobox.display.background" ref="none"/>
         <alias name="combobox.overlay" ref="-outlineX" tint="#6f97df" if="keyboardFocus"/>
 
+        <select name="treepathdisplay.node.background" border="2">
+            <area xywh="152,92,5,5" if="armed" splitx="L2,B2" splity="L2,B2"/>
+            <area xywh="137,94,3,3" if="hover" splitx="L1,B1" splity="L1,B1"/>
+        </select>
 
         <area name="-icon.checkbox" inset="0,2,5,0" xywh="35,19,12,9"/>
         <grid name="checkbox.background" weightsX="0,1" weightsY="1" border="0,18,0,0">
@@ -791,6 +800,12 @@
         <area name="-fileselector.onelevelup" xywh="109,100,11,14" center="true"/>
         <area name="-fileselector.home" xywh="121,100,11,14" center="true"/>
         <area name="-fileselector.refresh" xywh="133,100,10,14" center="true"/>
+        <!-- fileselector.folder icon based on famfamfam Icon "folder.png" -->
+        <area name="-fileselector.folder" xywh="159,58,14,11"/>
+        <!-- fileselector.hiddenfiles icon based on famfamfam Icon "key.png" -->
+        <area name="-fileselector.hiddenfiles" xywh="158,41,16,16"/>
+        <!-- fileselector.history icon based on famfamfam Icon "book_open.png" -->
+        <area name="-fileselector.history" xywh="156,70,16,14"/>
 
         <composed name="fileselector.buttonOneLevelUp.background">
             <alias ref="button.background"/>
@@ -806,6 +821,36 @@
                 <alias ref="-fileselector.home" unless="armed"/>
                 <alias ref="-fileselector.home" inset="1,1,-1,-1"/>
             </select>
+        </composed>
+
+        <composed name="fileselector.buttonRefresh.background">
+            <alias ref="button.background"/>
+            <select center="true">
+                <alias ref="-fileselector.refresh" unless="armed"/>
+                <alias ref="-fileselector.refresh" inset="1,1,-1,-1"/>
+            </select>
+        </composed>
+
+        <composed name="fileselector.buttonMRU.background">
+            <alias ref="button.background"/>
+            <select center="true">
+                <alias ref="-fileselector.history" unless="armed"/>
+                <alias ref="-fileselector.history" inset="1,1,-1,-1"/>
+            </select>
+        </composed>
+
+        <select name="-fileselector.showbutton">
+            <alias ref="-area6X" if="armed"/>
+            <alias ref="-area4X" if="selected"/>
+            <alias ref="-area2X" if="hover"/>
+        </select>
+        <composed name="fileselector.buttonShowFolders.background">
+            <alias ref="-fileselector.showbutton"/>
+            <alias ref="-fileselector.folder" center="true"/>
+        </composed>
+        <composed name="fileselector.buttonShowHidden.background">
+            <alias ref="-fileselector.showbutton"/>
+            <alias ref="-fileselector.hiddenfiles" center="true"/>
         </composed>
 
         <grid name="scrollpane.overlay" weightsX="1" weightsY="0,1,0" inset="23,3,2,16">
@@ -940,6 +985,8 @@
             <alias ref="white" tint="#6890D0" if="rowDropTarget"/>
             <alias ref="-popupmenubutton.hover" tint="#CCC" if="rowHover"/>
         </select>
+        <area name="table.row.overlay" xywh="86,51,3,3" splitx="L1,B1" splity="L1,B1" nocenter="true" tint="#6F97DF" if="keyboardFocus + !hasFocusedChild + leadRow"/>
+    
         <grid name="table.row.dropmarker" weightsX="1,1" weightsY="1">
             <area xywh="127,87,14,7" splitx="L7,B6" inset="0,-2" sizeOverwriteH="50" sizeOverwriteV="1"/>
             <alias ref="none"/>
@@ -960,6 +1007,11 @@
                 </select>
             </grid>
         </composed>
+        <select name="treetable.treebutton.background" center="true" inset="2,0,-2,0">
+            <area unless="selected" xywh="94,71,10,10"/>
+            <area xywh="83,71,10,10"/>
+        </select>
+    
     </images>
 
     <fontDef name="button-font" filename="font.fnt" color="white">
@@ -1262,6 +1314,69 @@
         </theme>
     </theme>
 
+    <theme name="-treecellrenderer" ref="-defaults">
+        <param name="treeIndent"><int>15</int></param>
+        <param name="treeButtonSize"><dimension>14,11</dimension></param>
+    </theme>
+    <theme name="table" ref="-defaults" allowWildcard="true">
+        <param name="rowHeight"><int>font.lineHeight + 6</int></param>
+        <theme name="stringcellrenderer" ref="-defaults">
+            <param name="font"><font>normal</font></param>
+            <param name="border"><border>0,3,0,0</border></param>
+        </theme>
+        <theme name="TreeLeafCellRenderer" ref="-treecellrenderer"/>
+        <theme name="TreeNodeCellRenderer" ref="-treecellrenderer"/>
+        <theme name="PropertyEditorCellRender" ref="-treecellrenderer"/>
+        <theme name="PropertyListCellRenderer" ref="-treecellrenderer">
+            <param name=""><image>propertysheet.sublist.*</image></param>
+            <theme name="label" ref="label"/>
+        </theme>
+        <theme name="spanrenderer" ref="-defaults"/>
+        <theme name="treeButton" ref="-defaults">
+            <param name=""><image>treetable.treebutton.*</image></param>
+        </theme>
+        <theme name="columnHeader" ref="button">
+            <param name=""><image>columnHeader.*</image></param>
+        </theme>
+        <param name="columnHeaderWidth"><int>256</int></param>
+        <param name="columnHeaderHeight"><int>20</int></param>
+        <param name="columnDividerDragableDistance"><int>3</int></param>
+        <param name="columnResizeCursor"><cursor>cursor.resizecolumn</cursor></param>
+        <param name="columnDivider"><image>none</image></param>
+        <param name="columnWidths"><map/></param>
+        <param name="dragNotPossibleCursor"><cursor>cursor.nodrag</cursor></param>
+        <param name="row"><image>table.row.*</image></param>
+        <param name="inputMap"><inputMapDef ref="-defaultInputMap">
+            <action name="toggleSelectionOnLeadRow">ctrl SPACE</action>
+            <action name="selectNextRow">DOWN</action>
+            <action name="selectPreviousRow">UP</action>
+            <action name="selectNextPage">NEXT</action>
+            <action name="selectPreviousPage">PRIOR</action>
+            <action name="selectFirstRow">HOME</action>
+            <action name="selectLastRow">END</action>
+            <action name="extendSelectionToNextRow">shift DOWN</action>
+            <action name="extendSelectionToPreviousRow">shift UP</action>
+            <action name="extendSelectionToNextPage">shift NEXT</action>
+            <action name="extendSelectionToPreviousPage">shift PRIOR</action>
+            <action name="extendSelectionToFirstRow">shift HOME</action>
+            <action name="extendSelectionToLastRow">shift END</action>
+            <action name="moveLeadToNextRow">ctrl DOWN</action>
+            <action name="moveLeadToPreviousRow">ctrl UP</action>
+            <action name="moveLeadToNextPage">ctrl NEXT</action>
+            <action name="moveLeadToPreviousPage">ctrl PRIOR</action>
+            <action name="moveLeadToFirstRow">ctrl HOME</action>
+            <action name="moveLeadToLastRow">ctrl END</action>
+        </inputMapDef></param>
+        <theme name="" ref="*"/>
+        <theme name="ComboBoxCellRenderer">
+            <param name="comboBoxHeight"><int>20</int></param>
+        </theme>
+        <theme name="EditFieldCellRenderer">
+            <param name="editFieldHeight"><int>20</int></param>
+        </theme>
+        <param name="overlay"><image>table.frame</image></param>
+    </theme>
+
     <theme name="tablesearchwindow" ref="-defaults">
         <param name="background"><image>popup.background</image></param>
         <param name="border"><border>20</border></param>
@@ -1274,5 +1389,202 @@
             </theme>
         </theme>
     </theme>
-    
+
+    <theme name="colorselector" ref="dialoglayout" allowWildcard="true">
+        <theme name="label" ref="label"/>
+        <theme name="colorarea1d" ref="-defaults">
+            <param name="minWidth"><int>30</int></param>
+            <param name="minHeight"><int>128</int></param>
+            <param name="background"><image>innerframe.background</image></param>
+            <param name="border"><border>2</border></param>
+            <param name=""><image>colorselector.*</image></param>
+        </theme>
+        <theme name="colorarea2d" ref="-defaults">
+            <param name="minWidth"><int>128</int></param>
+            <param name="minHeight"><int>128</int></param>
+            <param name="background"><image>innerframe.background</image></param>
+            <param name="border"><border>2</border></param>
+            <param name=""><image>colorselector.*</image></param>
+        </theme>
+        <theme name="valueadjuster" ref="valueadjuster"/>
+        <theme name="previewLabel" ref="label">
+            <param name="text"><string>Current color:</string></param>
+        </theme>
+        <theme name="preview" ref="-defaults">
+            <param name="background"><image>innerframe.background</image></param>
+            <param name="border"><border>2</border></param>
+            <param name="minWidth"><int>64</int></param>
+            <param name="minHeight"><int>64</int></param>
+            <theme name="colorarea" ref="-defaults">
+                <param name="background"><image>white</image></param>
+            </theme>
+        </theme>
+        <theme name="hexColorEditField" ref="editfield">
+            <param name="tooltip"><string>Current color in ARGB hex format</string></param>
+        </theme>
+    </theme>
+
+    <theme name="textarea" ref="-defaults" allowWildcard="true">
+        <param name="background"><image>innerframe.background</image></param>
+        <param name="border"><border>background.border</border></param>
+        <param name="fonts"><map>
+            <param name="default"><font>normal</font></param>
+        </map></param>
+        <param name="images"><map>
+        </map></param>
+    </theme>
+
+    <theme name="treepathdisplay" ref="-defaults" allowWildcard="true">
+        <theme name="pathbox" ref="-defaults">
+            <param name="spacing"><int>0</int></param>
+            <theme name="node" ref="label">
+                <param name=""><image>treepathdisplay.node.*</image></param>
+            </theme>
+            <theme name="separator" ref="label">
+                <param name="mouseCursor"><cursor>cursor.text</cursor></param>
+                <param name="border"><border>2,0</border></param>
+            </theme>
+            <param name="minHeight"><int>node.font.lineHeight + 4</int></param>
+            <param name="alignment"><enum type="alignment">center</enum></param>
+            <param name="mouseCursor"><cursor>cursor.text</cursor></param>
+        </theme>
+        <theme name="patheditfield" ref="editfield"/>
+    </theme>
+
+    <theme name="treecombobox" ref="-defaults" allowWildcard="true">
+        <param name="background"><image>innerframe.background</image></param>
+        <param name="popupThemeName"><string>treecomboboxPopup</string></param>
+        <theme name="display" ref="treepathdisplay">
+            <param name=""><image>combobox.display.*</image></param>
+            <param name="minWidth"><int>50</int></param>
+            <theme name="pathbox" merge="true">
+                <param name="border"><border>3</border></param>
+            </theme>
+        </theme>
+        <theme name="button" ref="-defaults">
+            <param name=""><image>combobox.button.*</image></param>
+            <param name="minWidth"><int>18</int></param>
+        </theme>
+    </theme>
+    <theme name="treecomboboxPopup" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>2</border></param>
+        <theme name="scrollpane" ref="scrollpane">
+            <theme name="treetable" ref="table">
+                <param name="background"><image>table.background</image></param>
+                <param name="border"><border>0</border></param>
+                <param name="columnHeaderHeight"><int>0</int></param>
+            </theme>
+        </theme>
+        <param name="minHeight"><int>300</int></param>
+    </theme>
+
+    <theme name="fileselector" ref="dialoglayout" allowWildcard="true">
+        <theme name="label" ref="label">
+            <param name="font"><font>popupmenu-font</font></param>
+        </theme>
+        <theme name="currentFolder" ref="treecombobox">
+            <param name="maxWidth"><int>32767</int></param>
+        </theme>
+        <theme name="buttonUp" ref="button">
+            <param name=""><image>fileselector.buttonOneLevelUp.*</image></param>
+            <param name="minWidth"><int>21</int></param>
+        </theme>
+        <theme name="buttonHome" ref="button">
+            <param name=""><image>fileselector.buttonHome.*</image></param>
+            <param name="minWidth"><int>21</int></param>
+        </theme>
+        <theme name="buttonFoldersMRU" ref="button">
+            <param name=""><image>fileselector.buttonMRU.*</image></param>
+            <param name="minWidth"><int>20</int></param>
+            <param name="tooltip"><string>Shows recently used folders</string></param>
+        </theme>
+        <theme name="buttonFilesMRU" ref="button">
+            <param name=""><image>fileselector.buttonMRU.*</image></param>
+            <param name="minWidth"><int>20</int></param>
+            <param name="tooltip"><string>Shows recently opened files</string></param>
+        </theme>
+        <theme name="buttonOk" ref="button">
+            <param name="text"><string>OK</string></param>
+            <param name="minWidth"><int>80</int></param>
+        </theme>
+        <theme name="buttonCancel" ref="button">
+            <param name="text"><string>Cancel</string></param>
+            <param name="minWidth"><int>80</int></param>
+        </theme>
+        <theme name="buttonShowFolders" ref="button">
+            <param name=""><image>fileselector.buttonShowFolders.*</image></param>
+            <param name="tooltip"><string>Shows folders in the file table</string></param>
+            <param name="minWidth"><int>20</int></param>
+            <param name="minHeight"><int>20</int></param>
+        </theme>
+        <theme name="buttonShowHidden" ref="button">
+            <param name=""><image>fileselector.buttonShowHidden.*</image></param>
+            <param name="tooltip"><string>Shows hidden or system files</string></param>
+            <param name="minWidth"><int>20</int></param>
+            <param name="minHeight"><int>20</int></param>
+        </theme>
+        <theme name="buttonRefresh" ref="button">
+            <param name=""><image>fileselector.buttonRefresh.*</image></param>
+            <param name="tooltip"><string>Refreshes the file table</string></param>
+            <param name="minWidth"><int>20</int></param>
+            <param name="minHeight"><int>20</int></param>
+        </theme>
+        <theme name="scrollpane" ref="scrollpane">
+            <param name="border"><border>0</border></param>
+            <theme name="fileTable" ref="table">
+                <param name="columnWidths"><map>
+                    <param name="1"><int>70</int></param>
+                    <param name="2"><int>80</int></param>
+                    <param name="3"><int>140</int></param>
+                </map></param>
+                <param name="background"><image>table.background</image></param>
+            </theme>
+        </theme>
+        <theme name="fileFiltersBox" ref="combobox"/>
+        <param name="inputMap"><inputMapDef ref="-defaultInputMap">
+            <action name="goOneLevelUp">BACK</action>
+            <action name="acceptSelection">RETURN</action>
+        </inputMapDef></param>
+        <param name="namedGaps"><map>
+            <param name="buttonBarLeft"><gap/></param>
+            <param name="buttonBarSpacer"><gap>20</gap></param>
+            <param name="buttonBarRight"><gap>0</gap></param>
+        </map></param>
+    </theme>
+    <theme name="fileselector-folderMRUpopup" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>2</border></param>
+        <theme name="listbox" ref="listbox">
+            <theme name="display" ref="popupMenuButton"/>
+            <param name="background"><image>none</image></param>
+            <param name="border"><border>0</border></param>
+        </theme>
+    </theme>
+    <theme name="fileselector-filesMRUpopup" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>2</border></param>
+        <theme name="dialoglayout" ref="dialoglayout">
+            <theme name="listbox" ref="listbox">
+                <theme name="display" ref="popupMenuButton"/>
+                <param name="background"><image>none</image></param>
+                <param name="border"><border>0</border></param>
+            </theme>
+            <theme name="buttonOk" ref="button">
+                <param name="text"><string>OK</string></param>
+                <param name="minWidth"><int>80</int></param>
+            </theme>
+            <theme name="buttonCancel" ref="button">
+                <param name="text"><string>Cancel</string></param>
+                <param name="minWidth"><int>80</int></param>
+            </theme>
+        </theme>
+    </theme>
+
+    <theme name="tooltipwindow" ref="-defaults">
+        <param name="background"><image>tooltipwindow.background</image></param>
+        <param name="border"><border>background.border</border></param>
+        <param name="fadeInTime"><int>0</int></param>
+        <theme name="label" ref="label"/>
+    </theme>
 </themes>
