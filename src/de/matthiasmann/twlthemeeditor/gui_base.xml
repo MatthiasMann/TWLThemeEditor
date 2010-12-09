@@ -872,6 +872,9 @@
         </grid>
     
         <cursor name="cursor.nodrag" hotSpotX="0" hotSpotY="0" xywh="125,70,16,16"/>
+        
+        <area name="colorselector.1d.cursor" xywh="7,100,10,3" tiled="true" inset="0,-1"/>
+        <area name="colorselector.2d.cursor" xywh="4,100,3,3" inset="-1"/>
     </images>
 
     <images file="gui.png" format="RGBA" comment="Table">
@@ -1143,6 +1146,11 @@
         <param name="mouseCursor"><cursor>cursor.text</cursor></param>
         <param name="autocompletion-height"><int>150</int></param>
     </theme>
+    <theme name="editfield-errorinfowindow" ref="-defaults">
+        <param name="background"><image>tooltipwindow.background</image></param>
+        <param name="border"><border>background.border</border></param>
+        <theme name="label" ref="label"/>
+    </theme>
 
     <theme name="combobox" ref="-defaults" allowWildcard="true">
         <param name=""><image>combobox.*</image></param>
@@ -1397,14 +1405,14 @@
             <param name="minHeight"><int>128</int></param>
             <param name="background"><image>innerframe.background</image></param>
             <param name="border"><border>2</border></param>
-            <param name=""><image>colorselector.*</image></param>
+            <param name=""><image>colorselector.1d.*</image></param>
         </theme>
         <theme name="colorarea2d" ref="-defaults">
             <param name="minWidth"><int>128</int></param>
             <param name="minHeight"><int>128</int></param>
             <param name="background"><image>innerframe.background</image></param>
             <param name="border"><border>2</border></param>
-            <param name=""><image>colorselector.*</image></param>
+            <param name=""><image>colorselector.2d.*</image></param>
         </theme>
         <theme name="valueadjuster" ref="valueadjuster"/>
         <theme name="previewLabel" ref="label">
