@@ -104,6 +104,8 @@ public final class CollapsiblePanel extends DialogLayout {
 
         if(activeModel == null || activeModel.getValue()) {
             toggleExpand();
+        } else {
+            container.setEnabled(false);
         }
 
         if(activeModel != null) {
