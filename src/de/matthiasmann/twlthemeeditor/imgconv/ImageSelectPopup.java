@@ -144,7 +144,7 @@ public class ImageSelectPopup extends PopupWindow {
         imagePath = null;
         imageData = null;
         FileTable.Entry[] selection = fileSelector.getFileTable().getSelection();
-        if(selection.length >= 0) {
+        if(selection.length > 0) {
             FileTable.Entry entry = selection[0];
             if(!entry.isFolder && (entry.obj instanceof File)) {
                 imageData = ImageData.create((File)entry.obj);
