@@ -43,6 +43,7 @@ import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.PersistentMRUListModel;
 import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twl.renderer.Texture;
 import de.matthiasmann.twlthemeeditor.DelayedAction;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Split;
@@ -56,6 +57,7 @@ import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.prefs.Preferences;
 
 /**
@@ -227,6 +229,11 @@ public final class EditorArea extends Widget {
                 dragSplit(idx, y, boundSplitYProperty, false);
             }
         });
+        textureViewerPane.setTextureLoadedListener(new TextureViewer.TextureLoadedListener() {
+            public void textureLoaded(URL url, Texture texture) {
+                EditorArea.this.textureLoaded(url, texture);
+            }
+        });
 
         recreateLayout();
         updateRecentClasspathsMenu();
@@ -371,9 +378,9 @@ public final class EditorArea extends Widget {
         
         Object obj = themeTreePane.getSelected();
         if(obj != null) {
-            Images textures = getTextures(obj);
+            Images images = getImages(obj);
             try {
-                textureViewerPane.setUrl((textures != null) ? textures.getTextureURL() : null);
+                textureViewerPane.setUrl((images != null) ? images.getTextureURL() : null);
             } catch(MalformedURLException ignored) {
                 textureViewerPane.setUrl(null);
             }
@@ -438,6 +445,16 @@ public final class EditorArea extends Widget {
         textureViewerPane.setTintColor((color != null) ? color : Color.WHITE);
         textureViewerPane.setSplitPositionsX(getSplitPos(boundSplitXProperty));
         textureViewerPane.setSplitPositionsY(getSplitPos(boundSplitYProperty));
+    }
+
+    void textureLoaded(URL url, Texture texture) {
+        Object obj = themeTreePane.getSelected();
+        if(obj != null) {
+            Images images = getImages(obj);
+            if(images != null) {
+                images.updateTextureDimension(url, texture.getWidth(), texture.getHeight());
+            }
+        }
     }
 
     private static int[] getSplitPos(SplitProperty splitProperty) {
@@ -598,7 +615,7 @@ public final class EditorArea extends Widget {
         }
     }
 
-    private Images getTextures(Object node) {
+    private Images getImages(Object node) {
         if(node instanceof Images) {
             return (Images)node;
         } else if(node instanceof Image) {

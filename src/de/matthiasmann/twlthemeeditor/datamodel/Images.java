@@ -44,6 +44,8 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdom.Element;
 
 /**
@@ -93,6 +95,18 @@ public class Images extends ThemeTreeNode implements HasProperties {
             return themeFile.getURL(file);
         } else {
             return null;
+        }
+    }
+
+    public void updateTextureDimension(URL url, int width, int height) {
+        if(width != textureDimensions.getX() && height != textureDimensions.getY()) {
+            try {
+                if(url.equals(getTextureURL())) {
+                    textureDimensions = new Dimension(width, height);
+                }
+            } catch(MalformedURLException ex) {
+                Logger.getLogger(Images.class.getName()).log(Level.SEVERE, "Could not compare URLs", ex);
+            }
         }
     }
 

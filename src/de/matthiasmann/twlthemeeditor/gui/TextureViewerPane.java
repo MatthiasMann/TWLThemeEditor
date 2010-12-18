@@ -45,6 +45,7 @@ import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.model.SimpleFloatModel;
 import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twlthemeeditor.gui.TextureViewer.PositionBarDragListener;
+import de.matthiasmann.twlthemeeditor.gui.TextureViewer.TextureLoadedListener;
 import java.net.URL;
 import java.util.prefs.Preferences;
 
@@ -224,6 +225,10 @@ public class TextureViewerPane extends DialogLayout {
 
     public void setUrl(URL url) {
         textureViewer.setUrl(url);
+    }
+
+    public void setTextureLoadedListener(TextureLoadedListener textureLoadedListener) {
+        textureViewer.setTextureLoadedListener(textureLoadedListener);
     }
 
     public void setRect(Rect rect) {

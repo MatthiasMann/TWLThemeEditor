@@ -67,6 +67,10 @@ public class TextureViewer extends Widget {
         public void dragged(int deltaX, int deltaY);
         public void dragStopped();
     }
+
+    public interface TextureLoadedListener {
+        public void textureLoaded(URL url, Texture texture);
+    }
     
     private enum DragMode {
         NONE,
@@ -99,6 +103,7 @@ public class TextureViewer extends Widget {
     private MouseOverListener mouseOverListener;
     private DraggableButton.DragListener imageDragListener;
     private PositionBarDragListener positionBarDragListener;
+    private TextureLoadedListener textureLoadedListener;
 
     private long lastModified;
     private CacheContext cacheContext;
@@ -198,6 +203,10 @@ public class TextureViewer extends Widget {
 
     public void setPositionBarDragListener(PositionBarDragListener positionBarDragListener) {
         this.positionBarDragListener = positionBarDragListener;
+    }
+
+    public void setTextureLoadedListener(TextureLoadedListener textureLoadedListener) {
+        this.textureLoadedListener = textureLoadedListener;
     }
 
     @Override
@@ -317,6 +326,9 @@ public class TextureViewer extends Widget {
             texture = renderer.loadTexture(url, "RGBA", "NEAREST");
         } finally {
             renderer.setActiveCacheContext(prevCacheContext);
+        }
+        if(textureLoadedListener != null && texture != null) {
+            textureLoadedListener.textureLoaded(url, texture);
         }
     }
 
