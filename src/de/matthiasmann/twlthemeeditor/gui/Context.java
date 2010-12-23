@@ -409,6 +409,10 @@ public class Context extends PropertyFactories {
         debugHook.clear();
     }
 
+    public boolean checkLayoutValidated() {
+        return debugHook.checkLayoutValidated();
+    }
+
     public Object getTooltipForWidget(Widget widget) {
         PreviewDebugHook.Entry entry = debugHook.getEntry(widget);
         if(entry != null) {

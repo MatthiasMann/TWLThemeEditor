@@ -170,31 +170,32 @@ public class PreviewWidget extends Widget {
     protected void paintWidget(GUI gui) {
         if((reloadTheme || !hadThemeLoadError) && ctx != null) {
             ctx.installDebugHook();
-
-            GL11.glGetInteger(GL11.GL_VIEWPORT, viewPortBuffer);
-            int viewPortTop = viewPortBuffer.get(1) + viewPortBuffer.get(3);
-
-            GL11.glViewport(
-                    viewPortBuffer.get(0) + getInnerX(),
-                    viewPortTop - (getInnerY() + getInnerHeight()),
-                    getInnerWidth(), getInnerHeight());
-
-            // CRITICAL REGION: GL STATE IS MODIFIED - DON'T CALL ANY APP CODE
             try {
-                executeTestEnv(gui);
-                Util.checkGLError();
-            } catch (Throwable ex) {
-                messageLog.add(new MessageLog.Entry(CAT_EXECUTE, "Exception while executing test widget", null, ex));
-            } finally {
-                GL11.glViewport(
-                        viewPortBuffer.get(0),
-                        viewPortBuffer.get(1),
-                        viewPortBuffer.get(2),
-                        viewPortBuffer.get(3));
-                // END OF CRITICAL REGION
-            }
+                GL11.glGetInteger(GL11.GL_VIEWPORT, viewPortBuffer);
+                int viewPortTop = viewPortBuffer.get(1) + viewPortBuffer.get(3);
 
-            ctx.uninstallDebugHook();
+                GL11.glViewport(
+                        viewPortBuffer.get(0) + getInnerX(),
+                        viewPortTop - (getInnerY() + getInnerHeight()),
+                        getInnerWidth(), getInnerHeight());
+
+                // CRITICAL REGION: GL STATE IS MODIFIED - DON'T CALL ANY APP CODE
+                try {
+                    executeTestEnv(gui);
+                    Util.checkGLError();
+                } catch (Throwable ex) {
+                    messageLog.add(new MessageLog.Entry(CAT_EXECUTE, "Exception while executing test widget", null, ex));
+                } finally {
+                    GL11.glViewport(
+                            viewPortBuffer.get(0),
+                            viewPortBuffer.get(1),
+                            viewPortBuffer.get(2),
+                            viewPortBuffer.get(3));
+                    // END OF CRITICAL REGION
+                }
+            } finally {
+                ctx.uninstallDebugHook();
+            }
         }
         if(flashImage != null && flashWidth > 0 && flashHeight > 0) {
             flashImage.draw(getAnimationState(), getInnerX() + flashX, getInnerY() + flashY, flashWidth, flashHeight);

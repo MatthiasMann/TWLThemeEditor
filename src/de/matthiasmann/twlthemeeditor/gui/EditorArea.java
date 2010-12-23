@@ -38,6 +38,7 @@ import de.matthiasmann.twl.MenuAction;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
+import de.matthiasmann.twl.Timer;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.HasCallback;
@@ -94,6 +95,7 @@ public final class EditorArea extends Widget {
     private final Runnable boundPropertyCB;
 
     private DelayedAction updatePropertyEditors;
+    private Timer checkWidgetTreeTimer;
     private Context ctx;
     private RectProperty boundRectProperty;
     private ColorProperty boundColorProperty;
@@ -139,7 +141,7 @@ public final class EditorArea extends Widget {
         modelChangedCB = new CallbackWithReason<ThemeTreeModel.CallbackReason>() {
             public void callback(ThemeTreeModel.CallbackReason reason) {
                 reloadTheme();
-                if(reason == ThemeTreeModel.CallbackReason.STRUCTURE_CHANGED) {
+                if(reason == ThemeTreeModel.CallbackReason.STRUCTURE_CHANGED && updatePropertyEditors != null) {
                     updatePropertyEditors.run();
                 }
             }
@@ -418,6 +420,12 @@ public final class EditorArea extends Widget {
         textureViewerPane.scrollToRect();
     }
 
+    void checkWidgetTree() {
+        if(ctx != null && ctx.checkLayoutValidated()) {
+            widgetTreeModel.refreshTree();
+        }
+    }
+
     void updateTextureViewerPane() {
         if(boundRectProperty != null) {
             textureViewerPane.setRect(boundRectProperty.getPropertyValue());
@@ -640,12 +648,24 @@ public final class EditorArea extends Widget {
             }
         });
         themeTreePane.addCallback(updatePropertyEditors);
+        
+        checkWidgetTreeTimer = gui.createTimer();
+        checkWidgetTreeTimer.setContinuous(true);
+        checkWidgetTreeTimer.setDelay(250);
+        checkWidgetTreeTimer.setCallback(new Runnable() {
+            public void run() {
+                checkWidgetTree();
+            }
+        });
+        checkWidgetTreeTimer.start();
     }
 
     @Override
     protected void beforeRemoveFromGUI(GUI gui) {
         super.beforeRemoveFromGUI(gui);
-        
+
+        checkWidgetTreeTimer.stop();
+        checkWidgetTreeTimer = null;
         themeTreePane.removeCallback(updatePropertyEditors);
         updatePropertyEditors = null;
     }

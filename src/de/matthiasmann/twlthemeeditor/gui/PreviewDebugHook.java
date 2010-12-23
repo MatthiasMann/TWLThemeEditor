@@ -34,6 +34,7 @@ import de.matthiasmann.twl.ParameterMap;
 import de.matthiasmann.twl.ThemeInfo;
 import de.matthiasmann.twl.Widget;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 
 /**
@@ -58,6 +59,7 @@ public class PreviewDebugHook extends DebugHook {
 
     private Widget applyThemeWidget;
     private DebugHook previous;
+    private boolean layoutValidated;
 
     public PreviewDebugHook() {
         this.messages = new IdentityHashMap<Widget, Entry>();
@@ -131,8 +133,20 @@ public class PreviewDebugHook extends DebugHook {
         return messages.get(widget);
     }
 
+    public boolean checkLayoutValidated() {
+        boolean result = layoutValidated;
+        layoutValidated = false;
+        return result;
+    }
+
     public void clear() {
         messages.clear();
+    }
+
+    @Override
+    public void guiLayoutValidated(int iterations, Collection<Widget> loop) {
+        super.guiLayoutValidated(iterations, loop);
+        layoutValidated = true;
     }
     
     public void install() {
