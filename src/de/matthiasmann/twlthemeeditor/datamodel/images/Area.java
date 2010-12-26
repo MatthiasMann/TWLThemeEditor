@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.datamodel.images;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Images;
+import de.matthiasmann.twlthemeeditor.datamodel.Split.Axis;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
@@ -58,7 +59,7 @@ public class Area extends Image {
 
     protected class HSplitProperty extends SplitProperty {
         public HSplitProperty() {
-            super(new AttributeProperty(element, "splitx", "Split X positions", true));
+            super(new AttributeProperty(element, "splitx", "Split X positions", true), Axis.HORIZONTAL);
         }
 
         @Override
@@ -69,7 +70,7 @@ public class Area extends Image {
 
     protected class VSplitProperty extends SplitProperty {
         public VSplitProperty() {
-            super(new AttributeProperty(element, "splity", "Split Y positions", true));
+            super(new AttributeProperty(element, "splity", "Split Y positions", true), Axis.VERTICAL);
         }
 
         @Override

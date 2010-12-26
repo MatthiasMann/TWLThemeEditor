@@ -38,8 +38,11 @@ import de.matthiasmann.twlthemeeditor.datamodel.Split;
  */
 public abstract class SplitProperty extends DerivedProperty<Split> {
 
-    public SplitProperty(Property<String> base) {
+    private final Split.Axis axis;
+
+    public SplitProperty(Property<String> base, Split.Axis axis) {
         super(base, Split.class);
+        this.axis = axis;
     }
 
     public Split getPropertyValue() {
@@ -48,7 +51,7 @@ public abstract class SplitProperty extends DerivedProperty<Split> {
     }
 
     public void setPropertyValue(Split value) throws IllegalArgumentException {
-        base.setPropertyValue((value != null) ? value.toString() : null);
+        base.setPropertyValue((value != null) ? value.toString(axis) : null);
     }
 
     public abstract int getLimit();

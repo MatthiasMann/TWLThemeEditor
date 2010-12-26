@@ -107,6 +107,19 @@ public class Split {
         }
     }
 
+    public enum Axis {
+        HORIZONTAL("LR"),
+        VERTICAL("TB");
+        
+        final String edgeCharacters;
+        private Axis(String edgeCharacters) {
+            this.edgeCharacters = edgeCharacters;
+        }
+        char edgeCharacter(boolean edge) {
+            return edgeCharacters.charAt(edge ? 1 : 0);
+        }
+    }
+
     private final Point split1;
     private final Point split2;
 
@@ -153,9 +166,14 @@ public class Split {
     
     @Override
     public String toString() {
+        return toString(Axis.HORIZONTAL);
+    }
+    
+    public String toString(Axis axis) {
         return new StringBuilder()
-            .append(split1.edge ? 'R' : 'L').append(split1.pos)
-            .append(split2.edge ? ",B" : ",T").append(split2.pos)
+            .append(axis.edgeCharacter(split1.edge)).append(split1.pos)
+            .append(',')
+            .append(axis.edgeCharacter(split2.edge)).append(split2.pos)
             .toString();
     }
 }
