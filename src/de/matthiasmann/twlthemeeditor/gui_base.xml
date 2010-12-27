@@ -1281,6 +1281,7 @@
         <param name="hasDragButton"><bool>false</bool></param>
         <param name="autoScrollArea"><int>5</int></param>
         <param name="autoScrollSpeed"><int>10</int></param>
+        <param name="scrollbarsAlwaysVisible"><bool>false</bool></param>
         <param name=""><image>scrollpane.*</image></param>
     </theme>
 
