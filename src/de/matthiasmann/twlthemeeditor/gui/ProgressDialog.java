@@ -46,8 +46,6 @@ public class ProgressDialog extends PopupWindow {
     final Label messageLabel;
     final ProgressBar progressBar;
 
-    GUI gui;
-
     public ProgressDialog(Widget owner) {
         super(owner);
 
@@ -105,22 +103,9 @@ public class ProgressDialog extends PopupWindow {
     }
 
     private void invokeLater(Runnable r) {
-        GUI g = gui;
+        GUI g = getGUI();
         if(g != null) {
             g.invokeLater(r);
         }
     }
-    
-    @Override
-    protected void afterAddToGUI(GUI gui) {
-        super.afterAddToGUI(gui);
-        this.gui = gui;
-    }
-
-    @Override
-    protected void beforeRemoveFromGUI(GUI gui) {
-        this.gui = null;
-        super.beforeRemoveFromGUI(gui);
-    }
-
 }
