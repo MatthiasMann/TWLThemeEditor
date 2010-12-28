@@ -29,12 +29,14 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twl.Alignment;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParam;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParamEnum;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParamFontDef;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
@@ -46,6 +48,7 @@ import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.DerivedNodeReferenceProperty;
+import de.matthiasmann.twlthemeeditor.properties.EnumProperty;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -248,6 +251,7 @@ public class Param extends ThemeTreeNode implements HasProperties {
         operations.add(new CreateNewParamFontDef(element, node));
         operations.add(new CreateNewParam(element, "cursor", node, "text"));
         operations.add(new CreateNewParam(element, "map", node, "\n"));
+        operations.add(new CreateNewParamEnum(element, node, "alignment", "CENTER"));
     }
 
     static Property<?> createProperty(Element e, ThemeTreeNode node, ThemeTreeNode limit) {
@@ -279,7 +283,17 @@ public class Param extends ThemeTreeNode implements HasProperties {
         if("cursor".equals(tagName)) {
             return new DerivedNodeReferenceProperty(new ElementTextProperty(e, "Cursor reference"), limit, Kind.CURSOR);
         }
+        if("enum".equals(tagName)) {
+            String type = e.getAttributeValue("type");
+            if("alignment".equals(type)) {
+                return createEnumProperty(e, Alignment.class);
+            }
+        }
         return null;
+    }
+
+    private static <T extends Enum<T>> EnumProperty<T> createEnumProperty(Element e, Class<T> enumType) {
+        return EnumProperty.create(new ElementTextProperty(e, enumType.getSimpleName()), enumType);
     }
 
     private static Element getFirstChildElement(Element parent) {

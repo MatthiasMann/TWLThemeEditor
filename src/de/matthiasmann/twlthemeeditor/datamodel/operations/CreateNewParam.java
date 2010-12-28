@@ -58,20 +58,20 @@ public class CreateNewParam extends CreateChildOperation {
     }
 
     public CreateNewParam(Element element, String tagName, ThemeTreeNode parent, String initialText) {
-        super("opNewParam" + Utils.capitalize(tagName), parent, element);
+        this("opNewParam" + Utils.capitalize(tagName), parent, element, tagName, initialText);
+        indentChildren = "map".equals(tagName);
+    }
+
+    protected CreateNewParam(String actionID, ThemeTreeNode parent, Element element, String tagName, String initialText) {
+        super(actionID, parent, element);
         this.tagName = tagName;
         this.initialText = initialText;
-
-        indentChildren = "map".equals(tagName);
     }
 
     @Override
     public ThemeTreeNode executeAt(Object[] parameter, int pos) throws IOException {
         Element e = new Element("param");
         e.setAttribute("name", makeName());
-        if("enum".equals(tagName)) {
-            e.setAttribute("type", "");
-        }
 
         Element v = new Element(tagName);
         initParamElement(v, parameter);
@@ -86,6 +86,10 @@ public class CreateNewParam extends CreateChildOperation {
 
     protected String makeName() {
         String[] list = NAME_LIST.get(tagName);
+        return makeName(list);
+    }
+
+    protected String makeName(String ... list) {
         if(list != null) {
             HashSet<String> used = findUsedNames();
             for(String name : list) {
