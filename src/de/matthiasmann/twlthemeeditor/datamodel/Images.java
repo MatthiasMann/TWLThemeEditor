@@ -210,5 +210,6 @@ public class Images extends ThemeTreeNode implements HasProperties {
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "animation", "timeSource", "hover"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "alias", "ref", "none"));
         operations.add(new CreateNewArea(parent, parent.getDOMElement(), "cursor", "hotSpotX", "0", "hotSpotY", "0"));
+        operations.add(new CreateNewSimple("opNewNodeCursorAlias", parent, parent.getDOMElement(), "cursor", "ref", "none"));
     }
 }

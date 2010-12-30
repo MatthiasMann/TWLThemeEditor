@@ -44,7 +44,11 @@ public class CreateNewSimple extends CreateChildOperation {
     private final String[] attributes;
 
     public CreateNewSimple(ThemeTreeNode parent, Element element, String tagName, String ... attributes) {
-        super("opNewNode" + Utils.capitalize(tagName), parent, element);
+        this("opNewNode" + Utils.capitalize(tagName), parent, element, tagName, attributes);
+    }
+
+    public CreateNewSimple(String actionID, ThemeTreeNode parent, Element element, String tagName, String ... attributes) {
+        super(actionID, parent, element);
         this.tagName = tagName;
         this.attributes = attributes;
     }

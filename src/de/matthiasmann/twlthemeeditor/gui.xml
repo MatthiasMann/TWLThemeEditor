@@ -459,6 +459,11 @@
         </theme>
         <theme name="opNewNodeCursor" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;cursor&gt; node</string></param>
+            <param name="tooltip"><string>This is an mouse cursor</string></param>
+        </theme>
+        <theme name="opNewNodeCursorAlias" ref="popupMenuButton">
+            <param name="text"><string>Create a new &lt;cursor ref=&quot;...&quot;&gt; node</string></param>
+            <param name="tooltip"><string>This is an alias to another mouse cursor</string></param>
         </theme>
         <theme name="opNewNodeFontParam" ref="popupMenuButton">
             <param name="text"><string>Create a new font parameter</string></param>
