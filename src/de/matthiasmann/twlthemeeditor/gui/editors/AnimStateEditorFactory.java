@@ -41,13 +41,14 @@ import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twl.utils.HashEntry;
+import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twlthemeeditor.gui.Context;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.StateEditField;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,6 +73,7 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
         private final AnimationState animationState;
         private final Field stateTableField;
         private final Field parentField;
+        private final Field stateKeys;
         private final TreeMap<String, ToggleButton> buttons;
         private final ArrayList<StateBooleanModel> models;
         private final EditField stateNameField;
@@ -85,6 +87,7 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
             Class<AnimationState> clazz = AnimationState.class;
             stateTableField = getField(clazz, "stateTable");
             parentField = getField(clazz, "parent");
+            stateKeys = getField(StateKey.class, "keys");
 
             buttons = new TreeMap<String, ToggleButton>();
             models = new ArrayList<StateBooleanModel>();
@@ -144,7 +147,8 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
         void addState() {
             String stateName = stateNameField.getText();
             if(stateName.length() > 0) {
-                if(createStateButton(stateName)) {
+                StateKey stateKey = StateKey.get(stateName);
+                if(createStateButton(stateKey)) {
                     createLayout();
                 }
             }
@@ -166,15 +170,30 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
 
         private boolean createStateButtons() {
             boolean redoLayout = false;
-            if(stateTableField != null) {
+            if(stateTableField != null && stateKeys != null) {
+                StateKey[] allStateKeys;
+                try {
+                    synchronized(StateKey.class) {
+                        @SuppressWarnings("unchecked")
+                        HashMap<String, StateKey> keys = (HashMap<String, StateKey>)stateKeys.get(null);
+                        allStateKeys = new StateKey[keys.size()];
+                        for(StateKey sk : keys.values()) {
+                            allStateKeys[sk.getID()] = sk;
+                        }
+                    }
+                } catch(Throwable ex) {
+                    Logger.getLogger(AnimStateEditorFactory.class.getName()).log(
+                            Level.SEVERE, "Can't access state table", ex);
+                    return false;
+                }
+
                 AnimationState animState = animationState;
                 do {
                     try {
-                        @SuppressWarnings("unchecked")
-                        HashEntry<String, ?>[] stateTable = (HashEntry<String, ?>[])stateTableField.get(animState);
-                        for(HashEntry<String, ?> entry : stateTable) {
-                             for(; entry != null ; entry=entry.next()) {
-                                 redoLayout |= createStateButton(entry.key);
+                        Object[] stateTable = (Object[])stateTableField.get(animState);
+                        for(int i=0,n=stateTable.length ; i<n ; i++) {
+                            if(stateTable[i] != null) {
+                                 redoLayout |= createStateButton(allStateKeys[i]);
                              }
                         }
                     } catch(Throwable ex) {
@@ -196,14 +215,14 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
             return redoLayout;
         }
 
-        private boolean createStateButton(String state) {
-            ToggleButton btn = buttons.get(state);
+        private boolean createStateButton(StateKey stateKey) {
+            ToggleButton btn = buttons.get(stateKey.getName());
             if(btn == null) {
-                StateBooleanModel model = new StateBooleanModel(animationState, state);
+                StateBooleanModel model = new StateBooleanModel(animationState, stateKey);
                 btn = new ToggleButton(model);
                 btn.setTheme("statebutton");
-                btn.setText(state);
-                buttons.put(state, btn);
+                btn.setText(stateKey.getName());
+                buttons.put(stateKey.getName(), btn);
                 models.add(model);
                 return true;
             }
@@ -230,12 +249,12 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
 
         static class StateBooleanModel extends HasCallback implements BooleanModel {
             private final AnimationState animationState;
-            private final String stateName;
+            private final StateKey stateKey;
             private boolean lastState;
 
-            public StateBooleanModel(AnimationState animationState, String stateName) {
+            public StateBooleanModel(AnimationState animationState, StateKey stateKey) {
                 this.animationState = animationState;
-                this.stateName = stateName;
+                this.stateKey = stateKey;
             }
 
             public boolean getValue() {
@@ -243,11 +262,11 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
             }
 
             public void setValue(boolean value) {
-                animationState.setAnimationState(stateName, value);
+                animationState.setAnimationState(stateKey, value);
             }
 
             public void update() {
-                boolean state = animationState.getAnimationState(stateName);
+                boolean state = animationState.getAnimationState(stateKey);
                 if(lastState != state) {
                     lastState = state;
                     doCallback();
