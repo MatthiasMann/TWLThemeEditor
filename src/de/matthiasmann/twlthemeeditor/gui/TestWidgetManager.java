@@ -36,6 +36,7 @@ import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.MenuCheckbox;
 import de.matthiasmann.twl.Scrollbar;
 import de.matthiasmann.twl.ToggleButton;
+import de.matthiasmann.twl.ValueAdjusterFloat;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.HasCallback;
@@ -111,6 +112,7 @@ public class TestWidgetManager {
         builtinWidgets.add(new TestWidgetFactory(Button.class, "Button", "Press me !"));
         builtinWidgets.add(new TestWidgetFactory(ToggleButton.class, "ToggleButton", "Toggle me !"));
         builtinWidgets.add(new TestWidgetFactory(EditField.class, "EditField"));
+        builtinWidgets.add(new TestWidgetFactory(ValueAdjusterFloat.class, "ValueAdjusterFloat"));
         builtinWidgets.add(new TestWidgetFactory(TestScrollbar.class, "HScrollbar", Scrollbar.Orientation.HORIZONTAL));
         builtinWidgets.add(new TestWidgetFactory(TestScrollbar.class, "VScrollbar", Scrollbar.Orientation.VERTICAL));
         builtinWidgets.add(new TestWidgetFactory(TestListBox.class, "ListBox"));
