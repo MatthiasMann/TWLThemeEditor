@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -72,6 +72,8 @@ public class Main extends Frame {
     public static void main(String[] args) throws Exception {
         try {
             System.setProperty("org.lwjgl.input.Mouse.allowNegativeMouseCoords", "true");
+            System.setProperty("sun.java2d.noddraw", "true");
+            System.setProperty("sun.java2d.opengl", "false");
         } catch (Throwable ignored) {
         }
 
