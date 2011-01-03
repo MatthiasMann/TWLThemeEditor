@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twl.utils.ParameterStringParser;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
@@ -42,7 +43,11 @@ import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -172,16 +177,44 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
         if(fontFileURL != null) {
             virtualFontFiles.add(env.registerFile(fontFileURL));
 
-            Document fontFileDOM = Utils.loadDocument(fontFileURL);
-            Element pages = fontFileDOM.getRootElement().getChild("pages");
-            if(pages != null) {
-                for(Object obj : pages.getChildren("page")) {
-                    Element page = (Element)obj;
-                    String file = page.getAttributeValue("file");
-                    if(file != null) {
-                        virtualFontFiles.add(env.registerFile(new URL(fontFileURL, file)));
+            InputStream is = fontFileURL.openStream();
+            try {
+                BufferedInputStream bis = new BufferedInputStream(is);
+                bis.mark(1);
+                if(bis.read() != 'i') {
+                    bis.reset();
+                    Document fontFileDOM = Utils.loadDocument(bis);
+                    Element pages = fontFileDOM.getRootElement().getChild("pages");
+                    if(pages != null) {
+                        for(Object obj : pages.getChildren("page")) {
+                            Element page = (Element)obj;
+                            String file = page.getAttributeValue("file");
+                            if(file != null) {
+                                virtualFontFiles.add(env.registerFile(new URL(fontFileURL, file)));
+                            }
+                        }
+                    }
+                } else {
+                    bis.reset();
+                    InputStreamReader isr = new InputStreamReader(bis);
+                    BufferedReader br = new BufferedReader(isr);
+                    String line;
+                    while((line=br.readLine()) != null) {
+                        if(line.startsWith("page ")) {
+                            ParameterStringParser psp = new ParameterStringParser(line, ' ', '=');
+                            while(psp.next()) {
+                                if("file".equals(psp.getKey())) {
+                                    virtualFontFiles.add(env.registerFile(new URL(fontFileURL, psp.getValue())));
+                                }
+                            }
+                        }
+                        if(line.startsWith("char")) {
+                            break;
+                        }
                     }
                 }
+            } finally {
+                is.close();
             }
         }
     }

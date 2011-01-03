@@ -35,6 +35,7 @@ import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.Collection;
@@ -182,15 +183,29 @@ public final class Utils {
         xpp.addEndTag(tagName);
     }
 
+    public static SAXBuilder createSAXBuilder() {
+        SAXBuilder saxb = new SAXBuilder(false);
+        saxb.setEntityResolver(new EntityResolver() {
+            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+                return new InputSource(new StringReader(""));
+            }
+        });
+        return saxb;
+    }
+    
     public static Document loadDocument(URL url) throws IOException {
         try {
-            SAXBuilder saxb = new SAXBuilder(false);
-            saxb.setEntityResolver(new EntityResolver() {
-                public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                    return new InputSource(new StringReader(""));
-                }
-            });
-            return saxb.build(url);
+            return createSAXBuilder().build(url);
+        } catch(IOException ex) {
+            throw ex;
+        } catch(Exception ex) {
+            throw new IOException(ex);
+        }
+    }
+
+    public static Document loadDocument(InputStream is) throws IOException {
+        try {
+            return createSAXBuilder().build(is);
         } catch(IOException ex) {
             throw ex;
         } catch(Exception ex) {
@@ -200,13 +215,7 @@ public final class Utils {
 
     public static Document loadDocument(String str) throws IOException {
         try {
-            SAXBuilder saxb = new SAXBuilder(false);
-            saxb.setEntityResolver(new EntityResolver() {
-                public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                    return new InputSource(new StringReader(""));
-                }
-            });
-            return saxb.build(new StringReader(str));
+            return createSAXBuilder().build(new StringReader(str));
         } catch(IOException ex) {
             throw ex;
         } catch(Exception ex) {
