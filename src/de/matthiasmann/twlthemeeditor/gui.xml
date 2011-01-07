@@ -454,6 +454,12 @@
         <theme name="opNewNodeFontDef" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;fontDef&gt; node</string></param>
         </theme>
+        <theme name="opNewNodeInputMapDef" ref="popupMenuButton">
+            <param name="text"><string>Create a new &lt;inputMapDef&gt; node</string></param>
+        </theme>
+        <theme name="opNewNodeInputMapAction" ref="popupMenuButton">
+            <param name="text"><string>Create a new &lt;action&gt; node</string></param>
+        </theme>
         <theme name="opNewNodeInclude" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;include&gt; node</string></param>
         </theme>
@@ -697,6 +703,8 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
                 <param name="tooltip"><string>Effective theme path for this widget</string></param>
             </theme>
         </theme>
+
+        <theme name="keyStrokeEditor" ref="button"/>
     </theme>
 
     <theme name="propertyEditor" ref="scrollpane">
@@ -771,6 +779,8 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         <param name="flashImage"><image>flashImage</image></param>
     </theme>
 
+    <theme name="keystrokepopup" ref="simpledialog"/>
+    
     <theme name="messagePopup" ref="-defaults">
         <param name="background"><image>popup.background</image></param>
         <param name="border"><border>10</border></param>

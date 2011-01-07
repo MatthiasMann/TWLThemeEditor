@@ -27,17 +27,46 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.properties;
+
+import de.matthiasmann.twl.KeyStroke;
+import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twl.utils.TextUtil;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Matthias Mann
  */
-public enum Kind {
-    NONE,
-    IMAGE,
-    CURSOR,
-    THEME,
-    FONT,
-    INPUTMAP
+public class KeyStrokeProperty extends DerivedProperty<KeyStroke> {
+
+    private final Property<String> actionProperty;
+
+    public KeyStrokeProperty(Property<String> base, Property<String> actionProperty) {
+        super(base, KeyStroke.class);
+        this.actionProperty = actionProperty;
+    }
+
+    public KeyStroke getPropertyValue() {
+        String baseValue = base.getPropertyValue();
+        if(baseValue == null) {
+            return null;
+        }
+        try {
+            return KeyStroke.parse(baseValue, TextUtil.notNull(actionProperty.getPropertyValue()));
+        } catch(IllegalArgumentException ex) {
+            Logger.getLogger(KeyStrokeProperty.class.getName()).log(Level.WARNING,
+                    "Can't parse keystroke", ex);
+            return null;
+        }
+    }
+
+    public void setPropertyValue(KeyStroke value) throws IllegalArgumentException {
+        if(value == null) {
+            base.setPropertyValue(null);
+        } else {
+            base.setPropertyValue(value.getStroke());
+        }
+    }
 }

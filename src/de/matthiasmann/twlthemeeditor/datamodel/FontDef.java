@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -134,6 +134,11 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
     @SuppressWarnings("unchecked")
     public void addToXPP(DomXPPParser xpp) {
         Utils.addToXPP(xpp, element.getName(), this, element.getAttributes());
+    }
+
+    @Override
+    public boolean canPasteElement(Element element) {
+        return "fontParam".equals(element.getName());
     }
 
     @Override

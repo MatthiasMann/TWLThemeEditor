@@ -29,15 +29,60 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
+import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.ElementTextProperty;
+import de.matthiasmann.twlthemeeditor.properties.HasProperties;
+import de.matthiasmann.twlthemeeditor.properties.KeyStrokeProperty;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.jdom.Element;
+
 /**
  *
  * @author Matthias Mann
  */
-public enum Kind {
-    NONE,
-    IMAGE,
-    CURSOR,
-    THEME,
-    FONT,
-    INPUTMAP
+public class InputMapAction extends ThemeTreeNode implements HasProperties {
+
+    protected final AttributeProperty nameProperty;
+    protected final KeyStrokeProperty keyBindingProperty;
+
+    public InputMapAction(ThemeFile themeFile, TreeTableNode parent, Element element) {
+        super(themeFile, parent, element);
+
+        nameProperty = new AttributeProperty(element, "name");
+        addProperty(nameProperty);
+
+        keyBindingProperty = new KeyStrokeProperty(
+                new ElementTextProperty(element, "key binding"),
+                nameProperty);
+        addProperty(keyBindingProperty);
+    }
+
+    @Override
+    public void addChildren() throws IOException {
+    }
+
+    @Override
+    public void addToXPP(DomXPPParser xpp) {
+        xpp.addElement(this, element);
+    }
+
+    @Override
+    public Kind getKind() {
+        return Kind.NONE;
+    }
+
+    @Override
+    public String getName() {
+        return nameProperty.getPropertyValue();
+    }
+
+    @Override
+    public List<CreateChildOperation> getCreateChildOperations() {
+        return new ArrayList<CreateChildOperation>();
+    }
+
 }

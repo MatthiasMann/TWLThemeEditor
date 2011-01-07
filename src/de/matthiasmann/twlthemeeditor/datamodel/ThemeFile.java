@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -182,6 +182,9 @@ public class ThemeFile implements VirtualFile {
                 if("theme".equals(tagName)) {
                     return new Theme(themeFile, parent, element);
                 }
+                if("inputMapDef".equals(tagName)) {
+                    return new InputMapDef(themeFile, parent, element);
+                }
                 return null;
             }
         });
@@ -189,6 +192,7 @@ public class ThemeFile implements VirtualFile {
 
     protected void addCreateOperations(List<CreateChildOperation> operations, ThemeTreeNode node) {
         addCreateThemeOperation(operations, node, document.getRootElement());
+        operations.add(new CreateNewSimple(node, document.getRootElement(), "inputMapDef", "name", "changeMe"));
         operations.add(new CreateNewImages(node, document.getRootElement()));
         operations.add(new CreateNewFontDef(node, document.getRootElement()));
         operations.add(new CreateNewInclude(node, document.getRootElement()));
