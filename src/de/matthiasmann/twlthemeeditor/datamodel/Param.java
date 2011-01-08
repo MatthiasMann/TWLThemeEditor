@@ -71,6 +71,8 @@ public class Param extends ThemeTreeNode implements HasProperties {
     protected ArrayList<VirtualFile> virtualFontFiles;
     protected Property<String> fileNameProperty;
 
+    protected DerivedNodeReferenceProperty refProperty;
+
     public Param(Theme theme, TreeTableNode parent, Element element) throws IOException {
         super(theme.getThemeFile(), parent, element);
         this.theme = theme;
@@ -92,6 +94,8 @@ public class Param extends ThemeTreeNode implements HasProperties {
         if(valueElement != null) {
             if(isFontDef()) {
                 initFontDef();
+            } else if(isInputMapDef()) {
+                initInputMapDef();
             } else {
                 initValueProperty();
             }
@@ -104,6 +108,10 @@ public class Param extends ThemeTreeNode implements HasProperties {
 
     protected final boolean isFontDef() {
         return valueElement != null && "fontDef".equals(valueElement.getName());
+    }
+
+    protected final boolean isInputMapDef() {
+        return valueElement != null && "inputMapDef".equals(valueElement.getName());
     }
 
     private void initFontDef() throws IOException {
@@ -120,6 +128,13 @@ public class Param extends ThemeTreeNode implements HasProperties {
         addProperty(fileNameProperty);
         FontDef.addCommonFontDefProperties(this, valueElement);
         registerFontFiles();
+    }
+
+    private void initInputMapDef() {
+        refProperty = new DerivedNodeReferenceProperty(
+                new AttributeProperty(valueElement, "ref", "Base input map reference", true),
+                this, Kind.INPUTMAP);
+        addProperty(refProperty);
     }
 
     private void initValueProperty() {
@@ -191,6 +206,9 @@ public class Param extends ThemeTreeNode implements HasProperties {
         if(isFontDef()) {
             addChildren(theme.getThemeFile(), valueElement, new FontDef.DomWrapperImpl());
         }
+        if(isInputMapDef()) {
+            addChildren(theme.getThemeFile(), valueElement, new InputMapDef.DomWrapperImpl());
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -204,6 +222,10 @@ public class Param extends ThemeTreeNode implements HasProperties {
         } else if(isFontDef()) {
             xpp.addStartTag(this, element.getName(), element.getAttributes());
             Utils.addToXPP(xpp, "fontDef", this, valueElement.getAttributes());
+            xpp.addEndTag(element.getName());
+        } else if(isInputMapDef()) {
+            xpp.addStartTag(this, element.getName(), element.getAttributes());
+            Utils.addToXPP(xpp, "inputMapDef", this, valueElement.getAttributes());
             xpp.addEndTag(element.getName());
         } else {
             xpp.addElement(this, element);
@@ -225,6 +247,9 @@ public class Param extends ThemeTreeNode implements HasProperties {
         }
         if(isFontDef()) {
             FontDef.addFontParamOperations(operations, this, valueElement);
+        }
+        if(isInputMapDef()) {
+            InputMapDef.addInputMapActionOperations(operations, this, valueElement);
         }
         return operations;
     }
@@ -252,6 +277,8 @@ public class Param extends ThemeTreeNode implements HasProperties {
         operations.add(new CreateNewParam(element, "cursor", node, "text"));
         operations.add(new CreateNewParam(element, "map", node, "\n"));
         operations.add(new CreateNewParamEnum(element, node, "alignment", "CENTER"));
+        operations.add(new CreateNewParam(element, "inputMap", node, "-defaultInputMap"));
+        operations.add(new CreateNewParam(element, "inputMapDef", node, ""));
     }
 
     static Property<?> createProperty(Element e, ThemeTreeNode node, ThemeTreeNode limit) {
@@ -288,6 +315,9 @@ public class Param extends ThemeTreeNode implements HasProperties {
             if("alignment".equals(type)) {
                 return createEnumProperty(e, Alignment.class);
             }
+        }
+        if("inputMap".equals(tagName)) {
+            return new DerivedNodeReferenceProperty(new ElementTextProperty(e, "InputMap reference"), limit, Kind.INPUTMAP);
         }
         return null;
     }

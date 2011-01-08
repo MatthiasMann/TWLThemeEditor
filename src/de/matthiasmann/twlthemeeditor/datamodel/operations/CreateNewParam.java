@@ -55,6 +55,8 @@ public class CreateNewParam extends CreateChildOperation {
         NAME_LIST.put("font", new String[] { "font" });
         NAME_LIST.put("cursor", new String[] { "mouseCursor" });
         NAME_LIST.put("int", new String[] { "maxWidth", "maxHeight", "minWidth", "minHeight" });
+        NAME_LIST.put("inputMap", new String[] { "inputMap" });
+        NAME_LIST.put("inputMapDef", new String[] { "inputMap" });
     }
 
     public CreateNewParam(Element element, String tagName, ThemeTreeNode parent, String initialText) {
@@ -111,9 +113,7 @@ public class CreateNewParam extends CreateChildOperation {
         HashSet<String> result = new HashSet<String>();
         for(Object child : element.getChildren("param")) {
             Element e = (Element)child;
-            if(e.getChild(tagName) != null) {
-                result.add(e.getAttributeValue("name"));
-            }
+            result.add(e.getAttributeValue("name"));
         }
         return result;
     }

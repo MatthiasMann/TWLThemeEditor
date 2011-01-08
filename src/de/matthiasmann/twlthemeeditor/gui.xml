@@ -492,6 +492,12 @@
         <theme name="opNewParamFontDef" ref="popupMenuButton">
             <param name="text"><string>Create a new fontDef parameter</string></param>
         </theme>
+        <theme name="opNewParamInputMap" ref="popupMenuButton">
+            <param name="text"><string>Create a new inputMap parameter</string></param>
+        </theme>
+        <theme name="opNewParamInputMapDef" ref="popupMenuButton">
+            <param name="text"><string>Create a new inputMapDef parameter</string></param>
+        </theme>
         <theme name="opNewParamCursor" ref="popupMenuButton">
             <param name="text"><string>Create a new cursor parameter</string></param>
         </theme>
