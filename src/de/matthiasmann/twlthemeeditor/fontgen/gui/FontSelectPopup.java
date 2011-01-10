@@ -122,7 +122,7 @@ public class FontSelectPopup extends PopupWindow {
         fontPath = null;
         fontData = null;
         FileTable.Entry[] selection = fileSelector.getFileTable().getSelection();
-        if(selection.length >= 0) {
+        if(selection.length > 0) {
             FileTable.Entry entry = selection[0];
             if(!entry.isFolder && (entry.obj instanceof File)) {
                 try {
