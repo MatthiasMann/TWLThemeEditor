@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.Alignment;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
@@ -70,7 +71,7 @@ public class QueryOperationParameter extends DialogLayout {
             
             Label label = new Label(p.name);
             Group vertRow = createParallelGroup()
-                    .addGroup(createSequentialGroup().addWidget(label).addGap());
+                    .addWidget(label, Alignment.TOPLEFT);
 
             switch (p.type) {
                 case FILE_SELECTOR:

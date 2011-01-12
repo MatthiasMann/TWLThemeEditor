@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.gui.editors;
 
+import de.matthiasmann.twl.Alignment;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.InfoWindow;
@@ -98,7 +99,7 @@ public abstract class IntegerArrayEditor extends DialogLayout {
 
         setHorizontalGroup(createParallelGroup()
                 .addGroup(createSequentialGroup().addGroup(horzAdjusters).addGroup(horzRemoveButtons))
-                .addGroup(createSequentialGroup().addWidget(addButton).addGap()));
+                .addWidget(addButton, Alignment.LEFT));
         setVerticalGroup(createSequentialGroup()
                 .addGroup(vertControlls)
                 .addWidget(addButton));
@@ -198,6 +199,7 @@ public abstract class IntegerArrayEditor extends DialogLayout {
     protected abstract int getNewValueForAppend(int[] array);
     
     abstract class ModifyArrayLength extends Button implements Runnable {
+        @SuppressWarnings("LeakingThisInConstructor")
         public ModifyArrayLength() {
             addCallback(this);
         }
