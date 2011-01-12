@@ -49,6 +49,7 @@ import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
+import de.matthiasmann.twl.utils.TextUtil;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.fontgen.CharSet;
 import de.matthiasmann.twlthemeeditor.fontgen.FontData;
@@ -437,7 +438,7 @@ public final class FontGenDialog {
 
         fontPath = properties.getProperty(KEY_FONTPATH);
         fontData = null;
-        fontPathEF.setText(fontPath);
+        fontPathEF.setText(TextUtil.notNull(fontPath));
 
         {
             int textureSizeEntry = -1;
@@ -509,7 +510,9 @@ public final class FontGenDialog {
 
     void saveSettings(File file) {
         Properties properties = new Properties();
-        properties.setProperty(KEY_FONTPATH, fontPath);
+        if(fontPath != null) {
+            properties.setProperty(KEY_FONTPATH, fontPath);
+        }
         properties.setProperty(KEY_TEXTURESIZE, Integer.toString(getTextureSize()));
         properties.setProperty(KEY_FONTSIZE, Integer.toString(fontSizeModel.getValue()));
         properties.setProperty(KEY_EXPORTFORMAT, getExportFormat().name());
