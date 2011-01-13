@@ -42,6 +42,7 @@ import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.model.SimpleAutoCompletionResult;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
@@ -248,6 +249,16 @@ public class Context extends PropertyFactories {
         for(Image img : model.getImages(null)) {
             collectStates(img, statesSet);
         }
+
+        try {
+            Field keysField = StateKey.class.getDeclaredField("keys");
+            keysField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            HashMap<String, StateKey> keys = (HashMap<String, StateKey>)keysField.get(null);
+            statesSet.addAll(keys.keySet());
+        } catch(Exception ex) {
+        }
+
         final String[] states = statesSet.toArray(new String[statesSet.size()]);
         return new AutoCompletionDataSource() {
             public AutoCompletionResult collectSuggestions(String text, int cursorPos, AutoCompletionResult prev) {
