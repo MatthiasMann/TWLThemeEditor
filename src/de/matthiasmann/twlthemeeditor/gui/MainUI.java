@@ -445,6 +445,8 @@ public final class MainUI extends DialogLayout {
             appendHTMLEscape(sb, webStartVerison).append("</td></tr>\n");
         }
 
+        sb.append("<tr><td class=\"parameter\">Icons</td><td class=\"value\"><a href=\"http://www.famfamfam.com/lab/icons/silk/\">www.famfamfam.com</a></td></tr>");
+
         sb.append("</table><a href=\"javascript:copyToClipboard()\">Copy above report to clipboard</a>");
 
         StyleSheet styleSheet = new StyleSheet();
