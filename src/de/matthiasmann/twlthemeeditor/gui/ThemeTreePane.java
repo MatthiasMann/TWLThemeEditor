@@ -102,7 +102,7 @@ public class ThemeTreePane extends DialogLayout {
         CollapsiblePanel collapsibleButtons = new CollapsiblePanel(
                 CollapsiblePanel.Direction.HORIZONTAL, "", buttons, null);
 
-        DecoratedTextRenderer.install(treeTable);
+        IconCellRenderer.install(treeTable);
 
         scrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
         treeTable.setSelectionManager(new TableRowSelectionManager(treeTableSelectionModel));

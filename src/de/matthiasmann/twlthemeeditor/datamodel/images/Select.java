@@ -71,4 +71,9 @@ public class Select extends WithSubImages implements NameGenerator {
         return null;
     }
 
+    @Override
+    protected String getIcon() {
+        return "image-select";
+    }
+
 }

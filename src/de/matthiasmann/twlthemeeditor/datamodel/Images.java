@@ -129,6 +129,11 @@ public class Images extends ThemeTreeNode implements HasProperties {
     }
 
     @Override
+    protected String getIcon() {
+        return "images";
+    }
+
+    @Override
     public String getDisplayName() {
         String comment = commentProperty.getPropertyValue();
         String name = getName();

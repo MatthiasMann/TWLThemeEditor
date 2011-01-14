@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -27,68 +27,52 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
-import java.io.IOException;
-import java.util.List;
-import org.jdom.Element;
+import de.matthiasmann.twl.GUI;
+import de.matthiasmann.twl.ParameterMap;
+import de.matthiasmann.twl.TableBase;
+import de.matthiasmann.twl.ThemeInfo;
+import de.matthiasmann.twl.renderer.Image;
+import de.matthiasmann.twlthemeeditor.datamodel.DecoratedTextWithIcon;
 
 /**
  *
  * @author Matthias Mann
  */
-public final class Include extends ThemeTreeNode {
+public class IconCellRenderer extends DecoratedTextRenderer {
 
-    private final ThemeFile includedThemeFile;
+    private ParameterMap icons;
+    private String icon;
 
-    public Include(TreeTableNode parent, Element element, final ThemeFile themeFile) throws IOException {
-        super(themeFile, parent, element);
-
-        this.includedThemeFile = themeFile.createThemeFile(getFileName());
-    }
-    
-    @Override
-    public String getName() {
-        return getFileName();
+    public IconCellRenderer() {
+        setTheme("iconcellrenderer");
     }
 
     @Override
-    protected String getIcon() {
-        return "include";
-    }
-
-    public Kind getKind() {
-        return Kind.NONE;
+    public void setCellData(int row, int column, Object data) {
+        this.icon = ((DecoratedTextWithIcon)data).getIcon();
+        super.setCellData(row, column, data);
     }
 
     @Override
-    protected boolean isModified() {
-        return includedThemeFile.isModified();
-    }
-
-    public String getFileName() {
-        return element.getAttributeValue("filename");
-    }
-
-    public void addChildren() throws IOException {
-        includedThemeFile.addChildren(this);
-    }
-
-    public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(this, element);
-    }
-
-    public ThemeFile getIncludedThemeFile() {
-        return includedThemeFile;
+    public void applyTheme(ThemeInfo themeInfo) {
+        this.icons = themeInfo.getParameterMap("icons");
+        super.applyTheme(themeInfo);
     }
 
     @Override
-    public List<CreateChildOperation> getCreateChildOperations() {
-        List<CreateChildOperation> operations = super.getCreateChildOperations();
-        includedThemeFile.addCreateOperations(operations, this);
-        return operations;
+    protected void paintWidget(GUI gui) {
+        if(icons != null && icon != null) {
+            Image img = icons.getImage(icon);
+            if(img != null) {
+                img.draw(getAnimationState(), getX(), getY(), getBorderLeft(), getHeight());
+            }
+        }
+        super.paintWidget(gui);
     }
 
+    public static void install(TableBase tableBase) {
+        tableBase.registerCellRenderer(DecoratedTextWithIcon.class, new IconCellRenderer());
+    }
 }

@@ -123,6 +123,11 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         return nameProperty.getPropertyValue();
     }
 
+    @Override
+    protected String getIcon() {
+        return "theme";
+    }
+
     public boolean isWildcard() {
         return (nameProperty == null);
     }

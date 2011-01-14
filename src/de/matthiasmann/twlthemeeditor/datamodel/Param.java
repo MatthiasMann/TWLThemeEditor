@@ -66,6 +66,8 @@ public class Param extends ThemeTreeNode implements HasProperties {
     protected final Theme theme;
     protected final NameProperty nameProperty;
     protected final Element valueElement;
+
+    protected String icon;
     
     protected Property<?> valueProperty;
     protected ArrayList<VirtualFile> virtualFontFiles;
@@ -94,10 +96,23 @@ public class Param extends ThemeTreeNode implements HasProperties {
         if(valueElement != null) {
             if(isFontDef()) {
                 initFontDef();
+                icon = "param-fontdef";
             } else if(isInputMapDef()) {
                 initInputMapDef();
+                icon = "param-inputmapdef";
             } else {
                 initValueProperty();
+
+                String tagName = valueElement.getName();
+                if("image".equals(tagName)) {
+                    icon = "param-image";
+                } else if("font".equals(tagName)) {
+                    icon = "param-font";
+                } else if("inputmap".equals(tagName)) {
+                    icon = "param-inputmap";
+                } else if("cursor".equals(tagName)) {
+                    icon = "param-cursor";
+                }
             }
         }
     }
@@ -147,6 +162,11 @@ public class Param extends ThemeTreeNode implements HasProperties {
     @Override
     public String getName() {
         return nameProperty.getPropertyValue();
+    }
+
+    @Override
+    protected String getIcon() {
+        return icon;
     }
 
     boolean isWildcard() {

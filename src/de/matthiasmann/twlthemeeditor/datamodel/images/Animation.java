@@ -47,4 +47,9 @@ public class Animation extends Repeat {
         addProperty(new AttributeProperty(element, "timeSource", "Time source", false));
         addProperty(new IntegerProperty(new AttributeProperty(element, "frozenTime", "Frozen time", true), 0, Short.MAX_VALUE));
     }
+
+    @Override
+    protected String getIcon() {
+        return "image-animation";
+    }
 }

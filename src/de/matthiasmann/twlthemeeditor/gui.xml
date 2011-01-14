@@ -338,6 +338,39 @@
             </animation>
         </composed>
         <area name="progressbar.overlay" xywh="158,33,7,7" splitx="L3,B3" splity="L3,B3"/>
+
+        <area name="-icon-link" xywh="175,38,14,7" inset="9,2,0,0"/>
+        <area name="icon.image-composed" xywh="158,85,16,13" center="true"/>
+        <area name="icon.image-animation" xywh="165,99,12,15" center="true"/>
+        <area name="icon.image-area" xywh="178,99,14,14" center="true"/>
+        <area name="icon.image-grid" xywh="193,98,14,14" center="true"/>
+        <area name="icon.image-cursor" xywh="190,81,10,16" center="true"/>
+        <composed name="icon.image-cursorref" center="true">
+            <alias ref="icon.image-cursor" sizeOverwriteH="16" sizeOverwriteV="16"/>
+            <alias ref="-icon-link"/>
+        </composed>
+        <composed name="icon.image-alias" center="true">
+            <alias ref="icon.image-area" sizeOverwriteH="16" sizeOverwriteV="16"/>
+            <alias ref="-icon-link"/>
+        </composed>
+        <area name="icon.image-select" xywh="175,46,16,16" center="true"/>
+        <area name="icon.inputmapdef" xywh="164,115,16,12" center="true"/>
+        <area name="icon.images" xywh="181,114,16,13" center="true"/>
+        <area name="icon.include" xywh="175,90,12,7" center="true" inset="2,0,0,0"/>
+        <area name="icon.theme" xywh="175,75,14,14" center="true"/>
+        <area name="icon.fontdef" xywh="174,63,13,11" center="true"/>
+        <alias name="icon.param-image" ref="icon.image-alias"/>
+        <alias name="icon.param-cursor" ref="icon.image-cursorref"/>
+        <alias name="icon.param-inputmapdef" ref="icon.inputmapdef"/>
+        <alias name="icon.param-fontdef" ref="icon.fontdef"/>
+        <composed name="icon.param-font" center="true">
+            <alias ref="icon.fontdef" sizeOverwriteH="16" sizeOverwriteV="16"/>
+            <alias ref="-icon-link"/>
+        </composed>
+        <composed name="icon.param-inputmap" center="true">
+            <alias ref="icon.inputmapdef" sizeOverwriteH="16" sizeOverwriteV="16"/>
+            <alias ref="-icon-link"/>
+        </composed>
     </images>
 
     <theme name="themetreepane" ref="dialoglayout">
@@ -355,6 +388,15 @@
                     <action name="opCopyNode">CTRL C</action>
                     <action name="opCloneNode">CTRL SHIFT DOWN</action>
                 </inputMapDef></param>
+                <theme name="iconcellrenderer" ref="-defaults">
+                    <param name="font"><font>normal</font></param>
+                    <param name="border"><border>0,20,0,0</border></param>
+                    <param name="icons">
+                        <map>
+                            <param name=""><image>icon.*</image></param>
+                        </map>
+                    </param>
+                </theme>
             </theme>
             <theme name="table" ref="table"/>
         </theme>

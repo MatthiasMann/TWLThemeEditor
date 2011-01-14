@@ -47,4 +47,9 @@ public class Alias extends Image {
         super(textures, parent, node);
         addProperty(new DerivedNodeReferenceProperty(new AttributeProperty(element, "ref"), getLimit(), Kind.IMAGE));
     }
+
+    @Override
+    protected String getIcon() {
+        return "image-alias";
+    }
 }

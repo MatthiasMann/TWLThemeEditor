@@ -55,4 +55,9 @@ public class CursorRef extends Image {
     public Kind getKind() {
         return Kind.CURSOR;
     }
+
+    @Override
+    protected String getIcon() {
+        return "image-cursorref";
+    }
 }

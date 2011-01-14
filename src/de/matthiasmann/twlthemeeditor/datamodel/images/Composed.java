@@ -63,4 +63,8 @@ public class Composed extends WithSubImages implements NameGenerator {
         return sb.toString();
     }
 
+    @Override
+    protected String getIcon() {
+        return "image-composed";
+    }
 }

@@ -62,4 +62,9 @@ public class Cursor extends Image {
     public Kind getKind() {
         return Kind.CURSOR;
     }
+
+    @Override
+    protected String getIcon() {
+        return "image-cursor";
+    }
 }

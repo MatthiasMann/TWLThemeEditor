@@ -57,6 +57,11 @@ public class Area extends Image {
         addProperty(new BooleanProperty(new AttributeProperty(element, "tiled", "Tiled", true), false));
     }
 
+    @Override
+    protected String getIcon() {
+        return "image-area";
+    }
+
     protected class HSplitProperty extends SplitProperty {
         public HSplitProperty() {
             super(new AttributeProperty(element, "splitx", "Split X positions", true), Axis.HORIZONTAL);

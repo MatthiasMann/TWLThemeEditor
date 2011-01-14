@@ -197,6 +197,10 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
                 if(isModified()) {
                     flags |= DecoratedText.MODIFIED;
                 }
+                String icon = getIcon();
+                if(icon != null) {
+                    return new DecoratedTextWithIcon(displayName, flags, icon);
+                }
                 return DecoratedText.apply(displayName, flags);
             }
             case 1:
@@ -223,6 +227,10 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
         return element.getName();
     }
 
+    protected String getIcon() {
+        return null;
+    }
+    
     protected boolean isModified() {
         return false;
     }
@@ -262,7 +270,7 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
     }
 
     public Property<?>[] getProperties() {
-        return properties.toArray(new Property[properties.size()]);
+        return properties.toArray(new Property<?>[properties.size()]);
     }
 
     protected final void addProperty(Property<?> property) {

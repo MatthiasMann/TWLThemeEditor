@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -29,66 +29,21 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
-import java.io.IOException;
-import java.util.List;
-import org.jdom.Element;
-
 /**
  *
  * @author Matthias Mann
  */
-public final class Include extends ThemeTreeNode {
+public class DecoratedTextWithIcon extends DecoratedText {
 
-    private final ThemeFile includedThemeFile;
+    private final String icon;
 
-    public Include(TreeTableNode parent, Element element, final ThemeFile themeFile) throws IOException {
-        super(themeFile, parent, element);
+    public DecoratedTextWithIcon(String text, int flags, String icon) {
+        super(text, flags);
+        this.icon = icon;
+    }
 
-        this.includedThemeFile = themeFile.createThemeFile(getFileName());
+    public String getIcon() {
+        return icon;
     }
     
-    @Override
-    public String getName() {
-        return getFileName();
-    }
-
-    @Override
-    protected String getIcon() {
-        return "include";
-    }
-
-    public Kind getKind() {
-        return Kind.NONE;
-    }
-
-    @Override
-    protected boolean isModified() {
-        return includedThemeFile.isModified();
-    }
-
-    public String getFileName() {
-        return element.getAttributeValue("filename");
-    }
-
-    public void addChildren() throws IOException {
-        includedThemeFile.addChildren(this);
-    }
-
-    public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(this, element);
-    }
-
-    public ThemeFile getIncludedThemeFile() {
-        return includedThemeFile;
-    }
-
-    @Override
-    public List<CreateChildOperation> getCreateChildOperations() {
-        List<CreateChildOperation> operations = super.getCreateChildOperations();
-        includedThemeFile.addCreateOperations(operations, this);
-        return operations;
-    }
-
 }

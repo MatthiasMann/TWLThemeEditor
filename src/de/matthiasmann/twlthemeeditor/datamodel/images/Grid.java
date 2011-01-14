@@ -71,4 +71,9 @@ public class Grid extends WithSubImages implements NameGenerator {
 
         return "row " + row + " col " + col;
     }
+
+    @Override
+    protected String getIcon() {
+        return "image-grid";
+    }
 }
