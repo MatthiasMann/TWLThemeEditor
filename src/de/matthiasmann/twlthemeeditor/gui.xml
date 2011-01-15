@@ -345,8 +345,8 @@
         <area name="icon.image-composed" xywh="158,85,16,13" center="true"/>
         <area name="icon.image-animation" xywh="165,99,12,15" center="true"/>
         <area name="icon.image-area" xywh="178,99,14,14" center="true"/>
-        <area name="icon.image-grid" xywh="193,98,14,14" center="true"/>
-        <area name="icon.image-cursor" xywh="190,81,10,16" center="true"/>
+        <area name="icon.image-grid" xywh="193,96,16,16" center="true"/>
+        <area name="icon.image-cursor" xywh="190,79,10,16" center="true"/>
         <composed name="icon.image-cursorref" center="true">
             <alias ref="icon.image-cursor" sizeOverwriteH="16" sizeOverwriteV="16"/>
             <alias ref="-icon-link"/>
@@ -360,20 +360,53 @@
         <area name="icon.images" xywh="181,114,16,13" center="true"/>
         <area name="icon.include" xywh="175,90,12,7" center="true" inset="2,0,0,0"/>
         <area name="icon.theme" xywh="175,75,14,14" center="true"/>
-        <area name="icon.fontdef" xywh="174,63,13,11" center="true"/>
+        <area name="icon.fontdef" xywh="174,63,10,11" center="true"/>
         <alias name="icon.themes" ref="icon.include"/>
-        <alias name="icon.param-image" ref="icon.image-alias"/>
-        <alias name="icon.param-cursor" ref="icon.image-cursorref"/>
-        <alias name="icon.param-inputmapdef" ref="icon.inputmapdef"/>
-        <alias name="icon.param-fontdef" ref="icon.fontdef"/>
+
+        <alias name="-icon-param-background" ref="white" tint="#6F97DF" sizeOverwriteH="16" sizeOverwriteV="16"/>
+        <composed name="icon.param-image" center="true">
+            <alias ref="-icon-param-background"/>
+            <alias ref="icon.image-alias"/>
+        </composed>
+        <composed name="icon.param-cursor" center="true">
+            <alias ref="-icon-param-background"/>
+            <alias ref="icon.image-cursorref"/>
+        </composed>
+        <composed name="icon.param-inputmapdef" center="true">
+            <alias ref="-icon-param-background"/>
+            <alias ref="icon.inputmapdef"/>
+        </composed>
+        <composed name="icon.param-fontdef" center="true">
+            <alias ref="-icon-param-background"/>
+            <alias ref="icon.fontdef" center="true"/>
+        </composed>
+        <composed name="icon.param-string" center="true">
+            <alias ref="-icon-param-background"/>
+            <area xywh="198,121,16,7" center="true"/>
+        </composed>
+        <composed name="icon.param-int" center="true">
+            <alias ref="-icon-param-background"/>
+            <area xywh="215,121,14,7" center="true"/>
+        </composed>
+        <composed name="icon.param-bool" center="true">
+            <alias ref="-icon-param-background"/>
+            <area xywh="198,113,15,7" center="true"/>
+        </composed>
+        <composed name="icon.param-border" center="true">
+            <alias ref="-icon-param-background"/>
+            <area xywh="215,104,16,16" center="true"/>
+        </composed>
         <composed name="icon.param-font" center="true">
+            <alias ref="-icon-param-background"/>
             <alias ref="icon.fontdef" sizeOverwriteH="16" sizeOverwriteV="16"/>
             <alias ref="-icon-link"/>
         </composed>
         <composed name="icon.param-inputmap" center="true">
+            <alias ref="-icon-param-background"/>
             <alias ref="icon.inputmapdef" sizeOverwriteH="16" sizeOverwriteV="16"/>
             <alias ref="-icon-link"/>
         </composed>
+        
         <grid name="opnewnode.animation.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
             <alias ref="icon.image-animation" sizeOverwriteH="16"/>
             <alias ref="none"/>
@@ -448,6 +481,22 @@
         </grid>
         <grid name="opnewnode.param-inputmapdef.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
             <alias ref="icon.param-inputmapdef" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.param-int.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.param-int" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.param-string.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.param-string" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.param-bool.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.param-bool" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.param-border.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.param-border" sizeOverwriteH="16"/>
             <alias ref="none"/>
         </grid>
     
@@ -642,14 +691,17 @@
         <theme name="opNewParamBorder" ref="popupMenuButton">
             <param name="text"><string>Create a new border parameter</string></param>
             <param name="border"><border>0,24,0,0</border></param>
+            <param name="overlay"><image>opnewnode.param-border.overlay</image></param>
         </theme>
         <theme name="opNewParamInt" ref="popupMenuButton">
             <param name="text"><string>Create a new integer parameter</string></param>
             <param name="border"><border>0,24,0,0</border></param>
+            <param name="overlay"><image>opnewnode.param-int.overlay</image></param>
         </theme>
         <theme name="opNewParamString" ref="popupMenuButton">
             <param name="text"><string>Create a new string parameter</string></param>
             <param name="border"><border>0,24,0,0</border></param>
+            <param name="overlay"><image>opnewnode.param-string.overlay</image></param>
         </theme>
         <theme name="opNewParamFont" ref="popupMenuButton">
             <param name="text"><string>Create a new font parameter</string></param>
@@ -668,7 +720,7 @@
         </theme>
         <theme name="opNewParamInputMapDef" ref="popupMenuButton">
             <param name="text"><string>Create a new inputMapDef parameter</string></param>
-            <param name="overlay"><image>opnewnode.param-inputmap.overlay</image></param>
+            <param name="overlay"><image>opnewnode.param-inputmapdef.overlay</image></param>
             <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamCursor" ref="popupMenuButton">
@@ -679,6 +731,7 @@
         <theme name="opNewParamBool" ref="popupMenuButton">
             <param name="text"><string>Create a new boolean parameter</string></param>
             <param name="border"><border>0,24,0,0</border></param>
+            <param name="overlay"><image>opnewnode.param-bool.overlay</image></param>
         </theme>
         <theme name="opNewParamGap" ref="popupMenuButton">
             <param name="text"><string>Create a new layout gap parameter</string></param>

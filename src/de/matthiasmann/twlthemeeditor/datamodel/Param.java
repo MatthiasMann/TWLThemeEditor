@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.jdom.Content;
 import org.jdom.Element;
@@ -94,25 +95,15 @@ public class Param extends ThemeTreeNode implements HasProperties {
 
         valueElement = getFirstChildElement(element);
         if(valueElement != null) {
+            String tagName = valueElement.getName();
+            icon = ICON_MAP.get(tagName);
+            
             if(isFontDef()) {
                 initFontDef();
-                icon = "param-fontdef";
             } else if(isInputMapDef()) {
                 initInputMapDef();
-                icon = "param-inputmapdef";
             } else {
                 initValueProperty();
-
-                String tagName = valueElement.getName();
-                if("image".equals(tagName)) {
-                    icon = "param-image";
-                } else if("font".equals(tagName)) {
-                    icon = "param-font";
-                } else if("inputmap".equals(tagName)) {
-                    icon = "param-inputmap";
-                } else if("cursor".equals(tagName)) {
-                    icon = "param-cursor";
-                }
             }
         }
     }
@@ -354,5 +345,19 @@ public class Param extends ThemeTreeNode implements HasProperties {
             }
         }
         return null;
+    }
+
+    private static final HashMap<String, String> ICON_MAP = new HashMap<String, String>();
+    static {
+        ICON_MAP.put("border", "param-border");
+        ICON_MAP.put("int", "param-int");
+        ICON_MAP.put("string", "param-string");
+        ICON_MAP.put("bool", "param-bool");
+        ICON_MAP.put("image", "param-image");
+        ICON_MAP.put("cursor", "param-cursor");
+        ICON_MAP.put("font", "param-font");
+        ICON_MAP.put("fontDef", "param-fontdef");
+        ICON_MAP.put("inputMap", "param-inputmap");
+        ICON_MAP.put("inputMapDef", "param-inputmapdef");
     }
 }
