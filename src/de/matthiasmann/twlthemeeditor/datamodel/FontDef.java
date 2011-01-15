@@ -118,6 +118,11 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
         return nameProperty.getPropertyValue();
     }
 
+    @Override
+    protected String getIcon() {
+        return "fontdef";
+    }
+
     public Kind getKind() {
         return Kind.FONT;
     }

@@ -90,6 +90,11 @@ public class InputMapDef extends ThemeTreeNode implements HasProperties {
     }
 
     @Override
+    protected String getIcon() {
+        return "inputmapdef";
+    }
+
+    @Override
     public boolean canPasteElement(Element element) {
         return "action".equals(element.getName());
     }

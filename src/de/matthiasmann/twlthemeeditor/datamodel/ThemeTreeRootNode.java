@@ -66,6 +66,11 @@ public class ThemeTreeRootNode extends ThemeTreeNode {
     }
 
     @Override
+    protected String getIcon() {
+        return "themes";
+    }
+
+    @Override
     protected boolean isModified() {
         return themeFile.isModified();
     }

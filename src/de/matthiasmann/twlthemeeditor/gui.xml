@@ -338,7 +338,9 @@
             </animation>
         </composed>
         <area name="progressbar.overlay" xywh="158,33,7,7" splitx="L3,B3" splity="L3,B3"/>
+    </images>
 
+    <images file="gui.png" format="RGBA" comment="icons">
         <area name="-icon-link" xywh="175,38,14,7" inset="9,2,0,0"/>
         <area name="icon.image-composed" xywh="158,85,16,13" center="true"/>
         <area name="icon.image-animation" xywh="165,99,12,15" center="true"/>
@@ -359,6 +361,7 @@
         <area name="icon.include" xywh="175,90,12,7" center="true" inset="2,0,0,0"/>
         <area name="icon.theme" xywh="175,75,14,14" center="true"/>
         <area name="icon.fontdef" xywh="174,63,13,11" center="true"/>
+        <alias name="icon.themes" ref="icon.include"/>
         <alias name="icon.param-image" ref="icon.image-alias"/>
         <alias name="icon.param-cursor" ref="icon.image-cursorref"/>
         <alias name="icon.param-inputmapdef" ref="icon.inputmapdef"/>
@@ -371,6 +374,83 @@
             <alias ref="icon.inputmapdef" sizeOverwriteH="16" sizeOverwriteV="16"/>
             <alias ref="-icon-link"/>
         </composed>
+        <grid name="opnewnode.animation.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.image-animation" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.area.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.image-area" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.select.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.image-select" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.composed.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.image-composed" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.grid.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.image-grid" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.alias.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.image-alias" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.cursor.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.image-cursor" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.cursorref.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.image-cursorref" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.theme.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.theme" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.include.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.include" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.images.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.images" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.fontdef.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.fontdef" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.inputmapdef.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.inputmapdef" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.param-image.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.param-image" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.param-font.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.param-font" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.param-fontdef.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.param-fontdef" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.param-cursor.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.param-cursor" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.param-inputmap.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.param-inputmap" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+        <grid name="opnewnode.param-inputmapdef.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
+            <alias ref="icon.param-inputmapdef" sizeOverwriteH="16"/>
+            <alias ref="none"/>
+        </grid>
+    
     </images>
 
     <theme name="themetreepane" ref="dialoglayout">
@@ -396,6 +476,10 @@
                             <param name=""><image>icon.*</image></param>
                         </map>
                     </param>
+                </theme>
+                <theme name="stringcellrenderer" ref="-defaults">
+                    <param name="font"><font>normal</font></param>
+                    <param name="border"><border>0,20,0,0</border></param>
                 </theme>
             </theme>
             <theme name="table" ref="table"/>
@@ -455,108 +539,162 @@
 
         <theme name="opPasteNode" ref="popupMenuButton">
             <param name="text"><string>Paste</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeArea" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;area&gt; node</string></param>
+            <param name="overlay"><image>opnewnode.area.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeAlias" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;alias&gt; node</string></param>
+            <param name="overlay"><image>opnewnode.alias.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeGrid" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;grid&gt; node</string></param>
+            <param name="overlay"><image>opnewnode.grid.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeSelect" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;select&gt; node</string></param>
+            <param name="overlay"><image>opnewnode.select.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeComposed" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;composed&gt; node</string></param>
+            <param name="overlay"><image>opnewnode.composed.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeAnimation" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;animation&gt; node</string></param>
+            <param name="overlay"><image>opnewnode.animation.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeFrame" ref="popupMenuButton">
             <param name="text"><string>Create a new animation &lt;frame&gt; node</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeFrames" ref="popupMenuButton">
             <param name="text"><string>Create a new animation &lt;frames&gt; (frame sequence) node</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeRepeat" ref="popupMenuButton">
             <param name="text"><string>Create a new animation &lt;repeat&gt; node</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeTheme" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;theme&gt; node</string></param>
+            <param name="overlay"><image>opnewnode.theme.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeWildcardTheme" ref="popupMenuButton">
             <param name="text"><string>Create a new child theme wildcard node</string></param>
             <param name="tooltip"><string>A wildcard is a &lt;theme name="" ref="*"&gt; node and can reference all top level nodes which have allowWildcard enabled.</string></param>
+            <param name="overlay"><image>opnewnode.theme.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeImages" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;images&gt; node</string></param>
+            <param name="overlay"><image>opnewnode.images.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeFontDef" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;fontDef&gt; node</string></param>
+            <param name="overlay"><image>opnewnode.fontdef.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeInputMapDef" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;inputMapDef&gt; node</string></param>
+            <param name="overlay"><image>opnewnode.inputmapdef.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeInputMapAction" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;action&gt; node</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeInclude" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;include&gt; node</string></param>
+            <param name="overlay"><image>opnewnode.include.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeCursor" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;cursor&gt; node</string></param>
             <param name="tooltip"><string>This is an mouse cursor</string></param>
+            <param name="overlay"><image>opnewnode.cursor.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeCursorAlias" ref="popupMenuButton">
-            <param name="text"><string>Create a new &lt;cursor ref=&quot;...&quot;&gt; node</string></param>
+            <param name="text"><string>Create a new &lt;cursor ref="..."&gt; node</string></param>
             <param name="tooltip"><string>This is an alias to another mouse cursor</string></param>
+            <param name="overlay"><image>opnewnode.cursorref.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeFontParam" ref="popupMenuButton">
             <param name="text"><string>Create a new font parameter</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamImage" ref="popupMenuButton">
             <param name="text"><string>Create a new image parameter</string></param>
+            <param name="overlay"><image>opnewnode.param-image.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamBorder" ref="popupMenuButton">
             <param name="text"><string>Create a new border parameter</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamInt" ref="popupMenuButton">
             <param name="text"><string>Create a new integer parameter</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamString" ref="popupMenuButton">
             <param name="text"><string>Create a new string parameter</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamFont" ref="popupMenuButton">
             <param name="text"><string>Create a new font parameter</string></param>
+            <param name="overlay"><image>opnewnode.param-font.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamFontDef" ref="popupMenuButton">
             <param name="text"><string>Create a new fontDef parameter</string></param>
+            <param name="overlay"><image>opnewnode.param-fontdef.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamInputMap" ref="popupMenuButton">
             <param name="text"><string>Create a new inputMap parameter</string></param>
+            <param name="overlay"><image>opnewnode.param-inputmap.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamInputMapDef" ref="popupMenuButton">
             <param name="text"><string>Create a new inputMapDef parameter</string></param>
+            <param name="overlay"><image>opnewnode.param-inputmap.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamCursor" ref="popupMenuButton">
             <param name="text"><string>Create a new cursor parameter</string></param>
+            <param name="overlay"><image>opnewnode.param-cursor.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamBool" ref="popupMenuButton">
             <param name="text"><string>Create a new boolean parameter</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamGap" ref="popupMenuButton">
             <param name="text"><string>Create a new layout gap parameter</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamDimension" ref="popupMenuButton">
             <param name="text"><string>Create a new dimension parameter</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamMap" ref="popupMenuButton">
             <param name="text"><string>Create a new parameter map</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewParamEnumAlignment" ref="popupMenuButton">
             <param name="text"><string>Create a new alignment enum parameter</string></param>
+            <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <param name="namedGaps"><map>
             <param name="menuitem"><gap>5</gap></param>
