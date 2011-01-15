@@ -39,6 +39,7 @@ import de.matthiasmann.twlthemeeditor.gui.MessageLog;
 import de.matthiasmann.twlthemeeditor.gui.MessageLog.Category;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -46,6 +47,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -122,9 +124,9 @@ public class Main extends Frame {
     }
     
     final Canvas canvas;
+    final AtomicReference<Dimension> newCanvasSize = new AtomicReference<Dimension>();
     
     volatile boolean closeRequested;
-    volatile boolean canvasSizeChanged;
 
     public Main() {
         super("TWL Theme editor");
@@ -133,7 +135,7 @@ public class Main extends Frame {
         canvas.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                canvasSizeChanged = true;
+                newCanvasSize.set(canvas.getSize());
             }
         });
 
@@ -223,9 +225,9 @@ public class Main extends Frame {
             }
 
             while(!Display.isCloseRequested() && !closeRequested && !root.isCloseRequested()) {
-                if(canvasSizeChanged) {
-                    canvasSizeChanged = false;
-                    GL11.glViewport(0, 0, canvas.getWidth(), canvas.getHeight());
+                Dimension newDim = newCanvasSize.getAndSet(null);
+                if(newDim != null) {
+                    GL11.glViewport(0, 0, newDim.width, newDim.height);
                     renderer.syncViewportSize();
                 }
                 
