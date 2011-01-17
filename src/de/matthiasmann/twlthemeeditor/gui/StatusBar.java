@@ -65,6 +65,7 @@ public class StatusBar extends DialogLayout {
         });
 
         btnDiscard = new Button("Discard");
+        btnDiscard.setTheme("discardButton");
         btnDiscard.addCallback(new Runnable() {
             public void run() {
                 discardMessage();
@@ -72,6 +73,7 @@ public class StatusBar extends DialogLayout {
         });
 
         btnDetails = new Button("Details");
+        btnDetails.setTheme("detailsButton");
         btnDetails.addCallback(new Runnable() {
             public void run() {
                 openDetailsDialog();

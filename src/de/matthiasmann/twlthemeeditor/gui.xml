@@ -1156,7 +1156,12 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
             <param name="border"><border>background.border</border></param>
             <theme name="time" ref="label"/>
             <theme name="message" ref="label"/>
-            <theme name="button" ref="button"/>
+            <theme name="discardButton" ref="button">
+                <param name="tooltip"><string>Discards the currently displayed message</string></param>
+            </theme>
+            <theme name="detailsButton" ref="button">
+                <param name="tooltip"><string>Shows message details and history</string></param>
+            </theme>
             <param name="minHeight"><int>24</int></param>
         </theme>
         <param name="namedGaps"><map>
