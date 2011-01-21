@@ -55,10 +55,9 @@ import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateAtWrapper;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.MoveNodeOperations;
 import java.io.File;
-import java.net.URISyntaxException;
+import java.net.URI;
+import java.net.URL;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -415,15 +414,26 @@ public class ThemeTreePane extends DialogLayout {
         }
     }
 
+    private static final MessageLog.Category CAT_URL_ERROR =
+            new MessageLog.Category("URL", MessageLog.CombineMode.NONE, DecoratedText.ERROR);
+    private static final MessageLog.Category CAT_URL_WARNING =
+            new MessageLog.Category("URL", MessageLog.CombineMode.REPLACE, DecoratedText.WARNING);
+
     void queryOperationParameter(ThemeTreeNode node, final ThemeTreeOperation operation, final boolean skipConfirm) {
         ThemeTreeOperation.Parameter[] parameter = operation.getParameter();
         if(parameter != null && parameter.length > 0) {
             File startDir = null;
+            URL url = node.getThemeFile().getURL();
             
             try {
-                startDir = new File(node.getThemeFile().getURL().toURI()).getParentFile();
-            } catch (URISyntaxException ex) {
-                Logger.getLogger(ThemeTreePane.class.getName()).log(Level.SEVERE, "Can't determine start dir", ex);
+                URI uri = url.toURI();
+                if("file".equals(uri.getScheme())) {
+                    startDir = new File(uri).getParentFile();
+                } else {
+                    messageLog.add(new MessageLog.Entry(CAT_URL_WARNING, "Can't resolve URI in file system", uri.toString(), null));
+                }
+            } catch (Exception ex) {
+                messageLog.add(new MessageLog.Entry(CAT_URL_ERROR, "Error resolving URL to file system", url.toString(), ex));
             }
 
             final QueryOperationParameter qop = new QueryOperationParameter(startDir);
