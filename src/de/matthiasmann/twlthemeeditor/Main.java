@@ -41,6 +41,7 @@ import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
@@ -140,6 +141,7 @@ public class Main extends Frame {
         });
 
         add(canvas, BorderLayout.CENTER);
+        setIconImage(Toolkit.getDefaultToolkit().getImage(Main.class.getResource("icon16.png")));
 
         // on Windows we need to transfer focus to the Canvas
         // otherwise keyboard input does not work when using alt-tab
