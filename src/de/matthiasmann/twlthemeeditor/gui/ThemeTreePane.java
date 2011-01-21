@@ -419,7 +419,7 @@ public class ThemeTreePane extends DialogLayout {
     private static final MessageLog.Category CAT_URL_WARNING =
             new MessageLog.Category("URL", MessageLog.CombineMode.REPLACE, DecoratedText.WARNING);
 
-    void queryOperationParameter(ThemeTreeNode node, final ThemeTreeOperation operation, final boolean skipConfirm) {
+    void queryOperationParameter(final ThemeTreeNode node, final ThemeTreeOperation operation, final boolean skipConfirm) {
         ThemeTreeOperation.Parameter[] parameter = operation.getParameter();
         if(parameter != null && parameter.length > 0) {
             File startDir = null;
@@ -445,28 +445,28 @@ public class ThemeTreePane extends DialogLayout {
             dialog.setMessage(qop);
             dialog.setOkCallback(new Runnable() {
                 public void run() {
-                    maybeConfirmOperation(operation, qop.getResults(), skipConfirm);
+                    maybeConfirmOperation(node, operation, qop.getResults(), skipConfirm);
                 }
             });
             dialog.showDialog(this);
         } else {
-            maybeConfirmOperation(operation, null, skipConfirm);
+            maybeConfirmOperation(node, operation, null, skipConfirm);
         }
     }
 
-    void maybeConfirmOperation(ThemeTreeOperation operation, Object[] paramter, boolean skipConfirm) {
+    void maybeConfirmOperation(ThemeTreeNode node, ThemeTreeOperation operation, Object[] paramter, boolean skipConfirm) {
         if(!skipConfirm && operation.needConfirm()) {
-            confirmOperation(operation, paramter);
+            confirmOperation(node, operation, paramter);
         } else {
             executeOperation(operation, paramter);
         }
     }
 
-    void confirmOperation(final ThemeTreeOperation operation, final Object[] paramter) {
+    void confirmOperation(ThemeTreeNode node, final ThemeTreeOperation operation, final Object[] paramter) {
         SimpleDialog dialog = new SimpleDialog();
         dialog.setTheme("confirmationDlg-" + operation.getActionID());
         dialog.setTitle(operation.getActionID());
-        dialog.setMessage(selected.toString());
+        dialog.setMessage(node.toString());
         dialog.setOkCallback(new Runnable() {
             public void run() {
                 executeOperation(operation, paramter);
