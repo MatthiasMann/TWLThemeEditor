@@ -99,6 +99,7 @@
 
         <copy file="${reference.TWL.jar}" todir="${dist.dir}"/>
         <copy file="${reference.JavaFreeType.jar}" todir="${dist.dir}"/>
+        <copy file="${src.dir}/de/matthiasmann/twlthemeeditor/icon32.png" todir="${dist.dir}"/>
 
         <copy todir="${dist.dir}" flatten="true">
             <path>
