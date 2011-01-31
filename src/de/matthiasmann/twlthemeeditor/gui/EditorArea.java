@@ -41,7 +41,9 @@ import de.matthiasmann.twl.SplitPane;
 import de.matthiasmann.twl.Timer;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
-import de.matthiasmann.twl.model.HasCallback;
+import de.matthiasmann.twl.model.EnumModel;
+import de.matthiasmann.twl.model.OptionEnumModel;
+import de.matthiasmann.twl.model.PersistentEnumModel;
 import de.matthiasmann.twl.model.PersistentMRUListModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.renderer.Texture;
@@ -74,6 +76,7 @@ public final class EditorArea extends Widget {
 
     private static final String KEY_RECENT_CLASSPATHS = "recentClasspaths";
     private static final String KEY_CLASSPATH_FS = "userWidgetJARs";
+    private static final String KEY_LAYOUT = "layout";
     
     private final MessageLog messageLog;
     private final ProgressDialog progressDialog;
@@ -94,6 +97,8 @@ public final class EditorArea extends Widget {
     private final CallbackWithReason<ThemeTreeModel.CallbackReason> modelChangedCB;
     private final Runnable boundPropertyCB;
 
+    private final EnumModel<Layout> layoutModel;
+
     private DelayedAction updatePropertyEditors;
     private Timer checkWidgetTreeTimer;
     private Context ctx;
@@ -101,7 +106,6 @@ public final class EditorArea extends Widget {
     private ColorProperty boundColorProperty;
     private SplitProperty boundSplitXProperty;
     private SplitProperty boundSplitYProperty;
-    private Layout layout = Layout.SPLIT_HV;
 
     public EditorArea(MessageLog messageLog) {
         this.messageLog = messageLog;
@@ -128,6 +132,13 @@ public final class EditorArea extends Widget {
         prefs = Preferences.userNodeForPackage(EditorArea.class);
         recentClasspathsModel = new PersistentMRUListModel<String>(5, String.class, prefs, KEY_RECENT_CLASSPATHS);
         classpathsMenu = new Menu("User widgets");
+
+        layoutModel = new PersistentEnumModel<Layout>(prefs, KEY_LAYOUT, Layout.SPLIT_HV);
+        layoutModel.addCallback(new Runnable() {
+            public void run() {
+                recreateLayout();
+            }
+        });
         
         previewWidget.setCallback(new PreviewWidget.Callback() {
             public void testWidgetChanged(Widget widget) {
@@ -270,13 +281,12 @@ public final class EditorArea extends Widget {
         widgetPropertyEditor.setContext(ctx);
     }
 
-    public boolean setLayout(Layout layout) {
-        if(this.layout != layout) {
-            this.layout = layout;
-            recreateLayout();
-            return true;
-        }
-        return false;
+    public EnumModel<Layout> getLayoutModel() {
+        return layoutModel;
+    }
+
+    public BooleanModel getLayoutBooleanModel(Layout layout) {
+        return new OptionEnumModel<Layout>(layoutModel, layout);
     }
 
     public void addMenus(Menu menu) {
@@ -305,7 +315,7 @@ public final class EditorArea extends Widget {
         removeFromParent(widgetPropertyEditor);
         removeFromParent(widgetTree);
 
-        switch(layout) {
+        switch(layoutModel.getValue()) {
             case SPLIT_HV: {
                 SplitPane spH1 = new SplitPane();
                 SplitPane spH2 = new SplitPane();
@@ -668,23 +678,5 @@ public final class EditorArea extends Widget {
         checkWidgetTreeTimer = null;
         themeTreePane.removeCallback(updatePropertyEditors);
         updatePropertyEditors = null;
-    }
-
-    public class LayoutModel extends HasCallback implements BooleanModel {
-        private final Layout layout;
-
-        public LayoutModel(Layout layout) {
-            this.layout = layout;
-        }
-
-        public boolean getValue() {
-            return EditorArea.this.layout == layout;
-        }
-
-        public void setValue(boolean value) {
-            if(setLayout(layout)) {
-                doCallback();
-            }
-        }
     }
 }

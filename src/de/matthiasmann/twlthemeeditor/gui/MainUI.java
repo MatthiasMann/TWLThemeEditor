@@ -53,7 +53,6 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.fontgen.gui.FontGenDialog;
-import de.matthiasmann.twlthemeeditor.gui.EditorArea.Layout;
 import de.matthiasmann.twlthemeeditor.imgconv.ConvertImageDialog;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -128,8 +127,8 @@ public final class MainUI extends DialogLayout {
         });
 
         Menu menuView = new Menu("View");
-        menuView.add(new MenuCheckbox("Layout 1", editorArea.new LayoutModel(EditorArea.Layout.SPLIT_HV)).setTheme("radiobtn"));
-        menuView.add(new MenuCheckbox("Layout 2", editorArea.new LayoutModel(EditorArea.Layout.SPLIT_HHV)).setTheme("radiobtn"));
+        menuView.add(new MenuCheckbox("Layout 1", editorArea.getLayoutBooleanModel(EditorArea.Layout.SPLIT_HV)).setTheme("radiobtn"));
+        menuView.add(new MenuCheckbox("Layout 2", editorArea.getLayoutBooleanModel(EditorArea.Layout.SPLIT_HHV)).setTheme("radiobtn"));
         
         Menu mainMenu = new Menu();
         mainMenu.setTheme("mainmenu");
@@ -364,10 +363,6 @@ public final class MainUI extends DialogLayout {
 
     public void reloadTestWidget() {
         editorArea.reloadTestWidget();
-    }
-
-    void setLayout(Layout layout) {
-        editorArea.setLayout(layout);
     }
 
     void exit() {
