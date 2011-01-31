@@ -1375,6 +1375,8 @@
             <action name="moveLeadToPreviousPage">ctrl PRIOR</action>
             <action name="moveLeadToFirstRow">ctrl HOME</action>
             <action name="moveLeadToLastRow">ctrl END</action>
+            <action name="expandLeadRow">ADD</action>
+            <action name="collapseLeadRow">SUBTRACT</action>
         </inputMapDef></param>
         <theme name="" ref="*"/>
         <theme name="ComboBoxCellRenderer">
