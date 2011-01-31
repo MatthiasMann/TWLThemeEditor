@@ -127,6 +127,14 @@ public class InputMapDef extends ThemeTreeNode implements HasProperties {
                 e.setText("F12");
                 return addChild(e, pos);
             }
+            @Override
+            protected int getBaseIndentation() {
+                int baseIndentation = super.getBaseIndentation();
+                if(parent instanceof Param) {
+                    baseIndentation = Math.max(0, baseIndentation - INDENTATION_SIZE);
+                }
+                return baseIndentation;
+            }
         });
     }
 
