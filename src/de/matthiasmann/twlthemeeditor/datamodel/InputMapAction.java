@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.ElementTextProperty;
@@ -78,6 +79,13 @@ public class InputMapAction extends ThemeTreeNode implements HasProperties {
     @Override
     public String getName() {
         return nameProperty.getPropertyValue();
+    }
+    
+    @Override
+    public List<ThemeTreeOperation> getOperations() {
+        List<ThemeTreeOperation> operations = super.getOperations();
+        operations.add(new CloneNodeOperation(element, this));
+        return operations;
     }
 
     @Override
