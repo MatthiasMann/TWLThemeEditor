@@ -143,6 +143,10 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
 
     @Override
     public boolean canPasteElement(Element element) {
+        return canPasteFontDefElement(element);
+    }
+
+    public static boolean canPasteFontDefElement(Element element) {
         return "fontParam".equals(element.getName());
     }
 

@@ -244,6 +244,20 @@ public class Param extends ThemeTreeNode implements HasProperties {
     }
 
     @Override
+    public boolean canPasteElement(Element element) {
+        if(isFontDef()) {
+            return FontDef.canPasteFontDefElement(element);
+        }
+        if(isInputMapDef()) {
+            return InputMapDef.canPasteInputMapDefElement(element);
+        }
+        if(isMap()) {
+            return "param".equals(element.getName());
+        }
+        return false;
+    }
+
+    @Override
     public List<ThemeTreeOperation> getOperations() {
         List<ThemeTreeOperation> operations = super.getOperations();
         operations.add(new CloneNodeOperation(element, this));
