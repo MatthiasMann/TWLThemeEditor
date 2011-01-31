@@ -33,6 +33,8 @@ import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.DialogLayout.Group;
+import de.matthiasmann.twl.Event;
+import de.matthiasmann.twl.FileSelector;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.ListBox;
 import de.matthiasmann.twl.ListBox.CallbackReason;
@@ -284,12 +286,26 @@ public class NewClasspathDialog extends PopupWindow {
 
     void addFolder(final SimpleChangableListModel<File> model, Button btn) {
         final FileSystemTreeModel fstm = new FileSystemTreeModel(JavaFileSystemModel.getInstance());
+        fstm.setSorter(new FileSelector.NameSorter(JavaFileSystemModel.getInstance()));
+
         final TableSingleSelectionModel selectionModel = new TableSingleSelectionModel();
         final TreeTable treeTable = new TreeTable(fstm);
         final ScrollPane scrollPane = new ScrollPane(treeTable);
         final SimpleDialog dialog = new SimpleDialog();
 
         treeTable.setSelectionManager(new TableRowSelectionManager(selectionModel));
+        treeTable.addCallback(new de.matthiasmann.twl.TableBase.Callback() {
+            public void mouseDoubleClicked(int row, int column) {
+                if(row >= 0 && row < treeTable.getNumRows()) {
+                    treeTable.setRowExpanded(row, true);
+                }
+            }
+            public void mouseRightClick(int row, int column, Event evt) {
+            }
+            public void columnHeaderClicked(int column) {
+            }
+        });
+
         scrollPane.setExpandContentSize(true);
         scrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
 
