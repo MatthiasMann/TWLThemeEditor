@@ -178,6 +178,9 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
         node.addProperty(new ColorProperty(new AttributeProperty(element, "color", "Font color", true)));
         node.addProperty(new IntegerProperty(new AttributeProperty(element, "offsetX", "Offset X", true), -100, 100));
         node.addProperty(new IntegerProperty(new AttributeProperty(element, "offsetY", "Offset Y", true), -100, 100));
+        node.addProperty(new BooleanProperty(new AttributeProperty(element, "linethrough", "line through / striked", true), false));
+        node.addProperty(new BooleanProperty(new AttributeProperty(element, "underline", "Underlined", true), false));
+        node.addProperty(new IntegerProperty(new AttributeProperty(element, "underlineOffset", "Underline offset", true), -100, 100));
     }
 
     static void addFontParamOperations(List<CreateChildOperation> operations, ThemeTreeNode parent, Element element) {
