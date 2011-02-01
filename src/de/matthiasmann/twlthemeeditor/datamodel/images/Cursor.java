@@ -35,6 +35,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.DerivedNodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
 import org.jdom.Element;
 
@@ -56,6 +57,8 @@ public class Cursor extends Image {
                 return rectProperty.getPropertyValue().getSize();
             }
         });
+        addProperty(new DerivedNodeReferenceProperty(
+                new AttributeProperty(element, "imageRef"), getLimit(), Kind.IMAGE));
     }
 
     @Override
