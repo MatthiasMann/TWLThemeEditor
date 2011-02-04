@@ -194,7 +194,15 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
             l.setVerticalGroup(l.createParallelGroup(ef, applyBtn, jumpBtn));
         } else {
             final ComboBox<String> cb = new ComboBox<String>(refableNodes);
-            cb.setSelected((ref != null) ? Utils.find(refableNodes, ref.getName()) : -1);
+            int selected = -1;
+            if(ref != null) {
+                selected = Utils.find(refableNodes, ref.getName());
+                if(selected < 0) {
+                    cb.setDisplayTextNoSelection(ref.getName());
+                    cb.setNoSelectionIsError(true);
+                }
+            }
+            cb.setSelected(selected);
             cb.addCallback(new Runnable() {
                 public void run() {
                     int selected = cb.getSelected();
