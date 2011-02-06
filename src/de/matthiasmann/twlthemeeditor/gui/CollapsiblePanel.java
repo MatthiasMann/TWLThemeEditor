@@ -37,6 +37,7 @@ import de.matthiasmann.twl.Timer;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
+import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 
 /**
  *
@@ -49,7 +50,7 @@ public final class CollapsiblePanel extends DialogLayout {
         VERTICAL
     }
     
-    public static final String STATE_EXPANDED = "expanded";
+    public static final StateKey STATE_EXPANDED = StateKey.get("expanded");
 
     private final Direction direction;
     private final Arrow arrow;
