@@ -35,6 +35,7 @@ import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.IntegerModel;
+import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twlthemeeditor.datamodel.Split;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
@@ -46,6 +47,11 @@ import java.util.ArrayList;
  * @author Matthias Mann
  */
 public class SplitEditorFactory implements PropertyEditorFactory<Split, SplitProperty> {
+
+    public static final StateKey STATE_ADJUSTER_NOT_FIRST    = StateKey.get("adjusterNotFirst");
+    public static final StateKey STATE_ADJUSTER_NOT_LAST     = StateKey.get("adjusterNotLast");
+    public static final StateKey STATE_RADIOBUTTON_NOT_FIRST = StateKey.get("radiobuttonNotFirst");
+    public static final StateKey STATE_RADIOBUTTON_NOT_LAST  = StateKey.get("radiobuttonNotLast");
 
     public Widget create(PropertyAccessor<Split, SplitProperty> pa) {
         return new SplitEditor(pa);
@@ -80,8 +86,8 @@ public class SplitEditorFactory implements PropertyEditorFactory<Split, SplitPro
             
             for(int i=0 ; i<2 ; i++) {
                 ValueAdjusterInt adjuster = new ValueAdjusterInt(new SplitIntegerModel(i));
-                adjuster.getAnimationState().setAnimationState("adjusterNotFirst", i == 1);
-                adjuster.getAnimationState().setAnimationState("adjusterNotLast", i == 0);
+                adjuster.getAnimationState().setAnimationState(STATE_ADJUSTER_NOT_FIRST, i == 1);
+                adjuster.getAnimationState().setAnimationState(STATE_ADJUSTER_NOT_LAST, i == 0);
 
                 ToggleButton btn1 = new ToggleButton(new EdgeBooleanModel(i, false));
                 ToggleButton btn2 = new ToggleButton(new EdgeBooleanModel(i, true));
@@ -89,8 +95,8 @@ public class SplitEditorFactory implements PropertyEditorFactory<Split, SplitPro
                 btn1.setTheme(theme1);
                 btn2.setTheme(theme2);
 
-                btn1.getAnimationState().setAnimationState("radiobuttonNotLast", true);
-                btn2.getAnimationState().setAnimationState("radiobuttonNotFirst", true);
+                btn1.getAnimationState().setAnimationState(STATE_RADIOBUTTON_NOT_LAST,  true);
+                btn2.getAnimationState().setAnimationState(STATE_RADIOBUTTON_NOT_FIRST, true);
 
                 if(i > 0) {
                     vert.addGap("adjuster");

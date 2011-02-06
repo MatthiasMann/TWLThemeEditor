@@ -29,14 +29,13 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
+import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import java.text.DateFormat;
 
 /**
@@ -125,9 +124,7 @@ public class StatusBar extends DialogLayout {
     }
 
     private void setAnimState(Widget w, int flags) {
-        AnimationState as = w.getAnimationState();
-        as.setAnimationState("error", (flags & DecoratedText.ERROR) != 0);
-        as.setAnimationState("warning", (flags & DecoratedText.WARNING) != 0);
+        DecoratedTextRenderer.setAnimationState(w.getAnimationState(), flags);
     }
     
     public void openDetailsDialog() {

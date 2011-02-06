@@ -1160,6 +1160,7 @@
             <param name="minWidth"><int>50</int></param>
             <param name="textAlignment"><enum type="alignment">left</enum></param>
             <param name="font"><fontDef filename="font.fnt" color="white">
+                <fontParam if="error" color="#FF0000"/>
                 <fontParam if="hasOpenPopups" color="#aaa"/>
             </fontDef></param>
         </theme>

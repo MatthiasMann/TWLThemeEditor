@@ -35,6 +35,7 @@ import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.ThemeInfo;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twl.renderer.CacheContext;
 import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
@@ -55,7 +56,7 @@ import org.lwjgl.opengl.Util;
  */
 public class PreviewWidget extends Widget {
 
-    public static final String STATE_FLASHING = "flashing";
+    public static final StateKey STATE_FLASHING = StateKey.get("flashing");
     
     public interface Callback {
         public void testWidgetChanged(Widget widget);

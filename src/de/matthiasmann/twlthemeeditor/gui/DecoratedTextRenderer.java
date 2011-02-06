@@ -31,6 +31,7 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twl.TableBase;
+import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 
 /**
@@ -38,6 +39,10 @@ import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
  * @author Matthias Mann
  */
 public class DecoratedTextRenderer extends TableBase.StringCellRenderer {
+
+    public static final StateKey STATE_ERROR    = StateKey.get("error");
+    public static final StateKey STATE_WARNING  = StateKey.get("warning");
+    public static final StateKey STATE_MODIFIED = StateKey.get("modified");
 
     public DecoratedTextRenderer() {
         setTheme("stringcellrenderer");
@@ -49,11 +54,14 @@ public class DecoratedTextRenderer extends TableBase.StringCellRenderer {
         if(data instanceof DecoratedText) {
             flags = ((DecoratedText)data).getFlags();
         }
-        AnimationState as = getAnimationState();
-        as.setAnimationState("error", (flags & DecoratedText.ERROR) != 0);
-        as.setAnimationState("warning", (flags & DecoratedText.WARNING) != 0);
-        as.setAnimationState("modified", (flags & DecoratedText.MODIFIED) != 0);
+        setAnimationState(getAnimationState(), flags);
         super.setCellData(row, column, data);
+    }
+
+    public static void setAnimationState(AnimationState as, int flags) {
+        as.setAnimationState(STATE_ERROR,    (flags & DecoratedText.ERROR) != 0);
+        as.setAnimationState(STATE_WARNING,  (flags & DecoratedText.WARNING) != 0);
+        as.setAnimationState(STATE_MODIFIED, (flags & DecoratedText.MODIFIED) != 0);
     }
 
     public static void install(TableBase tableBase) {

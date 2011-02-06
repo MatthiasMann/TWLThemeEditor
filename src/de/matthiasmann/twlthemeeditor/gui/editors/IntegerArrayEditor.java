@@ -37,6 +37,7 @@ import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractIntegerModel;
+import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -46,6 +47,11 @@ import java.util.Arrays;
  */
 public abstract class IntegerArrayEditor extends DialogLayout {
 
+    public static final StateKey STATE_ADJUSTER_NOT_FIRST = StateKey.get("adjusterNotFirst");
+    public static final StateKey STATE_ADJUSTER_NOT_LAST  = StateKey.get("adjusterNotLast");
+    public static final StateKey STATE_VBUTTON_NOT_FIRST  = StateKey.get("vbuttonNotFirst");
+    public static final StateKey STATE_VBUTTON_NOT_LAST   = StateKey.get("vbuttonNotLast");
+    
     private final InfoWindow errorInfoWindow;
     private final Label errorInfoLabel;
     private final AddButton addButton;
@@ -83,11 +89,11 @@ public abstract class IntegerArrayEditor extends DialogLayout {
 
         for (int i = 0; i < array.length; i++) {
             adjusters[i] = new ValueAdjusterInt(new ArrayElementModel(i));
-            adjusters[i].getAnimationState().setAnimationState("adjusterNotFirst", i > 0);
-            adjusters[i].getAnimationState().setAnimationState("adjusterNotLast", i < array.length - 1);
+            adjusters[i].getAnimationState().setAnimationState(STATE_ADJUSTER_NOT_FIRST, i > 0);
+            adjusters[i].getAnimationState().setAnimationState(STATE_ADJUSTER_NOT_LAST, i < array.length - 1);
             removeButtons[i] = new RemoveButton(i);
-            removeButtons[i].getAnimationState().setAnimationState("vbuttonNotFirst", i > 0);
-            removeButtons[i].getAnimationState().setAnimationState("vbuttonNotLast", i < array.length - 1);
+            removeButtons[i].getAnimationState().setAnimationState(STATE_VBUTTON_NOT_FIRST, i > 0);
+            removeButtons[i].getAnimationState().setAnimationState(STATE_VBUTTON_NOT_LAST, i < array.length - 1);
 
             horzAdjusters.addWidget(adjusters[i]);
             horzRemoveButtons.addWidget(removeButtons[i]);

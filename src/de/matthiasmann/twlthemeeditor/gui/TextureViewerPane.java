@@ -43,6 +43,7 @@ import de.matthiasmann.twl.model.FloatModel;
 import de.matthiasmann.twl.model.PersistentBooleanModel;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.model.SimpleFloatModel;
+import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twlthemeeditor.gui.TextureViewer.PositionBarDragListener;
 import de.matthiasmann.twlthemeeditor.gui.TextureViewer.TextureLoadedListener;
@@ -54,6 +55,9 @@ import java.util.prefs.Preferences;
  * @author Matthias Mann
  */
 public class TextureViewerPane extends DialogLayout {
+
+    public static final StateKey STATE_ERROR                  = StateKey.get("error");
+    public static final StateKey STATE_ANIMATED_POSITION_BARS = StateKey.get("animatedPositionBars");
 
     public interface Listener {
         public void dragEdgeTop(int y);
@@ -174,7 +178,7 @@ public class TextureViewerPane extends DialogLayout {
             public void run() {
                 Throwable ex = textureViewer.getLoadException();
                 labelErrorDisplay.setText((ex != null) ? ex.getMessage() : "");
-                labelErrorDisplay.getAnimationState().setAnimationState("error", ex != null);
+                labelErrorDisplay.getAnimationState().setAnimationState(STATE_ERROR, ex != null);
             }
         });
         textureViewer.setImageDragListener(new DragListener() {
@@ -315,8 +319,8 @@ public class TextureViewerPane extends DialogLayout {
     }
 
     void updateAnimatedPositionBars() {
-        textureViewer.getAnimationState().setAnimationState("animatedPositionBars",
-                animatedPositionBars.getValue());
+        textureViewer.getAnimationState().setAnimationState(
+                STATE_ANIMATED_POSITION_BARS, animatedPositionBars.getValue());
     }
 
     @Override

@@ -48,6 +48,7 @@ import de.matthiasmann.twl.model.PersistentMRUListModel;
 import de.matthiasmann.twl.model.SimpleMRUListModel;
 import de.matthiasmann.twl.model.TreeTableModel;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import java.io.File;
 import java.util.prefs.Preferences;
 
@@ -56,6 +57,9 @@ import java.util.prefs.Preferences;
  * @author Matthias Mann
  */
 public class NewProjectDialog extends DialogLayout {
+
+    public static final StateKey STATE_ERROR   = StateKey.get("error");
+    public static final StateKey STATE_WARNING = StateKey.get("warning");
 
     public interface Listener {
         public void ok(NewProjectSettings settings);
@@ -314,8 +318,8 @@ public class NewProjectDialog extends DialogLayout {
 
     private void setMessage(String msg) {
         labelInfo.setText(msg);
-        labelInfo.getAnimationState().setAnimationState("error", settings == null);
-        labelInfo.getAnimationState().setAnimationState("warning", msg.length() > 0);
+        labelInfo.getAnimationState().setAnimationState(STATE_ERROR, settings == null);
+        labelInfo.getAnimationState().setAnimationState(STATE_WARNING, msg.length() > 0);
         btnOk.setEnabled(settings != null);
     }
 

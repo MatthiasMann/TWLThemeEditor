@@ -29,7 +29,6 @@
  */
 package de.matthiasmann.twlthemeeditor.imgconv;
 
-import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.ComboBox;
 import de.matthiasmann.twl.DialogLayout;
@@ -45,6 +44,7 @@ import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.fontgen.gui.EffectsPanel;
 import de.matthiasmann.twlthemeeditor.fontgen.gui.FontGenDialog;
+import de.matthiasmann.twlthemeeditor.gui.DecoratedTextRenderer;
 import de.matthiasmann.twlthemeeditor.gui.SaveFileSelector;
 import java.io.File;
 import java.io.IOException;
@@ -260,9 +260,7 @@ public final class ConvertImageDialog extends PopupWindow {
 
     private void setStatusBar(String text, int flags) {
         statusBar.setText(text);
-        AnimationState animState = statusBar.getAnimationState();
-        animState.setAnimationState("error", (flags & DecoratedText.ERROR) != 0);
-        animState.setAnimationState("warning", (flags & DecoratedText.WARNING) != 0);
+        DecoratedTextRenderer.setAnimationState(statusBar.getAnimationState(), flags);
         saveImageButton.setEnabled((flags & DecoratedText.ERROR) == 0);
     }
 

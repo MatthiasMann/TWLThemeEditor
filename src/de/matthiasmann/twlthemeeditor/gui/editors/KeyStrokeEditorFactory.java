@@ -37,6 +37,7 @@ import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 
@@ -45,6 +46,8 @@ import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
  * @author Matthias Mann
  */
 public class KeyStrokeEditorFactory implements PropertyEditorFactory<KeyStroke, Property<KeyStroke>> {
+
+    public static final StateKey STATE_ERROR = StateKey.get("error");
 
     public Widget create(PropertyAccessor<KeyStroke, Property<KeyStroke>> pa) {
         KeyStrokeEditor kse = new KeyStrokeEditor(pa);
@@ -79,10 +82,10 @@ public class KeyStrokeEditorFactory implements PropertyEditorFactory<KeyStroke, 
             KeyStroke keyStroke = pa.getProperty().getPropertyValue();
             if(keyStroke == null) {
                 button.setText("INVALID");
-                button.getAnimationState().setAnimationState("error", true);
+                button.getAnimationState().setAnimationState(STATE_ERROR, true);
             } else {
                 button.setText(keyStroke.getStroke());
-                button.getAnimationState().setAnimationState("error", false);
+                button.getAnimationState().setAnimationState(STATE_ERROR, false);
             }
         }
 

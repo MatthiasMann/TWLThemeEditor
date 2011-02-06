@@ -29,7 +29,6 @@
  */
 package de.matthiasmann.twlthemeeditor.fontgen.gui;
 
-import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twl.BoxLayout;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.ComboBox;
@@ -59,6 +58,7 @@ import de.matthiasmann.twlthemeeditor.fontgen.Padding;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.BlurShadowEffect;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.GradientEffect;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.OutlineEffect;
+import de.matthiasmann.twlthemeeditor.gui.DecoratedTextRenderer;
 import de.matthiasmann.twlthemeeditor.gui.LoadFileSelector;
 import de.matthiasmann.twlthemeeditor.gui.SaveFileSelector;
 import java.io.File;
@@ -691,9 +691,7 @@ public final class FontGenDialog {
 
     private void setStatusBar(String text, int flags) {
         statusBar.setText(text);
-        AnimationState animState = statusBar.getAnimationState();
-        animState.setAnimationState("error", (flags & DecoratedText.ERROR) != 0);
-        animState.setAnimationState("warning", (flags & DecoratedText.WARNING) != 0);
+        DecoratedTextRenderer.setAnimationState(statusBar.getAnimationState(), flags);
     }
 
     static class CharSetBlockModel extends HasCallback implements BooleanModel {
