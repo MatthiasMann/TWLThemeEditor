@@ -82,14 +82,15 @@ public class WidgetTreeModel extends AbstractTreeTableModel implements WidgetTre
 
     public Node getNodeForWidget(Widget w) {
         if(w != null) {
-            if(isTestWidgetContainer(w.getParent())) {
-                w = w.getParent();
+            Widget parentWidget = w.getParent();
+            if(isTestWidgetContainer(parentWidget)) {
+                parentWidget = parentWidget.getParent();
             }
             WidgetTreeNode parent;
-            if(w == gui) {
+            if(parentWidget == gui) {
                 parent = this;
             } else {
-                 parent = getNodeForWidget(w.getParent());
+                parent = getNodeForWidget(parentWidget);
             }
             if(parent != null) {
                 for(int i=0,n=parent.getNumChildren() ; i<n ; ++i) {

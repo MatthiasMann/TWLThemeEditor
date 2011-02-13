@@ -141,16 +141,12 @@ public class PreviewWidget extends Widget {
         x -= getInnerX();
         y -= getInnerY();
 
-        if(testWidget == null || !testWidgetInside(testWidget, x, y)) {
-            return null;
-        }
-
-        Widget widget = testWidget;
+        Widget widget = testGUI;
         for(;;) {
             Widget found = null;
             for(int i=widget.getNumChildren() ; i-->0 ;) {
                 Widget c = widget.getChild(i);
-                if(c.isVisible() && testWidgetInside(c, x, y)) {
+                if(c.isVisible() && testWidgetInside(c, x, y) && !isTooltipWindow(c)) {
                     found = c;
                     break;
                 }
@@ -162,7 +158,11 @@ public class PreviewWidget extends Widget {
         }
     }
 
-    private boolean testWidgetInside(Widget widget, int x, int y) {
+    private static boolean isTooltipWindow(Widget widget) {
+        return "de.matthiasmann.twl.GUI$TooltipWindow".equals(widget.getClass().getName());
+    }
+
+    private static boolean testWidgetInside(Widget widget, int x, int y) {
         return x >= widget.getX() && y >= widget.getY() && x < widget.getRight() && y < widget.getBottom();
     }
 
