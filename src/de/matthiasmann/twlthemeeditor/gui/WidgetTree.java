@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.gui;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Event;
+import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.ScrollPane.Fixed;
 import de.matthiasmann.twl.TableRowSelectionManager;
@@ -56,7 +57,7 @@ public class WidgetTree extends DialogLayout {
     private final Button btnFlashSelectedWidget;
     private final Widget btnSelectWidget;
 
-    private Widget rootWidget;
+    private GUI testGUI;
 
     public WidgetTree(WidgetTreeModel treeModel, PreviewWidget previewWidget) {
         this.treeModel = treeModel;
@@ -138,14 +139,14 @@ public class WidgetTree extends DialogLayout {
                 .addGroup(createParallelGroup(btnReloadWidget, btnSelectWidget, btnFlashSelectedWidget)));
     }
 
-    public void setRootWidget(Context ctx, Widget rootWidget) {
-        this.rootWidget = rootWidget;
-        treeModel.createTreeFromWidget(ctx, rootWidget);
+    public void setTestGUI(Context ctx, GUI testGUI) {
+        this.testGUI = testGUI;
+        treeModel.createTreeFromWidget(ctx, testGUI);
         if(treeModel.getNumChildren() > 0) {
             selectionModel.setSelection(0, 0);
             treeTable.setRowExpanded(0, true);
         }
-        btnReloadWidget.setEnabled(rootWidget != null);
+        btnReloadWidget.setEnabled(testGUI != null);
     }
 
     public void addReloadButtenCallback(Runnable cb) {
@@ -161,7 +162,7 @@ public class WidgetTree extends DialogLayout {
         Widget widget = (idx >= 0) ? treeModel.getWidget(treeTable.getNodeFromRow(idx)) : null;
         // make sure that the widget has not been removed (eg tree model is outdated)
         for(Widget w=widget ; w!=null ; w=w.getParent()) {
-            if(w == rootWidget) {
+            if(w == testGUI) {
                 return widget;
             }
         }

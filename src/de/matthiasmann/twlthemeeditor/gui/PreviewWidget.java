@@ -61,6 +61,7 @@ public class PreviewWidget extends Widget {
     public interface Callback {
         public void testWidgetChanged(Widget widget);
         public void errorLocationChanged(Object errorLocation);
+        public void testGUIChanged(GUI testGUI);
     }
 
     private final MessageLog messageLog;
@@ -108,6 +109,10 @@ public class PreviewWidget extends Widget {
 
     public Widget getTestWidget() {
         return testWidget;
+    }
+
+    public GUI getTestGUI() {
+        return testGUI;
     }
 
     public void reloadTheme() {
@@ -213,6 +218,9 @@ public class PreviewWidget extends Widget {
         if(testGUI == null) {
             TestWidgetContainer container = new TestWidgetContainer();
             testGUI = new GUI(container, render);
+            if(callback != null) {
+                callback.testGUIChanged(testGUI);
+            }
         }
 
         if((theme == null || reloadTheme) && !loadTheme(gui)) {

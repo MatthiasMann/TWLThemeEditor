@@ -147,6 +147,9 @@ public final class EditorArea extends Widget {
             public void errorLocationChanged(Object errorLocation) {
                 updateErrorLocation(errorLocation);
             }
+            public void testGUIChanged(GUI testGUI) {
+                updateTestGUI(testGUI);
+            }
         });
 
         modelChangedCB = new CallbackWithReason<ThemeTreeModel.CallbackReason>() {
@@ -523,8 +526,11 @@ public final class EditorArea extends Widget {
         }
     }
 
+    void updateTestGUI(GUI testGUI) {
+        widgetTree.setTestGUI(ctx, testGUI);
+    }
+
     void updateTestWidget(Widget testWidget) {
-        widgetTree.setRootWidget(ctx, testWidget);
         widgetPropertyEditor.setWidget(testWidget);
     }
 

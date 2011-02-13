@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractTreeTableModel;
 import de.matthiasmann.twl.model.AbstractTreeTableNode;
@@ -39,10 +40,10 @@ import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
  *
  * @author Matthias Mann
  */
-public class WidgetTreeModel extends AbstractTreeTableModel {
+public class WidgetTreeModel extends AbstractTreeTableModel implements WidgetTreeNode {
 
     Context ctx;
-    Node rootNode;
+    GUI gui;
 
     public WidgetTreeModel() {
     }
@@ -57,21 +58,18 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
         return COLUMN_NAMES.length;
     }
 
-    public void createTreeFromWidget(Context ctx, Widget w) {
+    public void createTreeFromWidget(Context ctx, GUI gui) {
         this.ctx = ctx;
-        removeAllChildren();
-        if(w != null) {
-            rootNode = createNode(this, w);
-            insertChild(rootNode, 0);
-        } else {
-            rootNode = null;
-        }
+        this.gui = gui;
+        checkChildren(this);
     }
 
     public void refreshTree() {
-        if(rootNode != null) {
-            rootNode.checkChildren();
-        }
+        checkChildren(this);
+    }
+
+    public Widget getWidget() {
+        return gui;
     }
 
     public Widget getWidget(TreeTableNode node) {
@@ -83,11 +81,16 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
     }
 
     public Node getNodeForWidget(Widget w) {
-        if(w != null && rootNode != null) {
-            if(w == rootNode.widget) {
-                return rootNode;
+        if(w != null) {
+            if(isTestWidgetContainer(w.getParent())) {
+                w = w.getParent();
             }
-            Node parent = getNodeForWidget(w.getParent());
+            WidgetTreeNode parent;
+            if(w == gui) {
+                parent = this;
+            } else {
+                 parent = getNodeForWidget(w.getParent());
+            }
             if(parent != null) {
                 for(int i=0,n=parent.getNumChildren() ; i<n ; ++i) {
                     Node child = (Node)parent.getChild(i);
@@ -100,18 +103,70 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
         return null;
     }
 
-    private Node createNode(TreeTableNode parent, Widget w) {
-        Node node = new Node(parent, w);
-        node.addChildren();
-        return node;
+    @Override
+    public void removeAllChildren() {
+        super.removeAllChildren();
     }
 
-    public class Node extends AbstractTreeTableNode {
+    public void add(TreeTableNode node) {
+        insertChild(node, getNumChildren());
+    }
+
+    public void setLeaf() {
+    }
+
+    private void addChildren(WidgetTreeNode node) {
+        node.removeAllChildren();
+        Widget parentWidget = node.getWidget();
+        for(int i=0,n=parentWidget.getNumChildren() ; i<n ; i++) {
+            Widget widget = getChildWidget(parentWidget, i);
+            Node child = new Node(node, ctx, widget);
+            addChildren(child);
+            node.add(child);
+        }
+        node.setLeaf();
+    }
+
+    private void checkChildren(WidgetTreeNode node) {
+        Widget widget = node.getWidget();
+        final int n = node.getNumChildren();
+        if(n != widget.getNumChildren()) {
+            addChildren(node);
+        } else {
+            for(int i=0 ; i<n ; i++) {
+                Node child = (Node)node.getChild(i);
+                if(getChildWidget(widget, i) != child.widget) {
+                    addChildren(node);
+                    return;
+                }
+            }
+            for(int i=0 ; i<n ; i++) {
+                Node child = (Node)node.getChild(i);
+                checkChildren(child);
+            }
+        }
+    }
+
+    private static boolean isTestWidgetContainer(Widget widget) {
+        return (widget instanceof TestWidgetContainer) && widget.getNumChildren() == 1;
+    }
+
+    private static Widget getChildWidget(Widget parent, int idx) {
+        Widget widget = parent.getChild(idx);
+        if(isTestWidgetContainer(widget)) {
+            widget = widget.getChild(0);
+        }
+        return widget;
+    }
+
+    public static class Node extends AbstractTreeTableNode implements WidgetTreeNode {
+        final Context ctx;
         final Widget widget;
         final String className;
 
-        public Node(TreeTableNode parent, Widget w) {
+        public Node(TreeTableNode parent, Context ctx, Widget w) {
             super(parent);
+            this.ctx = ctx;
             this.widget = w;
             this.className = w.getClass().getSimpleName();
         }
@@ -120,8 +175,11 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
             switch (column) {
                 case 0: {
                     String theme = widget.getTheme();
+                    if(theme.length() == 0) {
+                        theme = "<EMPTY>";
+                    }
                     if(ctx != null) {
-                        return DecoratedText.apply(theme,ctx.getWidgetFlags(widget));
+                        return DecoratedText.apply(theme, ctx.getWidgetFlags(widget));
                     } else {
                         return theme;
                     }
@@ -133,6 +191,10 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
             }
         }
 
+        public Widget getWidget() {
+            return widget;
+        }
+
         @Override
         public Object getTooltipContent(int column) {
             if(ctx != null) {
@@ -141,32 +203,18 @@ public class WidgetTreeModel extends AbstractTreeTableModel {
             return null;
         }
 
-        void add(Node n) {
+        public void add(TreeTableNode n) {
             insertChild(n, getNumChildren());
         }
 
-        void addChildren() {
-            removeAllChildren();
-            for(int i=0,n=widget.getNumChildren() ; i<n ; i++) {
-                add(createNode(this, widget.getChild(i)));
-            }
-            setLeaf(getNumChildren() == 0);
+        @Override
+        public void removeAllChildren() {
+            super.removeAllChildren();
         }
 
-        void checkChildren() {
-            if(getNumChildren() != widget.getNumChildren()) {
-                addChildren();
-            } else {
-                for(int i=0,n=getNumChildren() ; i<n ; i++) {
-                    if(widget.getChild(i) != ((Node)getChild(i)).widget) {
-                        addChildren();
-                        return;
-                    }
-                }
-                for(int i=0,n=getNumChildren() ; i<n ; i++) {
-                    ((Node)getChild(i)).checkChildren();
-                }
-            }
+        @Override
+        public void setLeaf() {
+            super.setLeaf(getNumChildren() == 0);
         }
     }
 }
