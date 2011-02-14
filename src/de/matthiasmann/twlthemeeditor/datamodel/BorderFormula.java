@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -35,22 +35,22 @@ import de.matthiasmann.twl.Border;
  *
  * @author Matthias Mann
  */
-public class BorderFormular extends Border {
+public class BorderFormula extends Border {
 
-    private final String formular;
+    private final String formula;
 
-    public BorderFormular(String formular) {
+    public BorderFormula(String formula) {
         super(0);
-        this.formular = formular;
+        this.formula = formula;
     }
 
-    public String getFormular() {
-        return formular;
+    public String getFormula() {
+        return formula;
     }
 
     @Override
     public String toString() {
-        return formular;
+        return formula;
     }
     
 }

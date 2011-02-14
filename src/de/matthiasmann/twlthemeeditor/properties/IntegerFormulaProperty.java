@@ -29,52 +29,65 @@
  */
 package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twl.Border;
+import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twlthemeeditor.datamodel.BorderFormula;
+import de.matthiasmann.twlthemeeditor.datamodel.IntegerFormula;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 
 /**
  *
  * @author Matthias Mann
  */
-public class BorderProperty extends DerivedProperty<Border> {
+public class IntegerFormulaProperty extends DerivedProperty<IntegerFormula> implements IntegerModel {
 
     private final int minValue;
-    private final boolean allowFormula;
+    private final int maxValue;
 
-    public BorderProperty(Property<String> base, int minValue, boolean allowFormula) {
-        super(base, Border.class);
+    private IntegerFormula prevValue;
+
+    public IntegerFormulaProperty(Property<String> base, int minValue, int maxValue) {
+        super(base, IntegerFormula.class);
         this.minValue = minValue;
-        this.allowFormula = allowFormula;
+        this.maxValue = maxValue;
+        this.prevValue = new IntegerFormula((minValue < 0 && maxValue >= 0) ? 0 : minValue);
     }
 
-    public Border getPropertyValue() {
+    public IntegerFormula getPropertyValue() {
         String value = base.getPropertyValue();
         if(value == null && canBeNull()) {
             return null;
         }
         try {
-            return Utils.parseBorder(value);
-        } catch (NumberFormatException ex) {
-            if(allowFormula) {
-                return new BorderFormula(value);
-            } else {
-                throw ex;
-            }
+            return new IntegerFormula(Utils.parseInt(value));
+        } catch (Throwable ex) {
+            return new IntegerFormula(prevValue.getValue(), value);
         }
     }
 
-    public void setPropertyValue(Border value) throws IllegalArgumentException {
-        base.setPropertyValue(Utils.toString(value, canBeNull()));
+    public void setPropertyValue(IntegerFormula value) throws IllegalArgumentException {
+        if(canBeNull() && value == null) {
+            base.setPropertyValue(null);
+        } else {
+            prevValue = value;
+            base.setPropertyValue(value.toString());
+        }
+    }
+
+    public int getMaxValue() {
+        return maxValue;
     }
 
     public int getMinValue() {
         return minValue;
     }
 
-    public boolean isAllowFormula() {
-        return allowFormula;
+    public void setValue(int value) {
+       setPropertyValue(new IntegerFormula(value));
     }
-    
+
+    public int getValue() {
+        IntegerFormula value = getPropertyValue();
+        return ((value != null) ? value : prevValue).getValue();
+    }
+
 }

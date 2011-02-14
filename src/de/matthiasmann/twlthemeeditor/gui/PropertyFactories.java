@@ -34,6 +34,7 @@ import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.KeyStroke;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.utils.TypeMapping;
+import de.matthiasmann.twlthemeeditor.datamodel.IntegerFormula;
 import de.matthiasmann.twlthemeeditor.gui.editors.BooleanEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.BorderEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.ColorEditorFactory;
@@ -43,6 +44,7 @@ import de.matthiasmann.twlthemeeditor.gui.editors.FloatEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.GapEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.HotSpotEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.IntegerEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.IntegerFormulaEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.KeyStrokeEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.NameEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.RectEditorFactory;
@@ -82,6 +84,7 @@ public class PropertyFactories {
         factories2.put(Color.class, new ColorEditorFactory());
         factories2.put(String.class, new StringEditorFactory());
         factories2.put(Integer.class, new IntegerEditorFactory());
+        factories2.put(IntegerFormula.class, new IntegerFormulaEditorFactory());
         factories2.put(Float.class, new FloatEditorFactory());
         factories2.put(Boolean.class, new BooleanEditorFactory());
         factories2.put(Enum.class, new EnumEditorFactory<Alignment>()); // use dummy enum to get rid of raw type warning

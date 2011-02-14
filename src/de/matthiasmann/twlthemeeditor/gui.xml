@@ -898,8 +898,15 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         </theme>
 
         <theme name="bordereditor" ref="dialoglayout">
-            <theme name="btnUseFormular" ref="checkbox">
-                <param name="tooltip"><string>Use formular instead of value adjusters</string></param>
+            <theme name="btnUseFormula" ref="checkbox">
+                <param name="tooltip"><string>Use formula instead of value adjusters</string></param>
+            </theme>
+            <theme name="" ref="*"/>
+        </theme>
+
+        <theme name="integereditor" ref="dialoglayout">
+            <theme name="btnUseFormula" ref="checkbox">
+                <param name="tooltip"><string>Use formula instead of value adjuster</string></param>
             </theme>
             <theme name="" ref="*"/>
         </theme>

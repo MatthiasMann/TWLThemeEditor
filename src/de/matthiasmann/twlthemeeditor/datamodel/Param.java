@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -45,10 +45,10 @@ import de.matthiasmann.twlthemeeditor.properties.DimensionProperty;
 import de.matthiasmann.twlthemeeditor.properties.ElementTextProperty;
 import de.matthiasmann.twlthemeeditor.properties.GapProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
-import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.DerivedNodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.EnumProperty;
+import de.matthiasmann.twlthemeeditor.properties.IntegerFormulaProperty;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -315,7 +315,7 @@ public class Param extends ThemeTreeNode implements HasProperties {
             return new BorderProperty(new ElementTextProperty(e, "Border"), 0, true);
         }
         if("int".equals(tagName)) {
-            return new IntegerProperty(new ElementTextProperty(e, "Integer value"), Short.MIN_VALUE, Short.MAX_VALUE);
+            return new IntegerFormulaProperty(new ElementTextProperty(e, "Integer value"), Short.MIN_VALUE, Short.MAX_VALUE);
         }
         if("bool".equals(tagName)) {
             return new BooleanProperty(new ElementTextProperty(e, "Boolean value"), false);

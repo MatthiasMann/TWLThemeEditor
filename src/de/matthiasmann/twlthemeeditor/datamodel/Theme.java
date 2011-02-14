@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -244,7 +244,7 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         }
 
         protected String getTypeName() {
-            if(type == Integer.class) {
+            if(type == Integer.class || type == IntegerFormula.class) {
                 return "int";
             } else if(type == Boolean.class) {
                 return "bool";
@@ -254,7 +254,7 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         }
 
         protected String getDefaultValue() {
-            if(type == Integer.class) {
+            if(type == Integer.class || type == IntegerFormula.class) {
                 return "0";
             } else if(type == Boolean.class) {
                 return "false";
@@ -313,12 +313,12 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         }
     }
 
-    class IntegerParamProperty extends ParamProperty<Integer> implements IntegerModel {
+    class IntegerParamProperty extends ParamProperty<IntegerFormula> implements IntegerModel {
         final int minValue;
         final int maxValue;
 
         public IntegerParamProperty(String paramName, int minValue, int maxValue) {
-            super(paramName, Integer.class);
+            super(paramName, IntegerFormula.class);
             this.minValue = minValue;
             this.maxValue = maxValue;
         }
@@ -329,11 +329,11 @@ public class Theme extends ThemeTreeNode implements HasProperties {
             removeValueChangedCallback(callback);
         }
         public int getValue() {
-            Integer value = getPropertyValue();
-            return (value == null) ? 0 : value;
+            IntegerFormula value = getPropertyValue();
+            return (value == null) ? 0 : value.getValue();
         }
         public void setValue(int value) {
-            setPropertyValue(value);
+            setPropertyValue(new IntegerFormula(value));
         }
         public int getMaxValue() {
             return maxValue;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -52,6 +52,14 @@ import org.xml.sax.SAXException;
  */
 public final class Utils {
 
+    public static int parseInt(String value) throws NumberFormatException {
+        if(value.startsWith("0x")) {
+            return Integer.parseInt(value.substring(2), 16);
+        } else {
+            return Integer.parseInt(value, 10);
+        }
+    }
+    
     public static int[] parseInts(String value) {
         int count = 1;
         for(int pos=-1 ; (pos=value.indexOf(',', pos+1)) >= 0 ;) {
@@ -146,7 +154,7 @@ public final class Utils {
         if(border == null) {
             return null;
         }
-        if(border instanceof BorderFormular) {
+        if(border instanceof BorderFormula) {
             return border.toString();
         }
         if(border.getBorderTop() == border.getBorderBottom() && border.getBorderLeft() == border.getBorderRight()) {

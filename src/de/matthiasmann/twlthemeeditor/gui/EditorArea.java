@@ -155,9 +155,11 @@ public final class EditorArea extends Widget {
         modelChangedCB = new CallbackWithReason<ThemeTreeModel.CallbackReason>() {
             public void callback(ThemeTreeModel.CallbackReason reason) {
                 reloadTheme();
+                /* DISABLED not needed?
                 if(reason == ThemeTreeModel.CallbackReason.STRUCTURE_CHANGED && updatePropertyEditors != null) {
                     updatePropertyEditors.run();
                 }
+                 */
             }
         };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -37,7 +37,7 @@ import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
-import de.matthiasmann.twlthemeeditor.datamodel.BorderFormular;
+import de.matthiasmann.twlthemeeditor.datamodel.BorderFormula;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
@@ -55,12 +55,12 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border, Border
 
     static final class BorderEditor extends DialogLayout implements Runnable, EditField.Callback {
         private final PropertyAccessor<Border, BorderProperty> pa;
-        private final SimpleBooleanModel useFormular;
+        private final SimpleBooleanModel useFormula;
         private final SimpleIntegerModel modelTop;
         private final SimpleIntegerModel modelLeft;
         private final SimpleIntegerModel modelBottom;
         private final SimpleIntegerModel modelRight;
-        private final EditField efFormular;
+        private final EditField efFormula;
         private final ValueAdjusterInt adjusters[];
 
         boolean inSetProperty;
@@ -74,9 +74,9 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border, Border
             Border border = pa.getValue(Border.ZERO);
 
             int minValue = pa.getProperty().getMinValue();
-            boolean allowFormular = pa.getProperty().isAllowFormular();
+            boolean allowFormula = pa.getProperty().isAllowFormula();
 
-            useFormular = new SimpleBooleanModel(border instanceof BorderFormular);
+            useFormula = new SimpleBooleanModel(border instanceof BorderFormula);
             
             modelTop = new SimpleIntegerModel(minValue, MAX_BORDER_SIZE, border.getBorderTop());
             modelLeft = new SimpleIntegerModel(minValue, MAX_BORDER_SIZE, border.getBorderLeft());
@@ -100,7 +100,7 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border, Border
             modelBottom.addCallback(this);
             modelRight.addCallback(this);
 
-            useFormular.addCallback(new Runnable() {
+            useFormula.addCallback(new Runnable() {
                 public void run() {
                     setEnabled();
                     setProperty();
@@ -110,17 +110,17 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border, Border
             Group horz = createParallelGroup();
             Group vert = createSequentialGroup();
 
-            if(allowFormular) {
-                ToggleButton btnUseFormular = new ToggleButton(useFormular);
-                btnUseFormular.setTheme("btnUseFormular");
-                efFormular = new EditField();
-                efFormular.setText(Utils.toString(border, false));
-                efFormular.addCallback(this);
+            if(allowFormula) {
+                ToggleButton btnUseFormula = new ToggleButton(useFormula);
+                btnUseFormula.setTheme("btnUseFormula");
+                efFormula = new EditField();
+                efFormula.setText(Utils.toString(border, false));
+                efFormula.addCallback(this);
 
-                horz.addGroup(createSequentialGroup().addWidget(btnUseFormular).addWidget(efFormular));
-                vert.addGroup(createParallelGroup().addWidget(btnUseFormular).addWidget(efFormular));
+                horz.addGroup(createSequentialGroup().addWidget(btnUseFormula).addWidget(efFormula));
+                vert.addGroup(createParallelGroup().addWidget(btnUseFormula).addWidget(efFormula));
             } else {
-                efFormular = null;
+                efFormula = null;
             }
 
             horz.addWidgets(adjusters);
@@ -146,11 +146,11 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border, Border
             try {
                 inSetProperty = true;
                 Border border;
-                if(useFormular.getValue()) {
-                    String formular = efFormular.getText();
-                    border = new BorderFormular(formular);
+                if(useFormula.getValue()) {
+                    String formula = efFormula.getText();
+                    border = new BorderFormula(formula);
                     try {
-                        Border values = Utils.parseBorder(formular);
+                        Border values = Utils.parseBorder(formula);
                         if(values != null) {
                             modelTop.setValue(values.getBorderTop());
                             modelLeft.setValue(values.getBorderLeft());
@@ -166,11 +166,11 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border, Border
                         modelBottom.getValue(),
                         modelRight.getValue());
 
-                    if(efFormular != null) {
+                    if(efFormula != null) {
                         try {
-                            // if the current formular is a parseable border then update it
-                            if(Utils.parseBorder(efFormular.getText()) != null) {
-                                efFormular.setText(Utils.toString(border, false));
+                            // if the current formula is a parseable border then update it
+                            if(Utils.parseBorder(efFormula.getText()) != null) {
+                                efFormula.setText(Utils.toString(border, false));
                             }
                         } catch (NumberFormatException ex) {
                         }
@@ -183,11 +183,11 @@ public class BorderEditorFactory implements PropertyEditorFactory<Border, Border
         }
 
         void setEnabled() {
-            if(efFormular != null) {
-                efFormular.setEnabled(useFormular.getValue());
+            if(efFormula != null) {
+                efFormula.setEnabled(useFormula.getValue());
             }
             for(ValueAdjusterInt va : adjusters) {
-                va.setEnabled(!useFormular.getValue());
+                va.setEnabled(!useFormula.getValue());
             }
         }
     }

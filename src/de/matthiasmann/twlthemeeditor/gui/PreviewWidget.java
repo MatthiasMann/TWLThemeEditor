@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -49,6 +49,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.Util;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
  *
@@ -299,13 +300,15 @@ public class PreviewWidget extends Widget {
 
                 theme = newTheme;
                 testGUI.destroy();
+                messageLog.removeAll(CAT_THEME);
                 return true;
             } catch (IOException ex) {
                 hadThemeLoadError = true;
                 errorLocation = tracker.findErrorLocation();
                 render.setActiveCacheContext(oldCacheContext);
                 newCacheContext.destroy();
-                messageLog.add(new MessageLog.Entry(CAT_THEME, "Exception while loading theme", null, ex));
+                messageLog.add(new MessageLog.Entry(CAT_THEME, "Exception while loading theme", null,
+                        (ex.getCause() instanceof XmlPullParserException) ? ex.getCause() : ex));
             } finally {
                 if(ThemeLoadErrorTracker.pop() != tracker) {
                     throw new IllegalStateException("Wrong error tracker");

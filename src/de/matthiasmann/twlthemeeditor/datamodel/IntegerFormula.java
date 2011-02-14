@@ -27,54 +27,47 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.properties;
-
-import de.matthiasmann.twl.Border;
-import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twlthemeeditor.datamodel.BorderFormula;
-import de.matthiasmann.twlthemeeditor.datamodel.Utils;
+package de.matthiasmann.twlthemeeditor.datamodel;
 
 /**
  *
  * @author Matthias Mann
  */
-public class BorderProperty extends DerivedProperty<Border> {
+public final class IntegerFormula {
 
-    private final int minValue;
-    private final boolean allowFormula;
+    private final int value;
+    private final String formula;
 
-    public BorderProperty(Property<String> base, int minValue, boolean allowFormula) {
-        super(base, Border.class);
-        this.minValue = minValue;
-        this.allowFormula = allowFormula;
+    public IntegerFormula(int value) {
+        this.value = value;
+        this.formula = null;
     }
 
-    public Border getPropertyValue() {
-        String value = base.getPropertyValue();
-        if(value == null && canBeNull()) {
-            return null;
+    public IntegerFormula(int value, String formula) {
+        if(formula == null) {
+            throw new NullPointerException("formula");
         }
-        try {
-            return Utils.parseBorder(value);
-        } catch (NumberFormatException ex) {
-            if(allowFormula) {
-                return new BorderFormula(value);
-            } else {
-                throw ex;
-            }
+        this.value = value;
+        this.formula = formula;
+    }
+
+    public boolean hasFormula() {
+        return formula != null;
+    }
+
+    public String getFormula() {
+        if(formula == null) {
+            throw new IllegalStateException("no formula");
         }
+        return formula;
     }
 
-    public void setPropertyValue(Border value) throws IllegalArgumentException {
-        base.setPropertyValue(Utils.toString(value, canBeNull()));
+    public int getValue() {
+        return value;
     }
 
-    public int getMinValue() {
-        return minValue;
+    @Override
+    public String toString() {
+        return hasFormula() ? formula : Integer.toString(value);
     }
-
-    public boolean isAllowFormula() {
-        return allowFormula;
-    }
-    
 }
