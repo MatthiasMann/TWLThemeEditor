@@ -46,6 +46,11 @@ public class CloneNodeOperation extends ElementOperation {
     }
 
     @Override
+    public boolean shouldFocusNameFieldAfterExecute() {
+        return true;
+    }
+
+    @Override
     public ThemeTreeNode execute(Object[] parameter) throws IOException {
         int elementPos = getElementPosition();
         int elementTextPos = getPrevSiblingPosition(elementPos) + 1;

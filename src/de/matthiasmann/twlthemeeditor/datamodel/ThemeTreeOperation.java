@@ -56,6 +56,10 @@ public abstract class ThemeTreeOperation {
         return false;
     }
 
+    public boolean shouldFocusNameFieldAfterExecute() {
+        return false;
+    }
+
     public Parameter[] getParameter() {
         return null;
     }

@@ -78,6 +78,7 @@ public class ThemeTreePane extends DialogLayout {
     private FilteredModel filteredModel;
     private TreeTableNode selected;
     private Runnable[] callbacks;
+    private Runnable focusNameFieldCB;
 
     public ThemeTreePane(MessageLog messageLog) {
         this.messageLog = messageLog;
@@ -251,6 +252,10 @@ public class ThemeTreePane extends DialogLayout {
         callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
     }
 
+    public void setFocusNameFieldCB(Runnable focusNameFieldCB) {
+        this.focusNameFieldCB = focusNameFieldCB;
+    }
+
     void updateFilter() {
         if(filter.setString(filterEditField.getText())) {
             TreeTableNode curSel = selected;
@@ -389,6 +394,10 @@ public class ThemeTreePane extends DialogLayout {
             messageLog.add(new MessageLog.Entry(CAT_THEME_TREE_OPERATION, "Error while executing tree operation", null, ex));
         }
         selectNode(newSelection);
+        if(newSelection != null && focusNameFieldCB != null &&
+                operation.shouldFocusNameFieldAfterExecute()) {
+            getGUI().invokeLater(focusNameFieldCB);
+        }
     }
 
     void selectNode(TreeTableNode node) {

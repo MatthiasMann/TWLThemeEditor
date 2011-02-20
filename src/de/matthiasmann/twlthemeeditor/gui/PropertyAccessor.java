@@ -46,6 +46,7 @@ public class PropertyAccessor<T, P extends Property<T>> {
 
     private T value;
     private Widget[] widgetsToEnable;
+    private Runnable focusWidgetCB;
 
     public PropertyAccessor(P property, BooleanModel activeModel) {
         this.property = property;
@@ -69,6 +70,16 @@ public class PropertyAccessor<T, P extends Property<T>> {
         syncWithActive();
     }
 
+    public void setFocusWidgetCB(Runnable focusWidgetCB) {
+        this.focusWidgetCB = focusWidgetCB;
+    }
+
+    public void focusWidget() {
+        if(focusWidgetCB != null) {
+            focusWidgetCB.run();
+        }
+    }
+    
     public boolean isActive() {
         return (activeModel == null) || activeModel.getValue();
     }

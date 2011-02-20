@@ -85,6 +85,16 @@ public class NameEditorFactory implements PropertyEditorFactory<String, NameProp
             }
         });
 
+        pa.setFocusWidgetCB(new Runnable() {
+            public void run() {
+                if(!ef.hasKeyboardFocus()) {
+                    if(ef.requestKeyboardFocus()) {
+                        ef.selectAll();
+                    }
+                }
+            }
+        });
+        
         DialogLayout l = new DialogLayout();
         l.setTheme("nameeditor");
         l.setHorizontalGroup(l.createSequentialGroup(ef, applyBtn));

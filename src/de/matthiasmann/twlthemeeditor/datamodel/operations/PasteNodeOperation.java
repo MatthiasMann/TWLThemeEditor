@@ -53,6 +53,11 @@ public class PasteNodeOperation extends CreateChildOperation {
         pasteElement = getFromClipboard();
     }
 
+    @Override
+    public boolean shouldFocusNameFieldAfterExecute() {
+        return true;
+    }
+
     private Element getFromClipboard() {
         String str = Clipboard.getClipboard();
         if(str == null || str.isEmpty() || !str.startsWith("<")) {

@@ -56,6 +56,11 @@ public abstract class CreateChildOperation extends ThemeTreeOperation {
         this.element = element;
     }
 
+    @Override
+    public boolean shouldFocusNameFieldAfterExecute() {
+        return true;
+    }
+
     protected int getBaseIndentation() {
         int indentation = 0;
         for(Element e=element ; e!=null ; e=e.getParentElement()) {

@@ -102,6 +102,7 @@ public final class EditorArea extends Widget {
     private DelayedAction updatePropertyEditors;
     private Timer checkWidgetTreeTimer;
     private Context ctx;
+    private PropertyPanel propertyPanel;
     private RectProperty boundRectProperty;
     private ColorProperty boundColorProperty;
     private SplitProperty boundSplitXProperty;
@@ -139,7 +140,13 @@ public final class EditorArea extends Widget {
                 recreateLayout();
             }
         });
-        
+
+        themeTreePane.setFocusNameFieldCB(new Runnable() {
+            public void run() {
+                focusNameField();
+            }
+        });
+
         previewWidget.setCallback(new PreviewWidget.Callback() {
             public void testWidgetChanged(Widget widget) {
                 updateTestWidget(widget);
@@ -405,8 +412,7 @@ public final class EditorArea extends Widget {
         
         if(obj instanceof HasProperties) {
             Property<?>[] properties = ((HasProperties)obj).getProperties();
-            PropertyPanel propertyPanel = new PropertyPanel(ctx, properties);
-            propertiesScrollPane.setContent(propertyPanel);
+            propertyPanel = new PropertyPanel(ctx, properties);
             for(Property<?> property : properties) {
                 if(boundRectProperty == null && (property instanceof RectProperty)) {
                     boundRectProperty = (RectProperty)property;
@@ -428,11 +434,21 @@ public final class EditorArea extends Widget {
                 }
             }
         } else {
-            propertiesScrollPane.setContent(null);
+            propertyPanel = null;
         }
-        
+
+        propertiesScrollPane.setContent(propertyPanel);
         updateTextureViewerPane();
         textureViewerPane.scrollToRect();
+    }
+
+    void focusNameField() {
+        if(propertyPanel != null) {
+            PropertyAccessor<?, ?> pa = propertyPanel.getPropertyAccessor("Name");
+            if(pa != null) {
+                pa.focusWidget();
+            }
+        }
     }
 
     void checkWidgetTree() {

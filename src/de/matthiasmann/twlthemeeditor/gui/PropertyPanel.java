@@ -35,6 +35,7 @@ import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import java.util.Collection;
+import java.util.HashMap;
 
 /**
  *
@@ -43,9 +44,12 @@ import java.util.Collection;
 public final class PropertyPanel extends DialogLayout {
 
     private final PropertyFactories factories;
+    private final HashMap<String, PropertyAccessor<?,?>> propertyAccessors;
 
     public PropertyPanel(PropertyFactories factories) {
         this.factories = factories;
+        this.propertyAccessors = new HashMap<String, PropertyAccessor<?, ?>>();
+        
         setHorizontalGroup(createParallelGroup());
         setVerticalGroup(createSequentialGroup());
     }
@@ -64,12 +68,16 @@ public final class PropertyPanel extends DialogLayout {
         }
     }
 
+    public PropertyAccessor<?, ?> getPropertyAccessor(String propertyName) {
+        return propertyAccessors.get(propertyName);
+    }
+
     @SuppressWarnings("unchecked")
     protected<T> void addProperty(Property<T> p) {
         boolean optional = p.canBeNull();
         
         PropertyEditorFactory<?, ?> factory = factories.getFactory(p);
-        if(!optional && (factory instanceof SpecialPropertyEditorFactory)) {
+        if(!optional && (factory instanceof SpecialPropertyEditorFactory<?>)) {
             if(((SpecialPropertyEditorFactory<T>)factory).createSpecial(
                     getHorizontalGroup(), getVerticalGroup(), p)) {
                 return;
@@ -83,8 +91,11 @@ public final class PropertyPanel extends DialogLayout {
                 activeModel = new SimpleBooleanModel();
             }
 
-            Widget content = factory.create(new PropertyAccessor(p, activeModel));
+            PropertyAccessor pa = new PropertyAccessor(p, activeModel);
+            Widget content = factory.create(pa);
 
+            propertyAccessors.put(p.getName(), pa);
+            
             CollapsiblePanel panel = new CollapsiblePanel(
                     CollapsiblePanel.Direction.VERTICAL,
                     p.getName(), content, activeModel);
