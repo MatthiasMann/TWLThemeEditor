@@ -206,7 +206,7 @@ public class Main extends Frame {
             }
 
             String lwjglVersionMsg = null;
-            Matcher matcher = Pattern.compile("^(\\d)\\.(\\d)").matcher(Sys.getVersion());
+            Matcher matcher = Pattern.compile("^(\\d+)\\.(\\d+)(\\.\\d+)?").matcher(Sys.getVersion());
             if(matcher.matches()) {
                 int major = Integer.parseInt(matcher.group(1));
                 int minor = Integer.parseInt(matcher.group(2));
