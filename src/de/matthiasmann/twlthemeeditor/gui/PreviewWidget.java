@@ -43,6 +43,7 @@ import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeLoadErrorTracker;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
@@ -240,7 +241,7 @@ public class PreviewWidget extends Widget {
                     testWidget.adjustSize();
                 }
             } catch (Throwable ex) {
-                messageLog.add(new MessageLog.Entry(CAT_WIDGET, "Exception while creating test widget", null, ex));
+                messageLog.add(new MessageLog.Entry(CAT_WIDGET, "Exception while creating test widget", null, unwrap(ex)));
             }
 
             if(callback != null) {
@@ -263,6 +264,13 @@ public class PreviewWidget extends Widget {
         testGUI.validateLayout();
         testGUI.draw();
         testGUI.setCursor();
+    }
+
+    private static Throwable unwrap(Throwable ex) {
+        if(ex instanceof InvocationTargetException) {
+            return ((InvocationTargetException)ex).getTargetException();
+        }
+        return ex;
     }
 
     private boolean initRenderer() {
