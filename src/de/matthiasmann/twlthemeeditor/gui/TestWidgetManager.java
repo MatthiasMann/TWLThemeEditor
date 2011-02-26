@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.Button;
+import de.matthiasmann.twl.ColorSelector;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Menu;
@@ -39,6 +40,7 @@ import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterFloat;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
+import de.matthiasmann.twl.model.ColorSpaceHSL;
 import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.utils.XMLParser;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
@@ -121,6 +123,7 @@ public class TestWidgetManager {
         builtinWidgets.add(new TestWidgetFactory(TestFormular.class, "Example formular"));
         builtinWidgets.add(new TestWidgetFactory(TestFrameWithWidgets.class, "Frame with Widgets"));
         builtinWidgets.add(new TestWidgetFactory(TestScrollPane.class, "TextArea"));
+        builtinWidgets.add(new TestWidgetFactory(ColorSelector.class, "ColorSelector", new ColorSpaceHSL()));
 
         currentTestWidgetFactory = builtinWidgets.get(0);
     }
