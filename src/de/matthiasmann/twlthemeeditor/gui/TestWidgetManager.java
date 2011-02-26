@@ -363,7 +363,8 @@ public class TestWidgetManager {
     static enum FailReason {
         NOT_PUBLIC(" : not public"),
         NO_DEFAULT_CONSTRUCTOR(" : no default constructor"),
-        DEFAULT_CONSTRUCTOR_NOT_PUBLIC(" : non public default constructor");
+        DEFAULT_CONSTRUCTOR_NOT_PUBLIC(" : non public default constructor"),
+        ABSTRACT(" : is abstract");
         
         final String msg;
         private FailReason(String msg) {
@@ -386,6 +387,7 @@ public class TestWidgetManager {
 
         String curClassName;
         boolean isPublic;
+        boolean isAbstract;
         boolean foundDefaultConstructor;
         boolean isCandidate;
         boolean isInnerClass;
@@ -498,6 +500,7 @@ public class TestWidgetManager {
             subClassSet.add(superName);
             curClassName = name;
             isPublic = (access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC;
+            isAbstract = (access & Opcodes.ACC_ABSTRACT) == Opcodes.ACC_ABSTRACT;
             isCandidate = false;
             isInnerClass = false;
             foundDefaultConstructor = false;
@@ -528,7 +531,7 @@ public class TestWidgetManager {
         }
 
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-            if(isPublic && "<init>".equals(name)) {
+            if(isPublic && !isAbstract && "<init>".equals(name)) {
                 if("()V".equals(desc)) {
                     foundDefaultConstructor = true;
                     if((access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
@@ -545,6 +548,8 @@ public class TestWidgetManager {
                 FailReason reason;
                 if(!isPublic) {
                     reason = FailReason.NOT_PUBLIC;
+                } else if(!isAbstract) {
+                    reason = FailReason.ABSTRACT;
                 } else if(foundDefaultConstructor) {
                     reason = FailReason.DEFAULT_CONSTRUCTOR_NOT_PUBLIC;
                 } else {
