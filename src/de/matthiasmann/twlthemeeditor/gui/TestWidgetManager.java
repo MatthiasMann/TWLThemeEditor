@@ -548,7 +548,7 @@ public class TestWidgetManager {
                 FailReason reason;
                 if(!isPublic) {
                     reason = FailReason.NOT_PUBLIC;
-                } else if(!isAbstract) {
+                } else if(isAbstract) {
                     reason = FailReason.ABSTRACT;
                 } else if(foundDefaultConstructor) {
                     reason = FailReason.DEFAULT_CONSTRUCTOR_NOT_PUBLIC;
