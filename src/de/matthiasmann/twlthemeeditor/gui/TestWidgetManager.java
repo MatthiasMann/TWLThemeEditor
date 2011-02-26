@@ -282,7 +282,8 @@ public class TestWidgetManager {
                         old.classLoader.close();
                     }
 
-                    messageLog.add(new MessageLog.Entry(CAT_INFO,
+                    messageLog.add(new MessageLog.Entry(
+                            inspector.foundCriticalClasses ? CAT_WARNING : CAT_INFO,
                             "Loaded " + luw.factories.size() + " user widgets",
                             inspector.infoMsg.toString(), null));
 
@@ -391,6 +392,10 @@ public class TestWidgetManager {
         boolean foundDefaultConstructor;
         boolean isCandidate;
         boolean isInnerClass;
+        boolean foundLWJGLclasses;
+        boolean foundTWLclasses;
+        boolean foundXPPclasses;
+        boolean foundCriticalClasses;
         byte[] buffer;
 
         public Inspector(ArrayList<URI> toScan, ArrayList<URI> dependencies, ProgressDialog progressDialog, ClassLoader parentClassLoader) {
@@ -433,6 +438,23 @@ public class TestWidgetManager {
             ArrayList<TestWidgetFactory> testWidgetFactories = new ArrayList<TestWidgetFactory>();
             SolidFileClassLoader classLoader = SolidFileClassLoader.create(parentClassLoader, this, roots);
             StringBuilder warnings = new StringBuilder();
+
+            if(foundLWJGLclasses) {
+                infoMsg.append("\nCRITICAL: LWJGL classes (org.lwjgl.*) found on class path");
+                foundCriticalClasses = true;
+            }
+            if(foundTWLclasses) {
+                infoMsg.append("\nCRITICAL: TWL classes (de.matthiasmann.twl.*) found on class path");
+                foundCriticalClasses = true;
+            }
+            if(foundXPPclasses) {
+                infoMsg.append("\nCRITICAL: XPP classes (org.xmlpull.v1.*) found on class path");
+                foundCriticalClasses = true;
+            }
+            if(foundCriticalClasses) {
+                infoMsg.append("\nIncluding classes from these package in the user widget class path"
+                        + " may cause class loading issues and random failures\n");
+            }
 
             for(String candidate : candidates) {
                 if(checkSuperClass(candidate)) {
@@ -485,7 +507,22 @@ public class TestWidgetManager {
         }
 
         public boolean shouldInspectFile(String name) {
-            return name.endsWith(".class") && !name.startsWith("de/matthiasmann/twl/");
+            if(!name.endsWith(".class")) {
+                return false;
+            }
+            if(name.startsWith("de/matthiasmann/twl/")) {
+                foundTWLclasses = true;
+                return false;
+            }
+            if(name.startsWith("org/lwjgl/")) {
+                foundLWJGLclasses = true;
+                return false;
+            }
+            if(name.startsWith("org/xmlpull/v1/")) {
+                foundXPPclasses = true;
+                return false;
+            }
+            return true;
         }
 
         public void inspectFile(SolidFileWriter writer, String name, InputStream is) throws IOException {
