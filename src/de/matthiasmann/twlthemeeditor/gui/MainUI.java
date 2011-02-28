@@ -76,6 +76,7 @@ public final class MainUI extends DialogLayout {
     private static final String KEY_RECENT_PROJECTS = "recentProjects";
 
     private static final MessageLog.Category CAT_PROJECT = new MessageLog.Category("Project", MessageLog.CombineMode.NONE, 0);
+    private static final MessageLog.Category CAT_PROJECT_WARNING = new MessageLog.Category("Project", MessageLog.CombineMode.NONE, DecoratedText.WARNING);
     private static final MessageLog.Category CAT_PROJECT_ERROR = new MessageLog.Category("Project", MessageLog.CombineMode.NONE, DecoratedText.ERROR);
     
     private final Preferences prefs;
@@ -299,7 +300,12 @@ public final class MainUI extends DialogLayout {
             editorArea.setDemoMode(false);
             recentProjectsModel.addEntry(file.toString());
             popuplateRecentProjectsMenu();
-            messageLog.add(new MessageLog.Entry(CAT_PROJECT, "Project loaded", file.toString(), null));
+            if(model.getRootThemeFile().isHadErrors()) {
+                messageLog.add(new MessageLog.Entry(CAT_PROJECT_WARNING,
+                        "Project loaded with errors", file.toString(), null));
+            } else {
+                messageLog.add(new MessageLog.Entry(CAT_PROJECT, "Project loaded", file.toString(), null));
+            }
         } catch(FileNotFoundException ex) {
             removeFromRecentProjectsList(file);
             messageLog.add(new MessageLog.Entry(CAT_PROJECT_ERROR, "Could not load project", file.toString(), ex));

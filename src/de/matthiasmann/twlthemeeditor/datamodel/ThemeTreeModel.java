@@ -65,7 +65,7 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
                 fireCallbacks(CallbackReason.ATTRIBUTE_CHANGED);
             }
         };
-        rootThemeFile = new ThemeFile(messageLog, new TestEnv(), url, xmlChangedCB);
+        rootThemeFile = new ThemeFile(messageLog, null, new TestEnv(), url, xmlChangedCB);
         rootNode = new ThemeTreeRootNode(rootThemeFile, this);
 
         insertChild(rootNode, 0);

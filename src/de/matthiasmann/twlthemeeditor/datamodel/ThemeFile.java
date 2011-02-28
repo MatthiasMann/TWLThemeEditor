@@ -61,6 +61,7 @@ import org.xmlpull.v1.XmlPullParser;
 public class ThemeFile implements VirtualFile {
 
     private final MessageLog messageLog;
+    private final ThemeFile rootThemeFile;
     private final TestEnv env;
     private final URL url;
     private final Document document;
@@ -70,10 +71,12 @@ public class ThemeFile implements VirtualFile {
     private ThemeTreeNode treeNode;
     private boolean modified;
     private boolean elementsUpgraded;
+    private boolean hadErrors;
 
     @SuppressWarnings("LeakingThisInConstructor")
-    public ThemeFile(MessageLog messageLog, TestEnv env, URL url, Runnable xmlChangedCB) throws IOException {
+    public ThemeFile(MessageLog messageLog, ThemeFile rootThemeFile, TestEnv env, URL url, Runnable xmlChangedCB) throws IOException {
         this.messageLog = messageLog;
+        this.rootThemeFile = rootThemeFile;
         this.env = env;
         this.url = url;
         this.xmlChangedCB = xmlChangedCB;
@@ -119,6 +122,10 @@ public class ThemeFile implements VirtualFile {
         return document.getRootElement();
     }
 
+    public ThemeFile getRootThemeFile() {
+        return rootThemeFile == null ? this : rootThemeFile;
+    }
+
     public URL getURL() {
         return url;
     }
@@ -128,7 +135,7 @@ public class ThemeFile implements VirtualFile {
     }
 
     public ThemeFile createThemeFile(String file) throws IOException {
-        return new ThemeFile(messageLog, env, getURL(file), xmlChangedCB);
+        return new ThemeFile(messageLog, this, env, getURL(file), xmlChangedCB);
     }
 
     public URL getVirtualURL() throws MalformedURLException {
@@ -143,6 +150,7 @@ public class ThemeFile implements VirtualFile {
             new MessageLog.Category("theme load error", MessageLog.CombineMode.NONE, DecoratedText.ERROR);
 
     public void logError(String msg, String detailMsg, Throwable ex) {
+        hadErrors = true;
         messageLog.add(new MessageLog.Entry(CAT_LOAD_ERROR, msg, detailMsg, ex));
     }
 
@@ -157,6 +165,10 @@ public class ThemeFile implements VirtualFile {
                     "The theme file '" + url.getPath() + "' has been converted to a new format. " +
                     "Saving the theme will require a up to date TWL version to parse it.", null));
         }
+    }
+
+    public boolean isHadErrors() {
+        return hadErrors;
     }
     
     protected void addChildren(ThemeTreeNode node) throws IOException {

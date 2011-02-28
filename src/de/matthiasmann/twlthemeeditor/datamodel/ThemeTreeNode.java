@@ -73,6 +73,10 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
         return themeFile;
     }
 
+    public final ThemeFile getRootThemeFile() {
+        return themeFile.getRootThemeFile();
+    }
+
     public final Element getDOMElement() {
         return element;
     }

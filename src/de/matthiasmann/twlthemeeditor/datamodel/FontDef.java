@@ -84,10 +84,7 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
         fileNameProperty = new AttributeProperty(element, "filename", "Font file name", true);
         fileNameProperty.addValueChangedCallback(new Runnable() {
             public void run() {
-                try {
-                    registerFontFiles();
-                } catch(IOException ignore) {
-                }
+                registerFontFiles();
             }
         });
         addProperty(fileNameProperty);
@@ -170,8 +167,12 @@ public class FontDef extends ThemeTreeNode implements HasProperties {
         return operations;
     }
 
-    private void registerFontFiles() throws IOException {
-        registerFontFiles(getThemeFile().getEnv(), virtualFontFiles, getFontFileURL());
+    private void registerFontFiles() {
+        try {
+            registerFontFiles(getThemeFile().getEnv(), virtualFontFiles, getFontFileURL());
+        } catch(IOException ex) {
+            getRootThemeFile().logError("Could not load font", null, ex);
+        }
     }
 
     static void addCommonFontDefProperties(ThemeTreeNode node, Element element) {
