@@ -48,6 +48,7 @@ import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
+import de.matthiasmann.twl.model.SimpleListSelectionModel;
 import de.matthiasmann.twl.utils.TextUtil;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.fontgen.CharSet;
@@ -80,7 +81,8 @@ import java.util.prefs.Preferences;
  */
 public final class FontGenDialog {
 
-    public static final String FONTGEN_FILE_SELECTOR_KEY = "fontgen_settings";
+    public static final String FONTGEN_SETTINGS_SELECTOR_KEY   = "fontgen_settings";
+    public static final String FONTGEN_OUTPUTFILE_SELECTOR_KEY = "fontgen_outputfiles";
 
     private static final String SETTINGS_EXTENSION = ".twlfontgen";
 
@@ -90,10 +92,10 @@ public final class FontGenDialog {
     
     private final EditField fontPathEF;
     private final Button selectFontBtn;
-    private final SimpleChangableListModel<Integer> textureSizesModel;
+    private final SimpleListSelectionModel<Integer> textureSizesModel;
     private final ComboBox<Integer> textureSizeCB;
     private final ComboBox<FontDisplayBG> fontDisplayBgCB;
-    private final SimpleChangableListModel<FontGenerator.GeneratorMethod> generatorModesModel;
+    private final SimpleListSelectionModel<FontGenerator.GeneratorMethod> generatorModesModel;
     private final ComboBox<FontGenerator.GeneratorMethod> generatorModeCB;
     private final CharSetBlockCB[] unicodeBockCBs;
     private final BoxLayout unicodeBlocksBox;
@@ -107,7 +109,7 @@ public final class FontGenDialog {
     private final ScrollPane effectsPanelSP;
     private final FontDisplay fontDisplay;
     private final ScrollPane fontDisplaySP;
-    private final EnumListModel<FontGenerator.ExportFormat> exportFormatModel;
+    private final SimpleListSelectionModel<FontGenerator.ExportFormat> exportFormatModel;
     private final ComboBox<FontGenerator.ExportFormat> exportFormatCB;
     private final Button loadSettingsButton;
     private final Button saveSettingsButton;
@@ -168,30 +170,32 @@ public final class FontGenDialog {
             }
         });
 
-        textureSizesModel = new SimpleChangableListModel<Integer>(64, 128, 256, 512, 1024, 2048, 4096);
-
-        textureSizeCB = new ComboBox<Integer>(textureSizesModel);
-        textureSizeCB.setSelected(2);
-        textureSizeCB.addCallback(new Runnable() {
+        textureSizesModel = new SimpleListSelectionModel<Integer>(
+                new SimpleChangableListModel<Integer>(64, 128, 256, 512, 1024, 2048, 4096));
+        textureSizesModel.setValue(2);
+        textureSizesModel.addCallback(new Runnable() {
             public void run() {
                 updateTextureSize();
             }
         });
 
-        generatorModesModel = new SimpleChangableListModel<FontGenerator.GeneratorMethod>();
+        textureSizeCB = new ComboBox<Integer>(textureSizesModel);
+
+        SimpleChangableListModel<GeneratorMethod> generators = new SimpleChangableListModel<FontGenerator.GeneratorMethod>();
         for(FontGenerator.GeneratorMethod m : FontGenerator.GeneratorMethod.values()) {
             if(m.isAvailable) {
-                generatorModesModel.addElement(m);
+                generators.addElement(m);
             }
         }
-
-        generatorModeCB = new ComboBox<FontGenerator.GeneratorMethod>(generatorModesModel);
-        generatorModeCB.setSelected(0);
-        generatorModeCB.addCallback(new Runnable() {
+        generatorModesModel = new SimpleListSelectionModel<GeneratorMethod>(generators);
+        generatorModesModel.setValue(0);
+        generatorModesModel.addCallback(new Runnable() {
             public void run() {
                 updateGeneratorMode();
             }
         });
+
+        generatorModeCB = new ComboBox<FontGenerator.GeneratorMethod>(generatorModesModel);
 
         useAACheckbox = new ToggleButton("Use Antialiasing rendering");
         useAACheckbox.setTheme("useAACheckbox");
@@ -276,18 +280,20 @@ public final class FontGenDialog {
         fontDisplaySP = new ScrollPane(fontDisplay);
         fontDisplaySP.setTheme("fontDisplay");
 
-        exportFormatModel = new EnumListModel<FontGenerator.ExportFormat>(FontGenerator.ExportFormat.class) {
+        exportFormatModel = new SimpleListSelectionModel<FontGenerator.ExportFormat>(
+                new EnumListModel<FontGenerator.ExportFormat>(FontGenerator.ExportFormat.class) {
             @Override
             public Object getEntryTooltip(int index) {
                 if(getEntry(index) == FontGenerator.ExportFormat.XML) {
                     return "TWL's font format";
                 } else {
-                    return "This format can be exported but can not used by TWL";
+                    return null;
                 }
             }
-        };
+        });
+        exportFormatModel.setSelectedEntry(FontGenerator.ExportFormat.XML);
+
         exportFormatCB = new ComboBox<FontGenerator.ExportFormat>(exportFormatModel);
-        exportFormatCB.setSelected(exportFormatModel.findEntry(FontGenerator.ExportFormat.XML));
 
         loadSettingsButton = new Button("Load Settings");
         loadSettingsButton.addCallback(new Runnable() {
@@ -379,7 +385,7 @@ public final class FontGenDialog {
 
     void loadSettings() {
         LoadFileSelector lfs = new LoadFileSelector(loadSettingsButton,
-                Preferences.userNodeForPackage(FontGenDialog.class), FONTGEN_FILE_SELECTOR_KEY,
+                Preferences.userNodeForPackage(FontGenDialog.class), FONTGEN_SETTINGS_SELECTOR_KEY,
                 "TWL font generator settings", SETTINGS_EXTENSION, new LoadFileSelector.Callback() {
             public void canceled() {
             }
@@ -392,7 +398,7 @@ public final class FontGenDialog {
 
     void saveSettings() {
         SaveFileSelector sfs = new SaveFileSelector(saveSettingsButton,
-                Preferences.userNodeForPackage(FontGenDialog.class), FONTGEN_FILE_SELECTOR_KEY,
+                Preferences.userNodeForPackage(FontGenDialog.class), FONTGEN_SETTINGS_SELECTOR_KEY,
                 "TWL font generator settings", SETTINGS_EXTENSION, new SaveFileSelector.Callback() {
             public File[] getFilesCreatedForFileName(File file) {
                 return new File[] { file };
@@ -441,13 +447,12 @@ public final class FontGenDialog {
         fontPathEF.setText(TextUtil.notNull(fontPath));
 
         {
-            int textureSizeEntry = -1;
+            int textureSize = -1;
             try {
-                int textureSize = Integer.parseInt(properties.getProperty(KEY_TEXTURESIZE, "0"));
-                textureSizeEntry = textureSizesModel.findElement(textureSize);
+                textureSize = Integer.parseInt(properties.getProperty(KEY_TEXTURESIZE, "0"));
             } catch (IllegalArgumentException ignore) {
             }
-            textureSizeCB.setSelected((textureSizeEntry < 0) ? 2 : textureSizeEntry);
+            textureSizesModel.setSelectedEntry(textureSize, 2);
         }
 
         {
@@ -459,23 +464,29 @@ public final class FontGenDialog {
             fontSizeModel.setValue((fontSize <= 0) ? 14 : fontSize);
         }
 
-        try {
-            FontGenerator.ExportFormat format = FontGenerator.ExportFormat.valueOf(
-                    properties.getProperty(KEY_EXPORTFORMAT, FontGenerator.ExportFormat.XML.name()));
-            exportFormatCB.setSelected(exportFormatModel.findEntry(format));
-        } catch (IllegalArgumentException ignore) {
+        {
+            FontGenerator.ExportFormat format = FontGenerator.ExportFormat.XML;
+            try {
+                format = FontGenerator.ExportFormat.valueOf(
+                        properties.getProperty(KEY_EXPORTFORMAT, format.name()));
+            } catch (IllegalArgumentException ignore) {
+            }
+            exportFormatModel.setSelectedEntry(format);
         }
 
         useAACheckbox.setActive(Boolean.parseBoolean(properties.getProperty(KEY_USEAA, "true")));
 
-        try {
-            FontGenerator.GeneratorMethod generatorMethod = FontGenerator.GeneratorMethod.valueOf(
-                    properties.getProperty(KEY_GENERATOR_METHOD, FontGenerator.GeneratorMethod.AWT_VECTOR.name()));
-            if(!generatorMethod.isAvailable) {
-                generatorMethod = FontGenerator.GeneratorMethod.AWT_VECTOR;
+        {
+            FontGenerator.GeneratorMethod generatorMethod = GeneratorMethod.AWT_VECTOR;
+            try {
+                generatorMethod = FontGenerator.GeneratorMethod.valueOf(
+                        properties.getProperty(KEY_GENERATOR_METHOD, generatorMethod.name()));
+                if(!generatorMethod.isAvailable) {
+                    generatorMethod = FontGenerator.GeneratorMethod.AWT_VECTOR;
+                }
+            } catch (IllegalArgumentException ignore) {
             }
-            generatorModeCB.setSelected(generatorModesModel.findElement(generatorMethod));
-        } catch (IllegalArgumentException ignore) {
+            generatorModesModel.setSelectedEntry(generatorMethod);
         }
 
         manualPaddingModel.setValue(!Boolean.parseBoolean(properties.getProperty(KEY_PADDING_AUTOMATIC, "false")));
@@ -513,11 +524,11 @@ public final class FontGenDialog {
         if(fontPath != null) {
             properties.setProperty(KEY_FONTPATH, fontPath);
         }
-        properties.setProperty(KEY_TEXTURESIZE, Integer.toString(getTextureSize()));
+        properties.setProperty(KEY_TEXTURESIZE, Integer.toString(textureSizesModel.getSelectedEntry()));
         properties.setProperty(KEY_FONTSIZE, Integer.toString(fontSizeModel.getValue()));
-        properties.setProperty(KEY_EXPORTFORMAT, getExportFormat().name());
+        properties.setProperty(KEY_EXPORTFORMAT, exportFormatModel.getSelectedEntry().name());
         properties.setProperty(KEY_USEAA, Boolean.toString(useAACheckbox.isActive()));
-        properties.setProperty(KEY_GENERATOR_METHOD, getGeneratorMethod().name());
+        properties.setProperty(KEY_GENERATOR_METHOD, generatorModesModel.getSelectedEntry().name());
         charSet.save(properties);
         properties.setProperty(KEY_PADDING_AUTOMATIC, Boolean.toString(!manualPaddingModel.getValue()));
         for(int i=0 ; i<5 ; i++) {
@@ -546,14 +557,14 @@ public final class FontGenDialog {
         }
 
         SaveFileSelector sfs = new SaveFileSelector(saveFontButton,
-                Preferences.userNodeForPackage(FontGenDialog.class), FONTGEN_FILE_SELECTOR_KEY,
+                Preferences.userNodeForPackage(FontGenDialog.class), FONTGEN_OUTPUTFILE_SELECTOR_KEY,
                 "BMFont files", ".fnt", new SaveFileSelector.Callback() {
             public File[] getFilesCreatedForFileName(File file) {
                 return fontGen.getFilesCreatedForName(file);
             }
             public void fileNameSelected(File file) {
                 try {
-                    fontGen.write(file, getExportFormat());
+                    fontGen.write(file, exportFormatModel.getSelectedEntry());
                 } catch(IOException ex) {
                     Logger.getLogger(FontGenDialog.class.getName()).log(Level.SEVERE, "Cound not save font", ex);
                 }
@@ -582,7 +593,7 @@ public final class FontGenDialog {
             setStatusBar("Select unicode blocks to include", DecoratedText.ERROR);
             return;
         }
-        Integer textureSize = getTextureSize();
+        Integer textureSize = textureSizesModel.getSelectedEntry();
         if(usedTextureHeight > textureSize) {
             setStatusBar("Not all characters could fit onto the selected texture size (need "
                     + (usedTextureHeight - textureSize) + " lines more)", DecoratedText.ERROR);
@@ -658,31 +669,14 @@ public final class FontGenDialog {
     }
 
     void updateGeneratorMode() {
-        GeneratorMethod generatorMethod = getGeneratorMethod();
+        GeneratorMethod generatorMethod = generatorModesModel.getSelectedEntry();
         fontDisplay.setGeneratorMethod(generatorMethod);
         effectsPanel.enableEffectsPanels(generatorMethod.supportsEffects);
         useAACheckbox.setVisible(generatorMethod.supportsAAflag);
     }
 
     void updateTextureSize() {
-        fontDisplay.setTextureSize(getTextureSize());
-    }
-
-    Integer getTextureSize() {
-        return textureSizesModel.getEntry(textureSizeCB.getSelected());
-    }
-
-    FontGenerator.GeneratorMethod getGeneratorMethod() {
-        return generatorModesModel.getEntry(generatorModeCB.getSelected());
-    }
-    
-    FontGenerator.ExportFormat getExportFormat() {
-        int selected = exportFormatCB.getSelected();
-        if(selected >= 0) {
-            return exportFormatModel.getEntry(selected);
-        } else {
-            return FontGenerator.ExportFormat.XML;
-        }
+        fontDisplay.setTextureSize(textureSizesModel.getSelectedEntry());
     }
     
     void updateEffects() {
