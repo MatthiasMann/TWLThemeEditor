@@ -582,6 +582,7 @@ public final class FontGenDialog {
     void updateStatusBar() {
         FontGenerator fontGen = fontDisplay.getLastFontGen();
         if(fontGen == null) {
+            saveFontButton.setEnabled(false);
             fontMetricInfoLabel.setText("<not available>");
             setStatusBar("Select a font", DecoratedText.ERROR);
             return;
@@ -590,9 +591,11 @@ public final class FontGenDialog {
                 " ascent: " + fontGen.getAscent() + " descent: " + fontGen.getDescent());
         int usedTextureHeight = fontGen.getUsedTextureHeight();
         if(usedTextureHeight == 0) {
+            saveFontButton.setEnabled(false);
             setStatusBar("Select unicode blocks to include", DecoratedText.ERROR);
             return;
         }
+        saveFontButton.setEnabled(true);
         Integer textureSize = textureSizesModel.getSelectedEntry();
         if(usedTextureHeight > textureSize) {
             setStatusBar("Not all characters could fit onto the selected texture size (need "
