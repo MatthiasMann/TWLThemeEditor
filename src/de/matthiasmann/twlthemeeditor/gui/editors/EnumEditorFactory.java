@@ -36,6 +36,7 @@ import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
+import de.matthiasmann.twlthemeeditor.properties.EnumProperty;
 
 /**
  *
@@ -43,17 +44,19 @@ import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
  */
 public class EnumEditorFactory<E extends Enum<E>> implements PropertyEditorFactory<E, Property<E>> {
 
-    public Widget create(PropertyAccessor<E, Property<E>> pa) {
+    public Widget create(final PropertyAccessor<E, Property<E>> pa) {
         final Property<E> property = pa.getProperty();
         final SimpleChangableListModel<E> model = new SimpleChangableListModel<E>(
                 property.getType().getEnumConstants());
         final ComboBox<E> comboBox = new ComboBox<E>(model);
-        comboBox.setSelected(Utils.find(model, property.getPropertyValue()));
+        final E defaultValue = (property instanceof EnumProperty) ?
+                ((EnumProperty<E>)property).getDefaultValue() : null;
+        comboBox.setSelected(Utils.find(model, pa.getValue(defaultValue)));
         comboBox.addCallback(new Runnable() {
             public void run() {
                 int idx = comboBox.getSelected();
                 if(idx >= 0) {
-                    property.setPropertyValue(model.getEntry(idx));
+                    pa.setValue(model.getEntry(idx));
                 }
             }
         });

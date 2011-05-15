@@ -39,12 +39,29 @@ import java.util.Locale;
  */
 public class EnumProperty<T extends Enum<T>> extends DerivedProperty<T> {
 
+    private final T defaultValue;
+    
     public EnumProperty(Property<String> base, Class<T> type) {
         super(base, type);
+        this.defaultValue = null;
+    }
+    
+    public EnumProperty(Property<String> base, T defaultValue) {
+        super(base, defaultValue.getDeclaringClass());
+        this.defaultValue = defaultValue;
     }
 
     public static <T extends Enum<T>> EnumProperty<T> create(Property<String> base, Class<T> type) {
         return new EnumProperty<T>(base, type);
+    }
+
+    @Override
+    public boolean canBeNull() {
+        return super.canBeNull() || (defaultValue != null);
+    }
+
+    public T getDefaultValue() {
+        return defaultValue;
     }
 
     public T getPropertyValue() {
@@ -53,19 +70,30 @@ public class EnumProperty<T extends Enum<T>> extends DerivedProperty<T> {
             if(value == null) {
                 return null;
             }
-            value = value.toUpperCase(Locale.ENGLISH);
-            return Enum.valueOf(getType(), value);
+            return fromString( value);
         } catch(IllegalArgumentException ex) {
             return null;
         }
     }
 
     public void setPropertyValue(T value) throws IllegalArgumentException {
-        if(value == null) {
-            base.setPropertyValue(null);
+        if(value == null || value == defaultValue) {
+            if(base.canBeNull() || defaultValue == null) {
+                base.setPropertyValue(null);
+            } else {
+                base.setPropertyValue(toString(defaultValue));
+            }
         } else {
-            base.setPropertyValue(value.name());
+            base.setPropertyValue(toString(value));
         }
     }
 
+    protected T fromString(String value) {
+        value = value.toUpperCase(Locale.ENGLISH);
+        return Enum.valueOf(getType(), value);
+    }
+
+    protected String toString(T value) {
+        return value.name();
+    }
 }
