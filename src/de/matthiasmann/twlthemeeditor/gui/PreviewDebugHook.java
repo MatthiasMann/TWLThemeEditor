@@ -91,6 +91,13 @@ public class PreviewDebugHook extends DebugHook {
     }
 
     @Override
+    public void usingFallbackTheme(String themePath) {
+        if(applyThemeWidget != null) {
+            getEntryOrCreate(applyThemeWidget).errorMsg.add("Missing theme: " + themePath);
+        }
+    }
+
+    @Override
     public void missingParameter(ParameterMap map, String paramName, String parentDescription, Class<?> dataType) {
         if(applyThemeWidget != null) {
             StringBuilder sb = new StringBuilder("Missing ");

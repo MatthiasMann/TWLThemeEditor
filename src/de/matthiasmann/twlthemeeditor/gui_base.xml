@@ -1072,6 +1072,8 @@
         <param name="inputMap"><inputMap>-defaultInputMap</inputMap></param>
     </theme>
 
+    <theme name="*" ref="-defaults"/>
+    
     <theme name="label" ref="-defaults" allowWildcard="true">
     </theme>
 
