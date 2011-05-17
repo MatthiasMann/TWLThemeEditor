@@ -30,11 +30,14 @@
 package de.matthiasmann.twlthemeeditor.datamodel.images;
 
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twl.renderer.Texture;
+import de.matthiasmann.twl.renderer.Texture.Rotation;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.datamodel.Split.Axis;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
+import de.matthiasmann.twlthemeeditor.properties.EnumProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
 import org.jdom.Element;
 
@@ -45,16 +48,19 @@ import org.jdom.Element;
 public class Area extends Image {
 
     protected final ImageRectProperty rectProperty;
+    protected final BooleanProperty tiledProperty;
 
     public Area(Images textures, TreeTableNode parent, Element node) {
         super(textures, parent, node);
         this.rectProperty = new ImageRectProperty(node);
+        this.tiledProperty = new BooleanProperty(new AttributeProperty(element, "tiled", "Tiled", true), false);
         addProperty(rectProperty);
         addProperty(new HSplitProperty());
         addProperty(new VSplitProperty());
         addProperty(new BooleanProperty(new AttributeProperty(element, "nocenter", "No Center", true), false)
                 .withTooltip("This parameter is only used when either Split X/Y is enabled"));
-        addProperty(new BooleanProperty(new AttributeProperty(element, "tiled", "Tiled", true), false));
+        addProperty(tiledProperty);
+        addProperty(new RotationProperty());
     }
 
     @Override
@@ -81,6 +87,37 @@ public class Area extends Image {
         @Override
         public int getLimit() {
             return rectProperty.getPropertyValue().getHeight();
+        }
+    }
+    
+    protected class RotationProperty extends EnumProperty<Texture.Rotation>  {
+        public RotationProperty() {
+            super(new AttributeProperty(element, "rot", "Rotation", true), Texture.Rotation.NONE);
+        }
+
+        @Override
+        protected Rotation fromString(String value) {
+            int rot = Integer.parseInt(value);
+            switch(rot) {
+                case 90: return Rotation.CLOCKWISE_90;
+                case 180: return Rotation.CLOCKWISE_180;
+                case 270: return Rotation.CLOCKWISE_270;
+                default: return null;
+            }
+        }
+
+        @Override
+        protected String toString(Rotation value) {
+            switch(value) {
+                default:
+                    return null;
+                case CLOCKWISE_90:
+                    return "90";
+                case CLOCKWISE_180:
+                    return "180";
+                case CLOCKWISE_270:
+                    return "270";
+            }
         }
     }
 }

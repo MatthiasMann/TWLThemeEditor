@@ -52,7 +52,11 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect, RectProper
 
     static final class RectEditor extends DialogLayout {
         private final BooleanModel wholeAreaModel;
+        private final BooleanModel flipHorzModel;
+        private final BooleanModel flipVertModel;
         private final ToggleButton toggleWholeArea;
+        private final ToggleButton toggleFlipHorz;
+        private final ToggleButton toggleFlipVert;
         private final ValueAdjusterInt adjusterX;
         private final ValueAdjusterInt adjusterY;
         private final ValueAdjusterInt adjusterW;
@@ -90,6 +94,25 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect, RectProper
 
             horz.addWidgets(adjusterX, adjusterY, adjusterW, adjusterH);
             vert.addWidgetsWithGap("adjuster", adjusterX, adjusterY, adjusterW, adjusterH);
+            
+            flipHorzModel = pa.getProperty().getFlipHorizontally();
+            flipVertModel = pa.getProperty().getFlipVertically();
+            if(flipHorzModel != null) {
+                toggleFlipHorz = new ToggleButton(flipHorzModel);
+                toggleFlipHorz.setTheme("btnFlipHorz");
+                
+                horz.addWidget(toggleFlipHorz);
+                vert.addWidget(toggleFlipHorz);
+                
+                toggleFlipVert = new ToggleButton(flipVertModel);
+                toggleFlipVert.setTheme("btnFlipVert");
+                
+                horz.addWidget(toggleFlipVert);
+                vert.addWidget(toggleFlipVert);
+            } else {
+                toggleFlipHorz = null;
+                toggleFlipVert = null;
+            }
             
             RectProperty.AbstractAction[] actions = pa.getProperty().getActions();
             if(actions.length > 0) {

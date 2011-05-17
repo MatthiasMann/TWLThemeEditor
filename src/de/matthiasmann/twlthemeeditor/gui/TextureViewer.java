@@ -268,7 +268,8 @@ public class TextureViewer extends Widget {
                 }
                 try {
                     image = texture.getImage(rect.getX(), rect.getY(),
-                            rect.getWidth(), rect.getHeight(), tintColor, false);
+                            rect.getWidth(), rect.getHeight(), tintColor,
+                            false, Texture.Rotation.NONE);
                 } catch (IllegalArgumentException ex) {
                     image = null;
                 }

@@ -833,6 +833,14 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
                 <param name="text"><string>Whole area</string></param>
                 <param name="tooltip"><string>Use whole image area</string></param>
             </theme>
+            <theme name="btnFlipHorz" ref="checkbox">
+                <param name="text"><string>flip horizontally</string></param>
+                <param name="tooltip"><string>flip the area horizontally</string></param>
+            </theme>
+            <theme name="btnFlipVert" ref="checkbox">
+                <param name="text"><string>flip vertically</string></param>
+                <param name="tooltip"><string>flip the area vertically</string></param>
+            </theme>
             <theme name="actionButton" ref="button"/>
         </theme>
 

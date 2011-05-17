@@ -50,6 +50,8 @@ public abstract class RectProperty implements Property<Rect> {
     private final IntegerModel baseW;
     private final IntegerModel baseH;
     private final String name;
+    private final BooleanModel flipHorizontally;
+    private final BooleanModel flipVertically;
 
     public RectProperty(Property<String> xywh, String name) {
         this.wholeArea = new WholeAreaModel(xywh);
@@ -90,6 +92,8 @@ public abstract class RectProperty implements Property<Rect> {
             }
         };
         this.name = name;
+        this.flipHorizontally = new FlipProperty(xywh, 2);
+        this.flipVertically = new FlipProperty(xywh, 3);
     }
     
     public RectProperty(IntegerModel baseX, IntegerModel baseY, IntegerModel baseW, IntegerModel baseH, String name) {
@@ -99,6 +103,8 @@ public abstract class RectProperty implements Property<Rect> {
         this.baseW = baseW;
         this.baseH = baseH;
         this.name = name;
+        this.flipHorizontally = null;
+        this.flipVertically = null;
     }
 
     public String getName() {
@@ -148,6 +154,14 @@ public abstract class RectProperty implements Property<Rect> {
 
     public BooleanModel getWholeAreaModel() {
         return wholeArea;
+    }
+
+    public BooleanModel getFlipHorizontally() {
+        return flipHorizontally;
+    }
+
+    public BooleanModel getFlipVertically() {
+        return flipVertically;
     }
 
     public AbstractAction[] getActions() {
@@ -239,6 +253,9 @@ public abstract class RectProperty implements Property<Rect> {
             String baseValue = base.getPropertyValue();
             try {
                 int[] parts = parseXYWH(baseValue);
+                if(part >= 2) {
+                    value = Integer.signum(parts[part]) * value;
+                }
                 parts[part] = value;
                 base.setPropertyValue(Utils.toString(parts));
             } catch (Throwable ex) {
@@ -250,11 +267,45 @@ public abstract class RectProperty implements Property<Rect> {
         public int getValue() {
             String baseValue = base.getPropertyValue();
             try {
-                return parseXYWH(baseValue)[part];
+                return Math.abs(parseXYWH(baseValue)[part]);
             } catch (Throwable ex) {
                 Logger.getLogger(IntegerProperty.class.getName()).log(Level.SEVERE,
                         "Can't parse value of propterty '" + getName() + "': " + baseValue, ex);
                 return 0;
+            }
+        }
+    }
+    
+    protected class FlipProperty extends BooleanProperty {
+        private final int part;
+
+        public FlipProperty(Property<String> base, int part) {
+            super(base, false);
+            this.part = part;
+        }
+
+        @Override
+        public void setValue(boolean value) throws IllegalArgumentException {
+            String baseValue = base.getPropertyValue();
+            try {
+                int[] parts = parseXYWH(baseValue);
+                parts[part] = Math.abs(parts[part]) * (value ? -1 : 1);
+                base.setPropertyValue(Utils.toString(parts));
+            } catch (Throwable ex) {
+                Logger.getLogger(IntegerProperty.class.getName()).log(Level.SEVERE,
+                        "Can't parse value of propterty '" + getName() + "': " + baseValue, ex);
+            }
+        }
+
+        @Override
+        public boolean getValue() {
+            String baseValue = base.getPropertyValue();
+            try {
+                return parseXYWH(baseValue)[part] < 0;
+            } catch (Throwable ex) {
+                Logger.getLogger(IntegerProperty.class.getName()).log(Level.SEVERE,
+                        "Can't parse value of propterty '" + getName() + "': " + baseValue, ex);
+                return false;
             }
         }
     }
