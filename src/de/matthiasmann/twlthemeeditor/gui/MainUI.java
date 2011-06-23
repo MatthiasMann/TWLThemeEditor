@@ -401,7 +401,7 @@ public final class MainUI extends DialogLayout {
         StringBuilder sb = new StringBuilder();
         sb.append("<img id=\"logo\" src=\"twl-logo\" alt=\"TWL Logo\"/><br/><br/>" +
                 "<p>TWL Theme Editor (c) 2010 Matthias Mann</p><br/>" +
-                "<table id=\"sysinfo\">\n");
+                "<table id=\"sysinfo\" style=\"width:100%\">\n");
 
         // Java version
         sb.append("<tr><td class=\"parameter\">Java</td><td class=\"value\">");
