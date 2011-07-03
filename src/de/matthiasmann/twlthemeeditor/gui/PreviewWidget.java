@@ -140,10 +140,14 @@ public class PreviewWidget extends Widget {
     }
 
     public Widget selectWidgetFromMouse(int x, int y) {
+        Widget widget = testGUI;
+        if(widget == null) {
+            return null;
+        }
+        
         x -= getInnerX();
         y -= getInnerY();
 
-        Widget widget = testGUI;
         for(;;) {
             Widget found = null;
             for(int i=widget.getNumChildren() ; i-->0 ;) {
