@@ -419,6 +419,10 @@ public class Context extends PropertyFactories {
     public void clearWidgetMessages() {
         debugHook.clear();
     }
+    
+    public void clearWidgetMessages(Widget startingFromWidget) {
+        debugHook.clear(startingFromWidget);
+    }    
 
     public boolean checkLayoutValidated() {
         return debugHook.checkLayoutValidated();

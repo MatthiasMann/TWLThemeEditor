@@ -149,6 +149,10 @@ public class WidgetTree extends DialogLayout {
         btnReloadWidget.setEnabled(testGUI != null);
     }
 
+    public void setContext(Context ctx) {
+        setTestGUI(ctx, testGUI);
+    }
+
     public void addReloadButtenCallback(Runnable cb) {
         btnReloadWidget.addCallback(cb);
     }

@@ -59,9 +59,14 @@ public class WidgetTreeModel extends AbstractTreeTableModel implements WidgetTre
     }
 
     public void createTreeFromWidget(Context ctx, GUI gui) {
+        if(this.ctx != ctx || this.gui != gui) {
+            removeAllChildren();
+        }
         this.ctx = ctx;
         this.gui = gui;
-        checkChildren(this);
+        if(gui != null) {
+            checkChildren(this);
+        }
     }
 
     public void refreshTree() {

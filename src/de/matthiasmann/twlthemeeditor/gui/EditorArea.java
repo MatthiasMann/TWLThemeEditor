@@ -291,6 +291,7 @@ public final class EditorArea extends Widget {
         propertiesScrollPane.setContent(null);
         themeTreePane.setModel(model);
         widgetPropertyEditor.setContext(ctx);
+        widgetTree.setContext(ctx);
     }
 
     public EnumModel<Layout> getLayoutModel() {

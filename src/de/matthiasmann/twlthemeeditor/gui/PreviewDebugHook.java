@@ -36,6 +36,8 @@ import de.matthiasmann.twl.Widget;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  *
@@ -148,6 +150,26 @@ public class PreviewDebugHook extends DebugHook {
 
     public void clear() {
         messages.clear();
+    }
+    
+    void clear(Widget startingFromWidget) {
+        Iterator<Map.Entry<Widget, Entry>> iter = messages.entrySet().iterator();
+        while(iter.hasNext()) {
+            Map.Entry<Widget, Entry> e = iter.next();
+            if(isEqualOrBelow(e.getKey(), startingFromWidget)) {
+                iter.remove();
+            }
+        }
+    }
+    
+    private static boolean isEqualOrBelow(Widget widget, Widget startingFromWidget) {
+        while(widget != null) {
+            if(widget == startingFromWidget) {
+                return true;
+            }
+            widget = widget.getParent();
+        }
+        return false;
     }
 
     @Override

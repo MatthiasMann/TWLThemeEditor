@@ -31,7 +31,9 @@ package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractProperty;
+import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.gui.Context;
+import de.matthiasmann.twlthemeeditor.gui.MessageLog;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -69,13 +71,18 @@ public class WidgetThemeProperty extends AbstractProperty<String> {
         return false;
     }
 
+    private static final MessageLog.Category CAT_APPLY_THEME_ERROR =
+            new MessageLog.Category("apply theme", MessageLog.CombineMode.NONE, DecoratedText.ERROR);
+    
     public void setPropertyValue(String value) throws IllegalArgumentException {
         ctx.installDebugHook();
         try {
             widget.setTheme(value);
+            ctx.clearWidgetMessages(widget);
             widget.reapplyTheme();
         } catch(Throwable ex) {
-            ex.printStackTrace();
+            ctx.logMessage(new MessageLog.Entry(CAT_APPLY_THEME_ERROR,
+                    "Could not apply theme: " + value, null, ex));
         } finally {
             ctx.uninstallDebugHook();
         }
