@@ -35,6 +35,7 @@ import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.MenuCheckbox;
+import de.matthiasmann.twl.ProgressBar;
 import de.matthiasmann.twl.Scrollbar;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterFloat;
@@ -117,6 +118,7 @@ public class TestWidgetManager {
         builtinWidgets.add(new TestWidgetFactory(ValueAdjusterFloat.class, "ValueAdjusterFloat"));
         builtinWidgets.add(new TestWidgetFactory(TestScrollbar.class, "HScrollbar", Scrollbar.Orientation.HORIZONTAL));
         builtinWidgets.add(new TestWidgetFactory(TestScrollbar.class, "VScrollbar", Scrollbar.Orientation.VERTICAL));
+        builtinWidgets.add(new TestWidgetFactory(ProgressBar.class, "ProgressBar"));
         builtinWidgets.add(new TestWidgetFactory(TestListBox.class, "ListBox"));
         builtinWidgets.add(new TestWidgetFactory(TestComboBox.class, "ComboBox"));
         builtinWidgets.add(new TestWidgetFactory(PreviewWidgets.class, "Widgets"));
