@@ -1298,6 +1298,7 @@
         <param name="fixedCellHeight"><bool>false</bool></param>
         <param name="maxHeight"><int>8000</int></param>
         <param name="maxWidth"><int>8000</int></param>
+        <param name="minDisplayedRows"><int>1</int></param>
         <theme name="vscrollbar" ref="vscrollbar"/>
         <theme name="display" ref="label">
             <param name=""><image>listbox.display.*</image></param>
@@ -1312,6 +1313,7 @@
         <theme name="listbox" ref="listbox">
             <param name="background"><image>none</image></param>
             <param name="border"><border>0</border></param>
+            <param name="minDisplayedRows"><int>5</int></param>
             <theme name="display" ref="popupMenuButton"/>
         </theme>
         <param name="maxHeight"><int>150</int></param>
@@ -1356,6 +1358,7 @@
         <param name="columnResizeCursor"><cursor>cursor.resizecolumn</cursor></param>
         <param name="columnDivider"><image>none</image></param>
         <param name="columnWidths"><map/></param>
+        <param name="ensureColumnHeaderMinWidth"><bool>true</bool></param>
         <param name="dragNotPossibleCursor"><cursor>cursor.nodrag</cursor></param>
         <param name="row"><image>table.row.*</image></param>
         <param name="inputMap"><inputMapDef ref="-defaultInputMap">
