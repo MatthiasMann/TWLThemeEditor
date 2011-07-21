@@ -481,12 +481,16 @@ public class FontGenerator {
         return false;
     }
 
-    public void write(File file, ExportFormat format) throws IOException {
+    public void write(File file, ExportFormat format, boolean fullImageSize) throws IOException {
         File dir = file.getParentFile();
         String baseName = getBaseName(file);
         
-        PNGWriter.write(new File(dir, baseName.concat("_00.png")), image,
-                Math.min(usedTextureHeight, image.getHeight()));
+        int height = image.getHeight();
+        if(!fullImageSize && usedTextureHeight < height) {
+            height = usedTextureHeight;
+        }
+        
+        PNGWriter.write(new File(dir, baseName.concat("_00.png")), image, height);
         OutputStream os = new FileOutputStream(file);
         try {
             switch(format) {

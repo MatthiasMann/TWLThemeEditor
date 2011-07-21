@@ -111,6 +111,7 @@ public final class FontGenDialog {
     private final ScrollPane fontDisplaySP;
     private final SimpleListSelectionModel<FontGenerator.ExportFormat> exportFormatModel;
     private final ComboBox<FontGenerator.ExportFormat> exportFormatCB;
+    private final ToggleButton saveFullImageSizeCheckbox;
     private final Button loadSettingsButton;
     private final Button saveSettingsButton;
     private final Button saveFontButton;
@@ -295,6 +296,10 @@ public final class FontGenDialog {
 
         exportFormatCB = new ComboBox<FontGenerator.ExportFormat>(exportFormatModel);
 
+        saveFullImageSizeCheckbox = new ToggleButton("save full image");
+        saveFullImageSizeCheckbox.setTheme("checkbox");
+        saveFullImageSizeCheckbox.setTooltipContent("When selected it will save a square image where including unused lower parts");
+        
         loadSettingsButton = new Button("Load Settings");
         loadSettingsButton.addCallback(new Runnable() {
             public void run() {
@@ -339,6 +344,7 @@ public final class FontGenDialog {
                 .addWidget(loadSettingsButton)
                 .addWidget(saveSettingsButton)
                 .addWidget(statusBar)
+                .addWidget(saveFullImageSizeCheckbox)
                 .addWidget(exportFormatCB)
                 .addWidget(saveFontButton)
                 .addWidget(closeButton);
@@ -346,6 +352,7 @@ public final class FontGenDialog {
                 .addWidget(loadSettingsButton)
                 .addWidget(saveSettingsButton)
                 .addWidget(statusBar)
+                .addWidget(saveFullImageSizeCheckbox)
                 .addWidget(exportFormatCB)
                 .addWidget(saveFontButton)
                 .addWidget(closeButton);
@@ -564,7 +571,8 @@ public final class FontGenDialog {
             }
             public void fileNameSelected(File file) {
                 try {
-                    fontGen.write(file, exportFormatModel.getSelectedEntry());
+                    fontGen.write(file, exportFormatModel.getSelectedEntry(),
+                            saveFullImageSizeCheckbox.isActive());
                 } catch(IOException ex) {
                     Logger.getLogger(FontGenDialog.class.getName()).log(Level.SEVERE, "Cound not save font", ex);
                 }
