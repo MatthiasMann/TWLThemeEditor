@@ -136,6 +136,7 @@ public class SaveFileSelector {
     }
     
     class CB implements FileSelector.Callback2, EditField.Callback {
+        boolean inSelectionChanged;
         public void filesSelected(Object[] files) {
             File folder = (File)fileSelector.getCurrentFolder();
             String name = editField.getText();
@@ -152,12 +153,21 @@ public class SaveFileSelector {
         }
 
         public void folderChanged(Object folder) {
-            checkName();
+            try {
+                checkName();
+            } finally {
+                inSelectionChanged = false;
+            }
         }
 
         public void selectionChanged(Entry[] selection) {
             if(selection.length == 1 && !selection[0].isFolder) {
-                editField.setText(selection[0].name);
+                inSelectionChanged = true;
+                try {
+                    editField.setText(selection[0].name);
+                } finally {
+                    inSelectionChanged = false;
+                }
             }
         }
 
@@ -170,6 +180,9 @@ public class SaveFileSelector {
                     editField.setText(newName);
                     editField.setSelection(name.length(), newName.length());
                 }
+            }
+            if(!inSelectionChanged) {
+                fileSelector.clearSelection();
             }
         }
     }
