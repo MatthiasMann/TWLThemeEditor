@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>TWL Theme Editor Help</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    </head>
+    <body>
+        <h1 id="top">TWL Theme Editor Help</h1>
+        <ol>
+            <li><a href="#mainui">UI layout</a></li>
+            <li><a href="#menu">Menu</a></li>
+        </ol>
+        
+        <h1 id="mainui">UI layout</h1>
+        <a href="#menu" class="mainui-area" style="width: 100%; height: 25px">Main Menu</a>
+        <div style="float: left; width: 20%">
+            <a href="#theme-tree" class="mainui-area" style="width: 100%; height: 100px">Theme Tree</a>
+            <a href="#theme-prop" class="mainui-area" style="width: 100%; height: 100px">Theme Properties<br/>Bla Blub</a>
+        </div>
+        <div style="float: right; width: 20%">
+            <a href="#widget-tree" class="mainui-area" style="width: 100%; height: 100px">Widget Tree</a>
+            <a href="#widget-prop" class="mainui-area" style="width: 100%; height: 100px">Widget Properties</a>
+        </div>
+        <a href="#texture-preview" class="mainui-area" style="width: 60%; height: 100px">Image preview</a>
+        <a href="#widget-preview" class="mainui-area" style="width: 60%; height: 100px">Widget preview</a>
+        <a href="#statusbar" class="mainui-area" style="width: 100%; height: 25px">Statusbar</a>
+        
+        <h1 id="menu">Menu</h1>
+        <p>The menu contains functions to load/save a theme project.</p>
+        
+        <h1 id="theme-tree">Theme Tree</h1>
+        <p>The theme tree displays all elements of the loaded theme.</p>
+        The icons infront of every node indicate the type of the entry:
+        <ul>
+            <li style="list-style-image: url(icon.include)">An &lt;include&gt; node. Includes another theme XML file.</li>
+            <li style="list-style-image: url(icon.images)">An &lt;images&gt; node. This node is used to load PNG files and declare image nodes.
+                <ul>
+                    <li style="list-style-image: url(icon.image-area)">An &lt;area&gt; node. This is the basic element from with all others are constructed.</li>
+                    <li style="list-style-image: url(icon.image-alias)">An &lt;alias&gt; node. References other image nodes and can modify some asspects.</li>
+                    <li style="list-style-image: url(icon.image-grid)">An &lt;grid&gt; node. Used to assemble grids with flexible resizing weights.</li>
+                    <li style="list-style-image: url(icon.image-composed)">An &lt;composed&gt; node. Used to layer multiple images on top of each other.</li>
+                    <li style="list-style-image: url(icon.image-select)">An &lt;select&gt; node. Renders one of the child images based on conditions.</li>
+                    <li style="list-style-image: url(icon.image-animation)">An &lt;animation&gt; node. Annimations can cycle through different images and optionally adjust the tint or size.</li>
+                    <li style="list-style-image: url(icon.image-cursor)">An &lt;cursor&gt; node. Defines a mouse cursor.</li>
+                    <li style="list-style-image: url(icon.image-cursorref)">An &lt;cursorref&gt; node. Creates an mouse cursor alias.</li>
+                </ul>
+            </li>
+            <li style="list-style-image: url(icon.theme)">An &lt;theme&gt; node. Contains images and parameters for widgets.</li>
+            <li style="list-style-image: url(icon.fontdef)">An &lt;fontdef&gt; node. Loads a font and defines font parameters.</li>
+        </ul>
+        Elements can be inserted, deleted and moved through a context menu or using the buttons below:
+        <ul>
+            <li style="list-style-image: url(opMoveNodeUp)">Moves the select node up.</li>
+            <li style="list-style-image: url(opMoveNodeDown)">Moves the select node down.</li>
+            <li style="list-style-image: url(opDeleteNode)">Deletes the selected node. When it is still referenced by other nodes then these will turn red indicating an error.</li>
+            <li style="list-style-image: url(opNewNode)">Inserts a new child node into the selected node.</li>
+            <li style="list-style-image: url(opCloneNode)">Clones the selected node. The clone will be inserted below and it's name is altered either by appending a number or if the name ends in a number it is incremented.</li>
+            <li style="list-style-image: url(opCopyNode)">Copies the selected node into the system clipboard.</li>
+        </ul>
+        
+        <h1 id="theme-prop">Theme Properties</h1>
+        <p>The theme properties panel displays the properties for the currently select theme node.</p>
+        
+        <h1 id="texture-preview">Image preview</h1>
+        <p>Displays the image when the selected node is an image node. When an &lt;area&gt; or &lt;cursor&gt; node is selected then this pane also allows to edit
+            the coordinates by dragging the rulers.</p>
+        <p>The preview currently can't display complex image nodes (like &lt;alias&gt;, &lt;grid&gt;, &lt;composed&gt;, &lt;select&gt; or &lt;animation&gt;)</p>
+        
+    </body>
+</html>

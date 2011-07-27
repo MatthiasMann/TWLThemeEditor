@@ -53,6 +53,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.fontgen.gui.FontGenDialog;
+import de.matthiasmann.twlthemeeditor.gui.help.Help;
 import de.matthiasmann.twlthemeeditor.imgconv.ConvertImageDialog;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -164,6 +165,12 @@ public final class MainUI extends DialogLayout {
         mainMenu.add(menuTools);
 
         Menu menuHelp = new Menu("Help");
+        menuHelp.add("Help", new Runnable() {
+            public void run() {
+                openHelpDialog();
+            }
+        });
+        menuHelp.addSpacer();
         menuHelp.add("About", new Runnable() {
             public void run() {
                 openAboutDialog();
@@ -495,6 +502,11 @@ public final class MainUI extends DialogLayout {
             }
         }
         return sb.append(str, start, str.length());
+    }
+    
+    void openHelpDialog() {
+        Help help = new Help(this, messageLog);
+        help.show();
     }
 
     public static class ExtFilter implements FileFilter {

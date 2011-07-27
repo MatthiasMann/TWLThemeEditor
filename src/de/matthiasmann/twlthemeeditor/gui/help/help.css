@@ -1,0 +1,52 @@
+body {
+    color: white;
+    padding: 10px;
+}
+
+#logo {
+    text-align: center;
+    display: block;
+}
+
+a {
+    font-family: link;
+    color: lightblue;
+}
+
+p {
+    margin-bottom: 1em;
+}
+
+h1 {
+    background-image: url(heading);
+    padding: 5px;
+    font-family: big;
+    color: black;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+h1#top {
+    margin-top: 0;
+}
+
+ol {
+    list-style-type: upper-roman
+}
+
+ul {
+    margin-bottom: 1em;
+}
+
+ul > li {
+    padding-left: 5px
+}
+
+a.mainui-area {
+    display: block;
+    background-image: url(mainui.area);
+    text-align: center;
+    vertical-align: middle;
+    font-family: default;
+    color: skyblue;
+}
