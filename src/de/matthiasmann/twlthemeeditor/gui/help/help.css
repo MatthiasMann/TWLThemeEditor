@@ -1,6 +1,7 @@
 body {
     color: white;
     padding: 10px;
+    background-color: black;
 }
 
 #logo {
@@ -19,6 +20,7 @@ p {
 
 h1 {
     background-image: url(heading);
+    background-color: #eee;
     padding: 5px;
     font-family: big;
     color: black;
@@ -45,6 +47,8 @@ ul > li {
 a.mainui-area {
     display: block;
     background-image: url(mainui.area);
+    background-color: #888;
+    border: solid black;
     text-align: center;
     vertical-align: middle;
     font-family: default;
