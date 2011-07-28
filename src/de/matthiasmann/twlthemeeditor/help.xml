@@ -9,7 +9,6 @@
             <alias ref="-area8X" if="hover"/>
             <alias ref="-area8X" tint="#AAA"/>
         </select>
-        <alias name="help.heading" ref="white" tint="#eee"/>
         <composed name="help.button.opMoveNodeUp" sizeOverwriteH="20">
             <alias ref="-area7X"/>
             <alias ref="button.opMoveNodeUp.overlay"/>
@@ -52,9 +51,9 @@
                         </fontDef></param>
                     </map></param>
                     <param name="images"><map>
+                        <param name="white"><image>white</image></param>
                         <param name="twl-logo"><image>twl-logo</image></param>
                         <param name="mainui.area"><image>help.mainui.area</image></param>
-                        <param name="heading"><image>help.heading</image></param>
                         <param name="opMoveNodeUp"><image>help.button.opMoveNodeUp</image></param>
                         <param name="opMoveNodeDown"><image>help.button.opMoveNodeDown</image></param>
                         <param name="opDeleteNode"><image>help.button.opDeleteNode</image></param>

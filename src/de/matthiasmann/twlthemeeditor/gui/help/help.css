@@ -2,6 +2,7 @@ body {
     color: white;
     padding: 10px;
     background-color: black;
+    -twl-background-color: transparent;
 }
 
 #logo {
@@ -19,10 +20,10 @@ p {
 }
 
 h1 {
-    background-image: url(heading);
     background-color: #eee;
     padding: 5px;
-    font-family: big;
+    font: 20px "DejaVuSans", sans-serif;
+    -twl-font: big;
     color: black;
     margin-top: 1em;
     margin-bottom: 0.5em;
