@@ -60,7 +60,7 @@ public class FontDisplay extends Widget {
     private FontData fontData;
     private Padding padding;
     private boolean paddingAutomatic;
-    private boolean useAA;
+    private int flags;
     private CharSet charSet;
     private Effect.Renderer[] effects;
     private FontGenerator.GeneratorMethod generatorMethod;
@@ -107,8 +107,8 @@ public class FontDisplay extends Widget {
         update();
     }
 
-    public void setUseAA(boolean useAA) {
-        this.useAA = useAA;
+    public void setFlags(int flags) {
+        this.flags = flags;
         update();
     }
 
@@ -148,7 +148,7 @@ public class FontDisplay extends Widget {
             if(updateRunning) {
                 pendingUpdate = true;
             } else {
-                gui.invokeAsync(new GenFont(textureSize, fontData, computePadding(), charSet, effects, useAA, generatorMethod), completionHandler);
+                gui.invokeAsync(new GenFont(textureSize, fontData, computePadding(), charSet, effects, flags, generatorMethod), completionHandler);
                 updateRunning = true;
             }
         }
@@ -264,20 +264,20 @@ public class FontDisplay extends Widget {
         private final Padding padding;
         private final CharSet charSet;
         private final Effect.Renderer[] effects;
-        private final boolean useAA;
+        private final int flags;
 
         public GenFont(int textureSize, FontData fontData, Padding padding, CharSet charSet,
-                Effect.Renderer[] effects, boolean useAA, FontGenerator.GeneratorMethod generatorMethod) {
+                Effect.Renderer[] effects, int flags, FontGenerator.GeneratorMethod generatorMethod) {
             this.textureSize = textureSize;
             this.fontGen = new FontGenerator(fontData, generatorMethod);
             this.padding = padding;
             this.charSet = charSet;
             this.effects = effects;
-            this.useAA = useAA;
+            this.flags = flags;
         }
 
         public FontGenerator call() throws Exception {
-            fontGen.generate(textureSize, textureSize, charSet, padding, effects, useAA);
+            fontGen.generate(textureSize, textureSize, charSet, padding, effects, flags);
             return fontGen;
         }
     }
