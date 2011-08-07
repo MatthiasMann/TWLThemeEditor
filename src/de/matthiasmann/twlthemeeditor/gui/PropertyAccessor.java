@@ -36,7 +36,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * @param <T> type of value
+ * @param <P> type of property holder
+ * 
  * @author Matthias Mann
  */
 public class PropertyAccessor<T, P extends Property<T>> {
@@ -84,6 +86,12 @@ public class PropertyAccessor<T, P extends Property<T>> {
         return (activeModel == null) || activeModel.getValue();
     }
 
+    public void setActive(boolean active) {
+        if(activeModel != null) {
+            activeModel.setValue(active);
+        }
+    }
+    
     public void addActiveCallback(Runnable cb) {
         if(activeModel != null) {
             activeModel.addCallback(cb);
@@ -106,6 +114,10 @@ public class PropertyAccessor<T, P extends Property<T>> {
         setPropertyValue();
     }
 
+    public boolean hasValue() {
+        return (value != null) || (property.getPropertyValue() != null);
+    }
+    
     public String getDisplayName() {
         return property.getName();
     }
