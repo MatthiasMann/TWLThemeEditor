@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -42,6 +42,7 @@ import de.matthiasmann.twlthemeeditor.fontgen.Padding;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,7 +63,7 @@ public class FontDisplay extends Widget {
     private boolean paddingAutomatic;
     private int flags;
     private CharSet charSet;
-    private Effect.Renderer[] effects;
+    private Effect[] effects;
     private FontGenerator.GeneratorMethod generatorMethod;
 
     private boolean pendingUpdate;
@@ -123,11 +124,7 @@ public class FontDisplay extends Widget {
     }
 
     public void setEffects(Effect[] effects) {
-        Effect.Renderer[] tmp = new Effect.Renderer[effects.length];
-        for(int i=0 ; i<effects.length ; i++) {
-            tmp[i] = effects[i].createRenderer();
-        }
-        this.effects = tmp;
+        this.effects = effects;
         update();
     }
 
@@ -148,16 +145,44 @@ public class FontDisplay extends Widget {
             if(updateRunning) {
                 pendingUpdate = true;
             } else {
-                gui.invokeAsync(new GenFont(textureSize, fontData, computePadding(), charSet, effects, flags, generatorMethod), completionHandler);
+                Effect.Renderer[] renderer = createEffectRenderer();
+                Padding effPadding = computePadding(renderer);
+                GenFont genFont = new GenFont(textureSize, fontData,
+                        effPadding, charSet, renderer, flags, generatorMethod);
+                
+                gui.invokeAsync(genFont, completionHandler);
                 updateRunning = true;
             }
         }
     }
 
-    private Padding computePadding() {
+    private Effect.Renderer[] createEffectRenderer() {
+        ArrayList<Effect.Renderer> renderer = new ArrayList<Effect.Renderer>();
+        switch(generatorMethod) {
+            case AWT_DRAWSTRING:
+            case AWT_VECTOR:
+                for(Effect effect : effects) {
+                    if(effect.supports(generatorMethod)) {
+                        renderer.add(effect.createAWTRenderer());
+                    }
+                }
+                return renderer.toArray(new Effect.AWTRenderer[renderer.size()]);
+            case FREETYPE2:
+                for(Effect effect : effects) {
+                    if(effect.supports(generatorMethod)) {
+                        renderer.add(effect.createFT2Renderer());
+                    }
+                }
+                return renderer.toArray(new Effect.FT2Renderer[renderer.size()]);
+            default:
+                throw new AssertionError();
+        }
+    }
+    
+    private Padding computePadding(Effect.Renderer[] renderer) {
         if(paddingAutomatic) {
             Padding p = Padding.ZERO;
-            for(Effect.Renderer effect : effects) {
+            for(Effect.Renderer effect : renderer) {
                 Padding ep = effect.getPadding();
                 if(ep != null) {
                     p = p.max(ep);

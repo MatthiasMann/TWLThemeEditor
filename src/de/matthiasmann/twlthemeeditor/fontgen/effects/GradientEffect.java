@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.fontgen.effects;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleProperty;
 import de.matthiasmann.twlthemeeditor.fontgen.Effect;
+import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator.GeneratorMethod;
 import de.matthiasmann.twlthemeeditor.fontgen.FontInfo;
 import de.matthiasmann.twlthemeeditor.fontgen.GlyphRect;
 import java.awt.Color;
@@ -50,10 +51,20 @@ public class GradientEffect extends Effect {
     private final SimpleProperty<Color> colorBottom = new SimpleProperty<Color>(Color.class, "bottom color", Color.RED);
 
     @Override
-    public Renderer createRenderer() {
+    public AWTRenderer createAWTRenderer() {
         return new RendererImpl(
                 colorTop.getPropertyValue(),
                 colorBottom.getPropertyValue());
+    }
+
+    @Override
+    public boolean supports(GeneratorMethod generator) {
+        switch(generator) {
+            case AWT_VECTOR:
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -64,7 +75,7 @@ public class GradientEffect extends Effect {
         };
     }
 
-    private static class RendererImpl extends Renderer {
+    private static class RendererImpl extends AWTRenderer {
         private final Color colorTop;
         private final Color colorBottom;
 

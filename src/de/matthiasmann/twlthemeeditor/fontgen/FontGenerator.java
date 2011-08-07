@@ -1,5 +1,5 @@
 /*
- * Copyright (ch) 2008-2010, Matthias Mann
+ * Copyright (ch) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -44,7 +44,6 @@ import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
-import java.awt.image.SinglePixelPackedSampleModel;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -72,25 +71,21 @@ public class FontGenerator {
         TEXT
     };
 
-    public static final int BIT_AA      = 0;
-    public static final int BIT_OUTLINE = 1;
+    public static final int BIT_AA = 0;
     
-    public static final int FLAG_AA      = 1 << BIT_AA;
-    public static final int FLAG_OUTLINE = 1 << BIT_OUTLINE;
+    public static final int FLAG_AA = 1 << BIT_AA;
     
     public enum GeneratorMethod {
-        AWT_VECTOR(true, FLAG_AA, true),
-        AWT_DRAWSTRING(true, FLAG_AA, false),
-        FREETYPE2(isFreeTypeAvailable(), FLAG_OUTLINE, false);
+        AWT_VECTOR(true, FLAG_AA),
+        AWT_DRAWSTRING(true, FLAG_AA),
+        FREETYPE2(isFreeTypeAvailable(), 0);
 
         public final boolean isAvailable;
         public final int supportedFlags;
-        public final boolean supportsEffects;
 
-        private GeneratorMethod(boolean isAvailable, int supportedFlags, boolean supportsEffects) {
+        private GeneratorMethod(boolean isAvailable, int supportedFlags) {
             this.isAvailable = isAvailable;
             this.supportedFlags = supportedFlags;
-            this.supportsEffects = supportsEffects;
         }
     }
     
@@ -113,9 +108,9 @@ public class FontGenerator {
     
     public void generate(int width, int height, CharSet set, Padding padding, Effect.Renderer[] effects, int flags) throws IOException {
         if(generatorMethod == GeneratorMethod.FREETYPE2) {
-            generateFT2(width, height, set, padding, flags);
+            generateFT2(width, height, set, padding, (Effect.FT2Renderer[])effects, flags);
         } else {
-            generateAWT(width, height, set, padding, effects, flags, generatorMethod == GeneratorMethod.AWT_DRAWSTRING);
+            generateAWT(width, height, set, padding, (Effect.AWTRenderer[])effects, flags, generatorMethod == GeneratorMethod.AWT_DRAWSTRING);
         }
     }
 
@@ -139,17 +134,13 @@ public class FontGenerator {
         }
     }
 
-    private void generateFT2(int width, int height, CharSet set, Padding padding, int flags) throws IOException {
-        final boolean outline = (flags & FLAG_OUTLINE) == FLAG_OUTLINE;
-        final int paddingSize = outline ? 2 : 0;
-        
-        if(outline) {
-            this.padding = new Padding(1, 1, 1, 1, 2+padding.advance);
-        } else {
-            this.padding = new Padding(0, 0, 0, 0, padding.advance);
-        }
+    private void generateFT2(int width, int height, CharSet set, Padding padding, Effect.FT2Renderer[] effects, int flags) throws IOException {
+        this.padding = padding;
         this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
+        
+        int paddingHorz = padding.left + padding.right;
+        int paddingVert = padding.top + padding.bottom;
+        
         FreeTypeFont font = FreeTypeFont.create(fontData.getFontFile());
         try {
             font.setCharSize(0, fontData.getSize(), 72, 72);
@@ -181,7 +172,7 @@ public class FontGenerator {
                         usedGlyphCodes.set(glyphIndex);
 
                         numGlyphs++;
-                        maxHeight = Math.max(glyph.info.getHeight() + paddingSize, maxHeight);
+                        maxHeight = Math.max(glyph.info.getHeight() + paddingVert, maxHeight);
                     } catch (IOException ex) {
                         // ignore
                         /*
@@ -210,10 +201,15 @@ public class FontGenerator {
             int[] usedY = new int[width];
             usedTextureHeight = 0;
 
+            FontInfo fontInfo = new FontInfo(maxHeight, descent);
+            for(Effect.FT2Renderer effect : effects) {
+                effect.prePageRender(image, fontInfo);
+            }
+            
             for (int glyphNr=0 ; glyphNr<numGlyphs ; glyphNr++) {
                 final FT2Glyph glyph = glyphs[glyphNr];
-                final int glyphWidth = glyph.info.getWidth() + paddingSize;
-                final int glyphHeight = glyph.info.getHeight() + paddingSize;
+                final int glyphWidth = glyph.info.getWidth() + paddingHorz;
+                final int glyphHeight = glyph.info.getHeight() + paddingVert;
 
                 if (dir > 0) {
                     if (xp + glyphWidth > width) {
@@ -240,12 +236,15 @@ public class FontGenerator {
 
                 if(glyphWidth > 0) {
                     font.loadGlyph(glyph.glyphIndex);
-                    if(outline) {
+                    if(effects.length > 0) {
                         int w = glyphWidth + 2;
                         int h = glyphHeight + 2;
                         byte[] tmp = new byte[w*h];
                         font.copyGlyphToByteArray(tmp, w*2+2, w);
-                        makeOutline(tmp, xp, yp, w, h);
+                        
+                        for(Effect.FT2Renderer renderer : effects) {
+                            renderer.render(image, fontInfo, xp, yp, w, h, tmp);
+                        }
                     } else {
                         font.copyGlpyhToBufferedImage(image, xp, yp, Color.WHITE);
                     }
@@ -267,6 +266,10 @@ public class FontGenerator {
                 }
             }
             
+            for(Effect.FT2Renderer effect : effects) {
+                effect.postPageRender(image, fontInfo);
+            }
+            
             rects = new GlyphRect[numCodePoints];
             iter = font.iterateCodePoints();
             for(int rectNr=0 ; iter.nextCodePoint() ;) {
@@ -280,8 +283,8 @@ public class FontGenerator {
                 FT2Glyph glyph = glyphMap.get(glyphIndex);
                 if(glyph != null) {
                     GlyphRect rect = new GlyphRect((char)codepoint,
-                            glyph.info.getWidth()+paddingSize,
-                            glyph.info.getHeight()+paddingSize,
+                            glyph.info.getWidth()+paddingHorz,
+                            glyph.info.getHeight()+paddingVert,
                             glyph.info.getAdvanceX()+this.padding.advance,
                             -glyph.info.getOffsetY(),
                             -glyph.info.getOffsetX(), 0, null);
@@ -313,52 +316,8 @@ public class FontGenerator {
             font.close();
         }
     }
-    
-    private void makeOutline(byte[] glyph, int xp, int yp, int width, int height) {
-        if(xp + width - 2 > image.getWidth()) {
-            return;
-        }
-        if(yp + height - 2 > image.getHeight()) {
-            return;
-        }
         
-        final DataBufferInt dataBuffer = (DataBufferInt)image.getRaster().getDataBuffer();
-        final int[] data = dataBuffer.getData();
-        final int stride = ((SinglePixelPackedSampleModel)image.getSampleModel()).getScanlineStride();
-        int dataOff = dataBuffer.getOffset() + yp * stride + xp - 2;
-        
-        int off = width + 1;
-        for(int y=2 ; y<height ; y++) {
-            for(int x=2 ; x<width ; x++,off++) {
-                data[dataOff+x] = makeColor(max(
-                        max3H(glyph, off-width),
-                        max3H(glyph, off      ),
-                        max3H(glyph, off+width)),
-                        glyph[off]);
-            }
-            dataOff += stride;
-            off += 2;
-        }
-    }
-    
-    private static int makeColor(int outline, int glyph) {
-        return (0x010101 * glyph) | (outline << 24);
-    }
-    
-    private static int max3H(byte[] bb, int off) {
-        int a = bb[off-1] & 255;
-        int b = bb[off  ] & 255;
-        int c = bb[off+1] & 255;
-        return max(a, b, c);
-    }
-    
-    private static int max(int a, int b, int c) {
-        if(b > a) a = b;
-        if(c > a) a = c;
-        return a;
-    }
-    
-    private void generateAWT(int width, int height, CharSet set, Padding padding, Effect.Renderer[] effects, int flags, boolean useDrawString) {
+    private void generateAWT(int width, int height, CharSet set, Padding padding, Effect.AWTRenderer[] effects, int flags, boolean useDrawString) {
         boolean useAA = (flags & FLAG_AA) == FLAG_AA;
         this.padding = padding;
         
@@ -433,7 +392,7 @@ public class FontGenerator {
             }
         });
 
-        for(Effect.Renderer effect : effects) {
+        for(Effect.AWTRenderer effect : effects) {
             effect.prePageRender(g, fontInfo);
         }
 
@@ -472,11 +431,11 @@ public class FontGenerator {
             
             Graphics2D gGlyph = (Graphics2D) g.create(xp, yp, rect.width, rect.height);
             try {
-                for(Effect.Renderer effect : effects) {
+                for(Effect.AWTRenderer effect : effects) {
                     effect.preGlyphRender(gGlyph, fontInfo, rect);
                 }
                 rect.drawGlyph(gGlyph, useDrawString);
-                for(Effect.Renderer effect : effects) {
+                for(Effect.AWTRenderer effect : effects) {
                     effect.postGlyphRender(gGlyph, fontInfo, rect);
                 }
             } finally {
@@ -499,7 +458,7 @@ public class FontGenerator {
             }
         }
 
-        for(Effect.Renderer effect : effects) {
+        for(Effect.AWTRenderer effect : effects) {
             effect.postPageRender(g, fontInfo);
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -37,6 +37,7 @@ import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.fontgen.Effect;
+import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator.GeneratorMethod;
 import de.matthiasmann.twlthemeeditor.gui.CollapsiblePanel;
 import de.matthiasmann.twlthemeeditor.gui.PropertyFactories;
 import java.util.ArrayList;
@@ -143,9 +144,12 @@ public class EffectsPanel extends DialogLayout {
         callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
     }
 
-    public void enableEffectsPanels(boolean enabled) {
+    public void enableEffectsPanels(GeneratorMethod generatorMethod) {
         for(CollapsiblePanel cp : effectCollapsiblePanels) {
-            cp.setVisible(enabled);
+            Widget cpContent = cp.getContent();
+            if(cpContent instanceof EffectPropertyPanel) {
+                cp.setVisible(((EffectPropertyPanel)cpContent).getEffect().supports(generatorMethod));
+            }
         }
     }
 

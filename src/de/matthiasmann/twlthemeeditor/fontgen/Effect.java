@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -31,7 +31,9 @@ package de.matthiasmann.twlthemeeditor.fontgen;
 
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator.GeneratorMethod;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 /**
  *
@@ -40,19 +42,35 @@ import java.awt.Graphics2D;
 public abstract class Effect {
 
     public abstract static class Renderer {
-        public void prePageRender(Graphics2D g, FontInfo fontInfo) {}
-        public void preGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {}
-        public void postGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {}
-        public void postPageRender(Graphics2D g, FontInfo fontInfo) {}
-
         public Padding getPadding() {
             return null;
         }
     }
     
+    public abstract static class AWTRenderer extends Renderer {
+        public void prePageRender(Graphics2D g, FontInfo fontInfo) {}
+        public void preGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {}
+        public void postGlyphRender(Graphics2D g, FontInfo fontInfo, GlyphRect glyph) {}
+        public void postPageRender(Graphics2D g, FontInfo fontInfo) {}
+    }
+    
+    public abstract static class FT2Renderer extends Renderer {
+        public void prePageRender(BufferedImage img, FontInfo fontInfo) {}
+        public abstract void render(BufferedImage img, FontInfo fontInfo, int xp, int yp, int w, int h, byte[] glyph);
+        public void postPageRender(BufferedImage img, FontInfo fontInfo) {}
+    }
+    
+    public abstract boolean supports(GeneratorMethod generator);
+    
     public abstract Property<?>[] getProperties();
 
-    public abstract Renderer createRenderer();
+    public AWTRenderer createAWTRenderer() {
+        throw new UnsupportedOperationException();
+    }
+    
+    public FT2Renderer createFT2Renderer() {
+        throw new UnsupportedOperationException();
+    }
 
     protected static final class ColorConvertProperty implements Property<Color> {
         private final Property<java.awt.Color> base;

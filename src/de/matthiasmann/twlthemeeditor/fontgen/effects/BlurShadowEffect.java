@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.fontgen.effects;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleProperty;
 import de.matthiasmann.twlthemeeditor.fontgen.Effect;
+import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator.GeneratorMethod;
 import de.matthiasmann.twlthemeeditor.fontgen.FontInfo;
 import de.matthiasmann.twlthemeeditor.fontgen.GlyphRect;
 import de.matthiasmann.twlthemeeditor.fontgen.Padding;
@@ -63,7 +64,7 @@ public class BlurShadowEffect extends Effect {
     private final SimpleProperty<Color> color = new SimpleProperty<Color>(Color.class, "color", new Color(0, 0, 0, 128));
 
     @Override
-    public Renderer createRenderer() {
+    public AWTRenderer createAWTRenderer() {
         return new RendererImpl(
                 kernelsize.getPropertyValue(),
                 passes.getPropertyValue(),
@@ -71,6 +72,15 @@ public class BlurShadowEffect extends Effect {
                 distance.getPropertyValue());
     }
 
+    @Override
+    public boolean supports(GeneratorMethod generator) {
+        switch(generator) {
+            case AWT_VECTOR:
+                return true;
+            default:
+                return false;
+        }
+    }
 
     @Override
     public Property<?>[] getProperties() {
@@ -82,7 +92,7 @@ public class BlurShadowEffect extends Effect {
         };
     }
 
-    private static class RendererImpl extends Renderer {
+    private static class RendererImpl extends AWTRenderer {
         private final int kernelSize;
         private final int numPasses;
         private final Color color;

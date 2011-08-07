@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -129,6 +129,10 @@ public final class CollapsiblePanel extends DialogLayout {
             toggleExpand();
         }
     }
+    
+    public Widget getContent() {
+        return container.content;
+    }
 
     @Override
     protected void widgetDisabled() {
@@ -159,7 +163,7 @@ public final class CollapsiblePanel extends DialogLayout {
     private static final int DELAY = 20;
     
     class ContentContainer extends Widget implements Runnable {
-        private final Widget content;
+        final Widget content;
         private Timer timer;
         private int prefInnerSize = -1;
         private int speed;

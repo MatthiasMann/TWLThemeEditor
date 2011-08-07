@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -58,6 +58,7 @@ import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator;
 import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator.GeneratorMethod;
 import de.matthiasmann.twlthemeeditor.fontgen.Padding;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.BlurShadowEffect;
+import de.matthiasmann.twlthemeeditor.fontgen.effects.FT2OutlineEffect;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.GradientEffect;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.OutlineEffect;
 import de.matthiasmann.twlthemeeditor.gui.DecoratedTextRenderer;
@@ -107,7 +108,6 @@ public final class FontGenDialog {
     private final Label fontMetricInfoLabel;
     private final SimpleIntegerModel flagsModel;
     private final ToggleButton useAACheckbox;
-    private final ToggleButton makeOutlineCheckbox;
     private final EffectsPanel effectsPanel;
     private final ScrollPane effectsPanelSP;
     private final FontDisplay fontDisplay;
@@ -192,7 +192,11 @@ public final class FontGenDialog {
             }
         }
         generatorModesModel = new SimpleListSelectionModel<GeneratorMethod>(generators);
-        generatorModesModel.setValue(0);
+        if(FontGenerator.GeneratorMethod.FREETYPE2.isAvailable) {
+            generatorModesModel.setSelectedEntry(FontGenerator.GeneratorMethod.FREETYPE2);
+        } else {
+            generatorModesModel.setValue(0);
+        }
         generatorModesModel.addCallback(new Runnable() {
             public void run() {
                 updateGeneratorMode();
@@ -200,7 +204,7 @@ public final class FontGenDialog {
         });
 
         generatorModeCB = new ComboBox<FontGenerator.GeneratorMethod>(generatorModesModel);
-
+        
         flagsModel = new SimpleIntegerModel(0, 3, FontGenerator.FLAG_AA);
         flagsModel.addCallback(new Runnable() {
             public void run() {
@@ -211,10 +215,6 @@ public final class FontGenDialog {
         useAACheckbox = new ToggleButton(new BitfieldBooleanModel(flagsModel, FontGenerator.BIT_AA));
         useAACheckbox.setText("Use Antialiasing rendering");
         useAACheckbox.setTheme("useAACheckbox");
-        
-        makeOutlineCheckbox = new ToggleButton(new BitfieldBooleanModel(flagsModel, FontGenerator.BIT_OUTLINE));
-        makeOutlineCheckbox.setText("Create outline around glyphs");
-        makeOutlineCheckbox.setTheme("makeOutlineCheckbox");
 
         fontDisplayBgCB = new ComboBox<FontDisplayBG>(new SimpleChangableListModel<FontDisplayBG>(FontDisplayBG.values()));
         fontDisplayBgCB.setSelected(0);
@@ -269,7 +269,6 @@ public final class FontGenDialog {
         effectsPanel.addControl("Font metric", fontMetricInfoLabel);
         effectsPanel.addControl("Preview BG", fontDisplayBgCB);
         effectsPanel.addControl(useAACheckbox);
-        effectsPanel.addControl(makeOutlineCheckbox);
         effectsPanel.addCollapsible("Unicode blocks", unicodeBlocksSP, null).setExpanded(true);
         effectsPanel.addCollapsible("Manual characters", manualCharactersEditfield, null);
         effectsPanel.addCollapsible("Manual padding", paddingAdjuster, manualPaddingModel);
@@ -277,6 +276,7 @@ public final class FontGenDialog {
         effectsPanel.addEffect("Shadow", new BlurShadowEffect());
         effectsPanel.addEffect("Gradient", new GradientEffect());
         effectsPanel.addEffect("Outline", new OutlineEffect());
+        effectsPanel.addEffect("Outline", new FT2OutlineEffect());
         effectsPanel.addCallback(new Runnable() {
             public void run() {
                 updateEffects();
@@ -435,7 +435,6 @@ public final class FontGenDialog {
     private static final String KEY_EXPORTFORMAT = "exportFormat";
     private static final String KEY_PADDING_AUTOMATIC = "padding.automatic";
     private static final String KEY_USEAA = "useAA";
-    private static final String KEY_MAKEOUTLINE = "makeOutline";
     private static final String KEY_GENERATOR_METHOD = "generatorMethod";
     private static final String[] KEY_PADDING = {
         "padding.top",
@@ -493,7 +492,6 @@ public final class FontGenDialog {
         }
 
         useAACheckbox.setActive(Boolean.parseBoolean(properties.getProperty(KEY_USEAA, "true")));
-        makeOutlineCheckbox.setActive(Boolean.parseBoolean(properties.getProperty(KEY_MAKEOUTLINE, "true")));
 
         {
             FontGenerator.GeneratorMethod generatorMethod = GeneratorMethod.AWT_VECTOR;
@@ -547,7 +545,6 @@ public final class FontGenDialog {
         properties.setProperty(KEY_FONTSIZE, Integer.toString(fontSizeModel.getValue()));
         properties.setProperty(KEY_EXPORTFORMAT, exportFormatModel.getSelectedEntry().name());
         properties.setProperty(KEY_USEAA, Boolean.toString(useAACheckbox.isActive()));
-        properties.setProperty(KEY_MAKEOUTLINE, Boolean.toString(makeOutlineCheckbox.isActive()));
         properties.setProperty(KEY_GENERATOR_METHOD, generatorModesModel.getSelectedEntry().name());
         charSet.save(properties);
         properties.setProperty(KEY_PADDING_AUTOMATIC, Boolean.toString(!manualPaddingModel.getValue()));
@@ -695,9 +692,8 @@ public final class FontGenDialog {
     void updateGeneratorMode() {
         GeneratorMethod generatorMethod = generatorModesModel.getSelectedEntry();
         fontDisplay.setGeneratorMethod(generatorMethod);
-        effectsPanel.enableEffectsPanels(generatorMethod.supportsEffects);
+        effectsPanel.enableEffectsPanels(generatorMethod);
         enableFlagWidget(useAACheckbox, FontGenerator.FLAG_AA);
-        enableFlagWidget(makeOutlineCheckbox, FontGenerator.FLAG_OUTLINE);
     }
     
     private void enableFlagWidget(Widget w, int mask) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.fontgen.effects;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleProperty;
 import de.matthiasmann.twlthemeeditor.fontgen.Effect;
+import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator.GeneratorMethod;
 import de.matthiasmann.twlthemeeditor.fontgen.FontInfo;
 import de.matthiasmann.twlthemeeditor.fontgen.GlyphRect;
 import de.matthiasmann.twlthemeeditor.fontgen.Padding;
@@ -50,11 +51,21 @@ public class OutlineEffect extends Effect {
     private final SimpleProperty<Join> join = new SimpleProperty<Join>(Join.class, "join", Join.BEVEL);
 
     @Override
-    public Renderer createRenderer() {
+    public AWTRenderer createAWTRenderer() {
         return new RendererImpl(
                 width.getPropertyValue(),
                 join.getPropertyValue().awtJoin,
                 color.getPropertyValue());
+    }
+
+    @Override
+    public boolean supports(GeneratorMethod generator) {
+        switch(generator) {
+            case AWT_VECTOR:
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -77,7 +88,7 @@ public class OutlineEffect extends Effect {
         }
     }
 
-    private static class RendererImpl extends Renderer {
+    private static class RendererImpl extends AWTRenderer {
         private final float width;
         private final int awtJoin;
         private final Color color;
