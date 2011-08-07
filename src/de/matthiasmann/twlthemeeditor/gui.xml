@@ -959,6 +959,12 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         </theme>
 
         <theme name="keyStrokeEditor" ref="button"/>
+        <theme name="colorbutton" ref="button">
+            <param name="border"><border>5,4</border></param>
+            <param name="white"><image>white</image></param>
+            <param name="maxWidth"><int>32767</int></param>
+            <param name="minHeight"><int>25</int></param>
+        </theme>
     </theme>
 
     <theme name="propertyEditor" ref="scrollpane">
@@ -1034,6 +1040,12 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
     </theme>
 
     <theme name="keystrokepopup" ref="simpledialog"/>
+    
+    <theme name="colorEditorPopup" ref="-defaults">
+        <param name="background"><image>popup.background</image></param>
+        <param name="border"><border>10</border></param>
+        <theme name="" ref="*"/>
+    </theme>
     
     <theme name="messagePopup" ref="-defaults">
         <param name="background"><image>popup.background</image></param>

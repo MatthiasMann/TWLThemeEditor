@@ -29,10 +29,15 @@
  */
 package de.matthiasmann.twlthemeeditor.gui.editors;
 
+import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.ColorSelector;
+import de.matthiasmann.twl.GUI;
+import de.matthiasmann.twl.PopupWindow;
+import de.matthiasmann.twl.ThemeInfo;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.ColorSpaceHSL;
+import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
@@ -44,19 +49,82 @@ import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 public class ColorEditorFactory implements PropertyEditorFactory<Color, ColorProperty> {
 
     public Widget create(final PropertyAccessor<Color, ColorProperty> pa) {
-        final ColorSelector cs = new ColorSelector(new ColorSpaceHSL());
-        cs.setUseLabels(false);
-        cs.setShowPreview(true);
-        cs.setShowHexEditField(true);
-        cs.setColor(pa.getValue(Color.WHITE));
-        cs.addCallback(new Runnable() {
+        final ColorButton button = new ColorButton();
+        button.setColor(pa.getValue(Color.WHITE));
+        final Runnable cb = new Runnable() {
             public void run() {
-                Color color = cs.getColor();
-                pa.setValue(color);
+                final ColorSelector cs = new ColorSelector(new ColorSpaceHSL());
+                cs.setUseLabels(false);
+                cs.setShowPreview(true);
+                cs.setShowHexEditField(true);
+                cs.setColor(pa.getValue(Color.WHITE));
+                cs.addCallback(new Runnable() {
+                    public void run() {
+                        Color color = cs.getColor();
+                        pa.setValue(color);
+                        pa.setActive(true);
+                        button.setColor(color);
+                    }
+                });
+                PopupWindow popup = new PopupWindow(button);
+                popup.setTheme("colorEditorPopup");
+                popup.add(cs);
+                if(popup.openPopup()) {
+                    popup.adjustSize();
+                    popup.setPosition(
+                            computePos(button.getX(), popup.getWidth(), popup.getParent().getInnerRight()),
+                            computePos(button.getY(), popup.getHeight(), popup.getParent().getInnerBottom()));
+                }
             }
-        });
+        };
+        button.addCallback(cb);
+        if(!pa.hasValue()) {
+            pa.addActiveCallback(new Runnable() {
+                public void run() {
+                    if(pa.isActive() && !button.hasOpenPopups() && !pa.hasValue()) {
+                        cb.run();
+                    }
+                }
+            });
+        }
+        
+        return button;
+    }
+    
+    static int computePos(int pos, int required, int avail) {
+        return Math.min(pos, avail - required);
+    }
+    
+    static class ColorButton extends Button {
+        private Image white;
+        private Image colored;
+        private Color color = Color.WHITE;
 
-        pa.setWidgetsToEnable(cs);
-        return cs;
+        public void setColor(Color color) {
+            this.color = color;
+            updateColored();
+        }
+
+        @Override
+        protected void applyTheme(ThemeInfo themeInfo) {
+            super.applyTheme(themeInfo);
+            white = themeInfo.getImage("white");
+            updateColored();
+        }
+
+        @Override
+        protected void paintWidget(GUI gui) {
+            if(colored != null) {
+                colored.draw(getAnimationState(),
+                        getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight());
+            }
+            super.paintWidget(gui);
+        }
+
+        private void updateColored() {
+            if(white != null) {
+                colored = white.createTintedVersion(color);
+            }
+        }
     }
 }
