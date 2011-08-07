@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.fontgen;
 import com.sun.jna.Platform;
 import de.matthiasmann.javafreetype.FreeTypeCodePointIterator;
 import de.matthiasmann.javafreetype.FreeTypeFont;
+import de.matthiasmann.javafreetype.FreeTypeFont.LoadTarget;
 import de.matthiasmann.javafreetype.FreeTypeGlyphInfo;
 import java.awt.Color;
 import java.awt.Font;
@@ -78,7 +79,7 @@ public class FontGenerator {
     public enum GeneratorMethod {
         AWT_VECTOR(true, FLAG_AA),
         AWT_DRAWSTRING(true, FLAG_AA),
-        FREETYPE2(isFreeTypeAvailable(), 0);
+        FREETYPE2(isFreeTypeAvailable(), FLAG_AA);
 
         public final boolean isAvailable;
         public final int supportedFlags;
@@ -135,6 +136,11 @@ public class FontGenerator {
     }
 
     private void generateFT2(int width, int height, CharSet set, Padding padding, Effect.FT2Renderer[] effects, int flags) throws IOException {
+        boolean useAA = (flags & FLAG_AA) == FLAG_AA;
+        LoadTarget loadTarget = useAA
+                   ? FreeTypeFont.LoadTarget.NORMAL
+                   : FreeTypeFont.LoadTarget.MONO;
+        
         this.padding = padding;
         this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         
@@ -235,7 +241,7 @@ public class FontGenerator {
                 //System.out.println("xp="+xp+" yp="+yp+" w="+rect.width+" h="+rect.height+" adv="+rect.advance);
 
                 if(glyphWidth > 0) {
-                    font.loadGlyph(glyph.glyphIndex);
+                    font.loadGlyph(glyph.glyphIndex, loadTarget);
                     if(effects.length > 0) {
                         int w = glyphWidth + 2;
                         int h = glyphHeight + 2;
