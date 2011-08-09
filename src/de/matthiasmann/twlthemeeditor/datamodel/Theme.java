@@ -91,7 +91,7 @@ public class Theme extends ThemeTreeNode implements HasProperties {
 
             if(isTopLevel) {
                 allowWildcardProperty = new BooleanProperty(
-                        new AttributeProperty(element, "allowWildcard", "Allow Wildcard", true), false);
+                        new AttributeProperty(element, "allowWildcard", "Allow Wildcard", true), true);
                 addProperty(allowWildcardProperty);
                 mergeProperty = null;
             } else {
