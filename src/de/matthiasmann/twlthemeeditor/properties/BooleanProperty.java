@@ -51,7 +51,11 @@ public class BooleanProperty extends DerivedProperty<Boolean> implements Boolean
     }
 
     public boolean getValue() {
-        return Boolean.parseBoolean(base.getPropertyValue());
+        String propertyValue = base.getPropertyValue();
+        if(propertyValue == null) {
+            return defaultValue;
+        }
+        return Boolean.parseBoolean(propertyValue);
     }
     
     public void setValue(boolean value) throws IllegalArgumentException {
