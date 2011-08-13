@@ -218,6 +218,9 @@ public class NewProjectDialog extends DialogLayout {
         if(folderMRU.getNumEntries() > 0) {
             gotoFolderFromMRU(0);
         }
+        
+        // check number of entries again as invalid entries will be removed by gotoFolderFromMRU
+        btnFolderMRU.setEnabled(folderMRU.getNumEntries() > 0);
 
         checkProjectSettings();
     }
