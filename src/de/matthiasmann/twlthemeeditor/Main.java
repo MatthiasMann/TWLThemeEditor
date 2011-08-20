@@ -237,6 +237,7 @@ public class Main extends Frame {
 
                 gui.update();
                 Display.update();
+                Display.sync(70);
             }
 
             gui.destroy();
