@@ -227,7 +227,7 @@ public class NewClasspathDialog extends PopupWindow {
             URI entry = entries.getEntry(i).toURI();
             xs.text("\n        ");
             xs.startTag(null, "entry");
-            xs.text(base.relativize(entry).getPath());
+            xs.text(base.relativize(entry).toASCIIString());
             xs.endTag(null, "entry");
         }
     }
