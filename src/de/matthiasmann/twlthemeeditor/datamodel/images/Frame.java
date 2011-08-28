@@ -29,8 +29,8 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel.images;
 
-import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Images;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.FloatProperty;
@@ -43,10 +43,10 @@ import org.jdom.Element;
  */
 public class Frame extends Alias {
 
-    Frame(Images textures, TreeTableNode parent, Element node) {
+    Frame(Images textures, ThemeTreeNode parent, Element node) {
         super(textures, parent, node);
         addProperty(new IntegerProperty(new AttributeProperty(element, "duration"), 0, Short.MAX_VALUE));
-        addProperty(new ColorProperty(new AttributeProperty(element, "tint", "Tint color", true)));
+        addProperty(new ColorProperty(new AttributeProperty(element, "tint", "Tint color", true), parent));
         addProperty(new FloatProperty(new AttributeProperty(element, "zoom", "Zoom X/Y", true), 0f, 4f, 1f));
         addProperty(new FloatProperty(new AttributeProperty(element, "zoomX", "Zoom X", true), 0f, 4f, 1f));
         addProperty(new FloatProperty(new AttributeProperty(element, "zoomY", "Zoom Y", true), 0f, 4f, 1f));

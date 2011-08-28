@@ -39,5 +39,6 @@ public enum Kind {
     CURSOR,
     THEME,
     FONT,
-    INPUTMAP
+    INPUTMAP,
+    CONSTANTDEF
 }

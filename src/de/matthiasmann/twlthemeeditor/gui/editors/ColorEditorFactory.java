@@ -50,7 +50,8 @@ public class ColorEditorFactory implements PropertyEditorFactory<Color, ColorPro
 
     public Widget create(final PropertyAccessor<Color, ColorProperty> pa) {
         final ColorButton button = new ColorButton();
-        button.setColor(pa.getValue(Color.WHITE));
+        ColorProperty property = pa.getProperty();
+        button.setColor(pa.getValue(Color.WHITE), property.getColorName());
         final Runnable cb = new Runnable() {
             public void run() {
                 final ColorSelector cs = new ColorSelector(new ColorSpaceHSL());
@@ -63,7 +64,7 @@ public class ColorEditorFactory implements PropertyEditorFactory<Color, ColorPro
                         Color color = cs.getColor();
                         pa.setValue(color);
                         pa.setActive(true);
-                        button.setColor(color);
+                        button.setColor(color, null);
                     }
                 });
                 PopupWindow popup = new PopupWindow(button);
@@ -99,9 +100,11 @@ public class ColorEditorFactory implements PropertyEditorFactory<Color, ColorPro
         private Image white;
         private Image colored;
         private Color color = Color.WHITE;
+        private String colorName;
 
-        public void setColor(Color color) {
+        public void setColor(Color color, String colorName) {
             this.color = color;
+            this.colorName = colorName;
             updateColored();
         }
 
@@ -115,8 +118,7 @@ public class ColorEditorFactory implements PropertyEditorFactory<Color, ColorPro
         @Override
         protected void paintWidget(GUI gui) {
             if(colored != null) {
-                colored.draw(getAnimationState(),
-                        getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight());
+                colored.draw(getAnimationState(), getX(), getY(), getWidth(), getHeight());
             }
             super.paintWidget(gui);
         }
@@ -125,6 +127,11 @@ public class ColorEditorFactory implements PropertyEditorFactory<Color, ColorPro
             if(white != null) {
                 colored = white.createTintedVersion(color);
             }
+            String text = color.toString();
+            if(colorName != null) {
+                text = colorName + " (" + text + ")";
+            }
+            setText(text);
         }
     }
 }

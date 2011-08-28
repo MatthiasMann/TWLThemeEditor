@@ -126,6 +126,10 @@ public class ThemeFile implements VirtualFile {
         return rootThemeFile == null ? this : rootThemeFile;
     }
 
+    public ThemeTreeNode getTreeNode() {
+        return treeNode;
+    }
+    
     public URL getURL() {
         return url;
     }
@@ -196,6 +200,9 @@ public class ThemeFile implements VirtualFile {
                 }
                 if("inputMapDef".equals(tagName)) {
                     return new InputMapDef(themeFile, parent, element);
+                }
+                if("constantDef".equals(tagName)) {
+                    return new ConstantDef(themeFile, parent, element);
                 }
                 return null;
             }

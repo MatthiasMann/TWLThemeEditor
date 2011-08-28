@@ -30,60 +30,21 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
-import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
-import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
-import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
-import de.matthiasmann.twlthemeeditor.properties.HasProperties;
-import de.matthiasmann.twlthemeeditor.properties.IntegerProperty;
 import java.io.IOException;
-import java.util.List;
 import org.jdom.Element;
 
 /**
  *
  * @author Matthias Mann
  */
-public class FontParam extends ThemeTreeNode implements HasProperties {
+public class ConstantDef extends Param {
 
-    protected final ConditionProperty conditionProperty;
-
-    public FontParam(ThemeFile themeFile, TreeTableNode parent, Element element) {
+    public ConstantDef(ThemeFile themeFile, TreeTableNode parent, Element element) throws IOException {
         super(themeFile, parent, element);
-
-        conditionProperty = new ConditionProperty(
-                new AttributeProperty(element, "if", "if", true),
-                new AttributeProperty(element, "unless", "unless", true),
-                "Condition");
-        addProperty(conditionProperty);
-
-        addProperty(new ColorProperty(new AttributeProperty(element, "color", "Font color", true), this));
-        addProperty(new IntegerProperty(new AttributeProperty(element, "offsetX", "Offset X", true), -100, 100));
-        addProperty(new IntegerProperty(new AttributeProperty(element, "offsetY", "Offset Y", true), -100, 100));
     }
 
     @Override
-    public String getName() {
-        Condition condition = conditionProperty.getPropertyValue();
-        return condition.getType().name() + "(" + condition.getCondition() + ")";
-    }
-
     public Kind getKind() {
-        return Kind.NONE;
+        return Kind.CONSTANTDEF;
     }
-
-    public void addChildren() throws IOException {
-    }
-
-    public void addToXPP(DomXPPParser xpp) {
-        xpp.addElement(this, element);
-    }
-
-    @Override
-    public List<ThemeTreeOperation> getOperations() {
-        List<ThemeTreeOperation> operations = super.getOperations();
-        operations.add(new CloneNodeOperation(element, this));
-        return operations;
-    }
-
 }

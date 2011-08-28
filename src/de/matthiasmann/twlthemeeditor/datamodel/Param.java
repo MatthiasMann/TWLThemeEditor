@@ -41,6 +41,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParamFontDef
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
+import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 import de.matthiasmann.twlthemeeditor.properties.DimensionProperty;
 import de.matthiasmann.twlthemeeditor.properties.ElementTextProperty;
 import de.matthiasmann.twlthemeeditor.properties.GapProperty;
@@ -76,8 +77,16 @@ public class Param extends ThemeTreeNode implements HasProperties {
 
     protected DerivedNodeReferenceProperty refProperty;
 
+    public Param(ThemeFile themeFile, TreeTableNode parent, Element element) throws IOException {
+        this(themeFile, null, parent, element);
+    }
+
     public Param(Theme theme, TreeTableNode parent, Element element) throws IOException {
-        super(theme.getThemeFile(), parent, element);
+        this(theme.getThemeFile(), theme, parent, element);
+    }
+    
+    private Param(ThemeFile themeFile, Theme theme, TreeTableNode parent, Element element) throws IOException {
+        super(themeFile, parent, element);
         this.theme = theme;
         
         this.nameProperty = new NameProperty(new AttributeProperty(element, "name"), null, null, false) {
@@ -144,7 +153,8 @@ public class Param extends ThemeTreeNode implements HasProperties {
     }
 
     private void initValueProperty() {
-        valueProperty = createProperty(valueElement, this, theme.getLimit());
+        valueProperty = createProperty(valueElement, this,
+                (theme != null) ? theme.getLimit() : this);
         if(valueProperty != null) {
             addProperty(valueProperty);
         }
@@ -205,20 +215,20 @@ public class Param extends ThemeTreeNode implements HasProperties {
     
     public void addChildren() throws IOException {
         if(isMap()) {
-            addChildren(theme.getThemeFile(), valueElement, new DomWrapper() {
+            addChildren(themeFile, valueElement, new DomWrapper() {
                 public TreeTableNode wrap(ThemeFile themeFile, ThemeTreeNode parent, Element element) throws IOException {
                     if("param".equals(element.getName())) {
-                        return new Param(theme, parent, element);
+                        return new Param(themeFile, theme, parent, element);
                     }
                     return null;
                 }
             });
         }
         if(isFontDef()) {
-            addChildren(theme.getThemeFile(), valueElement, new FontDef.DomWrapperImpl());
+            addChildren(themeFile, valueElement, new FontDef.DomWrapperImpl());
         }
         if(isInputMapDef()) {
-            addChildren(theme.getThemeFile(), valueElement, new InputMapDef.DomWrapperImpl());
+            addChildren(themeFile, valueElement, new InputMapDef.DomWrapperImpl());
         }
     }
 
@@ -324,7 +334,7 @@ public class Param extends ThemeTreeNode implements HasProperties {
             return new GapProperty(new ElementTextProperty(e, "Layout gap"));
         }
         if("dimension".equals(tagName)) {
-            return new DimensionProperty(new ElementTextProperty(e, "Dimesnion"));
+            return new DimensionProperty(new ElementTextProperty(e, "Dimension"));
         }
         if("string".equals(tagName)) {
             return new ElementTextProperty(e, "String value");
@@ -343,6 +353,9 @@ public class Param extends ThemeTreeNode implements HasProperties {
         }
         if("inputMap".equals(tagName)) {
             return new DerivedNodeReferenceProperty(new ElementTextProperty(e, "InputMap reference"), limit, Kind.INPUTMAP);
+        }
+        if("color".equals(tagName)) {
+            return new ColorProperty(new ElementTextProperty(e, "Color value"), node);
         }
         return null;
     }
@@ -373,5 +386,6 @@ public class Param extends ThemeTreeNode implements HasProperties {
         ICON_MAP.put("fontDef", "param-fontdef");
         ICON_MAP.put("inputMap", "param-inputmap");
         ICON_MAP.put("inputMapDef", "param-inputmapdef");
+        ICON_MAP.put("color", "param-color");
     }
 }

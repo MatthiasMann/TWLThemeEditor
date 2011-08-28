@@ -31,6 +31,9 @@ package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.datamodel.ConstantDef;
+import de.matthiasmann.twlthemeeditor.datamodel.Kind;
+import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 
 /**
  *
@@ -38,16 +41,48 @@ import de.matthiasmann.twl.model.Property;
  */
 public class ColorProperty extends DerivedProperty<Color> {
 
-    public ColorProperty(Property<String> base) {
+    private final ThemeTreeNode node;
+    
+    public ColorProperty(Property<String> base, ThemeTreeNode node) {
         super(base, Color.class);
+        this.node = node;
     }
 
     public Color getPropertyValue() {
         String value = base.getPropertyValue();
-        return (value != null) ? Color.parserColor(value) : null;
+        return (value != null) ? parseColor(value) : null;
     }
 
     public void setPropertyValue(Color value) throws IllegalArgumentException {
         base.setPropertyValue((value != null) ? value.toString() : null);
+    }
+    
+    public String getColorName() {
+        String value = base.getPropertyValue();
+        if(value != null && value.startsWith("#")) {
+            return null;
+        } else {
+            return value;
+        }
+    }
+    
+    public void setColorName(String name) {
+        assert !name.startsWith("#");
+        base.setPropertyValue(name);
+    }
+
+    private Color parseColor(String value) throws NumberFormatException {
+        Color color = Color.parserColor(value);
+        if(color == null) {
+            ThemeTreeNode constantNode = node.getThemeFile().getTreeNode().findNode(value, Kind.CONSTANTDEF);
+            if(constantNode instanceof ConstantDef) {
+                ConstantDef constantDef = (ConstantDef)constantNode;
+                Property<?> valueProperty = constantDef.getValueProperty();
+                if(valueProperty.getType() == Color.class) {
+                    color = (Color)valueProperty.getPropertyValue();
+                }
+            }
+        }
+        return color;
     }
 }

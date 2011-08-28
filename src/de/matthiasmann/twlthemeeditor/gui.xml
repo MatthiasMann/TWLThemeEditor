@@ -338,6 +338,11 @@
             </animation>
         </composed>
         <area name="progressbar.overlay" xywh="158,33,7,7" splitx="L3,B3" splity="L3,B3"/>
+        
+        <grid name="colorbutton.white" weightsX="0,1" weightsY="1">
+            <alias ref="white" inset="5,5,5,0" sizeOverwriteH="20"/>
+            <alias ref="none"/>
+        </grid>
     </images>
 
     <images file="gui.png" format="RGBA" comment="icons">
@@ -405,6 +410,10 @@
             <alias ref="-icon-param-background"/>
             <alias ref="icon.inputmapdef" sizeOverwriteH="16" sizeOverwriteV="16"/>
             <alias ref="-icon-link"/>
+        </composed>
+        <composed name="icon.param-color" center="true">
+            <alias ref="-icon-param-background"/>
+            <area xywh="200,79,16,16" center="true"/>
         </composed>
         
         <grid name="opnewnode.animation.overlay" weightsX="0,1" weightsY="1" inset="0,4,0,0">
@@ -960,10 +969,11 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
 
         <theme name="keyStrokeEditor" ref="button"/>
         <theme name="colorbutton" ref="button">
-            <param name="border"><border>5,4</border></param>
-            <param name="white"><image>white</image></param>
+            <param name="white"><image>colorbutton.white</image></param>
+            <param name="border"><border>4,5*2+white.width,4,5</border></param>
             <param name="maxWidth"><int>32767</int></param>
             <param name="minHeight"><int>25</int></param>
+            <param name="textAlignment"><enum type="alignment">left</enum></param>
         </theme>
     </theme>
 
