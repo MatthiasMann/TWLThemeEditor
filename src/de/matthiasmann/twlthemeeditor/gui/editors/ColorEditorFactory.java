@@ -37,6 +37,7 @@ import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.ThemeInfo;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.ColorSpaceHSL;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
@@ -46,12 +47,14 @@ import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
  *
  * @author Matthias Mann
  */
-public class ColorEditorFactory implements PropertyEditorFactory<Color, ColorProperty> {
+public class ColorEditorFactory implements PropertyEditorFactory<Color, Property<Color>> {
 
-    public Widget create(final PropertyAccessor<Color, ColorProperty> pa) {
+    public Widget create(final PropertyAccessor<Color, Property<Color>> pa) {
         final ColorButton button = new ColorButton();
-        ColorProperty property = pa.getProperty();
-        button.setColor(pa.getValue(Color.WHITE), property.getColorName());
+        Property<Color> property = pa.getProperty();
+        String colorName = (property instanceof ColorProperty) ?
+                ((ColorProperty)property).getColorName() : null;
+        button.setColor(pa.getValue(Color.WHITE), colorName);
         final Runnable cb = new Runnable() {
             public void run() {
                 final ColorSelector cs = new ColorSelector(new ColorSpaceHSL());
