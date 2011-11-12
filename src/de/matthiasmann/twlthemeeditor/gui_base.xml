@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE themes PUBLIC "-//www.matthiasmann.de//TWL-Theme//EN" "http://hg.l33tlabs.org/twl/raw-file/tip/src/de/matthiasmann/twl/theme/theme.dtd">
 <themes>
+    <constantDef name="keyboardFocus"><color>#6f97df</color></constantDef>
+    
     <images file="gui.png" format="RGBA" comment="Buttons">
         <area name="--area1L" xywh="0,0,4,18"/>
         <area name="--area1F" xywh="3,0,1,18"/>
@@ -283,7 +285,7 @@
             <alias ref="radiobuttonR.background" if="!radiobuttonNotLast"/>
             <alias ref="radiobuttonC.background"/>
         </select>
-        <select name="radiobutton.overlay" tint="#6f97df" if="keyboardFocus">
+        <select name="radiobutton.overlay" tint="keyboardFocus" if="keyboardFocus">
             <alias ref="-outlineX" if="!radiobuttonNotFirst + !radiobuttonNotLast"/>
             <alias ref="-outlineL" if="!radiobuttonNotFirst"/>
             <alias ref="-outlineR" if="!radiobuttonNotLast"/>
@@ -313,7 +315,7 @@
             <alias ref="-area7X"/>
         </select>
         <alias name="button.background" ref="buttonX.background" border="5,1"/>
-        <alias name="button.overlay" ref="-outlineX" tint="#6f97df" if="keyboardFocus"/>
+        <alias name="button.overlay" ref="-outlineX" tint="keyboardFocus" if="keyboardFocus"/>
     </images>
 
     <images file="gui.png" format="RGBA" comment="Adjuster">
@@ -440,7 +442,7 @@
         </select>
         <alias name="valueadjuster.inc.overlay" ref="-adjuster-icon-plus" inset="6,1,5,4"/>
         <alias name="valueadjuster.background" ref="none"/>
-        <select name="valueadjuster.overlay" inset="1,0" tint="#6f97df">
+        <select name="valueadjuster.overlay" inset="1,0" tint="keyboardFocus">
             <grid if="keyboardFocus + !adjusterNotFirst + !adjusterNotLast" weightsX="0,1,0" weightsY="1">
                 <alias ref="-adjusterSelXL"/>
                 <alias ref="-adjusterSelXM"/>
@@ -634,17 +636,17 @@
         </select>
         <select name="vbutton.overlay">
             <alias ref="button.overlay" if="keyboardFocus + !vbuttonNotFirst + !vbuttonNotLast"/>
-            <grid if="keyboardFocus + !vbuttonNotFirst" weightsX="0,1,0" weightsY="1" tint="#6f97df">
+            <grid if="keyboardFocus + !vbuttonNotFirst" weightsX="0,1,0" weightsY="1" tint="keyboardFocus">
                 <alias ref="-vbuttonSelTL"/>
                 <alias ref="-vbuttonSelTM"/>
                 <alias ref="-vbuttonSelTR"/>
             </grid>
-            <grid if="keyboardFocus + !vbuttonNotLast" weightsX="0,1,0" weightsY="1" tint="#6f97df">
+            <grid if="keyboardFocus + !vbuttonNotLast" weightsX="0,1,0" weightsY="1" tint="keyboardFocus">
                 <alias ref="-vbuttonSelBL"/>
                 <alias ref="-vbuttonSelBM"/>
                 <alias ref="-vbuttonSelBR"/>
             </grid>
-            <grid if="keyboardFocus" weightsX="0,1,0" weightsY="1" tint="#6f97df">
+            <grid if="keyboardFocus" weightsX="0,1,0" weightsY="1" tint="keyboardFocus">
                 <alias ref="-vbuttonSelML"/>
                 <alias ref="-vbuttonSelMM"/>
                 <alias ref="-vbuttonSelMR"/>
@@ -713,7 +715,7 @@
             <alias ref="-area7X"/>
         </select>
         <alias name="editfield.overlay" ref="none"/>
-        <alias name="editfield.cursor" ref="white" sizeOverwriteH="2" inset="0,-1,0,1" tint="#6f97df"/>
+        <alias name="editfield.cursor" ref="white" sizeOverwriteH="2" inset="0,-1,0,1" tint="keyboardFocus"/>
         <alias name="editfield.selection" ref="white" tint="#444"/>
 
         <area name="-icon.combobox" center="true" xywh="10,19,6,8"/>
@@ -727,7 +729,7 @@
             <alias ref="-icon.combobox"/>
         </select>
         <alias name="combobox.display.background" ref="none"/>
-        <alias name="combobox.overlay" ref="-outlineX" tint="#6f97df" if="keyboardFocus"/>
+        <alias name="combobox.overlay" ref="-outlineX" tint="keyboardFocus" if="keyboardFocus"/>
 
         <select name="treepathdisplay.node.background" border="2">
             <area xywh="152,92,5,5" if="armed" splitx="L2,B2" splity="L2,B2"/>
@@ -745,7 +747,7 @@
         </grid>
         <grid name="checkbox.overlay" weightsX="0,1" weightsY="1">
             <composed center="true">
-                <area tint="#6f97df" if="keyboardFocus" xywh="143,53,14,14"/>
+                <area tint="keyboardFocus" if="keyboardFocus" xywh="143,53,14,14"/>
                 <select>
                     <animation if="selected" timeSource="selected" count="1" frozenTime="200">
                         <frame ref="-icon.checkbox" duration="200" zoom="2"/>
@@ -834,6 +836,7 @@
         <composed name="fileselector.buttonMRU.background">
             <alias ref="button.background"/>
             <select center="true">
+                <alias ref="-fileselector.history" if="disabled" tint="#8fff"/>
                 <alias ref="-fileselector.history" unless="armed"/>
                 <alias ref="-fileselector.history" inset="1,1,-1,-1"/>
             </select>
@@ -988,7 +991,7 @@
             <alias ref="white" tint="#6890D0" if="rowDropTarget"/>
             <alias ref="-popupmenubutton.hover" tint="#CCC" if="rowHover"/>
         </select>
-        <area name="table.row.overlay" xywh="86,51,3,3" splitx="L1,B1" splity="L1,B1" nocenter="true" tint="#6F97DF" if="keyboardFocus + !hasFocusedChild + leadRow"/>
+        <area name="table.row.overlay" xywh="86,51,3,3" splitx="L1,B1" splity="L1,B1" nocenter="true" tint="keyboardFocus" if="keyboardFocus + !hasFocusedChild + leadRow"/>
     
         <grid name="table.row.dropmarker" weightsX="1,1" weightsY="1">
             <area xywh="127,87,14,7" splitx="L7,B6" inset="0,-2" sizeOverwriteH="50" sizeOverwriteV="1"/>
