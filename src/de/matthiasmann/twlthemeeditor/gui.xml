@@ -343,6 +343,11 @@
             <alias ref="white" inset="5,5,5,0" sizeOverwriteH="20"/>
             <alias ref="none"/>
         </grid>
+        
+        <grid name="popupmenucolorbutton.white" weightsX="0,1" weightsY="1" border="1,16,1,0">
+            <alias ref="white" inset="3,0,2,0" sizeOverwriteH="12"/>
+            <alias ref="none"/>
+        </grid>
     </images>
 
     <images file="gui.png" format="RGBA" comment="icons">
@@ -1042,11 +1047,11 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
     </theme>
 
     <theme name="previewwidget" ref="-defaults">
-        <param name="background"><image>black</image></param>
 <!--            <param name="mouseCursor"><cursor>cursor.none</cursor></param> -->
         <param name="maxWidth"><int>32767</int></param>
         <param name="maxHeight"><int>32767</int></param>
         <param name="flashImage"><image>flashImage</image></param>
+        <param name="whiteImage"><image>white</image></param>
     </theme>
 
     <theme name="keystrokepopup" ref="simpledialog"/>
@@ -1121,11 +1126,20 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         </theme>
         <theme name="" ref="*"/>
     </theme>
+    
+    <theme name="popupMenuColorButton" ref="button">
+        <param name=""><image>popupmenucheckbox.*</image></param>
+        <param name="border"><border>background.border</border></param>
+        <param name="textAlignment"><enum type="alignment">left</enum></param>
+        <param name="font"><font>popupmenu-font</font></param>
+        <param name="white"><image>popupmenucolorbutton.white</image></param>
+    </theme>
 
     <theme name="menumanager" ref="-defaults">
         <theme name="menupopup" ref="opNewNode-popupMenu">
             <theme name="button" ref="popupMenuButton"/>
             <theme name="checkbox" ref="popupMenuCheckbox"/>
+            <theme name="colorbtn" ref="popupMenuColorButton"/>
             <theme name="radiobtn" ref="popupMenuRadioButton"/>
             <theme name="submenu" ref="popupMenuSubMenuButton"/>
             <theme name="spacer" ref="-defaults">

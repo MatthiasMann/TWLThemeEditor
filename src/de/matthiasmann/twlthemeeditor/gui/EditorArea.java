@@ -308,6 +308,7 @@ public final class EditorArea extends Widget {
 
     public void addSettingsMenuItems(Menu settingsMenu) {
         textureViewerPane.addSettingsMenuItems(settingsMenu);
+        previewWidget.addSettingsMenuItems(settingsMenu);
     }
 
     public void setDemoMode(boolean demoMode) {

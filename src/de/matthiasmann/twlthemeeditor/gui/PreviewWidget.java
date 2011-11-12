@@ -30,11 +30,14 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.AnimationState;
+import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.DesktopArea;
 import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.GUI;
+import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.ThemeInfo;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.PersistentColorModel;
 import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twl.renderer.CacheContext;
 import de.matthiasmann.twl.renderer.Image;
@@ -46,6 +49,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.IntBuffer;
+import java.util.prefs.Preferences;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
@@ -79,7 +83,10 @@ public class PreviewWidget extends Widget {
     private TestWidgetFactory widgetFactory;
     private Widget testWidget;
     private Callback callback;
-
+    
+    private Image whiteImage;
+    private final PersistentColorModel backgroundColorModel;
+    
     private Image flashImage;
     private int flashX;
     private int flashY;
@@ -91,9 +98,20 @@ public class PreviewWidget extends Widget {
     private static final MessageLog.Category CAT_THEME = new MessageLog.Category("theme loading", MessageLog.CombineMode.REPLACE, DecoratedText.ERROR);
     private static final MessageLog.Category CAT_EXECUTE = new MessageLog.Category("executing", MessageLog.CombineMode.REPLACE, DecoratedText.ERROR);
 
+    private static final String KEY_BACKGROUND_COLOR = "previewWidgetBackgroundColor";
+    
     public PreviewWidget(MessageLog messageLog) {
         this.messageLog = messageLog;
         this.viewPortBuffer = BufferUtils.createIntBuffer(16);
+        
+        Preferences prefs = Preferences.userNodeForPackage(PreviewWidget.class);
+        backgroundColorModel = new PersistentColorModel(prefs, KEY_BACKGROUND_COLOR, Color.BLACK);
+        backgroundColorModel.addCallback(new Runnable() {
+            public void run() {
+                applyBackgroundColor();
+            }
+        });
+        
         setCanAcceptKeyboardFocus(true);
         setClip(true);
     }
@@ -164,6 +182,10 @@ public class PreviewWidget extends Widget {
         }
     }
 
+    public void addSettingsMenuItems(Menu settingsMenu) {
+        settingsMenu.add(new ColorMenuItem(backgroundColorModel, "Preview background"));
+    }
+    
     private static boolean isTooltipWindow(Widget widget) {
         return "de.matthiasmann.twl.GUI$TooltipWindow".equals(widget.getClass().getName());
     }
@@ -171,11 +193,25 @@ public class PreviewWidget extends Widget {
     private static boolean testWidgetInside(Widget widget, int x, int y) {
         return x >= widget.getX() && y >= widget.getY() && x < widget.getRight() && y < widget.getBottom();
     }
+    
+    void applyBackgroundColor() {
+        if(whiteImage != null) {
+            setBackground(whiteImage.createTintedVersion(backgroundColorModel.getValue()));
+        } else {
+            setBackground(null);
+        }
+    }
 
     @Override
     protected void applyTheme(ThemeInfo themeInfo) {
         super.applyTheme(themeInfo);
         flashImage = themeInfo.getImage("flashImage");
+        whiteImage = themeInfo.getImage("whiteImage");
+        applyBackgroundColor();
+    }
+
+    @Override
+    protected void applyThemeBackground(ThemeInfo themeInfo) {
     }
     
     @Override
