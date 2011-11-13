@@ -115,7 +115,7 @@ public final class EditorArea extends Widget {
         progressDialog.setTheme("/progressdialog");
         testWidgetManager = new TestWidgetManager(messageLog);
         testWidgetMenu = new Menu("Widgets");
-        themeTreePane = new ThemeTreePane(messageLog);
+        themeTreePane = new ThemeTreePane(messageLog, testWidgetManager);
         themeTreePane.setTheme("/themetreepane");
         previewWidget = new PreviewWidget(messageLog);
         previewWidget.setTheme("/previewwidget");

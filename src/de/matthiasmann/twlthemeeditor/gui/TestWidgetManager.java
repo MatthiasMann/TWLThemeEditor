@@ -53,18 +53,23 @@ import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestLabel;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestListBox;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollPane;
 import de.matthiasmann.twlthemeeditor.gui.testwidgets.TestScrollbar;
+import de.matthiasmann.twlthemeeditor.themeparams.ClassAnalyzer;
+import de.matthiasmann.twlthemeeditor.themeparams.ClassDatabase;
 import de.matthiasmann.twlthemeeditor.util.SolidFileClassLoader;
 import de.matthiasmann.twlthemeeditor.util.SolidFileInspector;
 import de.matthiasmann.twlthemeeditor.util.SolidFileWriter;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,7 +103,8 @@ public class TestWidgetManager {
     private final MessageLog messageLog;
     private final ArrayList<TestWidgetFactory> builtinWidgets;
     private final HashMap<ArrayList<String>, LoadedUserWidgets> userWidgets;
-
+    
+    private ClassDatabase twlClassDatabase;
     private Callback callback;
     private TestWidgetFactory demoModeTestWidgetFactory;
     private TestWidgetFactory currentTestWidgetFactory;
@@ -128,6 +134,20 @@ public class TestWidgetManager {
         builtinWidgets.add(new TestWidgetFactory(ColorSelector.class, "ColorSelector", new ColorSpaceHSL()));
 
         currentTestWidgetFactory = builtinWidgets.get(0);
+        
+        try {
+            InputStream in = getClass().getResourceAsStream("/twl.cdb");
+            try {
+                BufferedInputStream bis = new BufferedInputStream(in);
+                ObjectInputStream ois = new ObjectInputStream(bis);
+                twlClassDatabase = (ClassDatabase)ois.readObject();
+                twlClassDatabase.setDisplayName("TWL");
+            } finally {
+                in.close();
+            }
+        } catch(Exception ex) {
+            messageLog.add(new MessageLog.Entry(CAT_ERROR, "Could not load TWL class database", null, ex));
+        }
     }
 
     public void setCallback(Callback callback) {
@@ -188,6 +208,19 @@ public class TestWidgetManager {
             callback.testWidgetChanged();
         }
     }
+    
+    public ClassDatabase[] getClassDatabases() {
+        int idx = (twlClassDatabase != null) ? 1 : 0;
+        ClassDatabase[] result = new ClassDatabase[idx + userWidgets.size()];
+        if(twlClassDatabase != null) {
+            result[0] = twlClassDatabase;
+        }
+        Iterator<LoadedUserWidgets> iter = userWidgets.values().iterator();
+        for(int i=idx ; iter.hasNext() ;) {
+            result[i] = iter.next().cdb;
+        }
+        return result;
+    }
 
     private void clearCache(ArrayList<TestWidgetFactory> factories) {
         for(TestWidgetFactory factory : factories) {
@@ -240,13 +273,8 @@ public class TestWidgetManager {
         if(demoModeTestWidgetFactory != null) {
             addMenu(menu, "Demo mode", Collections.singletonList(demoModeTestWidgetFactory), null);
         }
-        for(Map.Entry<ArrayList<String>,LoadedUserWidgets> entry : userWidgets.entrySet()) {
-            String name = entry.getKey().get(0);
-            if(!name.endsWith("/")) {
-                name = name.substring(name.lastIndexOf('/') + 1);
-            }
-            LoadedUserWidgets luw = entry.getValue();
-            addMenu(menu, name, luw.factories, luw);
+        for(LoadedUserWidgets luw : userWidgets.values()) {
+            addMenu(menu, luw.displayName, luw.factories, luw);
         }
     }
 
@@ -274,8 +302,9 @@ public class TestWidgetManager {
         progressDialog.setIndeterminate("");
         progressDialog.openPopupCentered();
         
+        final ClassDatabase cdb = new ClassDatabase(twlClassDatabase);
         final Inspector inspector = new Inspector(toScan, dependencies,
-                progressDialog, getClass().getClassLoader());
+                progressDialog, getClass().getClassLoader(), cdb);
 
         GUI.AsyncCompletionListener<LoadedUserWidgets> acl =
                 new GUI.AsyncCompletionListener<LoadedUserWidgets>() {
@@ -347,13 +376,25 @@ public class TestWidgetManager {
         final ArrayList<String> key;
         final ArrayList<TestWidgetFactory> factories;
         final SolidFileClassLoader classLoader;
+        final ClassDatabase cdb;
+        final String displayName;
 
-        public LoadedUserWidgets(ArrayList<URI> toScan, ArrayList<URI> dependencies, ArrayList<String> key, ArrayList<TestWidgetFactory> factories, SolidFileClassLoader classLoader) {
+        public LoadedUserWidgets(ArrayList<URI> toScan, ArrayList<URI> dependencies,
+                ArrayList<String> key, ArrayList<TestWidgetFactory> factories,
+                SolidFileClassLoader classLoader, ClassDatabase cdb) {
             this.toScan = toScan;
             this.dependencies = dependencies;
             this.key = key;
             this.factories = factories;
             this.classLoader = classLoader;
+            this.cdb = cdb;
+            
+            String name = key.get(0);
+            if(!name.endsWith("/")) {
+                name = name.substring(name.lastIndexOf('/') + 1);
+            }
+            this.displayName = name;
+            cdb.setDisplayName(name);
         }
 
         TestWidgetFactory findFactory(String className) {
@@ -383,6 +424,7 @@ public class TestWidgetManager {
         final ArrayList<URI> dependencies;
         final ProgressDialog progressDialog;
         final ClassLoader parentClassLoader;
+        final ClassDatabase classDatabase;
 
         final ArrayList<String> key;
         final HashMap<String, Object> superClassMap;
@@ -390,7 +432,8 @@ public class TestWidgetManager {
         final TreeMap<String, FailReason> failedMap;
         final ArrayList<String> candidates;
         final StringBuilder infoMsg;
-
+        
+        ClassAnalyzer classAnalyzer;
         String curClassName;
         boolean isPublic;
         boolean isAbstract;
@@ -403,11 +446,12 @@ public class TestWidgetManager {
         boolean foundCriticalClasses;
         byte[] buffer;
 
-        public Inspector(ArrayList<URI> toScan, ArrayList<URI> dependencies, ProgressDialog progressDialog, ClassLoader parentClassLoader) {
+        public Inspector(ArrayList<URI> toScan, ArrayList<URI> dependencies, ProgressDialog progressDialog, ClassLoader parentClassLoader, ClassDatabase classDatabase) {
             this.toScan = toScan;
             this.dependencies = dependencies;
             this.progressDialog = progressDialog;
             this.parentClassLoader = parentClassLoader;
+            this.classDatabase = classDatabase;
 
             this.key = new ArrayList<String>();
             this.superClassMap = new HashMap<String, Object>();
@@ -486,7 +530,7 @@ public class TestWidgetManager {
 
             if(!testWidgetFactories.isEmpty()) {
                 luw = new LoadedUserWidgets(toScan, dependencies, key,
-                        testWidgetFactories, classLoader);
+                        testWidgetFactories, classLoader, classDatabase);
 
                 infoMsg.append("\nThe following classes have been loaded:\n");
                 for(TestWidgetFactory twf : testWidgetFactories) {
@@ -534,7 +578,7 @@ public class TestWidgetManager {
             int size = readFile(is);
             writer.addEntry(name, buffer, 0, size);
             ClassReader cr = new ClassReader(buffer, 0, size);
-            cr.accept(this, ClassReader.SKIP_CODE|ClassReader.SKIP_DEBUG|ClassReader.SKIP_FRAMES);
+            cr.accept(this, ClassReader.SKIP_DEBUG|ClassReader.SKIP_FRAMES);
         }
 
         public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
@@ -546,6 +590,8 @@ public class TestWidgetManager {
             isCandidate = false;
             isInnerClass = false;
             foundDefaultConstructor = false;
+            classAnalyzer = new ClassAnalyzer();
+            classAnalyzer.visit(version, access, name, signature, superName, interfaces);
         }
 
         public void visitSource(String source, String debug) {
@@ -582,7 +628,7 @@ public class TestWidgetManager {
                     }
                 }
             }
-            return null;
+            return classAnalyzer.visitMethod(access, name, desc, signature, exceptions);
         }
 
         public void visitEnd() {
@@ -599,7 +645,12 @@ public class TestWidgetManager {
                 }
                 failedMap.put(curClassName, reason);
             }
+            
+            classAnalyzer.visitEnd();
+            classDatabase.add(classAnalyzer.getClassInfo());
+            
             curClassName = null;
+            classAnalyzer = null;
         }
 
         private int readFile(InputStream is) throws IOException {

@@ -66,6 +66,7 @@ import java.util.List;
 public class ThemeTreePane extends DialogLayout {
 
     private final MessageLog messageLog;
+    private final TestWidgetManager testWidgetManager;
     private final TreeTable treeTable;
     private final TableSingleSelectionModel treeTableSelectionModel;
     private final Table table;
@@ -80,8 +81,9 @@ public class ThemeTreePane extends DialogLayout {
     private Runnable[] callbacks;
     private Runnable focusNameFieldCB;
 
-    public ThemeTreePane(MessageLog messageLog) {
+    public ThemeTreePane(MessageLog messageLog, TestWidgetManager testWidgetManager) {
         this.messageLog = messageLog;
+        this.testWidgetManager = testWidgetManager;
         this.treeTable = new TreeTable() {
             @Override
             protected boolean handleKeyStrokeAction(String action, Event event) {
@@ -445,7 +447,7 @@ public class ThemeTreePane extends DialogLayout {
                 messageLog.add(new MessageLog.Entry(CAT_URL_ERROR, "Error resolving URL to file system", url.toString(), ex));
             }
 
-            final QueryOperationParameter qop = new QueryOperationParameter(startDir);
+            final QueryOperationParameter qop = new QueryOperationParameter(startDir, testWidgetManager);
             qop.setParameter(parameter);
 
             SimpleDialog dialog = new SimpleDialog();

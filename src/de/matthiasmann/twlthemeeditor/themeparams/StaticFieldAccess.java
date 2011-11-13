@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -27,66 +27,19 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
-
-import de.matthiasmann.twl.model.FileSystemModel.FileFilter;
-import java.io.IOException;
+package de.matthiasmann.twlthemeeditor.themeparams;
 
 /**
  *
  * @author Matthias Mann
  */
-public abstract class ThemeTreeOperation {
+public class StaticFieldAccess {
+    
+    public final String className;
+    public final String fieldName;
 
-    private final String actionID;
-
-    protected ThemeTreeOperation(String actionID) {
-        this.actionID = actionID;
-    }
-
-    public String getActionID() {
-        return actionID;
-    }
-
-    public boolean isEnabled() {
-        return true;
-    }
-
-    public boolean needConfirm() {
-        return false;
-    }
-
-    public boolean shouldFocusNameFieldAfterExecute() {
-        return false;
-    }
-
-    public Parameter[] getParameter() {
-        return null;
-    }
-
-    public abstract ThemeTreeNode execute(Object[] parameter) throws IOException;
-
-    public static class Parameter {
-        public enum Type {
-            FILE_SELECTOR,
-            THEME_PARAMETER_INFO
-        }
-
-        public final String name;
-        public final Type type;
-
-        public Parameter(String name, Type type) {
-            this.name = name;
-            this.type = type;
-        }
-    }
-
-    public static class FileParameter extends Parameter {
-        public final FileFilter fileFilter;
-
-        public FileParameter(String name, FileFilter fileFilter) {
-            super(name, Type.FILE_SELECTOR);
-            this.fileFilter = fileFilter;
-        }
+    public StaticFieldAccess(String className, String fieldName) {
+        this.className = className;
+        this.fieldName = fieldName;
     }
 }

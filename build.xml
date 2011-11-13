@@ -72,6 +72,12 @@
 
     -->
 
+    <target name="makeTWLCDB">
+        <taskdef name="makeCDB" classpath="${run.classpath}" classname="de.matthiasmann.twlthemeeditor.themeparams.MakeClassDatabase"/>
+        
+        <makeCDB inputJARFile="${reference.TWL.jar}" databaseFile="${build.classes.dir}/twl.cdb"/>
+    </target>
+    
     <target name="makeNativeJars">
         <echo message=""/>
         <parallel>
@@ -135,5 +141,6 @@
         </delete>
     </target>
 
+    <target name="-post-compile" depends="makeTWLCDB"/>
     <target name="-post-jar" depends="createWebStart"/>
 </project>

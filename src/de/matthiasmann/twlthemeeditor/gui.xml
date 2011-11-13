@@ -697,6 +697,11 @@
             <param name="text"><string>Create a new font parameter</string></param>
             <param name="border"><border>0,24,0,0</border></param>
         </theme>
+        <theme name="opNewParamFromClass" ref="popupMenuButton">
+            <param name="text"><string>Create a new parameter based on a Widget class</string></param>
+            <param name="overlay"><image>opnewnode.param-image.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
+        </theme>
         <theme name="opNewParamImage" ref="popupMenuButton">
             <param name="text"><string>Create a new image parameter</string></param>
             <param name="overlay"><image>opnewnode.param-image.overlay</image></param>
@@ -789,6 +794,18 @@
                 <theme name="selectFile" ref="button">
                     <param name="text"><string>...</string></param>
                 </theme>
+                <theme name="selectThemeParameterInfo" ref="scrollpane">
+                    <theme name="treetable" ref="table">
+                        <theme name="folderrenderer" ref="stringcellrenderer">
+                        </theme>
+                        <param name="columnWidths"><map>
+                            <param name="1"><int>120</int></param>
+                            <param name="2"><int>120</int></param>
+                        </map></param>
+                    </theme>
+                    <param name="minWidth"><int>600</int></param>
+                    <param name="minHeight"><int>400</int></param>
+                </theme>
                 <param name="maxWidth"><int>32767</int></param>
             </theme>
             <param name="namedGaps"><map ref="namedGaps">
@@ -814,6 +831,14 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         </theme>
     </theme>
     <theme name="parameterDlg-opNewParamFontDef" ref="parameterDlg-opNewNodeFontDef"/>
+
+    <theme name="parameterDlg-opNewParamFromClass" ref="-parameterDlg">
+        <theme name="content" merge="true">
+            <theme name="title" merge="true">
+                <param name="text"><string>Select the parameter from one of the loaded classes</string></param>
+            </theme>
+        </theme>
+    </theme>
 
     <theme name="parameterDlg-opNewNodeInclude" ref="-parameterDlg">
         <theme name="content" merge="true">

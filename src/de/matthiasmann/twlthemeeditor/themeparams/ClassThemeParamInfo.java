@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -27,66 +27,52 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel;
+package de.matthiasmann.twlthemeeditor.themeparams;
 
-import de.matthiasmann.twl.model.FileSystemModel.FileFilter;
-import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  *
  * @author Matthias Mann
  */
-public abstract class ThemeTreeOperation {
+public class ClassThemeParamInfo implements Serializable, Iterable<ThemeParamInfo> {
+    
+    private static final long serialVersionUID = 1;
+    
+    final String className;
+    final String superClassName;
+    final ArrayList<ThemeParamInfo> params;
 
-    private final String actionID;
-
-    protected ThemeTreeOperation(String actionID) {
-        this.actionID = actionID;
+    public ClassThemeParamInfo(String className, String superClassName) {
+        this.className = className;
+        this.superClassName = superClassName;
+        this.params = new ArrayList<ThemeParamInfo>();
     }
 
-    public String getActionID() {
-        return actionID;
+    public String getClassName() {
+        return className;
     }
 
-    public boolean isEnabled() {
-        return true;
+    public String getSuperClassName() {
+        return superClassName;
     }
 
-    public boolean needConfirm() {
-        return false;
+    public Iterator<ThemeParamInfo> iterator() {
+        return params.iterator();
     }
 
-    public boolean shouldFocusNameFieldAfterExecute() {
-        return false;
+    public ThemeParamInfo get(int index) {
+        return params.get(index);
     }
 
-    public Parameter[] getParameter() {
-        return null;
+    public int size() {
+        return params.size();
     }
 
-    public abstract ThemeTreeNode execute(Object[] parameter) throws IOException;
-
-    public static class Parameter {
-        public enum Type {
-            FILE_SELECTOR,
-            THEME_PARAMETER_INFO
-        }
-
-        public final String name;
-        public final Type type;
-
-        public Parameter(String name, Type type) {
-            this.name = name;
-            this.type = type;
-        }
-    }
-
-    public static class FileParameter extends Parameter {
-        public final FileFilter fileFilter;
-
-        public FileParameter(String name, FileFilter fileFilter) {
-            super(name, Type.FILE_SELECTOR);
-            this.fileFilter = fileFilter;
-        }
+    public boolean addParam(ThemeParamInfo e) {
+        return params.add(e);
     }
 }
