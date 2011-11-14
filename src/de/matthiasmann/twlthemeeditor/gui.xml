@@ -528,6 +528,7 @@
                 <param name="inputMap"><inputMapDef merge="true">
                     <action name="opDeleteNode">DELETE</action>
                     <action name="opDeleteNode">SHIFT DELETE</action>
+                    <action name="opDeleteNode">BACK</action>
                     <action name="opCopyNode">CTRL C</action>
                     <action name="opCloneNode">CTRL SHIFT DOWN</action>
                 </inputMapDef></param>
