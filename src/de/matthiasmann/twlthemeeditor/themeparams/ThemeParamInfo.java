@@ -80,27 +80,24 @@ public class ThemeParamInfo implements Serializable {
         this.name = name;
         
         switch(returnType.getSort()) {
+            case Type.BYTE:
             case Type.SHORT:
-                type = "short";
-                break;
+            case Type.CHAR:
             case Type.INT:
                 type = "int";
                 break;
             case Type.LONG:
-                type = "long";
+                type = "int";   // NOTE: Theme doesn't support long
                 break;
             case Type.FLOAT:
                 type = "float";
                 break;
             case Type.DOUBLE:
-                type = "double";
+                type = "float"; // NOTE: Theme doesn't support double
                 break;
             case Type.BOOLEAN:
                 isBoolean = true;
                 type = "boolean";
-                break;
-            case Type.CHAR:
-                type = "char";
                 break;
             case Type.OBJECT:
                 String internalName = returnType.getInternalName();
