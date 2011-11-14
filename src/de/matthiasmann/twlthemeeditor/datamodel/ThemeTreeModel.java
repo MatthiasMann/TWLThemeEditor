@@ -86,6 +86,25 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
         return rootThemeFile;
     }
 
+    public boolean checkModified() {
+        return rootThemeFile.isModified() || checkModified(rootNode);
+    }
+    
+    private boolean checkModified(ThemeTreeNode node) {
+        if(node.isModified()) {
+            return true;
+        }
+        for(int i=0,n=node.getNumChildren() ; i<n ; i++) {
+            TreeTableNode child = node.getChild(i);
+            if(child instanceof ThemeTreeNode) {
+                if(checkModified((ThemeTreeNode)child)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
     public<E extends TreeTableNode> List<E> getTopLevelNodes(Class<E> clazz, TreeTableNode stopAt) {
         TreeTablePath stopAtPath = TreeTablePath.create(stopAt);
         List<E> result = new ArrayList<E>();

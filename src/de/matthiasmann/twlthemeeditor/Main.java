@@ -226,7 +226,7 @@ public class Main extends Frame {
                 root.openMessagesDialog();
             }
 
-            while(!Display.isCloseRequested() && !closeRequested && !root.isCloseRequested()) {
+            while(!root.isCloseApplication()) {
                 Dimension newDim = newCanvasSize.getAndSet(null);
                 if(newDim != null) {
                     GL11.glViewport(0, 0, newDim.width, newDim.height);
@@ -235,6 +235,11 @@ public class Main extends Frame {
                 
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
+                if(Display.isCloseRequested() || closeRequested) {
+                    closeRequested = false;
+                    root.exit();
+                }
+                
                 gui.update();
                 Display.update();
                 Display.sync(70);

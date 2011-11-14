@@ -88,7 +88,8 @@ public final class MainUI extends DialogLayout {
     private final Menu recentProjectsMenu;
     private final MRUListModel<String> recentProjectsModel;
 
-    private boolean closeRequested;
+    private PopupWindow closeConfirmDialog;
+    private boolean closeApplication;
     private ThemeTreeModel model;
     private File projectDir;
 
@@ -275,15 +276,16 @@ public final class MainUI extends DialogLayout {
         }
     }
 
-    public boolean isCloseRequested() {
-        return closeRequested;
+    public boolean isCloseApplication() {
+        return closeApplication;
     }
-
+    
     public void closeProject() {
         model = null;
         projectDir = null;
         editorArea.setModel(null);
         editorArea.setDemoMode(false);
+        btnSaveProject.setEnabled(false);
     }
     
     public void newProject(NewProjectSettings settings) {
@@ -378,8 +380,32 @@ public final class MainUI extends DialogLayout {
         editorArea.reloadTestWidget();
     }
 
-    void exit() {
-        closeRequested = true;
+    public void exit() {
+        if(closeConfirmDialog != null && closeConfirmDialog.isOpen()) {
+            return;
+        }
+        
+        if(btnSaveProject.isEnabled() && model.checkModified()) {
+            SimpleDialog dialog = new SimpleDialog();
+            dialog.setTheme("exitWithUnsavedChangesDialog");
+            dialog.setMessage("Unsaved changes exist. Do you really want to quit and DISCARD these changes?");
+            dialog.setTitle("Exit with unsaved changes");
+            dialog.setFocusCancelButton(true);
+            dialog.setOkCallback(new Runnable() {
+                public void run() {
+                    closeApplication = true;
+                }
+            });
+            dialog.setCancelCallback(new Runnable() {
+                public void run() {
+                    closeConfirmDialog = null;
+                }
+            });
+            closeConfirmDialog = dialog.showDialog(this);
+            return;
+        }
+        
+        closeApplication = true;
     }
 
     void popuplateRecentProjectsMenu() {
