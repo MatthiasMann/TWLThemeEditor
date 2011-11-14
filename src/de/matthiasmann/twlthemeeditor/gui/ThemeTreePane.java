@@ -399,6 +399,8 @@ public class ThemeTreePane extends DialogLayout {
         if(newSelection != null && focusNameFieldCB != null &&
                 operation.shouldFocusNameFieldAfterExecute()) {
             getGUI().invokeLater(focusNameFieldCB);
+        } else {
+            treeTable.requestKeyboardFocus();
         }
     }
 
@@ -483,7 +485,7 @@ public class ThemeTreePane extends DialogLayout {
                 executeOperation(operation, paramter);
             }
         });
-        dialog.showDialog(this);
+        dialog.showDialog(treeTable);
     }
 
     boolean handleOperationKeyStrokeAction(String action, Event event) {
