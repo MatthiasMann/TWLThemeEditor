@@ -348,6 +348,14 @@
             <alias ref="white" inset="3,0,2,0" sizeOverwriteH="12"/>
             <alias ref="none"/>
         </grid>
+        
+        <composed name="collapsiblepanelbottom.background">
+            <alias ref="panel.background"/>
+            <grid weightsX="1" weightsY="0,1" border="5,0,0,0">
+                <alias ref="panel.separator"/>
+                <alias ref="none"/>
+            </grid>
+        </composed>
     </images>
 
     <images file="gui.png" format="RGBA" comment="icons">
@@ -1429,16 +1437,34 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
                         </theme>
                     </theme>
                 </theme>
-                <theme name="fontDisplay" ref="scrollpane">
-                    <param name="border"><border>0,5,0,0</border></param>
-                    <theme name="fontdisplay-black" ref="-defaults">
-                        <param name="background"><image>black</image></param>
+                <theme name="rightArea" ref="dialoglayout">
+                    <theme name="fontDisplay" ref="scrollpane">
+                        <param name="border"><border>0,5,0,0</border></param>
+                        <theme name="fontdisplay-black" ref="-defaults">
+                            <param name="background"><image>black</image></param>
+                        </theme>
+                        <theme name="fontdisplay-white" ref="-defaults">
+                            <param name="background"><image>white</image></param>
+                        </theme>
+                        <theme name="fontdisplay-checkerboard" ref="-defaults">
+                            <param name="background"><image>checkerboard</image></param>
+                        </theme>
                     </theme>
-                    <theme name="fontdisplay-white" ref="-defaults">
-                        <param name="background"><image>white</image></param>
-                    </theme>
-                    <theme name="fontdisplay-checkerboard" ref="-defaults">
-                        <param name="background"><image>checkerboard</image></param>
+                    <theme name="collapsiblepanel" ref="dialoglayout">
+                        <param name=""><image>collapsiblepanelbottom.*</image></param>
+                        <param name="border"><border>5</border></param>
+                        <theme name="arrow" ref="-defaults">
+                            <param name=""><image>collapsiblepanel.arrow.*</image></param>
+                        </theme>
+                        <theme name="title" ref="label"/>
+                        <theme name="active" ref="checkbox"/>
+                        <param name="namedGaps"><map>
+                            <param name="title-content"><gap>5</gap></param>
+                        </map></param>
+
+                        <theme name="contentcontainer" ref="-defaults">
+                            <theme name="" ref="*"/>
+                        </theme>
                     </theme>
                 </theme>
                 <param name="maxHeight"><int>32767</int></param>

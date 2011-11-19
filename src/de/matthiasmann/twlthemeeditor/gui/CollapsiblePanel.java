@@ -57,6 +57,7 @@ public final class CollapsiblePanel extends DialogLayout {
     private final ContentContainer container;
 
     private boolean expanded;
+    private Runnable callback;
 
     public CollapsiblePanel(Direction direction, String title, Widget content, final BooleanModel activeModel) {
         this.direction = direction;
@@ -129,6 +130,14 @@ public final class CollapsiblePanel extends DialogLayout {
             toggleExpand();
         }
     }
+
+    public Runnable getCallback() {
+        return callback;
+    }
+
+    public void setCallback(Runnable callback) {
+        this.callback = callback;
+    }
     
     public Widget getContent() {
         return container.content;
@@ -145,6 +154,9 @@ public final class CollapsiblePanel extends DialogLayout {
         arrow.getAnimationState().setAnimationState(STATE_EXPANDED, expanded);
         container.startAnimate();
         container.setEnabled(expanded);
+        if(callback != null) {
+            callback.run();
+        }
     }
 
     class Arrow extends Label {

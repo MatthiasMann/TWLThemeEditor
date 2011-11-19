@@ -34,6 +34,9 @@ import de.matthiasmann.javafreetype.FreeTypeCodePointIterator;
 import de.matthiasmann.javafreetype.FreeTypeFont;
 import de.matthiasmann.javafreetype.FreeTypeFont.LoadTarget;
 import de.matthiasmann.javafreetype.FreeTypeGlyphInfo;
+import de.matthiasmann.twlthemeeditor.TestEnv;
+import de.matthiasmann.twlthemeeditor.VirtualFile;
+import de.matthiasmann.twlthemeeditor.util.BufferedPipe;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -48,6 +51,7 @@ import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
@@ -543,6 +547,37 @@ public class FontGenerator {
         } finally {
             os.close();
         }
+    }
+    
+    public TestEnv createTestEnv() {
+        TestEnv env = new TestEnv();
+        env.registerFile(new VirtualFile() {
+            public String getVirtualFileName() {
+                return "/test.fnt";
+            }
+            public Object getContent(Class<?> type) {
+                return null;
+            }
+            public InputStream openStream() throws IOException {
+                BufferedPipe pipe = new BufferedPipe();
+                writeXML(pipe.getOutputStream(), "test");
+                return pipe.getInputStream();
+            }
+        });
+        env.registerFile(new VirtualFile() {
+            public String getVirtualFileName() {
+                return "/test_00.png";
+            }
+            public Object getContent(Class<?> type) {
+                return null;
+            }
+            public InputStream openStream() throws IOException {
+                BufferedPipe pipe = new BufferedPipe();
+                PNGWriter.write(pipe.getOutputStream(), image, Math.min(image.getHeight(), usedTextureHeight));
+                return pipe.getInputStream();
+            }
+        });
+        return env;
     }
 
     public File[] getFilesCreatedForName(File file) {

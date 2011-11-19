@@ -51,6 +51,7 @@ import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.model.SimpleIntegerModel;
 import de.matthiasmann.twl.model.SimpleListSelectionModel;
 import de.matthiasmann.twl.utils.TextUtil;
+import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.fontgen.CharSet;
 import de.matthiasmann.twlthemeeditor.fontgen.FontData;
@@ -61,6 +62,7 @@ import de.matthiasmann.twlthemeeditor.fontgen.effects.BlurShadowEffect;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.FT2OutlineEffect;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.GradientEffect;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.OutlineEffect;
+import de.matthiasmann.twlthemeeditor.gui.CollapsiblePanel;
 import de.matthiasmann.twlthemeeditor.gui.DecoratedTextRenderer;
 import de.matthiasmann.twlthemeeditor.gui.LoadFileSelector;
 import de.matthiasmann.twlthemeeditor.gui.SaveFileSelector;
@@ -71,6 +73,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.Character.UnicodeBlock;
+import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -112,6 +115,8 @@ public final class FontGenDialog {
     private final ScrollPane effectsPanelSP;
     private final FontDisplay fontDisplay;
     private final ScrollPane fontDisplaySP;
+    private final CollapsiblePanel fontTestPanel;
+    private final TestEditField fontTestEditfield;
     private final SimpleListSelectionModel<FontGenerator.ExportFormat> exportFormatModel;
     private final ComboBox<FontGenerator.ExportFormat> exportFormatCB;
     private final ToggleButton saveFullImageSizeCheckbox;
@@ -290,7 +295,18 @@ public final class FontGenDialog {
         });
         fontDisplaySP = new ScrollPane(fontDisplay);
         fontDisplaySP.setTheme("fontDisplay");
-
+ 
+        fontTestEditfield = new TestEditField();
+        fontTestEditfield.setEnabled(false);
+        fontTestEditfield.setText("The quick brown fox jumps over the lazy dog.");
+        fontTestPanel = new CollapsiblePanel(CollapsiblePanel.Direction.VERTICAL, "Test the generated font", fontTestEditfield, null);
+        fontTestPanel.setExpanded(false);
+        fontTestPanel.setCallback(new Runnable() {
+            public void run() {
+                updateFontTestPanel();
+            }
+        });
+        
         exportFormatModel = new SimpleListSelectionModel<FontGenerator.ExportFormat>(
                 new EnumListModel<FontGenerator.ExportFormat>(FontGenerator.ExportFormat.class) {
             @Override
@@ -341,11 +357,20 @@ public final class FontGenDialog {
         statusBar = new Label();
         statusBar.setTheme("statusBar");
 
+        DialogLayout rightLayout = new DialogLayout();
+        rightLayout.setTheme("rightArea");
+        rightLayout.setHorizontalGroup(rightLayout.createParallelGroup()
+                .addWidget(fontDisplaySP)
+                .addWidget(fontTestPanel));
+        rightLayout.setVerticalGroup(rightLayout.createSequentialGroup()
+                .addWidget(fontDisplaySP)
+                .addWidget(fontTestPanel));
+        
         SplitPane splitPane = new SplitPane();
         splitPane.setDirection(SplitPane.Direction.HORIZONTAL);
         splitPane.setSplitPosition(370);
         splitPane.add(effectsPanelSP);
-        splitPane.add(fontDisplaySP);
+        splitPane.add(rightLayout);
 
         layout = new DialogLayout();
         layout.setTheme("fontgendialog");
@@ -596,15 +621,38 @@ public final class FontGenDialog {
     void close() {
         popupWindow.closePopup();
     }
+    
+    void setFontTest(FontGenerator fontGen) {
+        if(fontGen != null) {
+            try {
+                TestEnv env = fontGen.createTestEnv();
+                fontTestEditfield.setFont(env.getURL("/test.fnt"));
+            } catch(MalformedURLException ex) {
+            }
+        } else {
+            fontTestEditfield.setFont(null);
+        }
+    }
 
+    void updateFontTestPanel() {
+        FontGenerator fontGen = fontDisplay.getLastFontGen();
+        setFontTest(fontTestPanel.isExpanded() ? fontGen : null);
+    }
+    
     void updateStatusBar() {
         FontGenerator fontGen = fontDisplay.getLastFontGen();
+        if(fontTestPanel.isExpanded()) {
+            setFontTest(fontGen);
+        }
         if(fontGen == null) {
             saveFontButton.setEnabled(false);
             fontMetricInfoLabel.setText("<not available>");
+            fontTestEditfield.setEnabled(false);
+            
             setStatusBar("Select a font", DecoratedText.ERROR);
             return;
         }
+        fontTestEditfield.setEnabled(true);
         fontMetricInfoLabel.setText("height: " + fontGen.getLineHeight() +
                 " ascent: " + fontGen.getAscent() + " descent: " + fontGen.getDescent());
         int usedTextureHeight = fontGen.getUsedTextureHeight();

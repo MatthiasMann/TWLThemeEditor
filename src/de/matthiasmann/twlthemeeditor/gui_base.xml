@@ -34,10 +34,10 @@
         <area name="--area6M" xywh="54,0,1,18"/>
         <area name="--area6R" xywh="55,0,4,18"/>
 
-        <area name="--area7L" xywh="60,0,4,18"/>
-        <area name="--area7F" xywh="63,0,1,18"/>
-        <area name="--area7M" xywh="64,0,1,18"/>
-        <area name="--area7R" xywh="65,0,4,18"/>
+        <area name="--area7L" xywh="60,0,4,18" splity="T4,B4"/>
+        <area name="--area7F" xywh="63,0,1,18" splity="T4,B4"/>
+        <area name="--area7M" xywh="64,0,1,18" splity="T4,B4"/>
+        <area name="--area7R" xywh="65,0,4,18" splity="T4,B4"/>
 
         <area name="--area8L" xywh="70,0,4,18" splity="T4,B4"/>
         <area name="--area8F" xywh="73,0,1,18" splity="T4,B4"/>
