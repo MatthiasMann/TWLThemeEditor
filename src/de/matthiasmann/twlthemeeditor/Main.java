@@ -33,6 +33,7 @@ import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.input.lwjgl.LWJGLInput;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
+import de.matthiasmann.twl.utils.StateSelect;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.gui.MainUI;
 import de.matthiasmann.twlthemeeditor.gui.MessageLog;
@@ -187,6 +188,8 @@ public class Main extends Frame {
             }
             Display.setVSyncEnabled(true);
 
+            StateSelect.setUseOptimizer(true);
+            
             LWJGLRenderer renderer = new LWJGLRenderer();
             MainUI root = new MainUI();
             GUI gui = new GUI(root, renderer, new LWJGLInput());
@@ -230,7 +233,7 @@ public class Main extends Frame {
                 Dimension newDim = newCanvasSize.getAndSet(null);
                 if(newDim != null) {
                     GL11.glViewport(0, 0, newDim.width, newDim.height);
-                    renderer.syncViewportSize();
+                    renderer.setViewport(0, 0, newDim.width, newDim.height);
                 }
                 
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
