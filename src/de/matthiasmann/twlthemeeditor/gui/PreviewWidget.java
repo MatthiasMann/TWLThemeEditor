@@ -48,10 +48,9 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeLoadErrorTracker;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.nio.IntBuffer;
 import java.util.prefs.Preferences;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Cursor;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.Util;
 import org.xmlpull.v1.XmlPullParserException;
@@ -71,8 +70,7 @@ public class PreviewWidget extends Widget {
     }
 
     private final MessageLog messageLog;
-    private final IntBuffer viewPortBuffer;
-
+    
     private Context ctx;
     private URL url;
     private LWJGLRenderer render;
@@ -83,6 +81,7 @@ public class PreviewWidget extends Widget {
     private TestWidgetFactory widgetFactory;
     private Widget testWidget;
     private Callback callback;
+    private boolean mouseInside;
     
     private Image whiteImage;
     private final PersistentColorModel backgroundColorModel;
@@ -102,7 +101,6 @@ public class PreviewWidget extends Widget {
     
     public PreviewWidget(MessageLog messageLog) {
         this.messageLog = messageLog;
-        this.viewPortBuffer = BufferUtils.createIntBuffer(16);
         
         Preferences prefs = Preferences.userNodeForPackage(PreviewWidget.class);
         backgroundColorModel = new PersistentColorModel(prefs, KEY_BACKGROUND_COLOR, Color.BLACK);
@@ -217,28 +215,19 @@ public class PreviewWidget extends Widget {
     @Override
     protected void paintWidget(GUI gui) {
         if((reloadTheme || !hadThemeLoadError) && ctx != null) {
+            LWJGLRenderer mainRenderer = (LWJGLRenderer)gui.getRenderer();
             ctx.installDebugHook();
             try {
-                GL11.glGetInteger(GL11.GL_VIEWPORT, viewPortBuffer);
-                int viewPortTop = viewPortBuffer.get(1) + viewPortBuffer.get(3);
-
-                GL11.glViewport(
-                        viewPortBuffer.get(0) + getInnerX(),
-                        viewPortTop - (getInnerY() + getInnerHeight()),
-                        getInnerWidth(), getInnerHeight());
-
                 // CRITICAL REGION: GL STATE IS MODIFIED - DON'T CALL ANY APP CODE
+                mainRenderer.pauseRendering();
                 try {
-                    executeTestEnv(gui);
+                    executeTestEnv(gui, mainRenderer);
                     Util.checkGLError();
                 } catch (Throwable ex) {
                     messageLog.add(new MessageLog.Entry(CAT_EXECUTE, "Exception while executing test widget", null, ex));
                 } finally {
-                    GL11.glViewport(
-                            viewPortBuffer.get(0),
-                            viewPortBuffer.get(1),
-                            viewPortBuffer.get(2),
-                            viewPortBuffer.get(3));
+                    setViewport(mainRenderer);
+                    mainRenderer.resumeRendering();
                     // END OF CRITICAL REGION
                 }
             } finally {
@@ -249,13 +238,25 @@ public class PreviewWidget extends Widget {
             flashImage.draw(getAnimationState(), getInnerX() + flashX, getInnerY() + flashY, flashWidth, flashHeight);
         }
     }
+    
+    private static void setViewport(LWJGLRenderer renderer) {
+        GL11.glViewport(
+                renderer.getViewportX(),
+                renderer.getViewportY(),
+                renderer.getWidth(),
+                renderer.getHeight());
+    }
 
-    private void executeTestEnv(GUI gui) {
+    private void executeTestEnv(GUI gui, LWJGLRenderer mainRenderer) {
         if(render == null && !initRenderer()) {
             return;
         }
 
-        render.syncViewportSize();
+        render.setViewport(
+            mainRenderer.getViewportX() + getInnerX(),
+            mainRenderer.getViewportY() + mainRenderer.getHeight() - (getInnerY() + getInnerHeight()),
+            getInnerWidth(), getInnerHeight());
+        setViewport(render);
 
         if(testGUI == null) {
             TestWidgetContainer container = new TestWidgetContainer();
@@ -317,7 +318,15 @@ public class PreviewWidget extends Widget {
         assert(render == null);
 
         try {
-            render = new LWJGLRenderer();
+            render = new LWJGLRenderer() {
+                @Override
+                protected boolean isMouseInsideWindow() {
+                    return mouseInside;
+                }
+                @Override
+                protected void setNativeCursor(Cursor cursor) {
+                }
+            };
             render.setUseSWMouseCursors(true);
             return true;
         } catch(LWJGLException ex) {
@@ -381,6 +390,9 @@ public class PreviewWidget extends Widget {
 
     @Override
     protected boolean handleEvent(Event evt) {
+        if(evt.isMouseEvent()) {
+            mouseInside = evt.getType() != Event.Type.MOUSE_EXITED;
+        }
         if(testGUI != null) {
             boolean handled = false;
             try {
