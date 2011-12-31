@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2011, Matthias Mann
  *
  * All rights reserved.
  *
@@ -31,9 +31,6 @@ package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twlthemeeditor.gui.editors.ConditionEditorFactory;
 import de.matthiasmann.twl.AnimationState;
-import de.matthiasmann.twl.Button;
-import de.matthiasmann.twl.EditField;
-import de.matthiasmann.twl.TableBase;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AutoCompletionDataSource;
 import de.matthiasmann.twl.model.AutoCompletionResult;
@@ -55,8 +52,6 @@ import de.matthiasmann.twlthemeeditor.gui.editors.WidgetThemeEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.WidgetThemeProperty;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,8 +59,6 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -79,7 +72,6 @@ public class Context extends PropertyFactories {
     private final MessageLog messageLog;
     private final ThemeTreeModel model;
     private final PreviewDebugHook debugHook;
-    private final Set<String> standardStates;
 
     private ThemeTreePane themeTreePane;
 
@@ -93,12 +85,6 @@ public class Context extends PropertyFactories {
         factories1.put(WidgetThemeProperty.class, new WidgetThemeEditorFactory(this));
 
         factories2.put(AnimationState.class, new AnimStateEditorFactory(this));
-
-        standardStates = new TreeSet<String>();
-        collectStandardStates(Widget.class);
-        collectStandardStates(Button.class);
-        collectStandardStates(TableBase.class);
-        collectStandardStates(EditField.class);
     }
 
     public void logMessage(MessageLog.Entry entry) {
@@ -245,18 +231,13 @@ public class Context extends PropertyFactories {
     }
 
     public AutoCompletionDataSource collectAllStates() {
-        Set<String> statesSet = new TreeSet<String>(standardStates);
+        Set<String> statesSet = new TreeSet<String>();
         for(Image img : model.getImages(null)) {
             collectStates(img, statesSet);
         }
 
-        try {
-            Field keysField = StateKey.class.getDeclaredField("keys");
-            keysField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            HashMap<String, StateKey> keys = (HashMap<String, StateKey>)keysField.get(null);
-            statesSet.addAll(keys.keySet());
-        } catch(Exception ex) {
+        for(int i=0,n=StateKey.getNumStateKeys() ; i<n ; i++) {
+            statesSet.add(StateKey.get(i).getName());
         }
 
         final String[] states = statesSet.toArray(new String[statesSet.size()]);
@@ -389,22 +370,6 @@ public class Context extends PropertyFactories {
 
         for(Image child : img.getChildren(Image.class)) {
             collectStates(child, states);
-        }
-    }
-
-    private void collectStandardStates(Class<? extends Widget> clazz) {
-        for(Field f : clazz.getDeclaredFields()) {
-            int m = f.getModifiers();
-            if(Modifier.isPublic(m) && Modifier.isStatic(m) && Modifier.isFinal(m) &&
-                    f.getType() == String.class && f.getName().startsWith("STATE_")) {
-                try {
-                    String state = (String)f.get(null);
-                    standardStates.add(state);
-                } catch(Throwable ex) {
-                    Logger.getLogger(Context.class.getName()).log(Level.SEVERE,
-                            "Can't read state constant", ex);
-                }
-            }
         }
     }
 
