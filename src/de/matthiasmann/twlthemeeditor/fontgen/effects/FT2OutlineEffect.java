@@ -100,12 +100,12 @@ public class FT2OutlineEffect extends Effect {
             stride = ((SinglePixelPackedSampleModel)image.getSampleModel()).getScanlineStride();
             offset = dataBuffer.getOffset();
             
-            int oR = outlineColor.getR() & 255;
-            int oG = outlineColor.getG() & 255;
-            int oB = outlineColor.getB() & 255;
-            int dR = (glyphColor.getR() & 255) - oR;
-            int dG = (glyphColor.getG() & 255) - oG;
-            int dB = (glyphColor.getB() & 255) - oB;
+            int oR = outlineColor.getRed();
+            int oG = outlineColor.getGreen();
+            int oB = outlineColor.getBlue();
+            int dR = glyphColor.getRed() - oR;
+            int dG = glyphColor.getGreen() - oG;
+            int dB = glyphColor.getBlue() - oB;
             
             colors = new int[256];
             for(int i=0 ; i<256 ; i++) {

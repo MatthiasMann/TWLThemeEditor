@@ -102,10 +102,10 @@ public abstract class Effect {
         public void setPropertyValue(Color value) throws IllegalArgumentException {
             if(value != null) {
                 base.setPropertyValue(new java.awt.Color(
-                        value.getR() & 255,
-                        value.getG() & 255,
-                        value.getB() & 255,
-                        value.getA() & 255));
+                        value.getRed(),
+                        value.getGreen(),
+                        value.getBlue(),
+                        value.getAlpha()));
             } else {
                 base.setPropertyValue(null);
             }
