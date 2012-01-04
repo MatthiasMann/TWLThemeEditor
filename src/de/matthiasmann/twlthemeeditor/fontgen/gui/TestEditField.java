@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -36,10 +36,10 @@ import de.matthiasmann.twl.renderer.CacheContext;
 import de.matthiasmann.twl.renderer.Font;
 import de.matthiasmann.twl.renderer.FontParameter;
 import de.matthiasmann.twl.renderer.Renderer;
+import de.matthiasmann.twl.utils.StateSelect;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.Collections;
 
 /**
  *
@@ -74,9 +74,7 @@ public class TestEditField extends EditField {
             try {
                 fontTestCacheContext = renderer.createNewCacheContext();
                 renderer.setActiveCacheContext(fontTestCacheContext);
-                font = renderer.loadFont(url,
-                        Collections.<String, String>emptyMap(),
-                        Collections.<FontParameter>emptyList());
+                font = renderer.loadFont(url, StateSelect.EMPTY, new FontParameter());  
             } catch(IOException ex) {
                 ex.printStackTrace();
             } finally {
