@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -151,7 +151,9 @@ public class TextureViewer extends Widget {
             throw new NullPointerException();
         }
         this.tintColor = tintColor;
-        changeImage = true;
+        if(specialImage == null) {
+            changeImage = true;
+        }
     }
 
     public Rect getTextureRect() {
@@ -179,6 +181,10 @@ public class TextureViewer extends Widget {
         this.specialImage = image;
         this.image = image;
         this.rect = (image != null) ? new Rect(0, 0, image.getWidth(), image.getHeight()) : null;
+        this.url = null;
+        this.reloadTexture = false;
+        this.changeImage = false;
+        invalidateLayout();
     }
 
     public IOException getLoadException() {
@@ -253,12 +259,7 @@ public class TextureViewer extends Widget {
             CallbackSupport.fireCallbacks(exceptionCallbacks);
         }
         
-        if(specialImage != null) {
-            if(image != specialImage) {
-                image = specialImage;
-                invalidateLayout();
-            }
-        } else if(changeImage) {
+        if(changeImage) {
             if(texture != null) {
                 if(rect == null) {
                     rect = getTextureRect();

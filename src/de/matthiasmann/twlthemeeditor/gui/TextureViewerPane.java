@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -54,7 +54,7 @@ import java.util.prefs.Preferences;
  *
  * @author Matthias Mann
  */
-public class TextureViewerPane extends DialogLayout {
+public final class TextureViewerPane extends DialogLayout {
 
     public static final StateKey STATE_ERROR                  = StateKey.get("error");
     public static final StateKey STATE_ANIMATED_POSITION_BARS = StateKey.get("animatedPositionBars");
@@ -290,7 +290,9 @@ public class TextureViewerPane extends DialogLayout {
     }
 
     void updateRect() {
-        textureViewer.setRect(showCompleteTexture.getValue() ? null : rect);
+        if(rect != null) {
+            textureViewer.setRect(showCompleteTexture.getValue() ? null : rect);
+        }
         if(rect != null && showSplitPositions.getValue()) {
             if(showCompleteTexture.getValue()) {
                 textureViewer.setPositionBarsVert(addEdges(splitPositionsX, rect.getX(), rect.getRight()));
