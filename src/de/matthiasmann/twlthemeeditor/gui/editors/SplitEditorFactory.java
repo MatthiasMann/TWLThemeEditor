@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -74,7 +74,7 @@ public class SplitEditorFactory implements PropertyEditorFactory<Split, SplitPro
             final String theme1;
             final String theme2;
 
-            if(pa.getProperty().getName().startsWith("Split X")) {
+            if(pa.getProperty().getAxis() == Split.Axis.HORIZONTAL) {
                 theme1 = "btnRelativeLeft";
                 theme2 = "btnRelativeRight";
             } else {
@@ -113,6 +113,7 @@ public class SplitEditorFactory implements PropertyEditorFactory<Split, SplitPro
             }
 
             pa.setWidgetsToEnable(widgetsToEnable.toArray(new Widget[widgetsToEnable.size()]));
+            pa.addActiveCallback(new ActiveCB());
 
             setHorizontalGroup(createSequentialGroup()
                     .addGroup(adjusterColumn)
@@ -183,6 +184,14 @@ public class SplitEditorFactory implements PropertyEditorFactory<Split, SplitPro
             }
             public void removeCallback(Runnable callback) {
                 pa.getProperty().removeCallback(callback);
+            }
+        }
+        
+        class ActiveCB implements Runnable {
+            public void run() {
+                if(pa.isActive() && pa.getProperty().getPropertyValue() == null) {
+                    pa.setValue(DEFAULT_SPLIT);
+                }
             }
         }
     }

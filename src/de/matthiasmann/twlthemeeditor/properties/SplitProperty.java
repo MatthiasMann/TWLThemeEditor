@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -43,6 +43,10 @@ public abstract class SplitProperty extends DerivedProperty<Split> {
     public SplitProperty(Property<String> base, Split.Axis axis) {
         super(base, Split.class);
         this.axis = axis;
+    }
+
+    public Split.Axis getAxis() {
+        return axis;
     }
 
     public Split getPropertyValue() {
