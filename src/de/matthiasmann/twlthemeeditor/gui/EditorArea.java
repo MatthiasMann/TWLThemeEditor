@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -42,10 +42,14 @@ import de.matthiasmann.twl.Timer;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.EnumModel;
+import de.matthiasmann.twl.model.FloatModel;
 import de.matthiasmann.twl.model.OptionEnumModel;
 import de.matthiasmann.twl.model.PersistentEnumModel;
 import de.matthiasmann.twl.model.PersistentMRUListModel;
 import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twl.renderer.AnimationState;
+import de.matthiasmann.twl.renderer.Gradient;
+import de.matthiasmann.twl.renderer.Gradient.Type;
 import de.matthiasmann.twl.renderer.Texture;
 import de.matthiasmann.twlthemeeditor.DelayedAction;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
@@ -55,6 +59,10 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
+import de.matthiasmann.twlthemeeditor.properties.EnumProperty;
+import de.matthiasmann.twlthemeeditor.properties.GradientStopModel;
+import de.matthiasmann.twlthemeeditor.properties.GradientStopModel.Stop;
+import de.matthiasmann.twlthemeeditor.properties.GradientStopProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
@@ -107,6 +115,8 @@ public final class EditorArea extends Widget {
     private ColorProperty boundColorProperty;
     private SplitProperty boundSplitXProperty;
     private SplitProperty boundSplitYProperty;
+    private EnumProperty<Gradient.Type> boundGradientTypeProperty;
+    private GradientStopProperty boundGradientStopProperty;
 
     public EditorArea(MessageLog messageLog) {
         this.messageLog = messageLog;
@@ -401,6 +411,14 @@ public final class EditorArea extends Widget {
             boundSplitYProperty.removeCallback(boundPropertyCB);
             boundSplitYProperty = null;
         }
+        if(boundGradientStopProperty != null) {
+            boundGradientStopProperty.removeValueChangedCallback(boundPropertyCB);
+            boundGradientStopProperty = null;
+        }
+        if(boundGradientTypeProperty != null) {
+            boundGradientTypeProperty.removeCallback(boundPropertyCB);
+            boundGradientTypeProperty = null;
+        }
         
         Object obj = themeTreePane.getSelected();
         if(obj != null) {
@@ -432,6 +450,19 @@ public final class EditorArea extends Widget {
                     if(boundSplitYProperty == null && property.getName().startsWith("Split Y")) {
                         boundSplitYProperty = (SplitProperty)property;
                         boundSplitYProperty.addValueChangedCallback(boundPropertyCB);
+                    }
+                }
+                if(boundGradientStopProperty == null && (property instanceof GradientStopProperty)) {
+                    boundGradientStopProperty = (GradientStopProperty)property;
+                    boundGradientStopProperty.addValueChangedCallback(boundPropertyCB);
+                }
+                if(property instanceof EnumProperty<?>) {
+                    EnumProperty<?> enumProperty = (EnumProperty<?>)property;
+                    if(boundGradientTypeProperty == null && enumProperty.getType() == Gradient.Type.class) {
+                        @SuppressWarnings("unchecked")
+                        EnumProperty<Gradient.Type> gradientTypeProperty = (EnumProperty<Type>)enumProperty;
+                        boundGradientTypeProperty = gradientTypeProperty;
+                        boundGradientTypeProperty.addCallback(boundPropertyCB);
                     }
                 }
             }
@@ -477,6 +508,9 @@ public final class EditorArea extends Widget {
                 }
             }
             if(renderImage != null) {
+                if(obj instanceof de.matthiasmann.twlthemeeditor.datamodel.images.Gradient) {
+                    renderImage = new AdjustImageSize(renderImage, -1, 10);
+                }
                 textureViewerPane.setImage(renderImage);
             } else {
                 textureViewerPane.setRect(null);
@@ -484,8 +518,26 @@ public final class EditorArea extends Widget {
         }
         Color color = (boundColorProperty != null) ? boundColorProperty.getPropertyValue() : Color.WHITE;
         textureViewerPane.setTintColor((color != null) ? color : Color.WHITE);
-        textureViewerPane.setSplitPositionsX(getSplitPos(boundSplitXProperty));
-        textureViewerPane.setSplitPositionsY(getSplitPos(boundSplitYProperty));
+        if(boundGradientStopProperty != null && boundGradientTypeProperty != null) {
+            GradientStopModel model = boundGradientStopProperty.getPropertyValue();
+            switch(boundGradientTypeProperty.getPropertyValue()) {
+                case HORIZONTAL:
+                    textureViewerPane.setSplitPositionsX(getSplitPos(model));
+                    textureViewerPane.setSplitPositionsY(null);
+                    break;
+                case VERTICAL:
+                    textureViewerPane.setSplitPositionsX(null);
+                    textureViewerPane.setSplitPositionsY(getSplitPos(model));
+                    break;
+                default:
+                    textureViewerPane.setSplitPositionsX(null);
+                    textureViewerPane.setSplitPositionsY(null);
+                    break;
+            }
+        } else {
+            textureViewerPane.setSplitPositionsX(getSplitPos(boundSplitXProperty));
+            textureViewerPane.setSplitPositionsY(getSplitPos(boundSplitYProperty));
+        }
     }
 
     void textureLoaded(URL url, Texture texture) {
@@ -511,12 +563,37 @@ public final class EditorArea extends Widget {
         }
         return null;
     }
+    
+    private static int[] getSplitPos(GradientStopModel model) {
+        int[] result = new int[model.getNumEntries() - 1];
+        for(int i=0 ; i<result.length ; i++) {
+            result[i] = Math.round(model.getEntry(i).getPosModel().getValue());
+        }
+        return result;
+    }
 
     static int limit(int what, int min, int max) {
         return Math.max(min, Math.min(what, max));
     }
+
+    static float limit(float what, float min, float max) {
+        return Math.max(min, Math.min(what, max));
+    }
     
     void dragSplit(int idx, int pos, SplitProperty splitProperty, boolean horz) {
+        if(boundGradientStopProperty != null && boundGradientTypeProperty != null) {
+            GradientStopModel model = boundGradientStopProperty.getPropertyValue();
+            if(idx >= 0 && idx < model.getNumEntries()) {
+                Stop stop = model.getEntry(idx);
+                if(!stop.isSpecial()) {
+                    FloatModel posModel = stop.getPosModel();
+                    float newPos = limit(pos, posModel.getMinValue(), posModel.getMaxValue());
+                    posModel.setValue(newPos);
+                }
+            }
+            return;
+        }
+        
         Split split = splitProperty.getPropertyValue();
         if(split != null) {
             int size = splitProperty.getLimit();
@@ -704,5 +781,37 @@ public final class EditorArea extends Widget {
         checkWidgetTreeTimer = null;
         themeTreePane.removeCallback(updatePropertyEditors);
         updatePropertyEditors = null;
+    }
+    
+    static class AdjustImageSize implements de.matthiasmann.twl.renderer.Image {
+        private final de.matthiasmann.twl.renderer.Image img;
+        private final int width;
+        private final int height;
+
+        public AdjustImageSize(de.matthiasmann.twl.renderer.Image img, int width, int height) {
+            this.img = img;
+            this.width = width;
+            this.height = height;
+        }
+
+        public int getWidth() {
+            return (width >= 0) ? width : img.getWidth();
+        }
+
+        public int getHeight() {
+            return (height >= 0) ? height : img.getHeight();
+        }
+
+        public void draw(AnimationState as, int x, int y) {
+            img.draw(as, x, y, getWidth(), getHeight());
+        }
+
+        public void draw(AnimationState as, int x, int y, int width, int height) {
+            img.draw(as, x, y, width, height);
+        }
+        
+        public de.matthiasmann.twl.renderer.Image createTintedVersion(Color color) {
+            return new AdjustImageSize(img.createTintedVersion(color), width, height);
+        }
     }
 }

@@ -1120,6 +1120,7 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
                 <param name="2"><int>20</int></param>
                 <param name="3"><int>20</int></param>
             </map></param>
+            <theme name="editor"/>
         </theme>
     </theme>
 

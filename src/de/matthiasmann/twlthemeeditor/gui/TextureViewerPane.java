@@ -292,18 +292,24 @@ public final class TextureViewerPane extends DialogLayout {
     void updateRect() {
         if(rect != null) {
             textureViewer.setRect(showCompleteTexture.getValue() ? null : rect);
-        }
-        if(rect != null && showSplitPositions.getValue()) {
-            if(showCompleteTexture.getValue()) {
-                textureViewer.setPositionBarsVert(addEdges(splitPositionsX, rect.getX(), rect.getRight()));
-                textureViewer.setPositionBarsHorz(addEdges(splitPositionsY, rect.getY(), rect.getBottom()));
+            if(showSplitPositions.getValue()) {
+                if(showCompleteTexture.getValue()) {
+                    textureViewer.setPositionBarsVert(addEdges(splitPositionsX, rect.getX(), rect.getRight()));
+                    textureViewer.setPositionBarsHorz(addEdges(splitPositionsY, rect.getY(), rect.getBottom()));
+                } else {
+                    textureViewer.setPositionBarsVert(splitPositionsX);
+                    textureViewer.setPositionBarsHorz(splitPositionsY);
+                }
+            } else if(showCompleteTexture.getValue()) {
+                textureViewer.setPositionBarsVert(new int[]{ rect.getX(), rect.getRight() });
+                textureViewer.setPositionBarsHorz(new int[]{ rect.getY(), rect.getBottom() });
             } else {
-                textureViewer.setPositionBarsVert(splitPositionsX);
-                textureViewer.setPositionBarsHorz(splitPositionsY);
+                textureViewer.setPositionBarsVert(null);
+                textureViewer.setPositionBarsHorz(null);
             }
-        } else if(rect != null && showCompleteTexture.getValue()) {
-            textureViewer.setPositionBarsVert(new int[]{ rect.getX(), rect.getRight() });
-            textureViewer.setPositionBarsHorz(new int[]{ rect.getY(), rect.getBottom() });
+        } else if(showSplitPositions.getValue()) {
+            textureViewer.setPositionBarsVert(splitPositionsX);
+            textureViewer.setPositionBarsHorz(splitPositionsY);
         } else {
             textureViewer.setPositionBarsVert(null);
             textureViewer.setPositionBarsHorz(null);
@@ -422,9 +428,9 @@ public final class TextureViewerPane extends DialogLayout {
         DragHandlerAxis axisY;
 
         public void dragStarted(int posBarHorz, int posBarVert) {
+            boolean showSplits = showSplitPositions.getValue();
             if(rect != null) {
                 boolean all = showCompleteTexture.getValue();
-                boolean showSplits = showSplitPositions.getValue();
 
                 axisX = null;
                 axisY = null;
@@ -464,6 +470,13 @@ public final class TextureViewerPane extends DialogLayout {
                     if(posBarHorz >= 0) {
                         axisY = new DragHandlerSplitY(posBarHorz);
                     }
+                }
+            } else if(showSplits) {
+                if(posBarVert >= 0) {
+                    axisX = new DragHandlerSplitX(posBarVert);
+                }
+                if(posBarHorz >= 0) {
+                    axisY = new DragHandlerSplitY(posBarHorz);
                 }
             }
         }
