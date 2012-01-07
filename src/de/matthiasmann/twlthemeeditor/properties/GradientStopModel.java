@@ -188,7 +188,7 @@ public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
         stops.add(rowNr, newStop);
         fireEntriesInserted(rowNr, rowNr);
         posUpdated(rowNr);
-        domChangedCB.run();
+        domChanged();
         return true;
     }
 
@@ -218,8 +218,12 @@ public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
         fireEntriesDeleted(rowNr, rowNr);
         updateRow(rowNr-1);
         updateRow(rowNr);
-        domChangedCB.run();
+        domChanged();
         return true;
+    }
+    
+    void domChanged() {
+        domChangedCB.run();
     }
     
     private static final int INDENTATION_SIZE = 4;
@@ -301,6 +305,7 @@ public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
                     doCallback();
                     setPos();
                     posUpdated(nr);
+                    domChanged();
                 }
             }
         };
@@ -313,6 +318,7 @@ public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
                     color = value;
                     doCallback();
                     setColor();
+                    domChanged();
                 }
             }
         }
