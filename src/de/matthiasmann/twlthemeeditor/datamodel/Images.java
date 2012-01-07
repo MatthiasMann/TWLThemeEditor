@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -37,6 +37,7 @@ import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewArea;
+import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewGradient;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import java.io.IOException;
@@ -169,7 +170,7 @@ public class Images extends ThemeTreeNode implements HasProperties {
 
 
     private static final String[] ALLOWED_CHILDREN = {
-        "area", "select", "composed", "grid", "animation", "alias"
+        "area", "select", "composed", "grid", "animation", "alias", "gradient"
     };
     public static boolean isAllowedChildImage(String tag) {
         for(String allowed : ALLOWED_CHILDREN) {
@@ -214,6 +215,7 @@ public class Images extends ThemeTreeNode implements HasProperties {
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "grid", "weightsX", "0,1,0", "weightsY", "0,1,0"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "animation", "timeSource", "hover"));
         operations.add(new CreateNewSimple(parent, parent.getDOMElement(), "alias", "ref", "none"));
+        operations.add(new CreateNewGradient(parent, parent.getDOMElement()));
         operations.add(new CreateNewArea(parent, parent.getDOMElement(), "cursor", "hotSpotX", "0", "hotSpotY", "0"));
         operations.add(new CreateNewSimple("opNewNodeCursorAlias", parent, parent.getDOMElement(), "cursor", "ref", "none"));
     }

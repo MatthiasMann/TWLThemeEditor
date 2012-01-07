@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -41,6 +41,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.images.CursorRef;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Grid;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Select;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Area;
+import de.matthiasmann.twlthemeeditor.datamodel.images.Gradient;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
@@ -231,6 +232,9 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
                 }
                 if("hvsplit".equals(tagName)) {
                     return upgradeHVSplit(themeFile, parent, element);
+                }
+                if("gradient".equals(tagName)) {
+                    return new Gradient(images, parent, element);
                 }
                 return null;
             }

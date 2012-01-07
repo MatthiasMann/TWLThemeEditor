@@ -356,6 +356,72 @@
                 <alias ref="none"/>
             </grid>
         </composed>
+        
+        <grid name="gradientstopeditor.colorbutton.white" weightsX="0,1" weightsY="1">
+            <alias ref="white" inset="3,5,3,0" sizeOverwriteH="20"/>
+            <alias ref="none"/>
+        </grid>
+        <select name="gradientstopeditor.colorbutton.background">
+            <grid if="selected + armed" weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbutton6ML"/>
+                <alias ref="-vbutton6MM"/>
+                <alias ref="-vbutton6MR"/>
+            </grid>
+            <grid if="selected + hover + !disabled" weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbutton5ML"/>
+                <alias ref="-vbutton5MM"/>
+                <alias ref="-vbutton5MR"/>
+            </grid>
+            <grid if="selected" weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbutton4ML"/>
+                <alias ref="-vbutton4MM"/>
+                <alias ref="-vbutton4MR"/>
+            </grid>
+            <grid if="armed" weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbutton3ML"/>
+                <alias ref="-vbutton3MM"/>
+                <alias ref="-vbutton3MR"/>
+            </grid>
+            <grid if="hover + !disabled" weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbutton2ML"/>
+                <alias ref="-vbutton2MM"/>
+                <alias ref="-vbutton2MR"/>
+            </grid>
+            <grid weightsX="0,1,0" weightsY="1">
+                <alias ref="-vbutton1ML"/>
+                <alias ref="-vbutton1MM"/>
+                <alias ref="-vbutton1MR"/>
+            </grid>
+        </select>
+        <grid name="gradientstopeditor.colorbutton.overlay" if="keyboardFocus" weightsX="0,1,0" weightsY="1" tint="keyboardFocus">
+            <alias ref="-vbuttonSelML"/>
+            <alias ref="-vbuttonSelMM"/>
+            <alias ref="-vbuttonSelMR"/>
+        </grid>
+        
+        <select name="gradientstopeditor.valueadjuster.edit.background">
+            <alias ref="-adjuster2MM" if="hover + !disabled"/>
+            <alias ref="-adjuster1MM"/>
+        </select>
+        <composed name="gradientstopeditor.valueadjuster.display.background">
+            <alias ref="gradientstopeditor.valueadjuster.edit.background"/>
+            <alias ref="-adjuster-drag-arrows"/>
+        </composed>
+        <select name="gradientstopeditor.valueadjuster.dec.background">
+            <alias ref="-adjuster3ML" if="armed"/>
+            <alias ref="-adjuster2ML" if="hover + !disabled"/>
+            <alias ref="-adjuster1ML"/>
+        </select>
+        <select name="gradientstopeditor.valueadjuster.inc.background">
+            <alias ref="-adjuster3MR" if="armed"/>
+            <alias ref="-adjuster2MR" if="hover + !disabled"/>
+            <alias ref="-adjuster1MR"/>
+        </select>
+        <grid name="gradientstopeditor.valueadjuster.overlay" inset="1,0" tint="keyboardFocus" if="keyboardFocus" weightsX="0,1,0" weightsY="1">
+            <alias ref="-adjusterSelML"/>
+            <alias ref="-adjusterSelMM"/>
+            <alias ref="-adjusterSelMR"/>
+        </grid>
     </images>
 
     <images file="gui.png" format="RGBA" comment="icons">
@@ -636,6 +702,10 @@
         <theme name="opNewNodeComposed" ref="popupMenuButton">
             <param name="text"><string>Create a new &lt;composed&gt; node</string></param>
             <param name="overlay"><image>opnewnode.composed.overlay</image></param>
+            <param name="border"><border>0,24,0,0</border></param>
+        </theme>
+        <theme name="opNewNodeGradient" ref="popupMenuButton">
+            <param name="text"><string>Create a new &lt;gradient&gt; node</string></param>
             <param name="border"><border>0,24,0,0</border></param>
         </theme>
         <theme name="opNewNodeAnimation" ref="popupMenuButton">
@@ -1013,6 +1083,43 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
             <param name="maxWidth"><int>32767</int></param>
             <param name="minHeight"><int>25</int></param>
             <param name="textAlignment"><enum type="alignment">left</enum></param>
+        </theme>
+        
+        <theme name="gradientstopeditor" ref="table">
+            <param name="rowHeight"><int>18</int></param>
+            <theme name="valueadjuster" ref="valueadjuster">
+                <param name=""><image>gradientstopeditor.valueadjuster.*</image></param>
+                <theme name="incButton" merge="true">
+                    <param name=""><image>gradientstopeditor.valueadjuster.inc.*</image></param>
+                </theme>
+                <theme name="decButton" merge="true">
+                    <param name=""><image>gradientstopeditor.valueadjuster.dec.*</image></param>
+                </theme>
+                <theme name="valueDisplay" merge="true">
+                    <param name=""><image>gradientstopeditor.valueadjuster.display.*</image></param>
+                </theme>
+                <theme name="valueEdit" merge="true">
+                    <param name=""><image>gradientstopeditor.valueadjuster.edit.*</image></param>
+                </theme>
+            </theme>
+            <theme name="colorbutton" ref="-defaults">
+                <param name=""><image>gradientstopeditor.colorbutton.*</image></param>
+                <param name="white"><image>gradientstopeditor.colorbutton.white</image></param>
+                <param name="border"><border>0,5*2+white.width,0,5</border></param>
+                <param name="textAlignment"><enum type="alignment">left</enum></param>
+            </theme>
+            <theme name="addbutton" ref="button">
+                <param name=""><image>addbutton.*</image></param>
+                <param name="tooltip"><string>Add a new stop</string></param>
+            </theme>
+            <theme name="removebutton" ref="vbutton">
+                <param name=""><image>removebutton.*</image></param>
+                <param name="tooltip"><string>Remove this stop</string></param>
+            </theme>
+            <param name="columnWidths"><map>
+                <param name="2"><int>20</int></param>
+                <param name="3"><int>20</int></param>
+            </map></param>
         </theme>
     </theme>
 

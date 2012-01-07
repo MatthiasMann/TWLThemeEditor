@@ -372,6 +372,11 @@
         <area name="-adjusterSelXR" xywh="74,85,8,18"/>
         <area name="-adjuster-icon-plus" xywh="144,99,7,7"/>
         <area name="-adjuster-icon-minus" xywh="145,102,5,1"/>
+        <grid name="-adjuster-drag-arrows" weightsX="0,1,0" weightsY="1" if="hover + !disabled">
+            <area xywh="159,115,4,5" inset="7,3,6,0"/>
+            <alias ref="none"/>
+            <area xywh="159,121,4,5" inset="7,0,6,3"/>
+        </grid>
 
         <select name="valueadjuster.edit.background">
             <select if="!adjusterNotFirst + !adjusterNotLast">
@@ -392,11 +397,7 @@
         <alias name="valueadjuster.edit.overlay" ref="none"/>
         <composed name="valueadjuster.display.background">
             <alias ref="valueadjuster.edit.background"/>
-            <grid weightsX="0,1,0" weightsY="1" if="hover + !disabled">
-                <area xywh="159,115,4,5" inset="7,3,6,0"/>
-                <alias ref="none"/>
-                <area xywh="159,121,4,5" inset="7,0,6,3"/>
-            </grid>
+            <alias ref="-adjuster-drag-arrows"/>
         </composed>
         <alias name="valueadjuster.display.overlay" ref="none"/>
         <select name="valueadjuster.dec.background">

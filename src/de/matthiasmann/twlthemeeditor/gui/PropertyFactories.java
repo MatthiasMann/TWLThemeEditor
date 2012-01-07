@@ -42,6 +42,7 @@ import de.matthiasmann.twlthemeeditor.gui.editors.DimensionEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.EnumEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.FloatEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.GapEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.GradientStopEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.HotSpotEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.IntegerEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.IntegerFormulaEditorFactory;
@@ -54,6 +55,7 @@ import de.matthiasmann.twlthemeeditor.gui.editors.WeightsEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
 import de.matthiasmann.twlthemeeditor.properties.DimensionProperty;
 import de.matthiasmann.twlthemeeditor.properties.GapProperty;
+import de.matthiasmann.twlthemeeditor.properties.GradientStopModel;
 import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
@@ -89,6 +91,7 @@ public class PropertyFactories {
         factories2.put(Boolean.class, new BooleanEditorFactory());
         factories2.put(Enum.class, new EnumEditorFactory<Alignment>()); // use dummy enum to get rid of raw type warning
         factories2.put(KeyStroke.class, new KeyStrokeEditorFactory());
+        factories2.put(GradientStopModel.class, new GradientStopEditorFactory());
     }
 
     public PropertyEditorFactory<?,?> getFactory(Property<?> property) {

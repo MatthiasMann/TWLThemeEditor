@@ -50,7 +50,7 @@ public class ColorProperty extends DerivedProperty<Color> {
 
     public Color getPropertyValue() {
         String value = base.getPropertyValue();
-        return (value != null) ? parseColor(value) : null;
+        return (value != null) ? parseColor(value, node) : null;
     }
 
     public void setPropertyValue(Color value) throws IllegalArgumentException {
@@ -71,7 +71,7 @@ public class ColorProperty extends DerivedProperty<Color> {
         base.setPropertyValue(name);
     }
 
-    private Color parseColor(String value) throws NumberFormatException {
+    public static Color parseColor(String value, ThemeTreeNode node) throws NumberFormatException {
         Color color = Color.parserColor(value);
         if(color == null) {
             ThemeTreeNode constantNode = node.getThemeFile().getTreeNode().findNode(value, Kind.CONSTANTDEF);
