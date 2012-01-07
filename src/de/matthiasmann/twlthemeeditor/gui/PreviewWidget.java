@@ -67,6 +67,7 @@ public class PreviewWidget extends Widget {
         public void testWidgetChanged(Widget widget);
         public void errorLocationChanged(Object errorLocation);
         public void testGUIChanged(GUI testGUI);
+        public void themeLoaded();
     }
 
     private final MessageLog messageLog;
@@ -358,6 +359,16 @@ public class PreviewWidget extends Widget {
                 theme = newTheme;
                 testGUI.destroy();
                 messageLog.removeAll(CAT_THEME);
+                
+                if(callback != null) {
+                    final Callback cb = callback;
+                    gui.invokeLater(new Runnable() {
+                        public void run() {
+                            cb.themeLoaded();
+                        }
+                    });
+                }
+                
                 return true;
             } catch (IOException ex) {
                 hadThemeLoadError = true;
@@ -387,7 +398,7 @@ public class PreviewWidget extends Widget {
             });
         }
     }
-
+    
     @Override
     protected boolean handleEvent(Event evt) {
         if(evt.isMouseEvent()) {

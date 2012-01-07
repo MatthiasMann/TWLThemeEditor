@@ -103,7 +103,6 @@ public final class EditorArea extends Widget {
     private final Menu classpathsMenu;
 
     private final CallbackWithReason<ThemeTreeModel.CallbackReason> modelChangedCB;
-    private final Runnable boundPropertyCB;
 
     private final EnumModel<Layout> layoutModel;
 
@@ -111,12 +110,12 @@ public final class EditorArea extends Widget {
     private Timer checkWidgetTreeTimer;
     private Context ctx;
     private PropertyPanel propertyPanel;
-    private RectProperty boundRectProperty;
-    private ColorProperty boundColorProperty;
-    private SplitProperty boundSplitXProperty;
-    private SplitProperty boundSplitYProperty;
-    private EnumProperty<Gradient.Type> boundGradientTypeProperty;
-    private GradientStopProperty boundGradientStopProperty;
+    private RectProperty rectProperty;
+    private ColorProperty colorProperty;
+    private SplitProperty splitXProperty;
+    private SplitProperty splitYProperty;
+    private EnumProperty<Gradient.Type> gradientTypeProperty;
+    private GradientStopProperty gradientStopProperty;
 
     public EditorArea(MessageLog messageLog) {
         this.messageLog = messageLog;
@@ -163,9 +162,13 @@ public final class EditorArea extends Widget {
             }
             public void errorLocationChanged(Object errorLocation) {
                 updateErrorLocation(errorLocation);
+                updateTextureViewerPane();
             }
             public void testGUIChanged(GUI testGUI) {
                 updateTestGUI(testGUI);
+            }
+            public void themeLoaded() {
+                updateTextureViewerPane();
             }
         });
 
@@ -177,12 +180,6 @@ public final class EditorArea extends Widget {
                     updatePropertyEditors.run();
                 }
                  */
-            }
-        };
-
-        boundPropertyCB = new Runnable() {
-            public void run() {
-                updateTextureViewerPane();
             }
         };
 
@@ -210,58 +207,58 @@ public final class EditorArea extends Widget {
 
         textureViewerPane.setListener(new TextureViewerPane.Listener() {
             public void dragEdgeTop(int y) {
-                if(boundRectProperty != null) {
-                    Dimension limit = boundRectProperty.getLimit();
-                    Rect rect = boundRectProperty.getPropertyValue();
+                if(rectProperty != null) {
+                    Dimension limit = rectProperty.getLimit();
+                    Rect rect = rectProperty.getPropertyValue();
                     rect.set(
                         rect.getX(),
                         limit(y, 0, Math.min(limit.getY(), rect.getBottom())-1),
                         rect.getRight(),
                         rect.getBottom());
-                    boundRectProperty.setPropertyValue(rect);
+                    rectProperty.setPropertyValue(rect);
                 }
             }
             public void dragEdgeBottom(int y) {
-                if(boundRectProperty != null) {
-                    Dimension limit = boundRectProperty.getLimit();
-                    Rect rect = boundRectProperty.getPropertyValue();
+                if(rectProperty != null) {
+                    Dimension limit = rectProperty.getLimit();
+                    Rect rect = rectProperty.getPropertyValue();
                     rect.set(
                         rect.getX(),
                         rect.getY(),
                         rect.getRight(),
                         limit(y, Math.max(0, rect.getY())+1, limit.getY()));
-                    boundRectProperty.setPropertyValue(rect);
+                    rectProperty.setPropertyValue(rect);
                 }
             }
             public void dragEdgeLeft(int x) {
-                if(boundRectProperty != null) {
-                    Dimension limit = boundRectProperty.getLimit();
-                    Rect rect = boundRectProperty.getPropertyValue();
+                if(rectProperty != null) {
+                    Dimension limit = rectProperty.getLimit();
+                    Rect rect = rectProperty.getPropertyValue();
                     rect.set(
                         limit(x, 0, Math.min(limit.getX(), rect.getRight())-1),
                         rect.getY(),
                         rect.getRight(),
                         rect.getBottom());
-                    boundRectProperty.setPropertyValue(rect);
+                    rectProperty.setPropertyValue(rect);
                 }
             }
             public void dragEdgeRight(int x) {
-                if(boundRectProperty != null) {
-                    Dimension limit = boundRectProperty.getLimit();
-                    Rect rect = boundRectProperty.getPropertyValue();
+                if(rectProperty != null) {
+                    Dimension limit = rectProperty.getLimit();
+                    Rect rect = rectProperty.getPropertyValue();
                     rect.set(
                         rect.getX(),
                         rect.getY(),
                         limit(x, Math.max(0, rect.getX())+1, limit.getX()),
                         rect.getBottom());
-                    boundRectProperty.setPropertyValue(rect);
+                    rectProperty.setPropertyValue(rect);
                 }
             }
             public void dragSplitX(int idx, int x) {
-                dragSplit(idx, x, boundSplitXProperty, true);
+                dragSplit(idx, x, splitXProperty, true);
             }
             public void dragSplitY(int idx, int y) {
-                dragSplit(idx, y, boundSplitYProperty, false);
+                dragSplit(idx, y, splitYProperty, false);
             }
         });
         textureViewerPane.setTextureLoadedListener(new TextureViewer.TextureLoadedListener() {
@@ -395,30 +392,12 @@ public final class EditorArea extends Widget {
     }
 
     void updateProperties() {
-        if(boundRectProperty != null) {
-            boundRectProperty.removeValueChangedCallback(boundPropertyCB);
-            boundRectProperty = null;
-        }
-        if(boundColorProperty != null) {
-            boundColorProperty.removeCallback(boundPropertyCB);
-            boundColorProperty = null;
-        }
-        if(boundSplitXProperty != null) {
-            boundSplitXProperty.removeCallback(boundPropertyCB);
-            boundSplitXProperty = null;
-        }
-        if(boundSplitYProperty != null) {
-            boundSplitYProperty.removeCallback(boundPropertyCB);
-            boundSplitYProperty = null;
-        }
-        if(boundGradientStopProperty != null) {
-            boundGradientStopProperty.removeValueChangedCallback(boundPropertyCB);
-            boundGradientStopProperty = null;
-        }
-        if(boundGradientTypeProperty != null) {
-            boundGradientTypeProperty.removeCallback(boundPropertyCB);
-            boundGradientTypeProperty = null;
-        }
+        rectProperty = null;
+        colorProperty = null;
+        splitXProperty = null;
+        splitYProperty = null;
+        gradientStopProperty = null;
+        gradientTypeProperty = null;
         
         Object obj = themeTreePane.getSelected();
         if(obj != null) {
@@ -434,35 +413,29 @@ public final class EditorArea extends Widget {
             Property<?>[] properties = ((HasProperties)obj).getProperties();
             propertyPanel = new PropertyPanel(ctx, properties);
             for(Property<?> property : properties) {
-                if(boundRectProperty == null && (property instanceof RectProperty)) {
-                    boundRectProperty = (RectProperty)property;
-                    boundRectProperty.addValueChangedCallback(boundPropertyCB);
+                if(rectProperty == null && (property instanceof RectProperty)) {
+                    rectProperty = (RectProperty)property;
                 }
-                if(boundColorProperty == null && (property instanceof ColorProperty)) {
-                    boundColorProperty = (ColorProperty)property;
-                    boundColorProperty.addValueChangedCallback(boundPropertyCB);
+                if(colorProperty == null && (property instanceof ColorProperty)) {
+                    colorProperty = (ColorProperty)property;
                 }
                 if(property instanceof SplitProperty) {
-                    if(boundSplitXProperty == null && property.getName().startsWith("Split X")) {
-                        boundSplitXProperty = (SplitProperty)property;
-                        boundSplitXProperty.addValueChangedCallback(boundPropertyCB);
+                    if(splitXProperty == null && property.getName().startsWith("Split X")) {
+                        splitXProperty = (SplitProperty)property;
                     }
-                    if(boundSplitYProperty == null && property.getName().startsWith("Split Y")) {
-                        boundSplitYProperty = (SplitProperty)property;
-                        boundSplitYProperty.addValueChangedCallback(boundPropertyCB);
+                    if(splitYProperty == null && property.getName().startsWith("Split Y")) {
+                        splitYProperty = (SplitProperty)property;
                     }
                 }
-                if(boundGradientStopProperty == null && (property instanceof GradientStopProperty)) {
-                    boundGradientStopProperty = (GradientStopProperty)property;
-                    boundGradientStopProperty.addValueChangedCallback(boundPropertyCB);
+                if(gradientStopProperty == null && (property instanceof GradientStopProperty)) {
+                    gradientStopProperty = (GradientStopProperty)property;
                 }
                 if(property instanceof EnumProperty<?>) {
                     EnumProperty<?> enumProperty = (EnumProperty<?>)property;
-                    if(boundGradientTypeProperty == null && enumProperty.getType() == Gradient.Type.class) {
+                    if(gradientTypeProperty == null && enumProperty.getType() == Gradient.Type.class) {
                         @SuppressWarnings("unchecked")
-                        EnumProperty<Gradient.Type> gradientTypeProperty = (EnumProperty<Type>)enumProperty;
-                        boundGradientTypeProperty = gradientTypeProperty;
-                        boundGradientTypeProperty.addCallback(boundPropertyCB);
+                        EnumProperty<Gradient.Type> gtp = (EnumProperty<Type>)enumProperty;
+                        gradientTypeProperty = gtp;
                     }
                 }
             }
@@ -491,8 +464,8 @@ public final class EditorArea extends Widget {
     }
 
     void updateTextureViewerPane() {
-        if(boundRectProperty != null) {
-            textureViewerPane.setRect(boundRectProperty.getPropertyValue());
+        if(rectProperty != null) {
+            textureViewerPane.setRect(rectProperty.getPropertyValue());
         } else {
             de.matthiasmann.twl.renderer.Image renderImage = null;
             Object obj = themeTreePane.getSelected();
@@ -508,19 +481,27 @@ public final class EditorArea extends Widget {
                 }
             }
             if(renderImage != null) {
-                if(obj instanceof de.matthiasmann.twlthemeeditor.datamodel.images.Gradient) {
-                    renderImage = new AdjustImageSize(renderImage, -1, 10);
+                if(gradientTypeProperty != null &&
+                        (obj instanceof de.matthiasmann.twlthemeeditor.datamodel.images.Gradient)) {
+                    switch(gradientTypeProperty.getPropertyValue()) {
+                        case HORIZONTAL:
+                            renderImage = new AdjustImageSize(renderImage, -1, 10);
+                            break;
+                        case VERTICAL:
+                            renderImage = new AdjustImageSize(renderImage, 10, -1);
+                            break;
+                    }
                 }
                 textureViewerPane.setImage(renderImage);
             } else {
                 textureViewerPane.setRect(null);
             }
         }
-        Color color = (boundColorProperty != null) ? boundColorProperty.getPropertyValue() : Color.WHITE;
+        Color color = (colorProperty != null) ? colorProperty.getPropertyValue() : Color.WHITE;
         textureViewerPane.setTintColor((color != null) ? color : Color.WHITE);
-        if(boundGradientStopProperty != null && boundGradientTypeProperty != null) {
-            GradientStopModel model = boundGradientStopProperty.getPropertyValue();
-            switch(boundGradientTypeProperty.getPropertyValue()) {
+        if(gradientStopProperty != null && gradientTypeProperty != null) {
+            GradientStopModel model = gradientStopProperty.getPropertyValue();
+            switch(gradientTypeProperty.getPropertyValue()) {
                 case HORIZONTAL:
                     textureViewerPane.setSplitPositionsX(getSplitPos(model));
                     textureViewerPane.setSplitPositionsY(null);
@@ -535,8 +516,8 @@ public final class EditorArea extends Widget {
                     break;
             }
         } else {
-            textureViewerPane.setSplitPositionsX(getSplitPos(boundSplitXProperty));
-            textureViewerPane.setSplitPositionsY(getSplitPos(boundSplitYProperty));
+            textureViewerPane.setSplitPositionsX(getSplitPos(splitXProperty));
+            textureViewerPane.setSplitPositionsY(getSplitPos(splitYProperty));
         }
     }
 
@@ -581,8 +562,8 @@ public final class EditorArea extends Widget {
     }
     
     void dragSplit(int idx, int pos, SplitProperty splitProperty, boolean horz) {
-        if(boundGradientStopProperty != null && boundGradientTypeProperty != null) {
-            GradientStopModel model = boundGradientStopProperty.getPropertyValue();
+        if(gradientStopProperty != null && gradientTypeProperty != null) {
+            GradientStopModel model = gradientStopProperty.getPropertyValue();
             if(idx >= 0 && idx < model.getNumEntries()) {
                 Stop stop = model.getEntry(idx);
                 if(!stop.isSpecial()) {
@@ -620,6 +601,7 @@ public final class EditorArea extends Widget {
             } else {
                 ctx.getThemeTreeModel().setErrorLocation(null);
             }
+            updateTextureViewerPane();
         }
     }
 
