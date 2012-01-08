@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.AnimationState;
+import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.DraggableButton;
 import de.matthiasmann.twl.DraggableButton.DragListener;
@@ -38,19 +39,26 @@ import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ThemeInfo;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twl.renderer.CacheContext;
 import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.renderer.MouseCursor;
+import de.matthiasmann.twl.renderer.OffscreenRenderer;
+import de.matthiasmann.twl.renderer.OffscreenSurface;
 import de.matthiasmann.twl.renderer.Renderer;
 import de.matthiasmann.twl.renderer.Texture;
 import de.matthiasmann.twl.utils.CallbackSupport;
+import de.matthiasmann.twleffects.lwjgl.LWJGLOffscreenSurface;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.EnumMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.lwjgl.opengl.GL11;
 
 /**
  *
@@ -109,11 +117,13 @@ public class TextureViewer extends Widget {
 
     private long lastModified;
     private CacheContext cacheContext;
+    private OffscreenSurface surface;
     private Texture texture;
     private Image image;
     private Image specialImage;
     private IOException loadException;
-
+    private int[] maxNegInset;
+    
     private Image imagePositionBarHorz;
     private Image imagePositionBarVert;
 
@@ -130,6 +140,7 @@ public class TextureViewer extends Widget {
     public TextureViewer() {
         cursors = new EnumMap<Cursors, MouseCursor>(Cursors.class);
         animationState = new AnimationState();
+        maxNegInset = new int[4];
     }
 
     public AnimationState getTextureAnimationState() {
@@ -147,6 +158,7 @@ public class TextureViewer extends Widget {
         }
         this.rect = rect;
         this.specialImage = null;
+        this.maxNegInset = new int[4];
         changeImage = true;
     }
 
@@ -157,6 +169,33 @@ public class TextureViewer extends Widget {
         this.url = null;
         this.reloadTexture = false;
         this.changeImage = false;
+        this.maxNegInset = new int[4];
+        
+        if(image != null) {
+            ArrayList<Image> allImages = new ArrayList<Image>();
+            ImageUtil.getAllImages(image, allImages);
+            
+            BitSet allStateKeys = new BitSet();
+            for(Image img : allImages) {
+                ImageUtil.getAllStateKeys(img, allStateKeys);
+                Border inset = ImageUtil.getInset(img);
+                if(inset != null) {
+                    maxNegInset[0] = Math.max(maxNegInset[0], Math.max(0, -inset.getTop()));
+                    maxNegInset[1] = Math.max(maxNegInset[1], Math.max(0, -inset.getLeft()));
+                    maxNegInset[2] = Math.max(maxNegInset[2], Math.max(0, -inset.getRight()));
+                    maxNegInset[3] = Math.max(maxNegInset[3], Math.max(0, -inset.getBottom()));
+                }
+            }
+            
+            for(int i=-1 ; (i=allStateKeys.nextSetBit(i+1))>=0 ;) {
+                StateKey sk = StateKey.get(i);
+                if(!animationState.getAnimationState(sk)) {
+                    // setting to false causes the state entry to be created
+                    animationState.setAnimationState(sk, false);
+                }
+            }
+                
+        }
         invalidateLayout();
     }
 
@@ -227,6 +266,10 @@ public class TextureViewer extends Widget {
             cacheContext.destroy();
             cacheContext = null;
         }
+        if(surface != null) {
+            surface.destroy();
+            surface = null;
+        }
         image = null;
         reloadTexture = true;
         loadException = null;
@@ -234,12 +277,16 @@ public class TextureViewer extends Widget {
 
     @Override
     public int getPreferredInnerWidth() {
-        return (image != null) ? (int)(image.getWidth() * zoomX) : 0;
+        int width = (image != null) ? image.getWidth() : 0;
+        width += maxNegInset[1] + maxNegInset[3];
+        return (int)(width * zoomX);
     }
 
     @Override
     public int getPreferredInnerHeight() {
-        return (image != null) ? (int)(image.getHeight() * zoomY) : 0;
+        int height = (image != null) ? image.getHeight() : 0;
+        height += maxNegInset[0] + maxNegInset[2];
+        return (int)(height * zoomY);
     }
 
     public void validateImage() {
@@ -297,7 +344,9 @@ public class TextureViewer extends Widget {
         }
 
         if(prevImage != null) {
-            prevImage.draw(animationState, getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight());
+            if(prevImage != specialImage || !drawOffscreen(prevImage, gui.getRenderer().getOffscreenRenderer())) {
+                prevImage.draw(animationState, getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight());
+            }
         }
 
         if(positionBarsVert != null && imagePositionBarVert != null) {
@@ -312,6 +361,36 @@ public class TextureViewer extends Widget {
                         getInnerX(), getInnerY() + (int)(y*zoomY), getInnerWidth(), 1);
             }
         }
+    }
+    
+    private boolean drawOffscreen(Image img, OffscreenRenderer renderer) {
+        if(renderer == null) {
+            return false;
+        }
+        
+        int width = img.getWidth() + maxNegInset[1] + maxNegInset[3];
+        int height = img.getHeight() + maxNegInset[0] + maxNegInset[2];
+        if(width <= 0 || height <= 0) {
+            return false;
+        }
+        
+        surface = renderer.startOffscreenRendering(surface, 0, 0, width, height);
+        if(surface == null) {
+            return false;
+        }
+        
+        try {
+            img.draw(animationState, maxNegInset[1], maxNegInset[0]);
+        } finally {
+            renderer.endOffscreenRendering();
+        }
+        
+        if(surface instanceof LWJGLOffscreenSurface) {
+            ((LWJGLOffscreenSurface)surface).setGLFilter(GL11.GL_NEAREST, GL11.GL_NEAREST);
+        }
+        
+        surface.draw(null, getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight());
+        return true;
     }
 
     protected void loadTexture(Renderer renderer) throws IOException {

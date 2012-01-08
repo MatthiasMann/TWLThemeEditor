@@ -31,9 +31,9 @@ package de.matthiasmann.twlthemeeditor;
 
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.input.lwjgl.LWJGLInput;
-import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twl.utils.StateSelect;
+import de.matthiasmann.twleffects.lwjgl.LWJGLEffectsRenderer;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.gui.MainUI;
 import de.matthiasmann.twlthemeeditor.gui.MessageLog;
@@ -190,7 +190,7 @@ public class Main extends Frame {
 
             StateSelect.setUseOptimizer(true);
             
-            LWJGLRenderer renderer = new LWJGLRenderer();
+            LWJGLEffectsRenderer renderer = new LWJGLEffectsRenderer();
             MainUI root = new MainUI();
             GUI gui = new GUI(root, renderer, new LWJGLInput());
 
@@ -199,7 +199,7 @@ public class Main extends Frame {
             ThemeManager theme = ThemeManager.createThemeManager(
                     Main.class.getResource("gui.xml"), renderer);
             gui.applyTheme(theme);
-
+            
             if(usesSWGL) {
                 Category cat = new MessageLog.Category("OpenGL", MessageLog.CombineMode.NONE, DecoratedText.WARNING);
                 root.addMessage(new MessageLog.Entry(cat, "Software OpenGL rendering in use",
