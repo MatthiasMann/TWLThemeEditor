@@ -84,6 +84,7 @@ public final class TextureViewerPane extends DialogLayout {
 
     private static final int[] EMPTY_INT_ARRAY = {};
     
+    private URL url;
     private Rect rect;
     private int[] splitPositionsX = EMPTY_INT_ARRAY;
     private int[] splitPositionsY = EMPTY_INT_ARRAY;
@@ -166,12 +167,13 @@ public final class TextureViewerPane extends DialogLayout {
         showCompleteTexture.addCallback(new Runnable() {
             public void run() {
                 updateRect();
+                updateBars();
                 scrollToRect();
             }
         });
         showSplitPositions.addCallback(new Runnable() {
             public void run() {
-                updateRect();
+                updateBars();
             }
         });
         textureViewer.addExceptionCallback(new Runnable() {
@@ -227,20 +229,26 @@ public final class TextureViewerPane extends DialogLayout {
         settingsMenu.add("Animate split positions", animatedPositionBars);
     }
 
-    public void setUrl(URL url) {
-        textureViewer.setUrl(url);
-    }
-
     public void setTextureLoadedListener(TextureLoadedListener textureLoadedListener) {
         textureViewer.setTextureLoadedListener(textureLoadedListener);
     }
 
-    public void setRect(Rect rect) {
+    public void setImage(URL url, Rect rect) {
+        this.url = url;
         this.rect = rect;
         this.showMousePosition = true;
         btnShowCompleteTexture.setEnabled(rect != null);
         mousePositionDisplay.setText("");
         updateRect();
+    }
+
+    public void setImage(Image image) {
+        this.url = null;
+        this.rect = null;
+        this.showMousePosition = false;
+        btnShowCompleteTexture.setEnabled(false);
+        mousePositionDisplay.setText("Preview");
+        textureViewer.setImage(image);
     }
 
     public void scrollToRect() {
@@ -254,31 +262,14 @@ public final class TextureViewerPane extends DialogLayout {
         }
     }
 
-    public void setSplitPositionsX(int[] splitPositionsX) {
-        if(splitPositionsX == null) {
-            this.splitPositionsX = EMPTY_INT_ARRAY;
-        } else {
-            this.splitPositionsX = splitPositionsX;
-        }
-        updateRect();
+    public void setSplitPositions(int[] splitPositionsX, int[] splitPositionsY) {
+        this.splitPositionsX = null2empty(splitPositionsX);
+        this.splitPositionsY = null2empty(splitPositionsY);
+        updateBars();
     }
-
-    public void setSplitPositionsY(int[] splitPositionsY) {
-        if(splitPositionsY == null) {
-            this.splitPositionsY = EMPTY_INT_ARRAY;
-        } else {
-            this.splitPositionsY = splitPositionsY;
-        }
-        updateRect();
-    }
-
-    public void setImage(Image image) {
-        this.rect = null;
-        this.showMousePosition = false;
-        textureViewer.setImage(image);
-        btnShowCompleteTexture.setEnabled(false);
-        mousePositionDisplay.setText("Preview");
-        updateRect();
+    
+    private static int[] null2empty(int[] a) {
+        return (a == null) ? EMPTY_INT_ARRAY : a;
     }
 
     public void setTintColor(Color tintColor) {
@@ -290,29 +281,32 @@ public final class TextureViewerPane extends DialogLayout {
     }
 
     void updateRect() {
+        if(url != null) {
+            textureViewer.setImage(url, showCompleteTexture.getValue() ? null : rect);
+        }
+    }
+    
+    void updateBars() {
         if(rect != null) {
-            textureViewer.setRect(showCompleteTexture.getValue() ? null : rect);
             if(showSplitPositions.getValue()) {
                 if(showCompleteTexture.getValue()) {
-                    textureViewer.setPositionBarsVert(addEdges(splitPositionsX, rect.getX(), rect.getRight()));
-                    textureViewer.setPositionBarsHorz(addEdges(splitPositionsY, rect.getY(), rect.getBottom()));
+                    textureViewer.setPositionBars(
+                            addEdges(splitPositionsY, rect.getY(), rect.getBottom()),
+                            addEdges(splitPositionsX, rect.getX(), rect.getRight()));
                 } else {
-                    textureViewer.setPositionBarsVert(splitPositionsX);
-                    textureViewer.setPositionBarsHorz(splitPositionsY);
+                    textureViewer.setPositionBars(splitPositionsY, splitPositionsX);
                 }
             } else if(showCompleteTexture.getValue()) {
-                textureViewer.setPositionBarsVert(new int[]{ rect.getX(), rect.getRight() });
-                textureViewer.setPositionBarsHorz(new int[]{ rect.getY(), rect.getBottom() });
+                textureViewer.setPositionBars(
+                        new int[]{ rect.getY(), rect.getBottom() },
+                        new int[]{ rect.getX(), rect.getRight() });
             } else {
-                textureViewer.setPositionBarsVert(null);
-                textureViewer.setPositionBarsHorz(null);
+                textureViewer.setPositionBars(null, null);
             }
         } else if(showSplitPositions.getValue()) {
-            textureViewer.setPositionBarsVert(splitPositionsX);
-            textureViewer.setPositionBarsHorz(splitPositionsY);
+            textureViewer.setPositionBars(splitPositionsY, splitPositionsX);
         } else {
-            textureViewer.setPositionBarsVert(null);
-            textureViewer.setPositionBarsHorz(null);
+            textureViewer.setPositionBars(null, null);
         }
     }
 

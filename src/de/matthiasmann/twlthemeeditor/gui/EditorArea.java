@@ -109,6 +109,7 @@ public final class EditorArea extends Widget {
     private DelayedAction updatePropertyEditors;
     private Timer checkWidgetTreeTimer;
     private Context ctx;
+    private URL textureURL;
     private PropertyPanel propertyPanel;
     private RectProperty rectProperty;
     private ColorProperty colorProperty;
@@ -294,7 +295,7 @@ public final class EditorArea extends Widget {
             }
         }
         
-        textureViewerPane.setUrl(null);
+        textureViewerPane.setImage(null);
         propertiesScrollPane.setContent(null);
         themeTreePane.setModel(model);
         widgetPropertyEditor.setContext(ctx);
@@ -392,6 +393,7 @@ public final class EditorArea extends Widget {
     }
 
     void updateProperties() {
+        textureURL = null;
         rectProperty = null;
         colorProperty = null;
         splitXProperty = null;
@@ -403,9 +405,8 @@ public final class EditorArea extends Widget {
         if(obj != null) {
             Images images = getImages(obj);
             try {
-                textureViewerPane.setUrl((images != null) ? images.getTextureURL() : null);
+                textureURL = (images != null) ? images.getTextureURL() : null;
             } catch(MalformedURLException ignored) {
-                textureViewerPane.setUrl(null);
             }
         }
         
@@ -465,7 +466,7 @@ public final class EditorArea extends Widget {
 
     void updateTextureViewerPane() {
         if(rectProperty != null) {
-            textureViewerPane.setRect(rectProperty.getPropertyValue());
+            textureViewerPane.setImage(textureURL, rectProperty.getPropertyValue());
         } else {
             de.matthiasmann.twl.renderer.Image renderImage = null;
             Object obj = themeTreePane.getSelected();
@@ -494,7 +495,7 @@ public final class EditorArea extends Widget {
                 }
                 textureViewerPane.setImage(renderImage);
             } else {
-                textureViewerPane.setRect(null);
+                textureViewerPane.setImage(null);
             }
         }
         Color color = (colorProperty != null) ? colorProperty.getPropertyValue() : Color.WHITE;
@@ -503,21 +504,19 @@ public final class EditorArea extends Widget {
             GradientStopModel model = gradientStopProperty.getPropertyValue();
             switch(gradientTypeProperty.getPropertyValue()) {
                 case HORIZONTAL:
-                    textureViewerPane.setSplitPositionsX(getSplitPos(model));
-                    textureViewerPane.setSplitPositionsY(null);
+                    textureViewerPane.setSplitPositions(getSplitPos(model), null);
                     break;
                 case VERTICAL:
-                    textureViewerPane.setSplitPositionsX(null);
-                    textureViewerPane.setSplitPositionsY(getSplitPos(model));
+                    textureViewerPane.setSplitPositions(null, getSplitPos(model));
                     break;
                 default:
-                    textureViewerPane.setSplitPositionsX(null);
-                    textureViewerPane.setSplitPositionsY(null);
+                    textureViewerPane.setSplitPositions(null, null);
                     break;
             }
         } else {
-            textureViewerPane.setSplitPositionsX(getSplitPos(splitXProperty));
-            textureViewerPane.setSplitPositionsY(getSplitPos(splitYProperty));
+            textureViewerPane.setSplitPositions(
+                    getSplitPos(splitXProperty),
+                    getSplitPos(splitYProperty));
         }
     }
 

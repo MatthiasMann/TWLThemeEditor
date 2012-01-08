@@ -133,17 +133,24 @@ public class TextureViewer extends Widget {
         return url;
     }
 
-    public void setUrl(URL url) {
+    public void setImage(URL url, Rect rect) {
         if(!Utils.equals(this.url, url) || checkModified()) {
             this.url = url;
             reloadTexture = true;
         }
-    }
-
-    public void setRect(Rect rect) {
         this.rect = rect;
         this.specialImage = null;
         changeImage = true;
+    }
+
+    public void setImage(Image image) {
+        this.specialImage = image;
+        this.image = image;
+        this.rect = (image != null) ? new Rect(0, 0, image.getWidth(), image.getHeight()) : null;
+        this.url = null;
+        this.reloadTexture = false;
+        this.changeImage = false;
+        invalidateLayout();
     }
 
     public void setTintColor(Color tintColor) {
@@ -169,22 +176,9 @@ public class TextureViewer extends Widget {
         invalidateLayout();
     }
 
-    public void setPositionBarsHorz(int[] positionBarsHorz) {
+    public void setPositionBars(int[] positionBarsHorz, int[] positionBarsVert) {
         this.positionBarsHorz = positionBarsHorz;
-    }
-
-    public void setPositionBarsVert(int[] positionBarsVert) {
         this.positionBarsVert = positionBarsVert;
-    }
-
-    public void setImage(Image image) {
-        this.specialImage = image;
-        this.image = image;
-        this.rect = (image != null) ? new Rect(0, 0, image.getWidth(), image.getHeight()) : null;
-        this.url = null;
-        this.reloadTexture = false;
-        this.changeImage = false;
-        invalidateLayout();
     }
 
     public IOException getLoadException() {
