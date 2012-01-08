@@ -103,6 +103,7 @@
         <genkey validity="180" dname="CN=TWL Theme Editor" alias="TWLThemeEditor" storepass="hudson" keystore="hudson.keystore"/>
 
         <copy file="${reference.TWL.jar}" todir="${dist.dir}"/>
+        <copy file="${reference.TWLEffects.jar}" todir="${dist.dir}"/>
         <copy file="${reference.JavaFreeType.jar}" todir="${dist.dir}"/>
         <copy file="${src.dir}/de/matthiasmann/twlthemeeditor/icon32.png" todir="${dist.dir}"/>
 
