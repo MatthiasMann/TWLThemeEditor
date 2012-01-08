@@ -31,7 +31,7 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twl.renderer.lwjgl.PNGDecoder;
+import de.matthiasmann.twl.utils.PNGDecoder;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
