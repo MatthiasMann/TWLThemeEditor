@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.DraggableButton;
 import de.matthiasmann.twl.DraggableButton.DragListener;
@@ -91,6 +92,7 @@ public class TextureViewer extends Widget {
     }
 
     private final EnumMap<Cursors, MouseCursor> cursors;
+    private final AnimationState animationState;
     
     private URL url;
     private Rect rect;
@@ -127,8 +129,13 @@ public class TextureViewer extends Widget {
 
     public TextureViewer() {
         cursors = new EnumMap<Cursors, MouseCursor>(Cursors.class);
+        animationState = new AnimationState();
     }
 
+    public AnimationState getTextureAnimationState() {
+        return animationState;
+    }
+    
     public URL getUrl() {
         return url;
     }
@@ -290,7 +297,7 @@ public class TextureViewer extends Widget {
         }
 
         if(prevImage != null) {
-            prevImage.draw(getAnimationState(), getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight());
+            prevImage.draw(animationState, getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight());
         }
 
         if(positionBarsVert != null && imagePositionBarVert != null) {
@@ -424,6 +431,18 @@ public class TextureViewer extends Widget {
         for(Cursors cursor : Cursors.values()) {
             cursors.put(cursor, themeInfo.getMouseCursor(cursor.cursorName));
         }
+    }
+
+    @Override
+    protected void afterAddToGUI(GUI gui) {
+        super.afterAddToGUI(gui);
+        animationState.setGUI(gui);
+    }
+
+    @Override
+    protected void beforeRemoveFromGUI(GUI gui) {
+        animationState.setGUI(null);
+        super.beforeRemoveFromGUI(gui);
     }
 
     private void startDrag() {

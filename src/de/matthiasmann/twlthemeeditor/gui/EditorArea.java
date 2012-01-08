@@ -295,6 +295,7 @@ public final class EditorArea extends Widget {
             }
         }
         
+        textureViewerPane.setContext(ctx);
         textureViewerPane.setImage(null);
         propertiesScrollPane.setContent(null);
         themeTreePane.setModel(model);

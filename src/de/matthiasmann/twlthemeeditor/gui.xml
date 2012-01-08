@@ -422,6 +422,11 @@
             <alias ref="-adjusterSelMM"/>
             <alias ref="-adjusterSelMR"/>
         </grid>
+        
+        <grid name="textureviewerpane.properties.background" weightsX="0,1" weightsY="1">
+            <alias ref="splitpane.hsplitter.background"/>
+            <alias ref="none"/>
+        </grid>
     </images>
 
     <images file="gui.png" format="RGBA" comment="icons">
@@ -1265,6 +1270,34 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         </theme>
         <theme name="mousePositionDisplay" ref="label">
             <param name="minWidth"><int>80</int></param>
+        </theme>
+        <theme name="collapsiblepanel" ref="dialoglayout">
+            <param name="border"><border>0,2,0,0</border></param>
+            <theme name="arrow" ref="-defaults">
+                <param name=""><image>collapsiblepanel.arrowH.*</image></param>
+                <param name="tooltip"><string>Toggle animation state panel</string></param>
+                <param name="minWidth"><int>7</int></param>
+                <param name="maxHeight"><int>32767</int></param>
+            </theme>
+            <param name="namedGaps"><map>
+                <param name="title-content"><gap>0</gap></param>
+            </map></param>
+            
+            <theme name="contentcontainer" ref="-defaults">
+                <theme name="layout" ref="dialoglayout">
+                    <param name=""><image>textureviewerpane.properties.*</image></param>
+                    <param name="border"><border>0,7,0,0</border></param>
+                    <theme name="title" ref="label"/>
+                    <theme name="animstateeditor" ref="dialoglayout">
+                        <theme name="addbutton" ref="button">
+                            <param name=""><image>addbutton.*</image></param>
+                            <param name="tooltip"><string>Add this state name to the list</string></param>
+                        </theme>
+                        <theme name="statebutton" ref="vbutton"/>
+                        <theme name="" ref="*"/>
+                    </theme>
+                </theme>
+            </theme>
         </theme>
         <theme name="" ref="*"/>
     </theme>

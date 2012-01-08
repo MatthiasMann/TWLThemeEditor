@@ -29,24 +29,30 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
+import de.matthiasmann.twl.AnimationState;
 import de.matthiasmann.twl.Color;
+import de.matthiasmann.twl.Container;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.DraggableButton.DragListener;
-import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterFloat;
+import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.FloatModel;
 import de.matthiasmann.twl.model.PersistentBooleanModel;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.model.SimpleFloatModel;
+import de.matthiasmann.twl.model.SimpleProperty;
 import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twl.renderer.Image;
+import de.matthiasmann.twlthemeeditor.gui.CollapsiblePanel.Direction;
 import de.matthiasmann.twlthemeeditor.gui.TextureViewer.PositionBarDragListener;
 import de.matthiasmann.twlthemeeditor.gui.TextureViewer.TextureLoadedListener;
+import de.matthiasmann.twlthemeeditor.gui.editors.AnimStateEditorFactory;
 import java.net.URL;
 import java.util.prefs.Preferences;
 
@@ -74,6 +80,7 @@ public final class TextureViewerPane extends DialogLayout {
     private final ToggleButton btnShowCompleteTexture;
     private final ToggleButton btnShowSplitPositions;
     private final Label mousePositionDisplay;
+    private final Container propertyContainer;
     
     private final SimpleFloatModel zoomFactorX;
     private final SimpleFloatModel zoomFactorY;
@@ -83,6 +90,8 @@ public final class TextureViewerPane extends DialogLayout {
     private final PersistentBooleanModel animatedPositionBars;
 
     private static final int[] EMPTY_INT_ARRAY = {};
+    
+    private CollapsiblePanel propertiesCollapsePanel;
     
     private URL url;
     private Rect rect;
@@ -99,6 +108,9 @@ public final class TextureViewerPane extends DialogLayout {
         
         mousePositionDisplay = new Label();
         mousePositionDisplay.setTheme("mousePositionDisplay");
+        
+        propertyContainer = new Container();
+        propertyContainer.setTheme("");
         
         this.zoomFactorX = new SimpleFloatModel(0.1f, 20.0f, 1.0f);
         this.zoomFactorY = new SimpleFloatModel(0.1f, 20.0f, 1.0f);
@@ -140,11 +152,11 @@ public final class TextureViewerPane extends DialogLayout {
 
         setClip(true);
         setHorizontalGroup(createParallelGroup()
-                .addWidget(scrollPane)
+                .addGroup(createSequentialGroup(scrollPane, propertyContainer))
                 .addGroup(horzCtrls)
                 .addWidget(labelErrorDisplay));
         setVerticalGroup(createSequentialGroup()
-                .addWidget(scrollPane)
+                .addGroup(createParallelGroup(scrollPane, propertyContainer))
                 .addGroup(vertCtrls)
                 .addWidget(labelErrorDisplay));
 
@@ -232,6 +244,30 @@ public final class TextureViewerPane extends DialogLayout {
     public void setTextureLoadedListener(TextureLoadedListener textureLoadedListener) {
         textureViewer.setTextureLoadedListener(textureLoadedListener);
     }
+    
+    public void setContext(Context ctx) {
+        propertyContainer.removeAllChildren();
+        
+        if(ctx != null) {
+            SimpleProperty<AnimationState> asProperty = new SimpleProperty<AnimationState>
+                    (AnimationState.class, "Animation state", textureViewer.getTextureAnimationState());
+            PropertyAccessor<AnimationState, Property<AnimationState>> asAccessor =
+                    new PropertyAccessor<AnimationState, Property<AnimationState>>(asProperty, null);
+            AnimStateEditorFactory animStateEditorFactory = new AnimStateEditorFactory(ctx);
+            Widget content = animStateEditorFactory.create(asAccessor);
+            Label title = new Label(asProperty.getName());
+            title.setTheme("title");
+            title.setLabelFor(content);
+            DialogLayout l = new DialogLayout();
+            l.setTheme("layout");
+            l.setHorizontalGroup(l.createParallelGroup(title, content));
+            l.setVerticalGroup(l.createSequentialGroup(title, content).addGap());
+            propertiesCollapsePanel = new CollapsiblePanel(Direction.HORIZONTAL, null, l, null);
+            propertyContainer.add(propertiesCollapsePanel);
+        } else {
+            propertiesCollapsePanel = null;
+        }
+    }
 
     public void setImage(URL url, Rect rect) {
         this.url = url;
@@ -240,6 +276,9 @@ public final class TextureViewerPane extends DialogLayout {
         btnShowCompleteTexture.setEnabled(rect != null);
         mousePositionDisplay.setText("");
         updateRect();
+        if(propertiesCollapsePanel != null) {
+            propertiesCollapsePanel.setExpanded(false);
+        }
     }
 
     public void setImage(Image image) {
@@ -249,6 +288,9 @@ public final class TextureViewerPane extends DialogLayout {
         btnShowCompleteTexture.setEnabled(false);
         mousePositionDisplay.setText("Preview");
         textureViewer.setImage(image);
+        if(propertiesCollapsePanel != null) {
+            propertiesCollapsePanel.setExpanded(image != null);
+        }
     }
 
     public void scrollToRect() {
@@ -325,11 +367,6 @@ public final class TextureViewerPane extends DialogLayout {
                 STATE_ANIMATED_POSITION_BARS, animatedPositionBars.getValue());
     }
 
-    @Override
-    protected void paint(GUI gui) {
-        super.paint(gui);
-    }
-    
     static class ZoomAdjuster extends ValueAdjusterFloat {
         public ZoomAdjuster(FloatModel model) {
             super(model);
