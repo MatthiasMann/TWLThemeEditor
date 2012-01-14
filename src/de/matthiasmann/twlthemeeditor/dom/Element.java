@@ -254,6 +254,7 @@ public final class Element extends Content implements Parent {
             elementText.setText(value);
         } else {
             doSetText(value);
+            Document.documentChanged(this);
         }
     }
     

@@ -105,6 +105,7 @@ public final class ElementText extends PCS {
                 this.oldText = newText;
                 firePropertyChange("text", oldText, newText);
             }
+            Document.documentChanged(element);
         }
     }
     
