@@ -30,7 +30,6 @@
     <jar download="eager" href="asm-tree-3.1.jar" main="false" version=""/>
     <jar download="eager" href="asm-analysis-3.1.jar" main="false" version=""/>
     <jar download="eager" href="JavaFreeType.jar" main="false" version=""/>
-    <jar download="eager" href="jdom.jar" main="false" version=""/>
   </resources>
   <resources locale="" os="Windows">
     <nativelib download="eager" href="lwjgl-win.jar" version=""/>
