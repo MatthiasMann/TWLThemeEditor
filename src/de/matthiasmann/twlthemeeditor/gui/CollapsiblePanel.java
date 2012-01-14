@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -55,6 +55,8 @@ public final class CollapsiblePanel extends DialogLayout {
     private final Direction direction;
     private final Arrow arrow;
     private final ContentContainer container;
+    private final BooleanModel activeModel;
+    private final Runnable activeModelCB;
 
     private boolean expanded;
     private Runnable callback;
@@ -63,6 +65,7 @@ public final class CollapsiblePanel extends DialogLayout {
         this.direction = direction;
         this.arrow = new Arrow();
         this.container = new ContentContainer(content);
+        this.activeModel = activeModel;
 
         Group horzTitle, vertTitle;
         
@@ -111,13 +114,13 @@ public final class CollapsiblePanel extends DialogLayout {
         }
 
         if(activeModel != null) {
-            activeModel.addCallback(new Runnable() {
+            activeModelCB = new Runnable() {
                 public void run() {
-                    if(activeModel.getValue() && !expanded) {
-                        toggleExpand();
-                    }
+                    activeModelChanged();
                 }
-            });
+            };
+        } else {
+            activeModelCB = null;
         }
     }
 
@@ -149,6 +152,28 @@ public final class CollapsiblePanel extends DialogLayout {
         setExpanded(false);
     }
 
+    @Override
+    protected void afterAddToGUI(GUI gui) {
+        super.afterAddToGUI(gui);
+        if(activeModel != null) {
+            activeModel.addCallback(activeModelCB);
+        }
+    }
+
+    @Override
+    protected void beforeRemoveFromGUI(GUI gui) {
+        if(activeModel != null) {
+            activeModel.removeCallback(activeModelCB);
+        }
+        super.beforeRemoveFromGUI(gui);
+    }
+
+    void activeModelChanged() {
+        if(activeModel.getValue() && !expanded) {
+            toggleExpand();
+        }
+    }
+    
     void toggleExpand() {
         expanded ^= true;
         arrow.getAnimationState().setAnimationState(STATE_EXPANDED, expanded);
