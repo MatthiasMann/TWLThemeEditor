@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -29,35 +29,59 @@
  */
 package de.matthiasmann.twlthemeeditor.gui.editors;
 
+import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.Weights;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
-import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class WeightsEditorFactory implements PropertyEditorFactory<Weights, WeightsProperty> {
+public class WeightsEditorFactory implements PropertyEditorFactory<Weights> {
 
-    public Widget create(final PropertyAccessor<Weights, WeightsProperty> pa) {
-        return new WeightsEditor(pa);
+    public Widget create(Property<Weights> property, ExternalFetaures ef) {
+        WeightsEditor editor = new WeightsEditor(property);
+        ef.disableOnNotPresent(editor);
+        return editor;
     }
 
     static class WeightsEditor extends IntegerArrayEditor {
-        private final PropertyAccessor<Weights, WeightsProperty> pa;
+        private final Property<Weights> property;
+        private final Runnable propertyCB;
 
         private static final Weights DEFAULT_WEIGHTS = new Weights(1);
     
-        public WeightsEditor(PropertyAccessor<Weights, WeightsProperty> pa) {
-            this.pa = pa;
-            init(pa.getValue(DEFAULT_WEIGHTS).getWeights());
+        public WeightsEditor(Property<Weights> property) {
+            this.property = property;
+            this.propertyCB = new Runnable() {
+                public void run() {
+                    propertyChanged();
+                }
+            };
+        }
+
+        void propertyChanged() {
+            update(property.getPropertyValue().getWeights());
+        }
+        
+        @Override
+        protected void afterAddToGUI(GUI gui) {
+            super.afterAddToGUI(gui);
+            property.addValueChangedCallback(propertyCB);
+            propertyChanged();
+        }
+
+        @Override
+        protected void beforeRemoveFromGUI(GUI gui) {
+            property.removeValueChangedCallback(propertyCB);
+            super.beforeRemoveFromGUI(gui);
         }
 
         @Override
         protected void updateProperty() {
-            pa.setValue(new Weights(array));
+            property.setPropertyValue(new Weights(array));
         }
 
         @Override
@@ -86,7 +110,6 @@ public class WeightsEditorFactory implements PropertyEditorFactory<Weights, Weig
 
         @Override
         public void setWidgetsToEnable(Widget... widgetsToEnable) {
-            pa.setWidgetsToEnable(widgetsToEnable);
         }
     }
 

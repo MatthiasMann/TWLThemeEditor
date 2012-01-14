@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -31,36 +31,69 @@ package de.matthiasmann.twlthemeeditor.gui.editors;
 
 import de.matthiasmann.twl.ComboBox;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.ListSelectionModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
+import de.matthiasmann.twl.model.SimpleListSelectionModel;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
-import de.matthiasmann.twlthemeeditor.properties.EnumProperty;
 
 /**
  *
+ * @param <E> the enum type
  * @author Matthias Mann
  */
-public class EnumEditorFactory<E extends Enum<E>> implements PropertyEditorFactory<E, Property<E>> {
+public class EnumEditorFactory<E extends Enum<E>> implements PropertyEditorFactory<E> {
 
-    public Widget create(final PropertyAccessor<E, Property<E>> pa) {
-        final Property<E> property = pa.getProperty();
-        final SimpleChangableListModel<E> model = new SimpleChangableListModel<E>(
-                property.getType().getEnumConstants());
-        final ComboBox<E> comboBox = new ComboBox<E>(model);
-        final E defaultValue = (property instanceof EnumProperty) ?
-                ((EnumProperty<E>)property).getDefaultValue() : null;
-        comboBox.setSelected(Utils.find(model, pa.getValue(defaultValue)));
-        comboBox.addCallback(new Runnable() {
-            public void run() {
-                int idx = comboBox.getSelected();
-                if(idx >= 0) {
-                    pa.setValue(model.getEntry(idx));
-                }
-            }
-        });
+    public Widget create(Property<E> property, ExternalFetaures ef) {
+        ListSelectionModel<E> model = new LSM<E>(property);
+        ComboBox<E> comboBox = new ComboBox<E>(model);
+        ef.disableOnNotPresent(comboBox);
         return comboBox;
+    }
+    
+    static final class LSM<E extends Enum<E>> extends SimpleListSelectionModel<E> {
+        final Property<E> property;
+        final Runnable propertyCB;
+        
+        LSM(Property<E> property) {
+            super(new SimpleChangableListModel<E>(property.getType().getEnumConstants()));
+            this.property = property;
+            this.propertyCB = new Runnable() {
+                public void run() {
+                    syncFromProperty();
+                }
+            };
+            syncFromProperty();
+        }
+
+        @Override
+        public void setValue(int value) {
+            super.setValue(value);
+            property.setPropertyValue(getSelectedEntry());
+        }
+
+        @Override
+        public void addCallback(Runnable cb) {
+            boolean hadCallbacks = hasCallbacks();
+            super.addCallback(cb);
+            if(!hadCallbacks) {
+                property.addValueChangedCallback(propertyCB);
+                syncFromProperty();
+            }
+        }
+
+        @Override
+        public void removeCallback(Runnable cb) {
+            super.removeCallback(cb);
+            if(!hasCallbacks()) {
+                property.removeValueChangedCallback(propertyCB);
+            }
+        }
+
+        void syncFromProperty() {
+            super.setValue(Utils.find(getListModel(), property.getPropertyValue()));
+        }
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -41,15 +41,19 @@ import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 public class DimensionProperty extends DerivedProperty<Dimension> {
 
     public DimensionProperty(Property<String> base) {
-        super(base, Dimension.class);
+        super(base, Dimension.class, null);
     }
 
-    public Dimension getPropertyValue() {
-        return Utils.parseDimension(base.getPropertyValue());
+    @Override
+    protected Dimension parse(String value) throws IllegalArgumentException {
+        return Utils.parseDimension(value);
     }
 
-    public void setPropertyValue(Dimension value) throws IllegalArgumentException {
-        base.setPropertyValue((value != null) ? (value.getX() + "," + value.getY()) : null);
+    @Override
+    protected String toString(Dimension value) throws IllegalArgumentException {
+        if(value != null) {
+            return value.getX() + "," + value.getY();
+        }
+        return null;
     }
-
 }

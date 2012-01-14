@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -29,11 +29,11 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.model.AbstractTreeTableModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.TestEnv;
+import de.matthiasmann.twlthemeeditor.dom.Undo;
 import de.matthiasmann.twlthemeeditor.gui.MessageLog;
 import java.io.IOException;
 import java.net.URL;
@@ -47,29 +47,31 @@ import java.util.List;
  */
 public class ThemeTreeModel extends AbstractTreeTableModel {
 
-    public enum CallbackReason {
-        ATTRIBUTE_CHANGED,
-        STRUCTURE_CHANGED
-    }
-
     private final Runnable xmlChangedCB;
     private final ThemeFile rootThemeFile;
     private final ThemeTreeRootNode rootNode;
+    private final Undo undo;
     private ThemeTreeNode curErrorLocation;
 
-    private CallbackWithReason<?>[] callbacks;
+    private Runnable[] callbacks;
 
     public ThemeTreeModel(MessageLog messageLog, URL url) throws IOException {
         xmlChangedCB = new Runnable() {
             public void run() {
-                fireCallbacks(CallbackReason.ATTRIBUTE_CHANGED);
+                fireCallbacks();
             }
         };
         rootThemeFile = new ThemeFile(messageLog, null, new TestEnv(), url, xmlChangedCB);
         rootNode = new ThemeTreeRootNode(rootThemeFile, this);
+        undo = new Undo();
 
         insertChild(rootNode, 0);
         rootNode.addChildren();
+        
+        undo.registerDocument(rootThemeFile.getDocument());
+        for(Include inc : getTopLevelNodes(Include.class, null)) {
+            undo.registerDocument(inc.getIncludedThemeFile().getDocument());
+        }
     }
 
     private static final String COLUMN_HEADER[] = {"Name", "Type"};
@@ -84,6 +86,10 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
 
     public ThemeFile getRootThemeFile() {
         return rootThemeFile;
+    }
+
+    public Undo getUndo() {
+        return undo;
     }
 
     public boolean checkModified() {
@@ -105,7 +111,7 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
         return false;
     }
     
-    public<E extends TreeTableNode> List<E> getTopLevelNodes(Class<E> clazz, TreeTableNode stopAt) {
+    final public<E extends TreeTableNode> List<E> getTopLevelNodes(Class<E> clazz, TreeTableNode stopAt) {
         TreeTablePath stopAtPath = TreeTablePath.create(stopAt);
         List<E> result = new ArrayList<E>();
         processInclude(rootNode, clazz, result, stopAtPath);
@@ -176,33 +182,24 @@ public class ThemeTreeModel extends AbstractTreeTableModel {
     public ThemeTreeNode findNode(String name, Kind kind) {
         return rootNode.findNode(name, kind);
     }
+    
+    public ThemeTreeNode findNode(long id) {
+        return rootNode.findNode(id);
+    }
 
     public void collectNodes(String baseName, Kind kind, Collection<ThemeTreeNode> nodes) {
         rootNode.collectNodes(baseName, kind, nodes);
     }
 
-    public void addCallback(CallbackWithReason<CallbackReason> cb) {
-        callbacks = CallbackSupport.addCallbackToList(callbacks, cb, CallbackWithReason.class);
+    public void addCallback(Runnable cb) {
+        callbacks = CallbackSupport.addCallbackToList(callbacks, cb, Runnable.class);
     }
 
-    public void removeCallbacks(CallbackWithReason<CallbackReason> cb) {
+    public void removeCallbacks(Runnable cb) {
         callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
     }
 
-    void fireCallbacks(CallbackReason reason) {
-        CallbackSupport.fireCallbacks(callbacks, reason);
+    void fireCallbacks() {
+        CallbackSupport.fireCallbacks(callbacks);
     }
-
-    @Override
-    protected void fireNodesAdded(TreeTableNode parent, int idx, int count) {
-        super.fireNodesAdded(parent, idx, count);
-        fireCallbacks(CallbackReason.STRUCTURE_CHANGED);
-    }
-
-    @Override
-    protected void fireNodesRemoved(TreeTableNode parent, int idx, int count) {
-        super.fireNodesRemoved(parent, idx, count);
-        fireCallbacks(CallbackReason.STRUCTURE_CHANGED);
-    }
-
 }

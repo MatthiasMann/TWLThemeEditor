@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -32,8 +32,6 @@ package de.matthiasmann.twlthemeeditor.properties;
 import de.matthiasmann.twl.KeyStroke;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.utils.TextUtil;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -44,29 +42,17 @@ public class KeyStrokeProperty extends DerivedProperty<KeyStroke> {
     private final Property<String> actionProperty;
 
     public KeyStrokeProperty(Property<String> base, Property<String> actionProperty) {
-        super(base, KeyStroke.class);
+        super(base, KeyStroke.class, null);
         this.actionProperty = actionProperty;
     }
 
-    public KeyStroke getPropertyValue() {
-        String baseValue = base.getPropertyValue();
-        if(baseValue == null) {
-            return null;
-        }
-        try {
-            return KeyStroke.parse(baseValue, TextUtil.notNull(actionProperty.getPropertyValue()));
-        } catch(IllegalArgumentException ex) {
-            Logger.getLogger(KeyStrokeProperty.class.getName()).log(Level.WARNING,
-                    "Can't parse keystroke", ex);
-            return null;
-        }
+    @Override
+    protected KeyStroke parse(String value) throws IllegalArgumentException {
+        return KeyStroke.parse(value, TextUtil.notNull(actionProperty.getPropertyValue()));
     }
 
-    public void setPropertyValue(KeyStroke value) throws IllegalArgumentException {
-        if(value == null) {
-            base.setPropertyValue(null);
-        } else {
-            base.setPropertyValue(value.getStroke());
-        }
+    @Override
+    protected String toString(KeyStroke value) throws IllegalArgumentException {
+        return value.getStroke();
     }
 }

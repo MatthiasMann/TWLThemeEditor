@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -39,8 +39,9 @@ import de.matthiasmann.twl.model.AbstractProperty;
 import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.utils.ClassUtils;
+import de.matthiasmann.twlthemeeditor.datamodel.ExtRect;
+import de.matthiasmann.twlthemeeditor.datamodel.ExtRect.AbstractAction;
 import de.matthiasmann.twlthemeeditor.properties.BoundProperty;
-import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import de.matthiasmann.twlthemeeditor.properties.WidgetThemeProperty;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -187,48 +188,82 @@ public class WidgetPropertyEditor extends ScrollPane {
         }
     }
 
-    static class WidgetRectProperty extends RectProperty {
+    static class WidgetRectProperty implements Property<ExtRect>, ExtRect.ExtRectProperty {
         final Widget widget;
+        final BoundIntegerProperty propX;
+        final BoundIntegerProperty propY;
+        final BoundIntegerProperty propW;
+        final BoundIntegerProperty propH;
         public WidgetRectProperty(final Widget widget) {
-            super(new BoundIntegerProperty(widget, "x") {
+            propX = new BoundIntegerProperty(widget, "x") {
                 public int getMaxValue() {
                     return widget.getParent().getInnerWidth()-1;
                 }
                 public void setValue(int value) {
                     widget.setPosition(value, widget.getY());
                 }
-            }, new BoundIntegerProperty(widget, "y") {
+            };
+            propY = new BoundIntegerProperty(widget, "y") {
                 public int getMaxValue() {
                     return widget.getParent().getInnerHeight()-1;
                 }
                 public void setValue(int value) {
                     widget.setPosition(widget.getX(), value);
                 }
-            }, new BoundIntegerProperty(widget, "width") {
+            };
+            propW = new BoundIntegerProperty(widget, "width") {
                 public int getMaxValue() {
                     return widget.getParent().getInnerWidth();
                 }
                 public void setValue(int value) {
                     widget.setSize(value, widget.getHeight());
                 }
-            }, new BoundIntegerProperty(widget, "height") {
+            };
+            propH = new BoundIntegerProperty(widget, "height") {
                 public int getMaxValue() {
                     return widget.getParent().getInnerHeight();
                 }
                 public void setValue(int value) {
                     widget.setSize(widget.getWidth(), value);
                 }
-            }, "Widget position & size");
+            };
             this.widget = widget;
         }
-
-        @Override
+        public Class<ExtRect> getType() {
+            return ExtRect.class;
+        }
+        public void addValueChangedCallback(Runnable cb) {
+            propX.addValueChangedCallback(cb);
+            propY.addValueChangedCallback(cb);
+            propW.addValueChangedCallback(cb);
+            propH.addValueChangedCallback(cb);
+        }
+        public void removeValueChangedCallback(Runnable cb) {
+            propX.removeValueChangedCallback(cb);
+            propY.removeValueChangedCallback(cb);
+            propW.removeValueChangedCallback(cb);
+            propH.removeValueChangedCallback(cb);
+        }
+        public boolean canBeNull() {
+            return false;
+        }
+        public String getName() {
+            return "Widget position & size";
+        }
+        public boolean isReadOnly() {
+            return false;
+        }
+        public ExtRect getPropertyValue() {
+            return new ExtRect(propX.getValue(), propY.getValue(), propW.getValue(), propH.getValue());
+        }
+        public void setPropertyValue(ExtRect value) throws IllegalArgumentException {
+            widget.setPosition(value.x, value.y);
+            widget.setSize(value.width, value.height);
+        }
         public Dimension getLimit() {
             Widget parent = widget.getParent();
             return new Dimension(parent.getInnerWidth(), parent.getInnerHeight());
         }
-
-        @Override
         public AbstractAction[] getActions() {
             if(widget.getParent() instanceof TestWidgetContainer) {
                 return new AbstractAction[] {
@@ -253,9 +288,14 @@ public class WidgetPropertyEditor extends ScrollPane {
                         }
                     }
                 };
-            } else {
-                return super.getActions();
             }
+            return null;
+        }
+        public boolean supportsFlipping() {
+            return false;
+        }
+        public boolean supportsWholeArea() {
+            return false;
         }
     }
 

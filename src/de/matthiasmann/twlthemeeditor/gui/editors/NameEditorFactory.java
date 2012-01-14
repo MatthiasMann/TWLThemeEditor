@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -34,7 +34,8 @@ import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
+import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 
@@ -42,64 +43,86 @@ import de.matthiasmann.twlthemeeditor.properties.NameProperty;
  *
  * @author Matthias Mann
  */
-public class NameEditorFactory implements PropertyEditorFactory<String, NameProperty> {
+public class NameEditorFactory implements PropertyEditorFactory<String> {
 
-    public Widget create(final PropertyAccessor<String, NameProperty> pa) {
-        final Button applyBtn = new Button();
-        final EditField ef = new EditField();
-
-        final Runnable applyCB = new Runnable() {
-            public void run() {
-                try {
-                    pa.setValue(ef.getText());
-                    ef.setErrorMessage(null);
-                    applyBtn.setEnabled(false);
-                } catch(IllegalArgumentException ex) {
-                    ef.setErrorMessage(ex.getMessage());
-                }
-            }
-        };
-
-        applyBtn.setTheme("applybutton");
-        applyBtn.addCallback(applyCB);
-        applyBtn.setEnabled(false);
-
-        ef.setText(pa.getValue(""));
-        ef.addCallback(new EditField.Callback() {
-            public void callback(int key) {
-                if(key == Event.KEY_RETURN) {
-                    if(applyBtn.isEnabled()) {
-                        applyCB.run();
-                    }
-                } else {
-                    String name = ef.getText();
-                    try {
-                        pa.getProperty().validateName(name);
-                        ef.setErrorMessage(null);
-                        applyBtn.setEnabled(!pa.getValue("").equals(name));
-                    } catch(IllegalArgumentException ex) {
-                        ef.setErrorMessage(ex.getMessage());
-                        applyBtn.setEnabled(false);
-                    }
-                }
-            }
-        });
-
-        pa.setFocusWidgetCB(new Runnable() {
-            public void run() {
-                if(!ef.hasKeyboardFocus()) {
-                    if(ef.requestKeyboardFocus()) {
-                        ef.selectAll();
-                    }
-                }
-            }
-        });
-        
-        DialogLayout l = new DialogLayout();
-        l.setTheme("nameeditor");
-        l.setHorizontalGroup(l.createSequentialGroup(ef, applyBtn));
-        l.setVerticalGroup(l.createParallelGroup(ef, applyBtn));
-        return l;
+    public Widget create(final Property<String> property, ExternalFetaures ef) {
+        return new NameEditor(property, ef);
     }
 
+    static final class NameEditor extends DialogLayout implements EditField.Callback, Runnable {
+        final Property<String> property;
+        final Button applyBtn;
+        final EditField editfield;
+        final Runnable propertyCB;
+
+        @SuppressWarnings("LeakingThisInConstructor")
+        public NameEditor(Property<String> property, ExternalFetaures ef) {
+            this.property = property;
+            this.applyBtn = new Button();
+            this.editfield = new EditField();
+            this.propertyCB = new Runnable() {
+                public void run() {
+                    propertyChanged();
+                }
+            };
+            
+            applyBtn.setTheme("applybutton");
+            applyBtn.addCallback(this);
+            applyBtn.setEnabled(false);
+
+            editfield.addCallback(this);
+            
+            ef.setFocusWidgetCB(new Runnable() {
+                public void run() {
+                    if(!editfield.hasKeyboardFocus()) {
+                        if(editfield.requestKeyboardFocus()) {
+                            editfield.selectAll();
+                        }
+                    }
+                }
+            });
+            
+            setHorizontalGroup(createSequentialGroup(editfield, applyBtn));
+            setVerticalGroup(createParallelGroup(editfield, applyBtn));
+            
+            propertyChanged();
+        }
+        
+        void propertyChanged() {
+            String value = property.getPropertyValue();
+            if(!Utils.equals(editfield.getText(), value)) {
+                editfield.setText(value);
+            }
+        }
+        
+        public void run() {
+            try {
+                property.setPropertyValue(editfield.getText());
+                editfield.setErrorMessage(null);
+                applyBtn.setEnabled(false);
+            } catch(IllegalArgumentException ex) {
+                editfield.setErrorMessage(ex.getMessage());
+            }
+        }
+        
+        public void callback(int key) {
+            if(key == Event.KEY_RETURN) {
+                if(applyBtn.isEnabled()) {
+                    run();
+                }
+            } else {
+                String name = editfield.getText();
+                try {
+                    if(property instanceof NameProperty) {
+                        ((NameProperty)property).validateName(name);
+                    }
+                    editfield.setErrorMessage(null);
+                    applyBtn.setEnabled(!Utils.equals(property.getPropertyValue(), name));
+                } catch(IllegalArgumentException ex) {
+                    editfield.setErrorMessage(ex.getMessage());
+                    applyBtn.setEnabled(false);
+                }
+            }
+        }
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -32,73 +32,82 @@ package de.matthiasmann.twlthemeeditor.gui.editors;
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Event;
+import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.KeyStroke;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.renderer.AnimationState.StateKey;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 
 /**
  *
  * @author Matthias Mann
  */
-public class KeyStrokeEditorFactory implements PropertyEditorFactory<KeyStroke, Property<KeyStroke>> {
+public class KeyStrokeEditorFactory implements PropertyEditorFactory<KeyStroke> {
 
     public static final StateKey STATE_ERROR = StateKey.get("error");
 
-    public Widget create(PropertyAccessor<KeyStroke, Property<KeyStroke>> pa) {
-        KeyStrokeEditor kse = new KeyStrokeEditor(pa);
-        return kse.button;
+    public Widget create(Property<KeyStroke> property, ExternalFetaures ef) {
+        return new KeyStrokeEditor(property);
     }
 
-    static final class KeyStrokeEditor {
-        final PropertyAccessor<KeyStroke, Property<KeyStroke>> pa;
-        final Button button;
+    static final class KeyStrokeEditor extends Button {
+        final Property<KeyStroke> property;
+        final Runnable propertyCB;
 
-        public KeyStrokeEditor(PropertyAccessor<KeyStroke, Property<KeyStroke>> pa) {
-            this.pa = pa;
+        public KeyStrokeEditor(Property<KeyStroke> property) {
+            this.property = property;
+            this.propertyCB = new Runnable() {
+                public void run() {
+                    propertyChanged();
+                }
+            };
 
-            button = new Button();
-            button.setTheme("keyStrokeEditor");
-            button.addCallback(new Runnable() {
+            setTheme("keyStrokeEditor");
+            
+            addCallback(new Runnable() {
                 public void run() {
                     editKeyStroke();
                 }
             });
-
-            pa.getProperty().addValueChangedCallback(new Runnable() {
-                public void run() {
-                    valueChanged();
-                }
-            });
-
-            valueChanged();
         }
 
-        void valueChanged() {
-            KeyStroke keyStroke = pa.getProperty().getPropertyValue();
+        @Override
+        protected void afterAddToGUI(GUI gui) {
+            super.afterAddToGUI(gui);
+            property.addValueChangedCallback(propertyCB);
+            propertyChanged();
+        }
+
+        @Override
+        protected void beforeRemoveFromGUI(GUI gui) {
+            property.removeValueChangedCallback(propertyCB);
+            super.beforeRemoveFromGUI(gui);
+        }
+
+        void propertyChanged() {
+            KeyStroke keyStroke = property.getPropertyValue();
             if(keyStroke == null) {
-                button.setText("INVALID");
-                button.getAnimationState().setAnimationState(STATE_ERROR, true);
+                setText("INVALID");
+                getAnimationState().setAnimationState(STATE_ERROR, true);
             } else {
-                button.setText(keyStroke.getStroke());
-                button.getAnimationState().setAnimationState(STATE_ERROR, false);
+                setText(keyStroke.getStroke());
+                getAnimationState().setAnimationState(STATE_ERROR, false);
             }
         }
 
         void editKeyStroke() {
-            KeyStroke keyStroke = pa.getProperty().getPropertyValue();
-            final KeyStrokePopup popup = new KeyStrokePopup(button,
+            KeyStroke keyStroke = property.getPropertyValue();
+            final KeyStrokePopup popup = new KeyStrokePopup(this,
                     (keyStroke != null) ? keyStroke.getAction() : "dummy");
             popup.setKeyStroke(keyStroke);
 
             popup.btnOk.addCallback(new Runnable() {
                 public void run() {
                     popup.closePopup();
-                    pa.setValue(popup.keyStroke);
+                    property.setPropertyValue(popup.keyStroke);
                 }
             });
             popup.btnCancel.addCallback(new Runnable() {

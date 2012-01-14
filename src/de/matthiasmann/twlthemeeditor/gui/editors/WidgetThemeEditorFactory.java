@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -35,9 +35,9 @@ import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.ListModel;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.gui.Context;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.WidgetThemeProperty;
 
@@ -45,7 +45,7 @@ import de.matthiasmann.twlthemeeditor.properties.WidgetThemeProperty;
  *
  * @author Matthias Mann
  */
-public class WidgetThemeEditorFactory implements PropertyEditorFactory<String, WidgetThemeProperty> {
+public class WidgetThemeEditorFactory implements PropertyEditorFactory<String> {
 
     private final Context ctx;
 
@@ -53,8 +53,8 @@ public class WidgetThemeEditorFactory implements PropertyEditorFactory<String, W
         this.ctx = ctx;
     }
 
-    public Widget create(final PropertyAccessor<String, WidgetThemeProperty> pa) {
-        final WidgetThemeProperty property = pa.getProperty();
+    public Widget create(Property<String> prop, ExternalFetaures ef) {
+        final WidgetThemeProperty property = (WidgetThemeProperty)prop;
         final ListModel<String> refableNodes = ctx.getRefableThemes(
                 property.getThemePathElements(1));
         final ComboBox<String> cb = new ComboBox<String>(refableNodes);
@@ -70,7 +70,7 @@ public class WidgetThemeEditorFactory implements PropertyEditorFactory<String, W
             public void run() {
                 int selected = cb.getSelected();
                 if(selected >= 0) {
-                    pa.setValue(refableNodes.getEntry(selected));
+                    property.setPropertyValue(refableNodes.getEntry(selected));
                     updateThemePath.run();
                 }
             }

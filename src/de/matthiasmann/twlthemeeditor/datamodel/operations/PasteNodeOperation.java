@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -32,11 +32,11 @@ package de.matthiasmann.twlthemeeditor.datamodel.operations;
 import de.matthiasmann.twl.Clipboard;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
+import de.matthiasmann.twlthemeeditor.dom.Content;
+import de.matthiasmann.twlthemeeditor.dom.Document;
+import de.matthiasmann.twlthemeeditor.dom.Element;
+import de.matthiasmann.twlthemeeditor.dom.Text;
 import java.io.IOException;
-import org.jdom.Content;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.Text;
 
 /**
  *
@@ -44,13 +44,13 @@ import org.jdom.Text;
  */
 public class PasteNodeOperation extends CreateChildOperation {
 
-    private final Element pasteElement;
-
+    boolean isEnabled = true;
+    boolean updateEnabled;
+    
     public PasteNodeOperation(ThemeTreeNode parent, Element element) {
         super("opPasteNode", parent, element);
 
         indentChildren = false;
-        pasteElement = getFromClipboard();
     }
 
     @Override
@@ -70,16 +70,26 @@ public class PasteNodeOperation extends CreateChildOperation {
             return null;
         }
     }
-
+    
     @Override
-    public boolean isEnabled() {
-        return pasteElement != null && parent.canPasteElement(pasteElement);
+    public void updateEnabledStateForPopup() {
+        updateEnabled = true;
+    }
+    
+    @Override
+    public boolean isEnabled(boolean forPopupMenu) {
+        if(forPopupMenu && updateEnabled) {
+            updateEnabled = false;
+            Element e = getFromClipboard();
+            isEnabled = (e != null) && parent.canPasteElement(e);
+        }
+        return !forPopupMenu || isEnabled;
     }
 
     @Override
     public ThemeTreeNode executeAt(Object[] parameter, int pos) throws IOException {
-        if(isEnabled()) {
-            Element e = (Element)pasteElement.clone();
+        Element e = getFromClipboard();
+        if(e != null && parent.canPasteElement(e)) {
             boolean hasName = e.getAttribute("name") != null;
             if(!parent.childrenNeedName()) {
                 if(hasName) {
@@ -102,7 +112,7 @@ public class PasteNodeOperation extends CreateChildOperation {
             Content c = e.getContent(i);
             if(c instanceof Text) {
                 Text te = (Text)c;
-                String text = te.getText();
+                String text = te.getValue();
                 if(text.trim().isEmpty()) {
                     int count = 0;
                     for(int idx=-1 ; (idx=text.indexOf('\n', idx+1))>=0 ;) {
@@ -116,7 +126,7 @@ public class PasteNodeOperation extends CreateChildOperation {
                         }
                         indentStr = sb.toString();
                     }
-                    te.setText(indentStr);
+                    te.setValue(indentStr);
                 }
             }
             if(first) {

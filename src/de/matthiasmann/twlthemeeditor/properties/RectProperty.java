@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -30,308 +30,62 @@
 package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.Dimension;
-import de.matthiasmann.twl.Rect;
-import de.matthiasmann.twl.model.BooleanModel;
-import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.datamodel.ExtRect;
+import de.matthiasmann.twlthemeeditor.datamodel.ExtRect.AbstractAction;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Matthias Mann
  */
-public abstract class RectProperty implements Property<Rect> {
+public abstract class RectProperty extends DerivedProperty<ExtRect> implements ExtRect.ExtRectProperty {
 
-    private final BooleanModel wholeArea;
-    private final IntegerModel baseX;
-    private final IntegerModel baseY;
-    private final IntegerModel baseW;
-    private final IntegerModel baseH;
-    private final String name;
-    private final BooleanModel flipHorizontally;
-    private final BooleanModel flipVertically;
-
-    public RectProperty(Property<String> xywh, String name) {
-        this.wholeArea = new WholeAreaModel(xywh);
-        this.baseX = new RectPartProperty(xywh, 0) {
-            @Override
-            public void setValue(int value) {
-                if(getValue() != value) {
-                    super.setValue(value);
-                    baseW.setValue(Math.min(getLimit().getX() - value, baseW.getValue()));
-                }
-            }
-        };
-        this.baseY = new RectPartProperty(xywh, 1) {
-            @Override
-            public void setValue(int value) {
-                if(getValue() != value) {
-                    super.setValue(value);
-                    baseH.setValue(Math.min(getLimit().getY() - value, baseH.getValue()));
-                }
-            }
-        };
-        this.baseW = new RectPartProperty(xywh, 2) {
-            @Override
-            public void setValue(int value) {
-                if(getValue() != value) {
-                    super.setValue(value);
-                    baseX.setValue(Math.min(getLimit().getX() - value, baseX.getValue()));
-                }
-            }
-        };
-        this.baseH = new RectPartProperty(xywh, 3) {
-            @Override
-            public void setValue(int value) {
-                if(getValue() != value) {
-                    super.setValue(value);
-                    baseY.setValue(Math.min(getLimit().getY() - value, baseY.getValue()));
-                }
-            }
-        };
-        this.name = name;
-        this.flipHorizontally = new FlipProperty(xywh, 2);
-        this.flipVertically = new FlipProperty(xywh, 3);
-    }
+    private static final ExtRect DEFAULT_RECT = new ExtRect(0, 0, 1, 1, false, false, false);
     
-    public RectProperty(IntegerModel baseX, IntegerModel baseY, IntegerModel baseW, IntegerModel baseH, String name) {
-        this.wholeArea = null;
-        this.baseX = baseX;
-        this.baseY = baseY;
-        this.baseW = baseW;
-        this.baseH = baseH;
+    private final String name;
+    
+    public RectProperty(Property<String> base, String name) {
+        super(base, ExtRect.class, DEFAULT_RECT);
         this.name = name;
-        this.flipHorizontally = null;
-        this.flipVertically = null;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
-    public Class<Rect> getType() {
-        return Rect.class;
+    @Override
+    protected ExtRect parse(String value) throws IllegalArgumentException {
+        if("*".equals(value)) {
+            Dimension dim = getLimit();
+            return new ExtRect(0, 0, dim.getX(), dim.getY(), true, false, false);
+        }
+        int[] xywh = Utils.parseInts(value);
+        return new ExtRect(xywh[0], xywh[1],
+                Math.abs(xywh[2]), Math.abs(xywh[3]),
+                false, xywh[2] < 0, xywh[3] < 0);
     }
 
-    public boolean canBeNull() {
-        return false;
+    @Override
+    protected String toString(ExtRect value) throws IllegalArgumentException {
+        if(value.wholeArea) {
+            return "*";
+        }
+        return value.x+","+value.y+","+
+                (value.flipX ? -value.width : value.width)+","+
+                (value.flipY ? -value.height : value.height);
     }
 
-    public boolean isReadOnly() {
-        return false;
+    public boolean supportsFlipping() {
+        return true;
     }
 
-    public Rect getPropertyValue() {
-        return new Rect(
-                baseX.getValue(),
-                baseY.getValue(),
-                baseW.getValue(),
-                baseH.getValue());
-    }
-
-    public void setPropertyValue(Rect value) throws IllegalArgumentException {
-        baseX.setValue(value.getX());
-        baseY.setValue(value.getY());
-        baseW.setValue(value.getWidth());
-        baseH.setValue(value.getHeight());
-    }
-
-    public void addValueChangedCallback(Runnable cb) {
-        baseX.addCallback(cb);
-        baseY.addCallback(cb);
-        baseW.addCallback(cb);
-        baseH.addCallback(cb);
-    }
-
-    public void removeValueChangedCallback(Runnable cb) {
-        baseX.removeCallback(cb);
-        baseY.removeCallback(cb);
-        baseW.removeCallback(cb);
-        baseH.removeCallback(cb);
-    }
-
-    public BooleanModel getWholeAreaModel() {
-        return wholeArea;
-    }
-
-    public BooleanModel getFlipHorizontally() {
-        return flipHorizontally;
-    }
-
-    public BooleanModel getFlipVertically() {
-        return flipVertically;
+    public boolean supportsWholeArea() {
+        return true;
     }
 
     public AbstractAction[] getActions() {
-        return NO_ACTIONS;
-    }
-
-    public IntegerModel getXProperty() {
-        return baseX;
-    }
-
-    public IntegerModel getYProperty() {
-        return baseY;
-    }
-
-    public IntegerModel getWidthProperty() {
-        return baseW;
-    }
-
-    public IntegerModel getHeightProperty() {
-        return baseH;
-    }
-
-    public abstract Dimension getLimit();
-
-    int[] parseXYWH(String xywh) {
-        if("*".equals(xywh)) {
-            Dimension limit = getLimit();
-            return new int[] { 0, 0, limit.getX(), limit.getY() };
-        } else {
-            return Utils.parseInts(xywh);
-        }
-    }
-    
-    class WholeAreaModel extends DerivedProperty<Boolean> implements BooleanModel {
-        public WholeAreaModel(Property<String> base) {
-            super(base, Boolean.class);
-        }
-        public boolean getValue() {
-            return "*".equals(base.getPropertyValue());
-        }
-        public void setValue(boolean value) {
-            if(value) {
-                base.setPropertyValue("*");
-            } else {
-                Rect rect = RectProperty.this.getPropertyValue();
-                base.setPropertyValue(rect.getX()+","+rect.getY()+","+rect.getWidth()+","+rect.getHeight());
-            }
-        }
-        public Boolean getPropertyValue() {
-            return getValue();
-        }
-        public void setPropertyValue(Boolean value) throws IllegalArgumentException {
-            setValue(value);
-        }
-    }
-
-    abstract class RectPartProperty extends DerivedProperty<Integer> implements IntegerModel {
-        private final int part;
-
-        public RectPartProperty(Property<String> base, int part) {
-            super(base, Integer.class);
-            this.part = part;
-        }
-
-        public Integer getPropertyValue() {
-            return getValue();
-        }
-
-        public void setPropertyValue(Integer value) throws IllegalArgumentException {
-            setValue(value);
-        }
-
-        public int getMinValue() {
-            return 0;
-        }
-
-        public int getMaxValue() {
-            switch (part) {
-                case 0:
-                case 2: return getLimit().getX();
-                case 1:
-                case 3: return getLimit().getY();
-                default:
-                    throw new AssertionError();
-            }
-        }
-
-        public void setValue(int value) {
-            String baseValue = base.getPropertyValue();
-            try {
-                int[] parts = parseXYWH(baseValue);
-                if(part >= 2) {
-                    value = Integer.signum(parts[part]) * value;
-                }
-                parts[part] = value;
-                base.setPropertyValue(Utils.toString(parts));
-            } catch (Throwable ex) {
-                Logger.getLogger(IntegerProperty.class.getName()).log(Level.SEVERE,
-                        "Can't parse value of propterty '" + getName() + "': " + baseValue, ex);
-            }
-        }
-
-        public int getValue() {
-            String baseValue = base.getPropertyValue();
-            try {
-                return Math.abs(parseXYWH(baseValue)[part]);
-            } catch (Throwable ex) {
-                Logger.getLogger(IntegerProperty.class.getName()).log(Level.SEVERE,
-                        "Can't parse value of propterty '" + getName() + "': " + baseValue, ex);
-                return 0;
-            }
-        }
-    }
-    
-    protected class FlipProperty extends BooleanProperty {
-        private final int part;
-
-        public FlipProperty(Property<String> base, int part) {
-            super(base, false);
-            this.part = part;
-        }
-
-        @Override
-        public void setValue(boolean value) throws IllegalArgumentException {
-            String baseValue = base.getPropertyValue();
-            try {
-                int[] parts = parseXYWH(baseValue);
-                parts[part] = Math.abs(parts[part]) * (value ? -1 : 1);
-                base.setPropertyValue(Utils.toString(parts));
-            } catch (Throwable ex) {
-                Logger.getLogger(IntegerProperty.class.getName()).log(Level.SEVERE,
-                        "Can't parse value of propterty '" + getName() + "': " + baseValue, ex);
-            }
-        }
-
-        @Override
-        public boolean getValue() {
-            String baseValue = base.getPropertyValue();
-            try {
-                return parseXYWH(baseValue)[part] < 0;
-            } catch (Throwable ex) {
-                Logger.getLogger(IntegerProperty.class.getName()).log(Level.SEVERE,
-                        "Can't parse value of propterty '" + getName() + "': " + baseValue, ex);
-                return false;
-            }
-        }
-    }
-
-    protected static final AbstractAction[] NO_ACTIONS = new AbstractAction[0];
-    
-    public abstract class AbstractAction implements Runnable {
-        private final String name;
-        private final String tooltip;
-
-        public AbstractAction(String name) {
-            this.name = name;
-            this.tooltip = null;
-        }
-
-        public AbstractAction(String name, String tooltip) {
-            this.name = name;
-            this.tooltip = tooltip;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getTooltip() {
-            return tooltip;
-        }
+        return null;
     }
 }

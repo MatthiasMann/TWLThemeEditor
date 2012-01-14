@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -33,55 +33,80 @@ import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.SimpleIntegerModel;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
+import de.matthiasmann.twl.model.IntegerModel;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
-import de.matthiasmann.twlthemeeditor.properties.DimensionProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class DimensionEditorFactory implements PropertyEditorFactory<Dimension, DimensionProperty> {
+public class DimensionEditorFactory implements PropertyEditorFactory<Dimension> {
 
-    public Widget create(PropertyAccessor<Dimension, DimensionProperty> pa) {
-        return new DimensionEditor(pa);
+    public Widget create(Property<Dimension> property, ExternalFetaures ef) {
+        ValueAdjusterInt adjusters[] = new ValueAdjusterInt[] {
+            new ValueAdjusterInt(new DimAxisModel(property, true)),
+            new ValueAdjusterInt(new DimAxisModel(property, false))
+        };
+
+        adjusters[0].setDisplayPrefix("X: ");
+        adjusters[1].setDisplayPrefix("Y: ");
+
+        DialogLayout l = new DialogLayout();
+        l.setTheme("dimensioneditor");
+        l.setHorizontalGroup(l.createParallelGroup(adjusters));
+        l.setVerticalGroup(l.createSequentialGroup().addWidgetsWithGap("adjuster", adjusters));
+        return l;
     }
 
-    static class DimensionEditor extends DialogLayout implements Runnable {
-        private static final Dimension DEFAULT_DIM = new Dimension(0, 0);
+    static class DimAxisModel implements IntegerModel {
+        private final Property<Dimension> property;
+        private final boolean xAxis;
 
-        private final PropertyAccessor<Dimension, DimensionProperty> pa;
-        private final SimpleIntegerModel modelX;
-        private final SimpleIntegerModel modelY;
-
-        public DimensionEditor(PropertyAccessor<Dimension, DimensionProperty> pa) {
-            this.pa = pa;
-            
-            
-            Dimension dim = pa.getValue(DEFAULT_DIM);
-
-            this.modelX = new SimpleIntegerModel(0, Short.MAX_VALUE, dim.getX());
-            this.modelY = new SimpleIntegerModel(0, Short.MAX_VALUE, dim.getY());
-
-            modelX.addCallback(this);
-            modelY.addCallback(this);
-
-            ValueAdjusterInt adjusters[] = new ValueAdjusterInt[] {
-                new ValueAdjusterInt(modelX),
-                new ValueAdjusterInt(modelY)
-            };
-
-            adjusters[0].setDisplayPrefix("X: ");
-            adjusters[1].setDisplayPrefix("Y: ");
-
-            setHorizontalGroup(createParallelGroup(adjusters));
-            setVerticalGroup(createSequentialGroup().addWidgetsWithGap("adjuster", adjusters));
+        public DimAxisModel(Property<Dimension> property, boolean xAxis) {
+            this.property = property;
+            this.xAxis = xAxis;
         }
 
-        public void run() {
-            Dimension dim = new Dimension(modelX.getValue(), modelY.getValue());
-            pa.setValue(dim);
+        public int getMinValue() {
+            return 0;
         }
+
+        public int getMaxValue() {
+            return Short.MAX_VALUE;
+        }
+
+        public int getValue() {
+            Dimension dim = property.getPropertyValue();
+            return (dim == null) ? 0 : (xAxis ? dim.getX() : dim.getY());
+        }
+
+        public void setValue(int value) {
+            Dimension dim = property.getPropertyValue();
+            int x, y;
+            if(dim == null) {
+                x = y = 0;
+            } else {
+                x = dim.getX();
+                y = dim.getY();
+            }
+            if(xAxis) {
+                x = value;
+            } else {
+                y = value;
+            }
+            if(dim == null || dim.getX() != x || dim.getY() != y) {
+                property.setPropertyValue(new Dimension(x, y));
+            }
+        }
+
+        public void addCallback(Runnable cb) {
+            property.addValueChangedCallback(cb);
+        }
+
+        public void removeCallback(Runnable cb) {
+            property.removeValueChangedCallback(cb);
+        }
+        
     }
 }

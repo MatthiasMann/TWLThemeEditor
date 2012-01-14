@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -37,6 +37,8 @@ import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
+import de.matthiasmann.twlthemeeditor.dom.Document;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
@@ -52,8 +54,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import org.jdom.Document;
-import org.jdom.Element;
 
 /**
  *

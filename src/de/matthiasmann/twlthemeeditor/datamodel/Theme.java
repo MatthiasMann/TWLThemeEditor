@@ -39,17 +39,19 @@ import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParam;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParamFromClass;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewWildcardTheme;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.DeleteNodeOperation;
+import de.matthiasmann.twlthemeeditor.dom.Element;
+import de.matthiasmann.twlthemeeditor.dom.Undo;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.DerivedNodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
+import de.matthiasmann.twlthemeeditor.properties.OptionalProperty;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jdom.Element;
 
 /**
  *
@@ -209,17 +211,37 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         return operations;
     }
 
-    class ParamProperty<T> extends AbstractProperty<T> {
+    class ParamProperty<T> extends AbstractProperty<T> implements OptionalProperty<T> {
         final String paramName;
         final Class<T> type;
+        final String defaultStr;
+        final T defaultValue;
+        final L paramCB;
+        protected Param param;
+        protected Property<T> valueProperty;
 
         public ParamProperty(String paramName, Class<T> type) {
             this.paramName = paramName;
             this.type = type;
+            this.paramCB = new L();
+            
+            if(type == Integer.class) {
+                defaultStr = "0";
+                defaultValue = type.cast(Integer.valueOf(0));
+            } else if(type == IntegerFormula.class) {
+                defaultStr = "0";
+                defaultValue = type.cast(new IntegerFormula(0));
+            } else if(type == Boolean.class) {
+                defaultStr = "false";
+                defaultValue = type.cast(Boolean.FALSE);
+            } else {
+                defaultStr = "";
+                defaultValue = null;
+            }
         }
 
         public boolean canBeNull() {
-            return true;
+            return false;
         }
 
         public String getName() {
@@ -234,15 +256,30 @@ public class Theme extends ThemeTreeNode implements HasProperties {
             return false;
         }
 
-        public T getPropertyValue() {
-            Param param = findParam();
-            if(param != null) {
-                Property<?> valueProperty = param.getValueProperty();
-                if(valueProperty.getType() == type) {
-                    return type.cast(valueProperty.getPropertyValue());
-                }
+        public boolean isOptional() {
+            return true;
+        }
+
+        public boolean isPresent() {
+            updateParam();
+            return param != null;
+        }
+
+        public void setPresent(boolean present) {
+            updateParam();
+            if(param == null && present) {
+                createParam();
+            } else if(param != null && !present) {
+                deleteOrSetParam(param, null);
             }
-            return null;
+        }
+
+        public T getPropertyValue() {
+            updateParam();
+            if(valueProperty != null && valueProperty.getType() == type) {
+                return type.cast(valueProperty.getPropertyValue());
+            }
+            return defaultValue;
         }
 
         protected String getTypeName() {
@@ -256,48 +293,69 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         }
 
         protected String getDefaultValue() {
-            if(type == Integer.class || type == IntegerFormula.class) {
-                return "0";
-            } else if(type == Boolean.class) {
-                return "false";
-            } else {
-                return "";
+            return defaultStr;
+        }
+
+        void createParam() {
+            CreateNewParam newParam = new CreateNewParam(element, getTypeName(), Theme.this, getDefaultValue()) {
+                @Override
+                protected String makeName() {
+                    return paramName;
+                }
+            };
+            executeOP(newParam);
+            updateParam();
+        }
+        
+        void deleteOrSetParam(Param param, T value) {
+            if(valueProperty != null && valueProperty.getType() == type) {
+                if(value == null) {
+                    DeleteNodeOperation deleteNodeOperation = new DeleteNodeOperation(param.getDOMElement(), param);
+                    executeOP(deleteNodeOperation);
+                    updateParam();
+                } else {
+                    valueProperty.setPropertyValue(value);
+                }
+                fireValueChangedCallback();
+            }
+        }
+        
+        private void executeOP(ThemeTreeOperation op) {
+            Undo.startComplexOperation();
+            try {
+                op.execute(null);
+            } catch(IOException ex) {
+                Logger.getLogger(Theme.class.getName()).log(Level.SEVERE, "can't execute operation", ex);
+            } finally {
+                Undo.endComplexOperation();
+            }
+        }
+        
+        public void setPropertyValue(T value) throws IllegalArgumentException {
+            updateParam();
+            if(param == null && value != null) {
+                createParam();
+            }
+            if(param != null) {
+                deleteOrSetParam(param, value);
             }
         }
 
-        @SuppressWarnings("unchecked")
-        public void setPropertyValue(T value) throws IllegalArgumentException {
-            Param param = findParam();
-            if(param == null && value != null) {
-                CreateNewParam newParam = new CreateNewParam(element, getTypeName(), Theme.this, getDefaultValue()) {
-                    @Override
-                    protected String makeName() {
-                        return paramName;
-                    }
-                };
-                try {
-                    newParam.execute(null);
-                } catch(IOException ex) {
-                    Logger.getLogger(Theme.class.getName()).log(Level.SEVERE, "can't create param", ex);
-                }
-                param = findParam();
+        @Override
+        public void addValueChangedCallback(Runnable cb) {
+            boolean hadCallbacks = hasValueChangedCallbacks();
+            super.addValueChangedCallback(cb);
+            if(!hadCallbacks) {
+                updateParam();
+                addCB();
             }
-            
-            if(param != null) {
-                Property<T> valueProperty = (Property<T>)param.getValueProperty();
-                if(valueProperty.getType() == type) {
-                    if(value == null) {
-                        DeleteNodeOperation deleteNodeOperation = new DeleteNodeOperation(param.getDOMElement(), param);
-                        try {
-                            deleteNodeOperation.execute(null);
-                        } catch(IOException ex) {
-                            Logger.getLogger(Theme.class.getName()).log(Level.SEVERE, "can't delete param", ex);
-                        }
-                    } else {
-                        valueProperty.setPropertyValue(value);
-                    }
-                    fireValueChangedCallback();
-                }
+        }
+
+        @Override
+        public void removeValueChangedCallback(Runnable cb) {
+            super.removeValueChangedCallback(cb);
+            if(!hasValueChangedCallbacks()) {
+                removeCB();
             }
         }
 
@@ -305,13 +363,50 @@ public class Theme extends ThemeTreeNode implements HasProperties {
             for(int i=0 ; i<getNumChildren() ; i++) {
                 TreeTableNode child = getChild(i);
                 if(child instanceof Param) {
-                    Param param = (Param)child;
-                    if(paramName.equals(param.getName())) {
-                        return param;
+                    Param p = (Param)child;
+                    if(paramName.equals(p.getName())) {
+                        return p;
                     }
                 }
             }
             return null;
+        }
+        
+        @SuppressWarnings("unchecked")
+        protected final void updateParam() {
+            Param newParam = findParam();
+            if(param != newParam) {
+                removeCB();
+                this.param = newParam;
+                if(newParam != null) {
+                    this.valueProperty = (Property<T>)newParam.getValueProperty();
+                } else {
+                    this.valueProperty = null;
+                }
+                addCB();
+            }
+        }
+        
+        void removeCB() {
+            if(valueProperty != null) {
+                valueProperty.removeValueChangedCallback(paramCB);
+            }
+        }
+        
+        void addCB() {
+            if(valueProperty != null) {
+                valueProperty.addValueChangedCallback(paramCB);
+            }
+        }
+        
+        void paramChanged() {
+            fireValueChangedCallback();
+        }
+        
+        class L implements Runnable {
+            public void run() {
+                paramChanged();
+            }
         }
     }
 
@@ -385,12 +480,9 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         }
 
         private NodeReferenceProperty findNodeRefProperty() {
-            Param param = findParam();
-            if(param != null) {
-                Property<?> valueProperty = param.getValueProperty();
-                if(valueProperty instanceof NodeReferenceProperty) {
-                    return (NodeReferenceProperty)valueProperty;
-                }
+            updateParam();
+            if(valueProperty instanceof NodeReferenceProperty) {
+                return (NodeReferenceProperty)valueProperty;
             }
             return null;
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -31,95 +31,147 @@ package de.matthiasmann.twlthemeeditor.gui.editors;
 
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
-import de.matthiasmann.twl.Rect;
+import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.BooleanModel;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
+import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.datamodel.ExtRect;
+import de.matthiasmann.twlthemeeditor.datamodel.ExtRect.AbstractAction;
+import de.matthiasmann.twlthemeeditor.datamodel.ExtRect.BM;
+import de.matthiasmann.twlthemeeditor.datamodel.ExtRect.ExtRectProperty;
+import de.matthiasmann.twlthemeeditor.datamodel.ExtRect.IM;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
-import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class RectEditorFactory implements PropertyEditorFactory<Rect, RectProperty> {
+public class RectEditorFactory implements PropertyEditorFactory<ExtRect> {
 
-    public Widget create(final PropertyAccessor<Rect, RectProperty> pa) {
-        return new RectEditor(pa);
-    }
+    public Widget create(Property<ExtRect> property, ExternalFetaures ef) {
+        ValueAdjusterInt adjusterX = new ValueAdjusterInt(new IM(property) {
+            public int getMaxValue() {
+                return getLimit().getX();
+            }
+            public int getValue() {
+                return getRect().x;
+            }
+            public void setValue(int value) {
+                ExtRect rect = getRect();
+                setRect(value, rect.y, Math.min(getLimit().getX() - value, rect.width), rect.height, false, rect.flipX, rect.flipY);
+            }
+        });
+        ValueAdjusterInt adjusterY = new ValueAdjusterInt(new IM(property) {
+            public int getMaxValue() {
+                return getLimit().getY();
+            }
+            public int getValue() {
+                return getRect().y;
+            }
+            public void setValue(int value) {
+                ExtRect rect = getRect();
+                setRect(rect.x, value, rect.width, Math.min(getLimit().getY() - value, rect.height), false, rect.flipX, rect.flipY);
+            }
+        });
+        ValueAdjusterInt adjusterW = new ValueAdjusterInt(new IM(property) {
+            public int getMaxValue() {
+                return getLimit().getX();
+            }
+            public int getValue() {
+                return Math.abs(getRect().width);
+            }
+            public void setValue(int value) {
+                ExtRect rect = getRect();
+                setRect(Math.min(getLimit().getX() - value, rect.x), rect.y, value, rect.height, false, rect.flipX, rect.flipY);
+            }
+        });
+        ValueAdjusterInt adjusterH = new ValueAdjusterInt(new IM(property) {
+            public int getMaxValue() {
+                return getLimit().getY();
+            }
+            public int getValue() {
+                return getRect().height;
+            }
+            public void setValue(int value) {
+                ExtRect rect = getRect();
+                setRect(rect.x, Math.min(getLimit().getY() - value, rect.y), rect.width, value, false, rect.flipX, rect.flipY);
+            }
+        });
 
-    static final class RectEditor extends DialogLayout {
-        private final BooleanModel wholeAreaModel;
-        private final BooleanModel flipHorzModel;
-        private final BooleanModel flipVertModel;
-        private final ToggleButton toggleWholeArea;
-        private final ToggleButton toggleFlipHorz;
-        private final ToggleButton toggleFlipVert;
-        private final ValueAdjusterInt adjusterX;
-        private final ValueAdjusterInt adjusterY;
-        private final ValueAdjusterInt adjusterW;
-        private final ValueAdjusterInt adjusterH;
+        adjusterX.setTooltipContent("X position");
+        adjusterY.setTooltipContent("Y position");
+        adjusterW.setTooltipContent("Width");
+        adjusterH.setTooltipContent("Height");
 
-        public RectEditor(PropertyAccessor<Rect, RectProperty> pa) {
-            adjusterX = new ValueAdjusterInt(pa.getProperty().getXProperty());
-            adjusterY = new ValueAdjusterInt(pa.getProperty().getYProperty());
-            adjusterW = new ValueAdjusterInt(pa.getProperty().getWidthProperty());
-            adjusterH = new ValueAdjusterInt(pa.getProperty().getHeightProperty());
+        adjusterX.setDisplayPrefix("X: ");
+        adjusterY.setDisplayPrefix("Y: ");
+        adjusterW.setDisplayPrefix("W: ");
+        adjusterH.setDisplayPrefix("H: ");
 
-            adjusterX.setTooltipContent("X position");
-            adjusterY.setTooltipContent("Y position");
-            adjusterW.setTooltipContent("Width");
-            adjusterH.setTooltipContent("Height");
+        DialogLayout l = new DialogLayout();
+        l.setTheme("recteditor");
+        Group horz = l.createParallelGroup();
+        Group vert = l.createSequentialGroup();
 
-            adjusterX.setDisplayPrefix("X: ");
-            adjusterY.setDisplayPrefix("Y: ");
-            adjusterW.setDisplayPrefix("W: ");
-            adjusterH.setDisplayPrefix("H: ");
-
-            Group horz = createParallelGroup();
-            Group vert = createSequentialGroup();
-
-            wholeAreaModel = pa.getProperty().getWholeAreaModel();
-            if(wholeAreaModel != null) {
-                toggleWholeArea = new ToggleButton(wholeAreaModel);
+        if(property instanceof ExtRectProperty) {
+            ExtRectProperty extRectProperty = (ExtRectProperty)property;
+            
+            if(extRectProperty.supportsWholeArea()) {
+                ToggleButton toggleWholeArea = new ToggleButton(new BM(property) {
+                    public boolean getValue() {
+                        return getRect().wholeArea;
+                    }
+                    public void setValue(boolean value) {
+                        ExtRect rect = getRect();
+                        setRect(rect.x, rect.y, rect.width, rect.height, value, rect.flipX, rect.flipY);
+                    }
+                });
                 toggleWholeArea.setTheme("btnWholeArea");
 
                 horz.addWidget(toggleWholeArea);
                 vert.addWidget(toggleWholeArea);
-            } else {
-                toggleWholeArea = null;
             }
-
+            
             horz.addWidgets(adjusterX, adjusterY, adjusterW, adjusterH);
             vert.addWidgetsWithGap("adjuster", adjusterX, adjusterY, adjusterW, adjusterH);
             
-            flipHorzModel = pa.getProperty().getFlipHorizontally();
-            flipVertModel = pa.getProperty().getFlipVertically();
-            if(flipHorzModel != null) {
-                toggleFlipHorz = new ToggleButton(flipHorzModel);
+            if(extRectProperty.supportsFlipping()) {
+                ToggleButton toggleFlipHorz = new ToggleButton(new BM(property) {
+                    public boolean getValue() {
+                        return getRect().flipX;
+                    }
+                    public void setValue(boolean value) {
+                        ExtRect rect = getRect();
+                        setRect(rect.x, rect.y, rect.width, rect.height, rect.wholeArea, value, rect.flipY);
+                    }
+                });
                 toggleFlipHorz.setTheme("btnFlipHorz");
-                
+
                 horz.addWidget(toggleFlipHorz);
                 vert.addWidget(toggleFlipHorz);
-                
-                toggleFlipVert = new ToggleButton(flipVertModel);
+
+                ToggleButton toggleFlipVert = new ToggleButton(new BM(property) {
+                    public boolean getValue() {
+                        return getRect().flipY;
+                    }
+                    public void setValue(boolean value) {
+                        ExtRect rect = getRect();
+                        setRect(rect.x, rect.y, rect.width, rect.height, rect.wholeArea, rect.flipX, value);
+                    }
+                });
                 toggleFlipVert.setTheme("btnFlipVert");
-                
+
                 horz.addWidget(toggleFlipVert);
                 vert.addWidget(toggleFlipVert);
-            } else {
-                toggleFlipHorz = null;
-                toggleFlipVert = null;
             }
             
-            RectProperty.AbstractAction[] actions = pa.getProperty().getActions();
-            if(actions.length > 0) {
-                Group hActions = createSequentialGroup();
-                Group vActions = createParallelGroup();
+            AbstractAction[] actions = extRectProperty.getActions();
+            if(actions != null && actions.length > 0) {
+                Group hActions = l.createSequentialGroup();
+                Group vActions = l.createParallelGroup();
 
-                for(RectProperty.AbstractAction action : actions) {
+                for(AbstractAction action : actions) {
                     Button btn = new Button(action.getName());
                     btn.setTheme("actionButton");
                     btn.setTooltipContent(action.getTooltip());
@@ -133,9 +185,14 @@ public class RectEditorFactory implements PropertyEditorFactory<Rect, RectProper
                 horz.addGroup(hActions);
                 vert.addGroup(vActions);
             }
-
-            setHorizontalGroup(horz);
-            setVerticalGroup(vert);
+        } else {
+            horz.addWidgets(adjusterX, adjusterY, adjusterW, adjusterH);
+            vert.addWidgetsWithGap("adjuster", adjusterX, adjusterY, adjusterW, adjusterH);
         }
+
+        l.setHorizontalGroup(horz);
+        l.setVerticalGroup(vert);
+        return l;
     }
+    
 }

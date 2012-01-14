@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -36,21 +36,20 @@ import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.HasCallback;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twl.utils.StateExpression;
 import de.matthiasmann.twlthemeeditor.datamodel.Condition;
 import de.matthiasmann.twlthemeeditor.gui.Context;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.StateEditField;
-import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
 import java.text.ParseException;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ConditionEditorFactory implements PropertyEditorFactory<Condition, ConditionProperty> {
+public class ConditionEditorFactory implements PropertyEditorFactory<Condition> {
 
     final Context ctx;
 
@@ -58,8 +57,8 @@ public class ConditionEditorFactory implements PropertyEditorFactory<Condition, 
         this.ctx = ctx;
     }
 
-    public Widget create(PropertyAccessor<Condition, ConditionProperty> pa) {
-        final ConditionModifier cm = new ConditionModifier(ctx, pa);
+    public Widget create(Property<Condition> property, ExternalFetaures ef) {
+        final ConditionModifier cm = new ConditionModifier(ctx, property);
 
         ToggleButton btnNone = new ToggleButton(cm.new TypeBooleanModel(Condition.Type.NONE));
         btnNone.setTheme("condition-none");
@@ -84,15 +83,15 @@ public class ConditionEditorFactory implements PropertyEditorFactory<Condition, 
     }
 
     static class ConditionModifier extends HasCallback implements EditField.Callback {
-        final PropertyAccessor<Condition, ConditionProperty> pa;
+        final Property<Condition> property;
         final EditField ef;
         Condition.Type conditionType;
 
         @SuppressWarnings("LeakingThisInConstructor")
-        protected ConditionModifier(Context ctx, PropertyAccessor<Condition, ConditionProperty> pa) {
-            this.pa = pa;
+        protected ConditionModifier(Context ctx, Property<Condition> property) {
+            this.property = property;
 
-            Condition condition = pa.getValue(Condition.NONE);
+            Condition condition = property.getPropertyValue();
 
             conditionType = condition.getType();
 
@@ -120,7 +119,7 @@ public class ConditionEditorFactory implements PropertyEditorFactory<Condition, 
             }
 
             ef.setErrorMessage(null);
-            pa.setValue(new Condition(conditionType, condition));
+            property.setPropertyValue(new Condition(conditionType, condition));
             return true;
         }
 

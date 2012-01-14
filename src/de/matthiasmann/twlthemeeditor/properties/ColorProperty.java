@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.Color;
+import de.matthiasmann.twl.model.ColorModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.ConstantDef;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
@@ -39,38 +40,48 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
  *
  * @author Matthias Mann
  */
-public class ColorProperty extends DerivedProperty<Color> {
+public class ColorProperty extends DerivedProperty<Color> implements ColorModel, OptionalProperty<Color> {
 
     private final ThemeTreeNode node;
+    private Color lastColor;
+    private String lastName;
     
     public ColorProperty(Property<String> base, ThemeTreeNode node) {
-        super(base, Color.class);
+        super(base, Color.class, Color.WHITE);
         this.node = node;
     }
 
-    public Color getPropertyValue() {
-        String value = base.getPropertyValue();
-        return (value != null) ? parseColor(value, node) : null;
+    @Override
+    protected Color parse(String value) throws IllegalArgumentException {
+        Color color = parseColor(value, node);
+        if(color == null) {
+            throw new IllegalArgumentException("Can't parse color: " + value);
+        }
+        lastColor = color;
+        lastName = value;
+        return color;
     }
 
-    public void setPropertyValue(Color value) throws IllegalArgumentException {
-        base.setPropertyValue((value != null) ? value.toString() : null);
+    @Override
+    protected String toString(Color value) throws IllegalArgumentException {
+        if(value == lastColor) {
+            return lastName;
+        }
+        return value.toString();
     }
-    
+
     public String getColorName() {
         String value = base.getPropertyValue();
-        if(value != null && value.startsWith("#")) {
-            return null;
-        } else {
+        if(value != null && isColorName(value)) {
             return value;
         }
+        return null;
     }
     
-    public void setColorName(String name) {
-        assert !name.startsWith("#");
-        base.setPropertyValue(name);
+    public static boolean isColorName(String value) {
+        return value != null && value.length() > 0 && value.charAt(0) != '#';
     }
-
+    
     public static Color parseColor(String value, ThemeTreeNode node) throws NumberFormatException {
         Color color = Color.parserColor(value);
         if(color == null) {
@@ -84,5 +95,13 @@ public class ColorProperty extends DerivedProperty<Color> {
             }
         }
         return color;
+    }
+
+    public Color getValue() {
+        return getPropertyValue();
+    }
+
+    public void setValue(Color value) {
+        setPropertyValue(value);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -33,9 +33,9 @@ import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.model.AbstractIntegerModel;
+import de.matthiasmann.twl.model.IntegerModel;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.HotSpot;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
 
@@ -43,65 +43,71 @@ import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
  *
  * @author Matthias Mann
  */
-public class HotSpotEditorFactory implements PropertyEditorFactory<HotSpot, HotSpotProperty> {
+public class HotSpotEditorFactory implements PropertyEditorFactory<HotSpot> {
 
-    public Widget create(PropertyAccessor<HotSpot, HotSpotProperty> pa) {
-        return new HotSpotEditor(pa);
+    public Widget create(Property<HotSpot> property, ExternalFetaures ef) {
+        ValueAdjusterInt adjusterX = new ValueAdjusterInt(new IM(property) {
+            public int getMaxValue() {
+                return getLimit().getX();
+            }
+            public int getValue() {
+                return getHotSpot().getX();
+            }
+            public void setValue(int value) {
+                setHotSpot(value, getHotSpot().getY());
+            }
+        });
+        adjusterX.setDisplayPrefix("X: ");
+
+        ValueAdjusterInt adjusterY = new ValueAdjusterInt(new IM(property) {
+            public int getMaxValue() {
+                return getLimit().getY();
+            }
+            public int getValue() {
+                return getHotSpot().getY();
+            }
+            public void setValue(int value) {
+                setHotSpot(getHotSpot().getX(), value);
+            }
+        });
+        adjusterY.setDisplayPrefix("Y: ");
+
+        DialogLayout l = new DialogLayout();
+        l.setTheme("hotspoteditor");
+        l.setHorizontalGroup(l.createParallelGroup(adjusterX, adjusterY));
+        l.setVerticalGroup(l.createSequentialGroup().addWidgetsWithGap("adjuster", adjusterX, adjusterY));
+        return l;
     }
 
-    private static final HotSpot NULL_HOTSPOT = new HotSpot(0,0);
+    static abstract class IM implements IntegerModel {
+        static final HotSpot NULL_HOTSPOT = new HotSpot(0,0);
+        static final Dimension NO_LIMIT = new Dimension(Short.MAX_VALUE, Short.MAX_VALUE);
+        final Property<HotSpot> property;
 
-    static class HotSpotEditor extends DialogLayout {
-        private final PropertyAccessor<HotSpot, HotSpotProperty> pa;
-        private HotSpot hotspot;
-
-        public HotSpotEditor(PropertyAccessor<HotSpot, HotSpotProperty> pa) {
-            this.pa = pa;
-            this.hotspot = pa.getValue(NULL_HOTSPOT);
-
-            ValueAdjusterInt adjusterX = new ValueAdjusterInt(new AbstractIntegerModel() {
-                public int getMaxValue() {
-                    return getLimit().getX();
-                }
-                public int getMinValue() {
-                    return 0;
-                }
-                public int getValue() {
-                    return hotspot.getX();
-                }
-                public void setValue(int value) {
-                    setHotSpot(new HotSpot(value, hotspot.getY()));
-                }
-            });
-            adjusterX.setDisplayPrefix("X: ");
-
-            ValueAdjusterInt adjusterY = new ValueAdjusterInt(new AbstractIntegerModel() {
-                public int getMaxValue() {
-                    return getLimit().getY();
-                }
-                public int getMinValue() {
-                    return 0;
-                }
-                public int getValue() {
-                    return hotspot.getY();
-                }
-                public void setValue(int value) {
-                    setHotSpot(new HotSpot(hotspot.getX(), value));
-                }
-            });
-            adjusterY.setDisplayPrefix("Y: ");
-
-            setHorizontalGroup(createParallelGroup(adjusterX, adjusterY));
-            setVerticalGroup(createSequentialGroup().addWidgetsWithGap("adjuster", adjusterX, adjusterY));
+        IM(Property<HotSpot> property) {
+            this.property = property;
         }
-
         Dimension getLimit() {
-            return pa.getProperty().getLimit();
+            if(property instanceof HotSpotProperty) {
+                return ((HotSpotProperty)property).getLimit();
+            }
+            return NO_LIMIT;
         }
-
-        void setHotSpot(HotSpot hotspot) {
-            this.hotspot = hotspot;
-            pa.setValue(hotspot);
+        HotSpot getHotSpot() {
+            HotSpot hs = property.getPropertyValue();
+            return (hs != null) ? hs : NULL_HOTSPOT;
+        }
+        void setHotSpot(int x, int y) {
+            property.setPropertyValue(new HotSpot(x, y));
+        }
+        public int getMinValue() {
+            return 0;
+        }
+        public void addCallback(Runnable cb) {
+            property.addValueChangedCallback(cb);
+        }
+        public void removeCallback(Runnable cb) {
+            property.removeValueChangedCallback(cb);
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -39,16 +39,12 @@ import java.util.Locale;
  */
 public class EnumProperty<T extends Enum<T>> extends DerivedProperty<T> {
 
-    private final T defaultValue;
-    
     public EnumProperty(Property<String> base, Class<T> type) {
-        super(base, type);
-        this.defaultValue = null;
+        super(base, type, null);
     }
     
     public EnumProperty(Property<String> base, T defaultValue) {
-        super(base, defaultValue.getDeclaringClass());
-        this.defaultValue = defaultValue;
+        super(base, defaultValue.getDeclaringClass(), defaultValue);
     }
 
     public static <T extends Enum<T>> EnumProperty<T> create(Property<String> base, Class<T> type) {
@@ -56,39 +52,11 @@ public class EnumProperty<T extends Enum<T>> extends DerivedProperty<T> {
     }
 
     @Override
-    public boolean canBeNull() {
-        return super.canBeNull() || (defaultValue != null);
+    public boolean isOptional() {
+        return super.isOptional() || (defaultValue != null);
     }
 
-    public T getDefaultValue() {
-        return defaultValue;
-    }
-
-    public T getPropertyValue() {
-        try {
-            String value = base.getPropertyValue();
-            if(value == null) {
-                return null;
-            }
-            return fromString( value);
-        } catch(IllegalArgumentException ex) {
-            return null;
-        }
-    }
-
-    public void setPropertyValue(T value) throws IllegalArgumentException {
-        if(value == null || value == defaultValue) {
-            if(base.canBeNull() || defaultValue == null) {
-                base.setPropertyValue(null);
-            } else {
-                base.setPropertyValue(toString(defaultValue));
-            }
-        } else {
-            base.setPropertyValue(toString(value));
-        }
-    }
-
-    protected T fromString(String value) {
+    protected T parse(String value) {
         value = value.toUpperCase(Locale.ENGLISH);
         return Enum.valueOf(getType(), value);
     }

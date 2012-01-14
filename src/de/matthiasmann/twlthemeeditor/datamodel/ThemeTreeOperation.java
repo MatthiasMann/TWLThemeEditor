@@ -48,7 +48,10 @@ public abstract class ThemeTreeOperation {
         return actionID;
     }
 
-    public boolean isEnabled() {
+    public void updateEnabledStateForPopup() {
+    }
+    
+    public boolean isEnabled(boolean forPopupMenu) {
         return true;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -34,7 +34,6 @@ import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.SpecialPropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.HasTooltip;
@@ -44,11 +43,10 @@ import de.matthiasmann.twlthemeeditor.properties.HasTooltip;
  * @author Matthias Mann
  */
 public class BooleanEditorFactory implements
-        PropertyEditorFactory<Boolean, Property<Boolean>>,
+        PropertyEditorFactory<Boolean>,
         SpecialPropertyEditorFactory<Boolean> {
 
-    public Widget create(final PropertyAccessor<Boolean, Property<Boolean>> pa) {
-        Property<Boolean> property = pa.getProperty();
+    public Widget create(Property<Boolean> property, ExternalFetaures ef) {
         return createToggleButton(property, "boolean");
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -30,10 +30,10 @@
 package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.dom.Content;
+import de.matthiasmann.twlthemeeditor.dom.Element;
+import de.matthiasmann.twlthemeeditor.dom.Text;
 import java.io.IOException;
-import org.jdom.Content;
-import org.jdom.Element;
-import org.jdom.Text;
 
 /**
  *
@@ -60,7 +60,6 @@ public class DeleteNodeOperation extends ElementOperation {
             }
         }
         element.detach();
-        updateParent();
         return null;
     }
 }

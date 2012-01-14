@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -29,29 +29,24 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
-import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
-import de.matthiasmann.twlthemeeditor.XMLWriter;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewFontDef;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewImages;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewInclude;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
+import de.matthiasmann.twlthemeeditor.dom.Content;
+import de.matthiasmann.twlthemeeditor.dom.Document;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import de.matthiasmann.twlthemeeditor.gui.MessageLog;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import org.jdom.Content;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 import org.xmlpull.v1.XmlPullParser;
 
 /**
@@ -66,7 +61,6 @@ public class ThemeFile implements VirtualFile {
     private final URL url;
     private final Document document;
     private final Runnable xmlChangedCB;
-    private final Runnable propertyChangedCB;
 
     private ThemeTreeNode treeNode;
     private boolean modified;
@@ -80,15 +74,15 @@ public class ThemeFile implements VirtualFile {
         this.env = env;
         this.url = url;
         this.xmlChangedCB = xmlChangedCB;
-        this.propertyChangedCB = new Runnable() {
+        
+        document = Utils.loadDocument(url);
+        document.setProperty(ThemeFile.class.getName(), this);
+        document.addCallback(new Runnable() {
             public void run() {
                 setModified(true);
                 ThemeFile.this.xmlChangedCB.run();
             }
-        };
-        
-        document = Utils.loadDocument(url);
-        document.setProperty(ThemeFile.class.getName(), this);
+        });
         env.registerFile(this);
     }
 
@@ -109,13 +103,15 @@ public class ThemeFile implements VirtualFile {
     }
     
     public void writeTo(OutputStream out) throws IOException {
-        Writer w = new XMLWriter(new OutputStreamWriter(out, "UTF8"));
-        new XMLOutputter().output(document, w);
-        w.flush();
+        document.serialize(out, "UTF-8");
     }
 
     public TestEnv getEnv() {
         return env;
+    }
+
+    public Document getDocument() {
+        return document;
     }
 
     public Element getRootElement() {
@@ -219,10 +215,6 @@ public class ThemeFile implements VirtualFile {
 
     static void addCreateThemeOperation(List<CreateChildOperation> operations, ThemeTreeNode node, Element parent) {
         operations.add(new CreateNewSimple(node, parent, "theme", "ref", "-defaults"));
-    }
-
-    void registerProperty(Property<?> property) {
-        property.addValueChangedCallback(propertyChangedCB);
     }
 
     public String getVirtualFileName() {

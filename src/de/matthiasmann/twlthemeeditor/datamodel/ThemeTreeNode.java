@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -37,13 +37,18 @@ import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.DeleteNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.MoveNodeOperations;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.PasteNodeOperation;
+import de.matthiasmann.twlthemeeditor.dom.Content;
+import de.matthiasmann.twlthemeeditor.dom.Element;
+import de.matthiasmann.twlthemeeditor.dom.Parent;
+import de.matthiasmann.twlthemeeditor.dom.Parent.ContentListener;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
-import org.jdom.Element;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -63,6 +68,26 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
         this.element = element;
         this.properties = new ArrayList<Property<?>>();
         setLeaf(true);
+        
+        element.addContentListener(new ContentListener() {
+            public void contentAdded(Parent parent, Content child, int index) {
+                addChildren();
+            }
+            public void contentRemoved(Parent parent, Content child, int index) {
+                addChildren();
+            }
+            public void contentMoved(Parent parent, Content child, int oldIndex, int newIndex) {
+                addChildren();
+            }
+            void addChildren() {
+                try {
+                    ThemeTreeNode.this.addChildren();
+                } catch(IOException ex) {
+                    Logger.getLogger(ThemeTreeNode.class.getName()).log(Level.SEVERE,
+                            "Could not update children", ex);
+                }
+            }
+        });
     }
 
     public final ThemeTreeModel getThemeTreeModel() {
@@ -126,7 +151,7 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
         }
 
         int pos = 0;
-        for(Object child : node.getChildren()) {
+        for(Content child : node) {
             if(child instanceof Element) {
                 Element e = (Element)child;
                 TreeTableNode ttn = existingNodes.remove(e);
@@ -245,8 +270,11 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
                 ((NodeReferenceProperty)property).handleNodeRenamed(from, to, kind);
             }
         }
-        for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
-            node.handleNodeRenamed(from, to, kind);
+        for(int i=0,n=getNumChildren() ; i<n ; i++) {
+            TreeTableNode child = getChild(i);
+            if(child instanceof ThemeTreeNode) {
+                ((ThemeTreeNode)child).handleNodeRenamed(from, to, kind);
+            }
         }
     }
 
@@ -254,10 +282,29 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
         if(getKind() == kind && name.equals(getName())) {
             return this;
         }
-        for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
-            ThemeTreeNode result = node.findNode(name, kind);
-            if(result != null) {
-                return result;
+        for(int i=0,n=getNumChildren() ; i<n ; i++) {
+            TreeTableNode child = getChild(i);
+            if(child instanceof ThemeTreeNode) {
+                ThemeTreeNode result = ((ThemeTreeNode)child).findNode(name, kind);
+                if(result != null) {
+                    return result;
+                }
+            }
+        }
+        return null;
+    }
+    
+    public final ThemeTreeNode findNode(long id) {
+        if(element.getID() == id) {
+            return this;
+        }
+        for(int i=0,n=getNumChildren() ; i<n ; i++) {
+            TreeTableNode child = getChild(i);
+            if(child instanceof ThemeTreeNode) {
+                ThemeTreeNode result = ((ThemeTreeNode)child).findNode(id);
+                if(result != null) {
+                    return result;
+                }
             }
         }
         return null;
@@ -268,8 +315,11 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
         if(getKind() == kind && ownName != null && ownName.startsWith(baseName)) {
             nodes.add(this);
         }
-        for(ThemeTreeNode node : getChildren(ThemeTreeNode.class)) {
-            node.collectNodes(baseName, kind, nodes);
+        for(int i=0,n=getNumChildren() ; i<n ; i++) {
+            TreeTableNode child = getChild(i);
+            if(child instanceof ThemeTreeNode) {
+                ((ThemeTreeNode)child).collectNodes(baseName, kind, nodes);
+            }
         }
     }
 
@@ -278,7 +328,6 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
     }
 
     protected final void addProperty(Property<?> property) {
-        themeFile.registerProperty(property);
         properties.add(property);
     }
 

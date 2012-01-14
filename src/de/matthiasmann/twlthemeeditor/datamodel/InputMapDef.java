@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -32,13 +32,13 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.DerivedNodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import java.io.IOException;
 import java.util.List;
-import org.jdom.Element;
 
 /**
  *

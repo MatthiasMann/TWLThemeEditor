@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -30,13 +30,11 @@
 package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
 import de.matthiasmann.twl.Clipboard;
-import de.matthiasmann.twlthemeeditor.XMLWriter;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.dom.Document;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import java.io.IOException;
 import java.io.StringWriter;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
 /**
  *
@@ -50,11 +48,9 @@ public class CopyNodeOperation extends ElementOperation {
 
     @Override
     public ThemeTreeNode execute(Object[] parameter) throws IOException {
-        Document document = new Document((Element)element.clone());
+        Document document = new Document(element.clone());
         StringWriter sw = new StringWriter();
-        XMLWriter w = new XMLWriter(sw);
-        new XMLOutputter().output(document, w);
-        w.flush();
+        document.serialize(sw);
         Clipboard.setClipboard(sw.toString());
         return node;
     }

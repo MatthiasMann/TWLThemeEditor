@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -35,6 +35,7 @@ import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.ThemeInfo;
 import de.matthiasmann.twl.model.ColorModel;
 import de.matthiasmann.twl.renderer.Image;
+import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 
 /**
  *
@@ -151,7 +152,12 @@ public class ColorButton extends Button {
     
     void modelValueChanged() {
         if(model != null) {
-            setColor(model.getValue(), null);
+            if(model instanceof ColorProperty) {
+                ColorProperty cp = (ColorProperty)model;
+                setColor(cp.getValue(), cp.getColorName());
+            } else {
+                setColor(model.getValue(), null);
+            }
         }
     }
 }

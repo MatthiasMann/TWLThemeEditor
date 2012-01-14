@@ -32,13 +32,16 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.utils.PNGDecoder;
+import de.matthiasmann.twl.utils.TextUtil;
 import de.matthiasmann.twlthemeeditor.TestEnv;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewSimple;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewArea;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewGradient;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
+import de.matthiasmann.twlthemeeditor.properties.DerivedProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,7 +50,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jdom.Element;
 
 /**
  *
@@ -56,7 +58,7 @@ import org.jdom.Element;
 public class Images extends ThemeTreeNode implements HasProperties {
 
     private Dimension textureDimensions;
-    private AttributeProperty commentProperty;
+    private DerivedProperty<String> commentProperty;
 
     protected VirtualFile textureVirtualFile;
     
@@ -86,7 +88,23 @@ public class Images extends ThemeTreeNode implements HasProperties {
             }
         }
 
-        commentProperty = new AttributeProperty(element, "comment", "Comment", true);
+        commentProperty = new DerivedProperty<String>(new AttributeProperty(element, "comment", "Comment", true), String.class, "") {
+            @Override
+            protected String parse(String value) throws IllegalArgumentException {
+                return TextUtil.notNull(value);
+            }
+            @Override
+            protected String toString(String value) throws IllegalArgumentException {
+                if(value.length() == 0) {
+                    return null;
+                }
+                return value;
+            }
+            @Override
+            public boolean isOptional() {
+                return false;
+            }
+        };
         addProperty(commentProperty);
     }
 

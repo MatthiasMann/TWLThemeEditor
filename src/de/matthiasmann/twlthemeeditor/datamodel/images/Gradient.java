@@ -34,11 +34,11 @@ import de.matthiasmann.twl.renderer.Gradient.Wrap;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.EnumProperty;
 import de.matthiasmann.twlthemeeditor.properties.GradientStopProperty;
 import java.io.IOException;
-import org.jdom.Element;
 
 /**
  *

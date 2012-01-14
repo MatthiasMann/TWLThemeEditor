@@ -39,21 +39,20 @@ import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AbstractTableModel;
 import de.matthiasmann.twl.model.ColorSpaceHSL;
 import de.matthiasmann.twl.model.ListModel;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.gui.ColorButton;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.GradientStopModel;
 import de.matthiasmann.twlthemeeditor.properties.GradientStopModel.Stop;
-import de.matthiasmann.twlthemeeditor.properties.GradientStopProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class GradientStopEditorFactory implements PropertyEditorFactory<GradientStopModel, GradientStopProperty> {
+public class GradientStopEditorFactory implements PropertyEditorFactory<GradientStopModel> {
 
-    public Widget create(PropertyAccessor<GradientStopModel, GradientStopProperty> pa) {
-        final GSModel model = new GSModel(pa.getProperty().getPropertyValue());
+    public Widget create(Property<GradientStopModel> property, ExternalFetaures ef) {
+        final GSModel model = new GSModel(property.getPropertyValue());
         final Table table = new Table(model);
         table.setTheme("gradientstopeditor");
         table.registerCellRenderer(Stop.class, model.new CellEditor());

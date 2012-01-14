@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -43,20 +43,14 @@ public class IntegerFormulaProperty extends DerivedProperty<IntegerFormula> impl
     private final int minValue;
     private final int maxValue;
 
-    private IntegerFormula prevValue;
-
     public IntegerFormulaProperty(Property<String> base, int minValue, int maxValue) {
-        super(base, IntegerFormula.class);
+        super(base, IntegerFormula.class, new IntegerFormula((minValue < 0 && maxValue >= 0) ? 0 : minValue));
         this.minValue = minValue;
         this.maxValue = maxValue;
-        this.prevValue = new IntegerFormula((minValue < 0 && maxValue >= 0) ? 0 : minValue);
     }
 
-    public IntegerFormula getPropertyValue() {
-        String value = base.getPropertyValue();
-        if(value == null && canBeNull()) {
-            return null;
-        }
+    @Override
+    protected IntegerFormula parse(String value) throws IllegalArgumentException {
         try {
             return new IntegerFormula(Utils.parseInt(value));
         } catch (Throwable ex) {
@@ -64,13 +58,9 @@ public class IntegerFormulaProperty extends DerivedProperty<IntegerFormula> impl
         }
     }
 
-    public void setPropertyValue(IntegerFormula value) throws IllegalArgumentException {
-        if(canBeNull() && value == null) {
-            base.setPropertyValue(null);
-        } else {
-            prevValue = value;
-            base.setPropertyValue(value.toString());
-        }
+    @Override
+    protected String toString(IntegerFormula value) throws IllegalArgumentException {
+        return value.toString();
     }
 
     public int getMaxValue() {
@@ -86,8 +76,6 @@ public class IntegerFormulaProperty extends DerivedProperty<IntegerFormula> impl
     }
 
     public int getValue() {
-        IntegerFormula value = getPropertyValue();
-        return ((value != null) ? value : prevValue).getValue();
+        return getPropertyValue().getValue();
     }
-
 }

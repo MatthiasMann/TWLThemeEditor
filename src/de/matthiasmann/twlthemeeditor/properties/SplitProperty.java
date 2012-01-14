@@ -29,8 +29,12 @@
  */
 package de.matthiasmann.twlthemeeditor.properties;
 
+import de.matthiasmann.twl.model.BooleanModel;
+import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twl.utils.WithRunnableCallback;
 import de.matthiasmann.twlthemeeditor.datamodel.Split;
+import de.matthiasmann.twlthemeeditor.datamodel.Split.Point;
 
 /**
  *
@@ -41,7 +45,7 @@ public abstract class SplitProperty extends DerivedProperty<Split> {
     private final Split.Axis axis;
 
     public SplitProperty(Property<String> base, Split.Axis axis) {
-        super(base, Split.class);
+        super(base, Split.class, null);
         this.axis = axis;
     }
 
@@ -49,14 +53,92 @@ public abstract class SplitProperty extends DerivedProperty<Split> {
         return axis;
     }
 
-    public Split getPropertyValue() {
-        String value = base.getPropertyValue();
-        return (value != null) ? new Split(value) : null;
+    @Override
+    protected Split parse(String value) throws IllegalArgumentException {
+        return new Split(value);
     }
 
-    public void setPropertyValue(Split value) throws IllegalArgumentException {
-        base.setPropertyValue((value != null) ? value.toString(axis) : null);
+    @Override
+    protected String toString(Split value) throws IllegalArgumentException {
+        return (value != null) ? value.toString(axis) : null;
     }
 
     public abstract int getLimit();
+    
+    static final Split DEFAULT_SPLIT = new Split(new Split.Point(0, false), new Split.Point(0, true));
+
+    public static abstract class PM implements WithRunnableCallback {
+        final SplitProperty property;
+        protected PM(SplitProperty property) {
+            this.property = property;
+        }
+        protected final Split getSplit() {
+            Split split = property.getPropertyValue();
+            if(split == null) {
+                return DEFAULT_SPLIT;
+            }
+            return split;
+        }
+        public void addCallback(Runnable callback) {
+            property.addValueChangedCallback(callback);
+        }
+        public void removeCallback(Runnable callback) {
+            property.removeValueChangedCallback(callback);
+        }
+    }
+    
+    public static final class SplitIntegerModel extends PM implements IntegerModel {
+        final int idx;
+        final boolean handleEdges;
+        public SplitIntegerModel(SplitProperty property, int idx, boolean handleEdges) {
+            super(property);
+            this.idx = idx;
+            this.handleEdges = handleEdges;
+        }
+        public int getMaxValue() {
+            return property.getLimit();
+        }
+        public int getMinValue() {
+            return 0;
+        }
+        public int getValue() {
+            Point point = getSplit().getPoint(idx);
+            if(point.isOtherEdge() && handleEdges) {
+                return getMaxValue() - point.getPos();
+            } else {
+                return point.getPos();
+            }
+        }
+        public void setValue(int value) {
+            Split split = getSplit();
+            Point point = split.getPoint(idx);
+            if(point.isOtherEdge() && handleEdges) {
+                value = getMaxValue() - value;
+            }
+            property.setPropertyValue(split.setPoint(idx, point.setPos(value)));
+        }
+    }
+
+    public static final class EdgeBooleanModel extends PM implements BooleanModel {
+        final int idx;
+        final boolean thisEdge;
+
+        public EdgeBooleanModel(SplitProperty property, int idx, boolean thisEdge) {
+            super(property);
+            this.idx = idx;
+            this.thisEdge = thisEdge;
+        }
+        public boolean getValue() {
+            return getSplit().getPoint(idx).isOtherEdge() == thisEdge;
+        }
+        public void setValue(boolean value) {
+            if(value) {
+                final int limit = property.getLimit();
+                final Split split = getSplit();
+                final Split.Point point = split.getPoint(idx);
+                final Split.Point newPoint = point.setOtherEdge(thisEdge, limit);
+                property.setPropertyValue(split.setPoint(idx, newPoint));
+            }
+        }
+    }
 }

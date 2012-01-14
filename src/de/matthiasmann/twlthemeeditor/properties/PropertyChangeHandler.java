@@ -27,29 +27,41 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.datamodel.images;
 
-import de.matthiasmann.twl.model.TreeTableNode;
-import de.matthiasmann.twlthemeeditor.datamodel.Image;
-import de.matthiasmann.twlthemeeditor.datamodel.Kind;
-import de.matthiasmann.twlthemeeditor.datamodel.Images;
-import de.matthiasmann.twlthemeeditor.dom.Element;
-import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
-import de.matthiasmann.twlthemeeditor.properties.DerivedNodeReferenceProperty;
+package de.matthiasmann.twlthemeeditor.properties;
+
+import de.matthiasmann.twl.utils.CallbackSupport;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  *
  * @author Matthias Mann
  */
-public class Alias extends Image {
+public final class PropertyChangeHandler implements PropertyChangeListener {
+    
+    private final String propertyName;
+    private Runnable[] callbacks = null;
 
-    public Alias(Images textures, TreeTableNode parent, Element node) {
-        super(textures, parent, node);
-        addProperty(new DerivedNodeReferenceProperty(new AttributeProperty(element, "ref"), getLimit(), Kind.IMAGE));
+    public PropertyChangeHandler(String propertyName) {
+        this.propertyName = propertyName;
     }
 
-    @Override
-    protected String getIcon() {
-        return "image-alias";
+    public boolean addCallback(Runnable cb) {
+        boolean wasEmpty = (callbacks == null);
+        callbacks = CallbackSupport.addCallbackToList(callbacks, cb, Runnable.class);
+        return wasEmpty;
     }
+
+    public boolean removeCallback(Runnable cb) {
+        callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
+        return callbacks == null;
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(propertyName == null || propertyName.equals(evt.getPropertyName())) {
+            CallbackSupport.fireCallbacks(callbacks);
+        }
+    }
+    
 }

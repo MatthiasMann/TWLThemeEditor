@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -36,7 +36,6 @@ import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.SpecialPropertyEditorFactory;
 
@@ -45,13 +44,12 @@ import de.matthiasmann.twlthemeeditor.gui.SpecialPropertyEditorFactory;
  * @author Matthias Mann
  */
 public class IntegerEditorFactory implements
-        PropertyEditorFactory<Integer, Property<Integer>>,
+        PropertyEditorFactory<Integer>,
         SpecialPropertyEditorFactory<Integer>
 {
-    public Widget create(final PropertyAccessor<Integer, Property<Integer>> pa) {
-        Property<Integer> property = pa.getProperty();
+    public Widget create(Property<Integer> property, ExternalFetaures ef) {
         ValueAdjusterInt va = new ValueAdjusterInt(asIntegerModel(property));
-        pa.setWidgetsToEnable(va);
+        ef.disableOnNotPresent(va);
         return va;
     }
 

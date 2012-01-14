@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -32,6 +32,7 @@ package de.matthiasmann.twlthemeeditor.properties;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
+import de.matthiasmann.twlthemeeditor.dom.Undo;
 
 /**
  *
@@ -44,25 +45,45 @@ public abstract class NameProperty extends DerivedProperty<String> {
     private final boolean isTopLevel;
 
     public NameProperty(Property<String> base, ThemeTreeModel ttm, Kind kind, boolean isTopLevel) {
-        super(base, String.class);
+        super(base, String.class, null);
         this.ttm = ttm;
         this.kind = kind;
         this.isTopLevel = isTopLevel;
     }
 
-    public String getPropertyValue() {
-        return base.getPropertyValue();
+    @Override
+    public boolean isOptional() {
+        return false;
     }
 
+    @Override
     public void setPropertyValue(String value) throws IllegalArgumentException {
         validateName(value);
         String prevName = base.getPropertyValue();
         if(!prevName.equals(value)) {
-            if(isTopLevel && ttm != null && kind != null) {
-                ttm.handleNodeRenamed(prevName, value, kind);
+            Undo.startComplexOperation();
+            try {
+                if(isTopLevel && ttm != null && kind != null) {
+                    ttm.handleNodeRenamed(prevName, value, kind);
+                }
+                super.setPropertyValue(value);
+            } finally {
+                Undo.endComplexOperation();
             }
-            base.setPropertyValue(value);
         }
+    }
+
+    @Override
+    protected String parse(String value) throws IllegalArgumentException {
+        if(value == null) {
+            throw new NullPointerException("value");
+        }
+        return value;
+    }
+
+    @Override
+    protected String toString(String value) throws IllegalArgumentException {
+        return value;
     }
 
     public abstract void validateName(String name) throws IllegalArgumentException;

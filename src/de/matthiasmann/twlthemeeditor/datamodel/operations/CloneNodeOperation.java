@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -31,9 +31,9 @@ package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.dom.Content;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import java.io.IOException;
-import org.jdom.Content;
-import org.jdom.Element;
 
 /**
  *
@@ -59,7 +59,7 @@ public class CloneNodeOperation extends ElementOperation {
 
         for(int i=elementPos ; i>=elementTextPos ; i--) {
             Content content = parent.getContent(i);
-            Content clone = (Content)content.clone();
+            Content clone = content.clone();
             if(clone instanceof Element) {
                 cloneElement = (Element)clone;
                 adjustClonedElement(cloneElement);
@@ -67,7 +67,6 @@ public class CloneNodeOperation extends ElementOperation {
             parent.addContent(elementPos+1, clone);
         }
 
-        updateParent();
         return CreateChildOperation.findChildInParent(getNodeParent(), cloneElement);
     }
 

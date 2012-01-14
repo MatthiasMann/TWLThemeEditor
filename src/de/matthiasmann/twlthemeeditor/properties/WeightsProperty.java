@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -39,14 +39,16 @@ import de.matthiasmann.twlthemeeditor.datamodel.Weights;
 public class WeightsProperty extends DerivedProperty<Weights> {
 
     public WeightsProperty(Property<String> base) {
-        super(base, Weights.class);
+        super(base, Weights.class, null);
     }
 
-    public Weights getPropertyValue() {
-        return new Weights(base.getPropertyValue());
+    @Override
+    protected Weights parse(String value) throws IllegalArgumentException {
+        return new Weights(value);
     }
 
-    public void setPropertyValue(Weights value) throws IllegalArgumentException {
-        base.setPropertyValue(value.toString());
+    @Override
+    protected String toString(Weights value) throws IllegalArgumentException {
+        return value.toString();
     }
 }

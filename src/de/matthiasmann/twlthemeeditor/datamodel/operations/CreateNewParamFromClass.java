@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -31,13 +31,11 @@ package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
 import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import de.matthiasmann.twlthemeeditor.themeparams.ThemeParamInfo;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.jdom.Element;
 
 /**
  *

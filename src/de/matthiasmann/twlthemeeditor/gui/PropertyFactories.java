@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -30,11 +30,17 @@
 package de.matthiasmann.twlthemeeditor.gui;
 
 import de.matthiasmann.twl.Alignment;
+import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.Color;
+import de.matthiasmann.twl.DialogLayout.Gap;
+import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.KeyStroke;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.utils.TypeMapping;
+import de.matthiasmann.twlthemeeditor.datamodel.ExtRect;
+import de.matthiasmann.twlthemeeditor.datamodel.HotSpot;
 import de.matthiasmann.twlthemeeditor.datamodel.IntegerFormula;
+import de.matthiasmann.twlthemeeditor.datamodel.Weights;
 import de.matthiasmann.twlthemeeditor.gui.editors.BooleanEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.BorderEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.ColorEditorFactory;
@@ -52,15 +58,9 @@ import de.matthiasmann.twlthemeeditor.gui.editors.RectEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.SplitEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.StringEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.WeightsEditorFactory;
-import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
-import de.matthiasmann.twlthemeeditor.properties.DimensionProperty;
-import de.matthiasmann.twlthemeeditor.properties.GapProperty;
 import de.matthiasmann.twlthemeeditor.properties.GradientStopModel;
-import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
-import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
-import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
 
 /**
  *
@@ -68,36 +68,36 @@ import de.matthiasmann.twlthemeeditor.properties.WeightsProperty;
  */
 public class PropertyFactories {
 
-    protected final TypeMapping<PropertyEditorFactory<?,?>> factories1;
-    protected final TypeMapping<PropertyEditorFactory<?,?>> factories2;
+    protected final TypeMapping<PropertyEditorFactory<?>> factoriesP;
+    protected final TypeMapping<PropertyEditorFactory<?>> factoriesT;
 
     public PropertyFactories() {
-        factories1 = new TypeMapping<PropertyEditorFactory<?,?>>();
-        factories1.put(RectProperty.class, new RectEditorFactory());
-        factories1.put(WeightsProperty.class, new WeightsEditorFactory());
-        factories1.put(SplitProperty.class, new SplitEditorFactory());
-        factories1.put(GapProperty.class, new GapEditorFactory());
-        factories1.put(DimensionProperty.class, new DimensionEditorFactory());
-        factories1.put(HotSpotProperty.class, new HotSpotEditorFactory());
-        factories1.put(BorderProperty.class, new BorderEditorFactory());
-        factories1.put(NameProperty.class, new NameEditorFactory());
-
-        factories2 = new TypeMapping<PropertyEditorFactory<?,?>>();
-        factories2.put(Color.class, new ColorEditorFactory());
-        factories2.put(String.class, new StringEditorFactory());
-        factories2.put(Integer.class, new IntegerEditorFactory());
-        factories2.put(IntegerFormula.class, new IntegerFormulaEditorFactory());
-        factories2.put(Float.class, new FloatEditorFactory());
-        factories2.put(Boolean.class, new BooleanEditorFactory());
-        factories2.put(Enum.class, new EnumEditorFactory<Alignment>()); // use dummy enum to get rid of raw type warning
-        factories2.put(KeyStroke.class, new KeyStrokeEditorFactory());
-        factories2.put(GradientStopModel.class, new GradientStopEditorFactory());
+        factoriesP = new TypeMapping<PropertyEditorFactory<?>>();
+        factoriesP.put(NameProperty.class, new NameEditorFactory());
+        factoriesP.put(SplitProperty.class, new SplitEditorFactory());
+        
+        factoriesT = new TypeMapping<PropertyEditorFactory<?>>();
+        factoriesT.put(Enum.class, new EnumEditorFactory<Alignment>()); // use dummy enum to get rid of raw type warning
+        factoriesT.put(String.class, new StringEditorFactory());
+        factoriesT.put(Color.class, new ColorEditorFactory());
+        factoriesT.put(Float.class, new FloatEditorFactory());
+        factoriesT.put(Integer.class, new IntegerEditorFactory());
+        factoriesT.put(IntegerFormula.class, new IntegerFormulaEditorFactory());
+        factoriesT.put(Border.class, new BorderEditorFactory());
+        factoriesT.put(Boolean.class, new BooleanEditorFactory());
+        factoriesT.put(GradientStopModel.class, new GradientStopEditorFactory());
+        factoriesT.put(KeyStroke.class, new KeyStrokeEditorFactory());
+        factoriesT.put(Gap.class, new GapEditorFactory());
+        factoriesT.put(Dimension.class, new DimensionEditorFactory());
+        factoriesT.put(HotSpot.class, new HotSpotEditorFactory());
+        factoriesT.put(ExtRect.class, new RectEditorFactory());
+        factoriesT.put(Weights.class, new WeightsEditorFactory());
     }
 
-    public PropertyEditorFactory<?,?> getFactory(Property<?> property) {
-        PropertyEditorFactory<?,?> factory = factories1.get(property.getClass());
+    public PropertyEditorFactory<?> getFactory(Property<?> property) {
+        PropertyEditorFactory<?> factory = factoriesP.get(property.getClass());
         if(factory == null) {
-            factory = factories2.get(property.getType());
+            factory = factoriesT.get(property.getType());
         }
         return factory;
     }

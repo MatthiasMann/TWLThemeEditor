@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -76,6 +76,19 @@ public abstract class IntegerArrayEditor extends DialogLayout {
         buildControlls();
     }
 
+    protected void update(int[] array) {
+        if(this.array == null || this.array.length != array.length) {
+            init(array);
+        } else {
+            for(int i=0,n=array.length ; i<n ; i++) {
+                if(this.array[i] != array[i]) {
+                    this.array[i] = array[i];
+                    ((ArrayElementModel)adjusters[i].getModel()).doCallback();
+                }
+            }
+        }
+    }
+    
     protected void buildControlls() {
         setVerticalGroup(null); // stop layout
         removeAllChildren();
@@ -270,6 +283,11 @@ public abstract class IntegerArrayEditor extends DialogLayout {
 
         public void setValue(int value) {
             IntegerArrayEditor.this.setValue(idx, value);
+        }
+
+        @Override
+        protected void doCallback() {
+            super.doCallback();
         }
     }
 }

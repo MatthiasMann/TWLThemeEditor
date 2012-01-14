@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -34,10 +34,10 @@ import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
 import de.matthiasmann.twlthemeeditor.datamodel.Images;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.DerivedNodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.HotSpotProperty;
-import org.jdom.Element;
 
 /**
  *

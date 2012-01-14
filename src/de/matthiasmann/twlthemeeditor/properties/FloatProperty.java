@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -31,8 +31,6 @@ package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.model.FloatModel;
 import de.matthiasmann.twl.model.Property;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -42,42 +40,24 @@ public class FloatProperty extends DerivedProperty<Float> implements FloatModel 
 
     private final float minValue;
     private final float maxValue;
-    private final float defaultValue;
-
-    private float prevValue;
 
     public FloatProperty(Property<String> base, float minValue, float maxValue, float defaultValue) {
-        super(base, Float.class);
+        super(base, Float.class, defaultValue);
         this.minValue = minValue;
         this.maxValue = maxValue;
-        this.defaultValue = defaultValue;
-        this.prevValue = defaultValue;
     }
 
-    public Float getPropertyValue() {
-        String value = base.getPropertyValue();
-        if(value == null && canBeNull()) {
+    @Override
+    protected Float parse(String value) throws IllegalArgumentException {
+        return Float.valueOf(value);
+    }
+
+    @Override
+    protected String toString(Float value) throws IllegalArgumentException {
+        if(value == defaultValue) {
             return null;
         }
-        try {
-            return Float.valueOf(value);
-        } catch (Throwable ex) {
-            Logger.getLogger(FloatProperty.class.getName()).log(Level.SEVERE,
-                    "Can't parse value of propterty '" + getName() + "': " + value, ex);
-            return prevValue;
-        }
-    }
-
-    public void setPropertyValue(Float value) throws IllegalArgumentException {
-        if(canBeNull() && (value == null || value == defaultValue)) {
-            if(value != null) {
-                prevValue = defaultValue;
-            }
-            base.setPropertyValue(null);
-        } else {
-            prevValue = value;
-            base.setPropertyValue(value.toString());
-        }
+        return value.toString();
     }
 
     public float getMaxValue() {
@@ -88,17 +68,11 @@ public class FloatProperty extends DerivedProperty<Float> implements FloatModel 
         return minValue;
     }
 
-    public float getDefaultValue() {
-        return defaultValue;
-    }
-
     public void setValue(float value) {
        setPropertyValue(value);
     }
 
     public float getValue() {
-        Float value = getPropertyValue();
-        return (value != null) ? value : prevValue;
+        return getPropertyValue();
     }
-
 }

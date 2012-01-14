@@ -36,12 +36,12 @@ import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.DraggableButton.DragListener;
 import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.Menu;
-import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterFloat;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.FloatModel;
+import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.PersistentBooleanModel;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
@@ -49,8 +49,8 @@ import de.matthiasmann.twl.model.SimpleFloatModel;
 import de.matthiasmann.twl.model.SimpleProperty;
 import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twl.renderer.Image;
+import de.matthiasmann.twlthemeeditor.datamodel.ExtRect;
 import de.matthiasmann.twlthemeeditor.gui.CollapsiblePanel.Direction;
-import de.matthiasmann.twlthemeeditor.gui.TextureViewer.PositionBarDragListener;
 import de.matthiasmann.twlthemeeditor.gui.TextureViewer.TextureLoadedListener;
 import de.matthiasmann.twlthemeeditor.gui.editors.AnimStateEditorFactory;
 import java.net.URL;
@@ -65,15 +65,6 @@ public final class TextureViewerPane extends DialogLayout {
     public static final StateKey STATE_ERROR                  = StateKey.get("error");
     public static final StateKey STATE_ANIMATED_POSITION_BARS = StateKey.get("animatedPositionBars");
 
-    public interface Listener {
-        public void dragEdgeTop(int y);
-        public void dragEdgeLeft(int x);
-        public void dragEdgeRight(int x);
-        public void dragEdgeBottom(int y);
-        public void dragSplitX(int idx, int x);
-        public void dragSplitY(int idx, int y);
-    }
-
     private final TextureViewer textureViewer;
     private final ScrollPane scrollPane;
     private final Label labelErrorDisplay;
@@ -81,6 +72,7 @@ public final class TextureViewerPane extends DialogLayout {
     private final ToggleButton btnShowSplitPositions;
     private final Label mousePositionDisplay;
     private final Container propertyContainer;
+    private final Runnable rectChangeCB;
     
     private final SimpleFloatModel zoomFactorX;
     private final SimpleFloatModel zoomFactorY;
@@ -89,17 +81,13 @@ public final class TextureViewerPane extends DialogLayout {
     private final SimpleBooleanModel showSplitPositions;
     private final PersistentBooleanModel animatedPositionBars;
 
-    private static final int[] EMPTY_INT_ARRAY = {};
-    
     private CollapsiblePanel propertiesCollapsePanel;
     
     private URL url;
-    private Rect rect;
-    private int[] splitPositionsX = EMPTY_INT_ARRAY;
-    private int[] splitPositionsY = EMPTY_INT_ARRAY;
+    private Property<ExtRect> rectProperty;
+    private FloatModel[] splitPositionsX;
+    private FloatModel[] splitPositionsY;
     private boolean showMousePosition;
-
-    private Listener listener;
 
     public TextureViewerPane() {
         this.textureViewer = new TextureViewer();
@@ -210,7 +198,6 @@ public final class TextureViewerPane extends DialogLayout {
             public void dragStopped() {
             }
         });
-        textureViewer.setPositionBarDragListener(new PositionBarDragHandler());
         textureViewer.setMouseOverListener(new TextureViewer.MouseOverListener() {
             public void mousePosition(int x, int y) {
                 if(showMousePosition) {
@@ -228,13 +215,14 @@ public final class TextureViewerPane extends DialogLayout {
                 updateAnimatedPositionBars();
             }
         });
+        rectChangeCB = new Runnable() {
+            public void run() {
+                updateRect();
+            }
+        };
 
         updateZoom();
         updateAnimatedPositionBars();
-    }
-
-    public void setListener(Listener listener) {
-        this.listener = listener;
     }
 
     public void addSettingsMenuItems(Menu settingsMenu) {
@@ -251,10 +239,8 @@ public final class TextureViewerPane extends DialogLayout {
         if(ctx != null) {
             SimpleProperty<AnimationState> asProperty = new SimpleProperty<AnimationState>
                     (AnimationState.class, "Animation state", textureViewer.getTextureAnimationState());
-            PropertyAccessor<AnimationState, Property<AnimationState>> asAccessor =
-                    new PropertyAccessor<AnimationState, Property<AnimationState>>(asProperty, null);
             AnimStateEditorFactory animStateEditorFactory = new AnimStateEditorFactory(ctx);
-            Widget content = animStateEditorFactory.create(asAccessor);
+            Widget content = animStateEditorFactory.create(asProperty, null);
             Label title = new Label(asProperty.getName());
             title.setTheme("title");
             title.setLabelFor(content);
@@ -269,11 +255,11 @@ public final class TextureViewerPane extends DialogLayout {
         }
     }
 
-    public void setImage(URL url, Rect rect) {
+    public void setImage(URL url, Property<ExtRect> rectProperty) {
         this.url = url;
-        this.rect = rect;
+        this.rectProperty = rectProperty;
         this.showMousePosition = true;
-        btnShowCompleteTexture.setEnabled(rect != null);
+        btnShowCompleteTexture.setEnabled(rectProperty != null);
         mousePositionDisplay.setText("");
         updateRect();
         if(propertiesCollapsePanel != null) {
@@ -283,7 +269,7 @@ public final class TextureViewerPane extends DialogLayout {
 
     public void setImage(Image image) {
         this.url = null;
-        this.rect = null;
+        this.rectProperty = null;
         this.showMousePosition = false;
         btnShowCompleteTexture.setEnabled(false);
         mousePositionDisplay.setText("Preview");
@@ -294,7 +280,8 @@ public final class TextureViewerPane extends DialogLayout {
     }
 
     public void scrollToRect() {
-        if(rect != null && showCompleteTexture.getValue()) {
+        if(rectProperty != null && showCompleteTexture.getValue()) {
+            ExtRect rect = rectProperty.getPropertyValue();
             textureViewer.validateImage();
             scrollPane.validateLayout();
             scrollPane.setScrollPositionX((int)(rect.getCenterX() * zoomFactorX.getValue())
@@ -304,14 +291,27 @@ public final class TextureViewerPane extends DialogLayout {
         }
     }
 
-    public void setSplitPositions(int[] splitPositionsX, int[] splitPositionsY) {
-        this.splitPositionsX = null2empty(splitPositionsX);
-        this.splitPositionsY = null2empty(splitPositionsY);
+    public void setSplitPositions(IntegerModel[] splitPositionsX, IntegerModel[] splitPositionsY) {
+        this.splitPositionsX = asFloatModels(splitPositionsX);
+        this.splitPositionsY = asFloatModels(splitPositionsY);
+        updateBars();
+    }
+
+    public void setSplitPositions(FloatModel[] splitPositionsX, FloatModel[] splitPositionsY) {
+        this.splitPositionsX = splitPositionsX;
+        this.splitPositionsY = splitPositionsY;
         updateBars();
     }
     
-    private static int[] null2empty(int[] a) {
-        return (a == null) ? EMPTY_INT_ARRAY : a;
+    private static FloatModel[] asFloatModels(IntegerModel[] im) {
+        if(im != null) {
+            FloatModel[] fm = new FloatModel[im.length];
+            for(int i=0,n=im.length ; i<n ; i++) {
+                fm[i] = new I2F(im[i]);
+            }
+            return fm;
+        }
+        return null;
     }
 
     public void setTintColor(Color tintColor) {
@@ -324,24 +324,28 @@ public final class TextureViewerPane extends DialogLayout {
 
     void updateRect() {
         if(url != null) {
-            textureViewer.setImage(url, showCompleteTexture.getValue() ? null : rect);
+            if(showCompleteTexture.getValue() || rectProperty == null) {
+                textureViewer.setImage(url, null);
+            } else {
+                textureViewer.setImage(url, rectProperty.getPropertyValue());
+            }
         }
     }
     
     void updateBars() {
-        if(rect != null) {
+        if(rectProperty != null) {
             if(showSplitPositions.getValue()) {
                 if(showCompleteTexture.getValue()) {
                     textureViewer.setPositionBars(
-                            addEdges(splitPositionsY, rect.getY(), rect.getBottom()),
-                            addEdges(splitPositionsX, rect.getX(), rect.getRight()));
+                            addEdges(splitPositionsY, new EdgeTop(rectProperty), new EdgeBottom(rectProperty)),
+                            addEdges(splitPositionsX, new EdgeLeft(rectProperty), new EdgeRight(rectProperty)));
                 } else {
                     textureViewer.setPositionBars(splitPositionsY, splitPositionsX);
                 }
             } else if(showCompleteTexture.getValue()) {
                 textureViewer.setPositionBars(
-                        new int[]{ rect.getY(), rect.getBottom() },
-                        new int[]{ rect.getX(), rect.getRight() });
+                        new FloatModel[] { new I2F(new EdgeTop(rectProperty)), new I2F(new EdgeBottom(rectProperty)) },
+                        new FloatModel[] { new I2F(new EdgeLeft(rectProperty)), new I2F(new EdgeRight(rectProperty)) });
             } else {
                 textureViewer.setPositionBars(null, null);
             }
@@ -352,11 +356,15 @@ public final class TextureViewerPane extends DialogLayout {
         }
     }
 
-    private int[] addEdges(int[] splits, int start, int end) {
-        int[] result = new int[splits.length + 2];
+    private FloatModel[] addEdges(FloatModel[] splits, IntegerModel start, IntegerModel end) {
+        return addEdges(splits, new I2F(start), new I2F(end));
+    }
+    private FloatModel[] addEdges(FloatModel[] splits, FloatModel start, FloatModel end) {
+        int count = (splits != null) ? splits.length : 0;
+        FloatModel[] result = new FloatModel[count + 2];
         result[0] = start;
-        for(int i=0 ; i<splits.length ; i++) {
-            result[i+1] = start + splits[i];
+        for(int i=0 ; i<count ; i++) {
+            result[i+1] = new OffsetM(splits[i], start);
         }
         result[result.length-1] = end;
         return result;
@@ -366,7 +374,7 @@ public final class TextureViewerPane extends DialogLayout {
         textureViewer.getAnimationState().setAnimationState(
                 STATE_ANIMATED_POSITION_BARS, animatedPositionBars.getValue());
     }
-
+    
     static class ZoomAdjuster extends ValueAdjusterFloat {
         public ZoomAdjuster(FloatModel model) {
             super(model);
@@ -390,140 +398,121 @@ public final class TextureViewerPane extends DialogLayout {
             setValue((ceil > value) ? ceil : ceil + stepSize);
         }
     }
-
-    static abstract class DragHandlerAxis {
-        int start;
-        abstract void drag(int pos);
-    }
-    class DragHandlerTop extends DragHandlerAxis {
-        public DragHandlerTop() {
-            start = rect.getY();
+    
+    static final class EdgeLeft extends ExtRect.IM {
+        EdgeLeft(Property<ExtRect> property) {
+            super(property);
         }
-        @Override
-        void drag(int pos) {
-            listener.dragEdgeTop(pos);
+        public int getMaxValue() {
+            return getLimit().getX();
         }
-    }
-    class DragHandlerLeft extends DragHandlerAxis {
-        public DragHandlerLeft() {
-            start = rect.getX();
+        public int getValue() {
+            return getRect().x;
         }
-        @Override
-        void drag(int pos) {
-            listener.dragEdgeLeft(pos);
+        public void setValue(int value) {
+            ExtRect rect = getRect();
+            setRect(value, rect.y, Math.max(0, rect.getRight()-value), rect.height, false, rect.flipX, rect.flipY);
         }
     }
-    class DragHandlerRight extends DragHandlerAxis {
-        public DragHandlerRight() {
-            start = rect.getRight();
+    static final class EdgeTop extends ExtRect.IM {
+        EdgeTop(Property<ExtRect> property) {
+            super(property);
         }
-        @Override
-        void drag(int pos) {
-            listener.dragEdgeRight(pos);
+        public int getMaxValue() {
+            return getLimit().getY();
         }
-    }
-    class DragHandlerBottom extends DragHandlerAxis {
-        public DragHandlerBottom() {
-            start = rect.getBottom();
+        public int getValue() {
+            return getRect().y;
         }
-        @Override
-        void drag(int pos) {
-            listener.dragEdgeBottom(pos);
+        public void setValue(int value) {
+            ExtRect rect = getRect();
+            setRect(rect.x, value, rect.width, Math.max(0, rect.getBottom()-value), false, rect.flipX, rect.flipY);
         }
     }
-    class DragHandlerSplitX extends DragHandlerAxis {
-        final int idx;
-        public DragHandlerSplitX(int idx) {
-            this.idx = idx;
-            this.start = splitPositionsX[idx];
+    static final class EdgeRight extends ExtRect.IM {
+        EdgeRight(Property<ExtRect> property) {
+            super(property);
         }
-        @Override
-        void drag(int pos) {
-            listener.dragSplitX(idx, pos);
+        public int getMaxValue() {
+            return getLimit().getX();
         }
-    }
-    class DragHandlerSplitY extends DragHandlerAxis {
-        final int idx;
-        public DragHandlerSplitY(int idx) {
-            this.idx = idx;
-            this.start = splitPositionsY[idx];
+        public int getValue() {
+            return getRect().getRight();
         }
-        @Override
-        void drag(int pos) {
-            listener.dragSplitY(idx, pos);
+        public void setValue(int value) {
+            ExtRect rect = getRect();
+            setRect(Math.min(value, rect.x), rect.y, Math.max(0, value-rect.x), rect.height, false, rect.flipX, rect.flipY);
         }
     }
-
-    class PositionBarDragHandler implements PositionBarDragListener {
-        DragHandlerAxis axisX;
-        DragHandlerAxis axisY;
-
-        public void dragStarted(int posBarHorz, int posBarVert) {
-            boolean showSplits = showSplitPositions.getValue();
-            if(rect != null) {
-                boolean all = showCompleteTexture.getValue();
-
-                axisX = null;
-                axisY = null;
-
-                if(all) {
-                    if(showSplits) {
-                        if(posBarVert == 0) {
-                            axisX = new DragHandlerLeft();
-                        } else if(posBarVert == splitPositionsX.length + 1) {
-                            axisX = new DragHandlerRight();
-                        } else if(posBarVert > 0) {
-                            axisX = new DragHandlerSplitX(posBarVert - 1);
-                        }
-                        if(posBarHorz == 0) {
-                            axisY = new DragHandlerTop();
-                        } else if(posBarHorz == splitPositionsY.length + 1) {
-                            axisY = new DragHandlerBottom();
-                        } else if(posBarHorz > 0) {
-                            axisY = new DragHandlerSplitY(posBarHorz - 1);
-                        }
-                    } else {
-                        if(posBarVert == 0) {
-                            axisX = new DragHandlerLeft();
-                        } else if(posBarVert == 1) {
-                            axisX = new DragHandlerRight();
-                        }
-                        if(posBarHorz == 0) {
-                            axisY = new DragHandlerTop();
-                        } else if(posBarHorz == 1) {
-                            axisY = new DragHandlerBottom();
-                        }
-                    }
-                } else if(showSplits) {
-                    if(posBarVert >= 0) {
-                        axisX = new DragHandlerSplitX(posBarVert);
-                    }
-                    if(posBarHorz >= 0) {
-                        axisY = new DragHandlerSplitY(posBarHorz);
-                    }
-                }
-            } else if(showSplits) {
-                if(posBarVert >= 0) {
-                    axisX = new DragHandlerSplitX(posBarVert);
-                }
-                if(posBarHorz >= 0) {
-                    axisY = new DragHandlerSplitY(posBarHorz);
-                }
-            }
+    static final class EdgeBottom extends ExtRect.IM {
+        EdgeBottom(Property<ExtRect> property) {
+            super(property);
         }
-
-        public void dragged(int deltaX, int deltaY) {
-            if(listener != null) {
-                if(axisX != null) {
-                    axisX.drag(axisX.start + deltaX);
-                }
-                if(axisY != null) {
-                    axisY.drag(axisY.start + deltaY);
-                }
-            }
+        public int getMaxValue() {
+            return getLimit().getY();
         }
+        public int getValue() {
+            return getRect().getBottom();
+        }
+        public void setValue(int value) {
+            ExtRect rect = getRect();
+            setRect(rect.x, Math.min(value, rect.y), rect.width, Math.max(0, value-rect.y), false, rect.flipX, rect.flipY);
+        }
+    }
+    
+    static final class I2F implements FloatModel {
+        private final IntegerModel im;
 
-        public void dragStopped() {
+        I2F(IntegerModel im) {
+            this.im = im;
+        }
+        public float getMinValue() {
+            return im.getMinValue();
+        }
+        public float getMaxValue() {
+            return im.getMaxValue();
+        }
+        public float getValue() {
+            return im.getValue();
+        }
+        public void setValue(float value) {
+            int iValue = Math.round(value);
+            im.setValue(Math.max(Math.min(iValue, im.getMaxValue()), im.getMinValue()));
+        }
+        public void addCallback(Runnable cb) {
+            im.addCallback(cb);
+        }
+        public void removeCallback(Runnable cb) {
+            im.removeCallback(cb);
+        }
+    }
+    static final class OffsetM implements FloatModel {
+        private final FloatModel base;
+        private final FloatModel offset;
+
+        OffsetM(FloatModel base, FloatModel offset) {
+            this.base = base;
+            this.offset = offset;
+        }
+        public float getMinValue() {
+            return base.getMinValue() + offset.getValue();
+        }
+        public float getMaxValue() {
+            return base.getMaxValue() + offset.getValue();
+        }
+        public float getValue() {
+            return base.getValue() + offset.getValue();
+        }
+        public void setValue(float value) {
+            base.setValue(value - offset.getValue());
+        }
+        public void addCallback(Runnable cb) {
+            base.addCallback(cb);
+            offset.addCallback(cb);
+        }
+        public void removeCallback(Runnable cb) {
+            base.removeCallback(cb);
+            offset.removeCallback(cb);
         }
     }
 }

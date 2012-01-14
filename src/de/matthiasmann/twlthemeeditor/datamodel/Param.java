@@ -32,12 +32,15 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 import de.matthiasmann.twl.Alignment;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twlthemeeditor.VirtualFile;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParam;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParamEnum;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewParamFontDef;
+import de.matthiasmann.twlthemeeditor.dom.Content;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
@@ -51,13 +54,14 @@ import de.matthiasmann.twlthemeeditor.properties.DerivedNodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.EnumProperty;
 import de.matthiasmann.twlthemeeditor.properties.IntegerFormulaProperty;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.jdom.Content;
-import org.jdom.Element;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -349,6 +353,8 @@ public class Param extends ThemeTreeNode implements HasProperties {
             String type = e.getAttributeValue("type");
             if("alignment".equals(type)) {
                 return createEnumProperty(e, Alignment.class);
+            } else {
+                return createEnumProperty(e, type);
             }
         }
         if("inputMap".equals(tagName)) {
@@ -362,6 +368,21 @@ public class Param extends ThemeTreeNode implements HasProperties {
 
     private static <T extends Enum<T>> EnumProperty<T> createEnumProperty(Element e, Class<T> enumType) {
         return EnumProperty.create(new ElementTextProperty(e, enumType.getSimpleName()), enumType);
+    }
+    
+    @SuppressWarnings("unchecked")
+    private static EnumProperty<?> createEnumProperty(Element e, String name) {
+        try {
+            Field enumField = ThemeManager.class.getDeclaredField("enums");
+            HashMap<String, Class<? extends Enum<?>>> enums =
+                    (HashMap<String, Class<? extends Enum<?>>>)enumField.get(null);
+            Class<?> enumType = enums.get(name);
+            return new EnumProperty(new ElementTextProperty(e, enumType.getSimpleName()), enumType);
+        } catch (Exception ex) {
+            Logger.getLogger(Param.class.getName()).log(Level.SEVERE,
+                    "Could not retrieve enums table", ex);
+            return null;
+        }
     }
 
     private static Element getFirstChildElement(Element parent) {

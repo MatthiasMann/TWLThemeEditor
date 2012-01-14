@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -43,7 +43,6 @@ import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twlthemeeditor.gui.Context;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.StateEditField;
 import java.lang.reflect.Field;
@@ -57,7 +56,7 @@ import java.util.logging.Logger;
  *
  * @author Matthias Mann
  */
-public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationState, Property<AnimationState>>{
+public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationState>{
 
     private final Context ctx;
 
@@ -65,8 +64,8 @@ public class AnimStateEditorFactory implements PropertyEditorFactory<AnimationSt
         this.ctx = ctx;
     }
 
-    public Widget create(PropertyAccessor<AnimationState, Property<AnimationState>> pa) {
-        return new AnimStateEditor(ctx, pa.getProperty());
+    public Widget create(Property<AnimationState> property, ExternalFetaures ef) {
+        return new AnimStateEditor(ctx, property);
     }
 
     static class AnimStateEditor extends DialogLayout implements Runnable, EditField.Callback {

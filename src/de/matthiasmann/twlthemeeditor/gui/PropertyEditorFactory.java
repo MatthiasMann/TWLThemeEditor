@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -34,10 +34,17 @@ import de.matthiasmann.twl.model.Property;
 
 /**
  *
+ * @param <T> the data type
  * @author Matthias Mann
  */
-public interface PropertyEditorFactory<T, P extends Property<T>> {
+public interface PropertyEditorFactory<T> {
 
-    public Widget create(PropertyAccessor<T, P> pa);
+    public interface ExternalFetaures {
+        public void setPresentAction(Runnable cb);
+        public void disableOnNotPresent(Widget ... widgets);
+        public void setFocusWidgetCB(Runnable runnable);
+    }
+    
+    public Widget create(Property<T> property, ExternalFetaures ef);
     
 }

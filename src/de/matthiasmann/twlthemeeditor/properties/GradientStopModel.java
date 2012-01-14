@@ -36,45 +36,55 @@ import de.matthiasmann.twl.model.FloatModel;
 import de.matthiasmann.twl.model.HasCallback;
 import de.matthiasmann.twl.model.SimpleListModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.dom.Attribute;
+import de.matthiasmann.twlthemeeditor.dom.AttributeList.AttributeListListener;
+import de.matthiasmann.twlthemeeditor.dom.Content;
+import de.matthiasmann.twlthemeeditor.dom.Element;
+import de.matthiasmann.twlthemeeditor.dom.Parent;
+import de.matthiasmann.twlthemeeditor.dom.Parent.ContentListener;
+import de.matthiasmann.twlthemeeditor.dom.Text;
+import de.matthiasmann.twlthemeeditor.dom.Undo;
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.jdom.Content;
-import org.jdom.Element;
-import org.jdom.Text;
 
 /**
  *
  * @author Matthias Mann
  */
-public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
+public final class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
 
     public static final float DELTA     = 1e-2f;
     public static final float MAX_DELTA = 1e+2f;
 
     private final Element gradientElement;
-    private final Runnable domChangedCB;
+    final ThemeTreeNode node;
     private final ArrayList<Stop> stops;
     private final String stopIndentation;
 
-    GradientStopModel(Element gradientElement, ThemeTreeNode node, Runnable domChangedCB) {
+    GradientStopModel(Element gradientElement, ThemeTreeNode node) {
         this.gradientElement = gradientElement;
-        this.domChangedCB = domChangedCB;
+        gradientElement.addContentListener(new ContentListener() {
+            public void contentAdded(Parent parent, Content child, int index) {
+                if(isStop(child)) {
+                    stopAdded((Element)child, index);
+                }
+            }
+            public void contentRemoved(Parent parent, Content child, int index) {
+                if(isStop(child)) {
+                    stopRemoved(child);
+                }
+            }
+            public void contentMoved(Parent parent, Content child, int oldIndex, int newIndex) {
+                throw new UnsupportedOperationException("Not supported");
+            }
+        });
+        this.node = node;
         this.stops = new ArrayList<Stop>();
         
         for(int i=0,n=gradientElement.getContentSize() ; i<n ; i++) {
             Content content = gradientElement.getContent(i);
-            if(content instanceof Element) {
-                Element stopElement = (Element)content;
-                if("stop".equals(stopElement.getName())) {
-                    try {
-                        Stop stop = new Stop(stopElement);
-                        stop.nr = stops.size();
-                        stop.pos = Float.parseFloat(stopElement.getAttributeValue("pos"));
-                        stop.color = ColorProperty.parseColor(stopElement.getAttributeValue("color"), node);
-                        stops.add(stop);
-                    } catch(IllegalArgumentException ex) {
-                    }
-                }
+            if(isStop(content)) {
+                stopAdded((Element)content, i);
             }
         }
         
@@ -93,12 +103,51 @@ public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
         stopIndentation = new String(buf);
     }
     
+    static boolean isStop(Content child) {
+        return (child instanceof Element) && "stop".equals(((Element)child).getName());
+    }
+    
     public Stop getEntry(int index) {
         return stops.get(index);
     }
 
     public int getNumEntries() {
         return stops.size();
+    }
+    
+    void stopAdded(Element stopElement, int index) {
+        int stopIdx = 0;
+        for(int n=stops.size() ; stopIdx<n ; stopIdx++) {
+            Stop stop = stops.get(stopIdx);
+            if(stop.stopElement == null || index < stop.stopElement.getIndex()) {
+                break;
+            }
+        }
+        
+        Stop stop = new Stop(stopElement);
+        stops.add(stopIdx, stop);
+        renumber(stopIdx);
+        fireEntriesInserted(stopIdx, stopIdx);
+        posUpdated(stopIdx);
+    }
+    
+    void stopRemoved(Content child) {
+        for(int i=0,n=stops.size()-1 ; i<n ; i++) {
+            if(child == stops.get(i).stopElement) {
+                stops.remove(i);
+                renumber(i);
+                fireEntriesDeleted(i, i);
+                updateRow(i-1);
+                updateRow(i);
+                break;
+            }
+        }
+    }
+    
+    void renumber(int idx) {
+        for(int n=stops.size() ; idx<n ; idx++) {
+            stops.get(idx).nr = idx;
+        }
     }
     
     Stop getStop(int nr) {
@@ -110,18 +159,18 @@ public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
     
     Float computeInsertPos(Stop stop) {
         Stop prev = getStop(stop.nr-1);
-        float prevPos = (prev != null) ? prev.pos : 0.0f;
+        float prevPos = (prev != null) ? prev.getPos() : 0.0f;
         if(stop.isSpecial()) {
             return prevPos + 10.0f;
         }
         if(prev != null) {
-            float delta = stop.pos - prevPos;
+            float delta = stop.getPos() - prevPos;
             if(delta < 2*DELTA) {
                 return null;
             }
             return prevPos + delta*0.5f;
         } else {
-            float newPos = stop.pos * 0.5f;
+            float newPos = stop.getPos() * 0.5f;
             if(newPos < DELTA) {
                 return null;
             }
@@ -131,11 +180,11 @@ public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
     
     Color computeInsertColor(Stop stop) {
         final Stop prev = getStop(stop.nr-1);
-        Color prevColor = (prev != null) ? prev.color : null;
+        Color prevColor = (prev != null) ? prev.getColor() : null;
         if(stop.isSpecial()) {
             return (prevColor != null) ? prevColor : Color.WHITE;
         }
-        Color thisColor = stop.color;
+        Color thisColor = stop.getColor();
         if(prevColor != null) {
             return new Color(
                     (byte)((prevColor.getRed()   + thisColor.getRed())   / 2),
@@ -150,6 +199,10 @@ public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
     void updateRow(int row) {
         if(row >= 0 && row < stops.size()) {
             fireEntriesChanged(row, row);
+            Stop stop = stops.get(row);
+            if(stop.posModel != null) {
+                stop.posModel.doCallbackDirect();
+            }
         }
     }
 
@@ -163,14 +216,10 @@ public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
         if(newPos == null) {
             return false;
         }
-        final int rowNr = stop.nr;
         
-        Stop newStop = new Stop(new Element("stop"));
-        newStop.nr = rowNr;
-        newStop.pos = newPos;
-        newStop.color = computeInsertColor(stop);
-        newStop.setPos();
-        newStop.setColor();
+        Element stopElement = new Element("stop");
+        stopElement.setAttribute("pos", Float.toString(newPos));
+        stopElement.setAttribute("color", computeInsertColor(stop).toString());
         
         int elementPos = stop.isSpecial()
                 ? gradientElement.getContentSize()
@@ -179,16 +228,13 @@ public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
             elementPos--;
         }
         
-        gradientElement.addContent(elementPos  , new Text(stopIndentation));
-        gradientElement.addContent(elementPos+1, newStop.stopElement);
-        
-        for(int i=rowNr ; i<stops.size() ; i++) {
-            stops.get(i).nr++;
+        Undo.startComplexOperation();
+        try {
+            gradientElement.addContent(elementPos  , new Text(stopIndentation));
+            gradientElement.addContent(elementPos+1, stopElement);
+        } finally {
+            Undo.endComplexOperation();
         }
-        stops.add(rowNr, newStop);
-        fireEntriesInserted(rowNr, rowNr);
-        posUpdated(rowNr);
-        domChanged();
         return true;
     }
 
@@ -197,44 +243,33 @@ public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
     }
     
     boolean remove(Stop stop) {
-        final int rowNr = stop.nr;
         if(!canRemove(stop)) {
             return false;
         }
 
-        int elementPos = gradientElement.indexOf(stop.stopElement);
-        gradientElement.removeContent(elementPos);
-        if(elementPos > 0) {
-            Content prevContent = gradientElement.getContent(elementPos-1);
-            if(prevContent instanceof Text) {
-                gradientElement.removeContent(elementPos-1);
+        Undo.startComplexOperation();
+        try {
+            int elementPos = gradientElement.indexOf(stop.stopElement);
+            gradientElement.removeContent(elementPos);
+            if(elementPos > 0) {
+                Content prevContent = gradientElement.getContent(elementPos-1);
+                if(prevContent instanceof Text) {
+                    gradientElement.removeContent(elementPos-1);
+                }
             }
+        } finally {
+            Undo.endComplexOperation();
         }
-        
-        stops.remove(rowNr);
-        for(int i=rowNr ; i<stops.size() ; i++) {
-            stops.get(i).nr--;
-        }
-        fireEntriesDeleted(rowNr, rowNr);
-        updateRow(rowNr-1);
-        updateRow(rowNr);
-        domChanged();
         return true;
-    }
-    
-    void domChanged() {
-        domChangedCB.run();
     }
     
     private static final int INDENTATION_SIZE = 4;
     
     public class Stop {
         final Element stopElement;
-        final FloatModel posModel;
-        final ColorModel colorModel;
+        final PM posModel;
+        final CM colorModel;
         int nr;
-        float pos;
-        Color color;
 
         Stop(Element stopElement) {
             this.stopElement = stopElement;
@@ -244,6 +279,16 @@ public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
             } else {
                 this.posModel = new PM();
                 this.colorModel = new CM();
+                
+                stopElement.getAttributes().addListener(new AttributeListListener() {
+                    public void attributeAdded(Element element, Attribute attribute, int index) {
+                    }
+                    public void attributeRemoved(Element element, Attribute attribute, int index) {
+                    }
+                    public void attributeChanged(Element element, Attribute attribute, String oldValue, String newValue) {
+                        checkAttribute(attribute.getName());
+                    }
+                });
             }
         }
 
@@ -275,51 +320,60 @@ public class GradientStopModel extends SimpleListModel<GradientStopModel.Stop> {
             return GradientStopModel.this.remove(this);
         }
         
-        void setPos() {
-            stopElement.setAttribute("pos", Float.toString(pos));
+        public float getPos() {
+            return Float.parseFloat(stopElement.getAttributeValue("pos"));
         }
         
-        void setColor() {
-            stopElement.setAttribute("color", color.toString());
+        public Color getColor() {
+            return ColorProperty.parseColor(stopElement.getAttributeValue("color"), node);
+        }
+        
+        void checkAttribute(String attributeName) {
+            if("pos".equals(attributeName)) {
+                posModel.doCallback();
+            } else if("color".equals(attributeName)) {
+                colorModel.doCallback();
+            }
         }
         
         class PM extends AbstractFloatModel {
             public float getMinValue() {
                 Stop prev = getStop(nr-1);
                 return (prev != null)
-                        ? Math.min(pos, prev.pos + DELTA)
+                        ? Math.min(getPos(), prev.getPos() + DELTA)
                         : 0.0f;
             }
             public float getMaxValue() {
                 Stop next = getStop(nr+1);
                 return (next != null && !next.isSpecial())
-                        ? Math.max(pos, next.pos - DELTA)
-                        : pos + MAX_DELTA;
+                        ? Math.max(getPos(), next.getPos() - DELTA)
+                        : getValue() + MAX_DELTA;
             }
             public float getValue() {
-                return pos;
+                return getPos();
             }
             public void setValue(float value) {
-                if(Math.abs(value - pos) > 1e-5) {
-                    pos = value;
-                    doCallback();
-                    setPos();
-                    posUpdated(nr);
-                    domChanged();
-                }
+                stopElement.setAttribute("pos", Float.toString(value));
+            }
+            protected void doCallbackDirect() {
+                super.doCallback();
+            }
+            @Override
+            protected void doCallback() {
+                posUpdated(nr);
+                super.doCallback();
             }
         };
         class CM extends HasCallback implements ColorModel {
             public Color getValue() {
-                return color;
+                return getColor();
             }
             public void setValue(Color value) {
-                if(!color.equals(value)) {
-                    color = value;
-                    doCallback();
-                    setColor();
-                    domChanged();
-                }
+                stopElement.setAttribute("color", value.toString());
+            }
+            @Override
+            protected void doCallback() {
+                super.doCallback();
             }
         }
     }

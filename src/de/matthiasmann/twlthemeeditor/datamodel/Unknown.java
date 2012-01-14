@@ -30,8 +30,8 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import java.io.IOException;
-import org.jdom.Element;
 
 /**
  *

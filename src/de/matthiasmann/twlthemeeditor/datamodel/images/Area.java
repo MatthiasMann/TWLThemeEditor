@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -35,11 +35,11 @@ import de.matthiasmann.twl.renderer.Texture.Rotation;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Images;
 import de.matthiasmann.twlthemeeditor.datamodel.Split.Axis;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.EnumProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
-import org.jdom.Element;
 
 /**
  *
@@ -75,7 +75,7 @@ public class Area extends Image {
 
         @Override
         public int getLimit() {
-            return rectProperty.getPropertyValue().getWidth();
+            return rectProperty.getPropertyValue().width;
         }
     }
 
@@ -86,7 +86,7 @@ public class Area extends Image {
 
         @Override
         public int getLimit() {
-            return rectProperty.getPropertyValue().getHeight();
+            return rectProperty.getPropertyValue().height;
         }
     }
     
@@ -96,7 +96,7 @@ public class Area extends Image {
         }
 
         @Override
-        protected Rotation fromString(String value) {
+        protected Rotation parse(String value) {
             int rot = Integer.parseInt(value);
             switch(rot) {
                 case 90: return Rotation.CLOCKWISE_90;

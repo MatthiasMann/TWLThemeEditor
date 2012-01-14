@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -35,6 +35,7 @@ import de.matthiasmann.twl.BoxLayout;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.Menu;
+import de.matthiasmann.twl.Menu.Listener;
 import de.matthiasmann.twl.MenuAction;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.Table;
@@ -54,6 +55,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateAtWrapper;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.MoveNodeOperations;
+import de.matthiasmann.twlthemeeditor.dom.Undo;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
@@ -183,13 +185,13 @@ public class ThemeTreePane extends DialogLayout {
                 if(newIndex >= 0) {
                     int oldIndex = dragParent.getChildIndex(selected);
                     if(newIndex < oldIndex) {
-                        while(moveUp.isEnabled() && newIndex < oldIndex) {
+                        while(moveUp.isEnabled(false) && newIndex < oldIndex) {
                             executeOperation(moveUp, null);
                             --oldIndex;
                         }
                     } else {
                         --newIndex;
-                        while(moveDown.isEnabled() && newIndex > oldIndex) {
+                        while(moveDown.isEnabled(false) && newIndex > oldIndex) {
                             executeOperation(moveDown, null);
                             ++oldIndex;
                         }
@@ -287,7 +289,7 @@ public class ThemeTreePane extends DialogLayout {
             ThemeTreeNode node = (ThemeTreeNode)selected;
             Menu m = new Menu();
             addButtons(m, node, node.getOperations());
-            addCreateSubMenu(m, node, node.getCreateChildOperations());
+            addCreateSubMenu(m, null, node, node.getCreateChildOperations());
             m.createMenuBar(buttons);
         }
     }
@@ -298,14 +300,16 @@ public class ThemeTreePane extends DialogLayout {
             ThemeTreeNode node = (ThemeTreeNode)nodeFromRow;
             Menu menu = new Menu();
 
+            boolean[] enableUpdated = new boolean[1];
+            
             if(node.getParent() instanceof ThemeTreeNode) {
                 ThemeTreeNode parentNode = (ThemeTreeNode)node.getParent();
                 List<CreateChildOperation> parentOperations = parentNode.getCreateChildOperations();
-                addCreateAtSubMenu(menu, "opNewNodeBefore", parentNode, parentOperations, CreateAtWrapper.Location.BEFORE, node);
-                addCreateAtSubMenu(menu, "opNewNodeAfter", parentNode, parentOperations, CreateAtWrapper.Location.AFTER, node);
+                addCreateSubMenu(menu, "opNewNodeBefore", enableUpdated, parentNode, parentOperations, CreateAtWrapper.Location.BEFORE, node);
+                addCreateSubMenu(menu, "opNewNodeAfter", enableUpdated, parentNode, parentOperations, CreateAtWrapper.Location.AFTER, node);
             }
             
-            addCreateSubMenu(menu, node, node.getCreateChildOperations());
+            addCreateSubMenu(menu, enableUpdated, node, node.getCreateChildOperations());
             List<ThemeTreeOperation> operations = node.getOperations();
             if(!operations.isEmpty()) {
                 if(menu.getNumElements() > 0) {
@@ -338,43 +342,62 @@ public class ThemeTreePane extends DialogLayout {
 
     private void addButtons(Menu menu, ThemeTreeNode node, List<ThemeTreeOperation> operations) {
         for(final ThemeTreeOperation operation : operations) {
-            MenuAction action = createMenuAction(node, operation);
+            MenuAction action = createMenuAction(node, operation, false);
             menu.add(action);
         }
     }
 
-    private void addCreateSubMenu(Menu menu, final ThemeTreeNode node, List<CreateChildOperation> operations) {
-        if(!operations.isEmpty()) {
-            Menu subPopupMenu = new Menu();
-            subPopupMenu.setTheme("opNewNode");
-            subPopupMenu.setPopupTheme("opNewNode-popupMenu");
-            menu.add(subPopupMenu);
-
-            for(CreateChildOperation operation : operations) {
-                MenuAction action = createMenuAction(node, operation);
-                subPopupMenu.add(action);
-            }
-        }
+    private void addCreateSubMenu(Menu menu, boolean[] enableUpdated, final ThemeTreeNode node, List<CreateChildOperation> operations) {
+        addCreateSubMenu(menu, "opNewNode", enableUpdated, node, operations, null, null);
     }
 
-    private void addCreateAtSubMenu(Menu menu, String id, ThemeTreeNode node, List<CreateChildOperation> operations, CreateAtWrapper.Location location, ThemeTreeNode pos) {
+    private void addCreateSubMenu(Menu menu, String id,
+            final boolean[] enableUpdated,
+            final ThemeTreeNode node,
+            final List<CreateChildOperation> operations,
+            final CreateAtWrapper.Location location,
+            final ThemeTreeNode pos) {
         if(!operations.isEmpty()) {
-            Menu subPopupMenu = new Menu();
+            final Menu subPopupMenu = new Menu();
             subPopupMenu.setTheme(id);
             subPopupMenu.setPopupTheme("opNewNode-popupMenu");
             menu.add(subPopupMenu);
 
-            for(CreateChildOperation operation : operations) {
-                MenuAction action = createMenuAction(node, new CreateAtWrapper(operation, location, pos));
-                subPopupMenu.add(action);
-            }
+            subPopupMenu.addListener(new Listener() {
+                boolean hasEntries;
+                public void menuOpening(Menu menu) {
+                    if(!hasEntries) {
+                        hasEntries = true;
+                        
+                        boolean isFirst = true;
+                        if(enableUpdated != null) {
+                            isFirst = !enableUpdated[0];
+                            enableUpdated[0] = true;
+                        }
+                        
+                        for(CreateChildOperation operation : operations) {
+                            if(isFirst) {
+                                operation.updateEnabledStateForPopup();
+                            }
+                            ThemeTreeOperation op = (pos == null) ? operation
+                                    : new CreateAtWrapper(operation, location, pos);
+                            MenuAction action = createMenuAction(node, op, true);
+                            subPopupMenu.add(action);
+                        }
+                    }
+                }
+                public void menuOpened(Menu menu) {
+                }
+                public void menuClosed(Menu menu) {
+                }
+            });
         }
     }
 
-    private MenuAction createMenuAction(final ThemeTreeNode node, final ThemeTreeOperation operation) {
+    private MenuAction createMenuAction(final ThemeTreeNode node, final ThemeTreeOperation operation, boolean subMenu) {
         MenuAction action = new MenuAction();
         action.setTheme(operation.getActionID());
-        action.setEnabled(operation.isEnabled());
+        action.setEnabled(operation.isEnabled(subMenu));
         action.setCallback(new Runnable() {
             public void run() {
                 queryOperationParameter(node, operation, false);
@@ -388,12 +411,15 @@ public class ThemeTreePane extends DialogLayout {
 
     void executeOperation(ThemeTreeOperation operation, Object[] paramter) {
         TreeTableNode newSelection = null;
+        Undo.startComplexOperation();
         try {
             newSelection = operation.execute(paramter);
         } catch(IllegalArgumentException ex) {
             messageLog.add(new MessageLog.Entry(CAT_THEME_TREE_OPERATION, "Invalid parameters for operation", ex.getMessage(), null));
         } catch(Throwable ex) {
             messageLog.add(new MessageLog.Entry(CAT_THEME_TREE_OPERATION, "Error while executing tree operation", null, ex));
+        } finally {
+            Undo.endComplexOperation();
         }
         selectNode(newSelection);
         if(newSelection != null && focusNameFieldCB != null &&

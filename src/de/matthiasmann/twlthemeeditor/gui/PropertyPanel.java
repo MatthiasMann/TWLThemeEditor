@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -33,7 +33,10 @@ import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twl.model.SimpleBooleanModel;
+import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory.ExternalFetaures;
+import de.matthiasmann.twlthemeeditor.properties.OptionalProperty;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -44,11 +47,11 @@ import java.util.HashMap;
 public final class PropertyPanel extends DialogLayout {
 
     private final PropertyFactories factories;
-    private final HashMap<String, PropertyAccessor<?,?>> propertyAccessors;
+    private final HashMap<String, Runnable> focusWidgets;
 
     public PropertyPanel(PropertyFactories factories) {
         this.factories = factories;
-        this.propertyAccessors = new HashMap<String, PropertyAccessor<?, ?>>();
+        this.focusWidgets = new HashMap<String, Runnable>();
         
         setHorizontalGroup(createParallelGroup());
         setVerticalGroup(createSequentialGroup());
@@ -67,44 +70,97 @@ public final class PropertyPanel extends DialogLayout {
             addProperty(p);
         }
     }
-
-    public PropertyAccessor<?, ?> getPropertyAccessor(String propertyName) {
-        return propertyAccessors.get(propertyName);
+    
+    public void focusWidget(String propertyName) {
+        Runnable cb = focusWidgets.get(propertyName);
+        if(cb != null) {
+            cb.run();
+        }
     }
 
     @SuppressWarnings("unchecked")
     protected<T> void addProperty(Property<T> p) {
-        boolean optional = p.canBeNull();
-        
-        PropertyEditorFactory<?, ?> factory = factories.getFactory(p);
-        if(!optional && (factory instanceof SpecialPropertyEditorFactory<?>)) {
-            if(((SpecialPropertyEditorFactory<T>)factory).createSpecial(
-                    getHorizontalGroup(), getVerticalGroup(), p)) {
-                return;
+        PropertyEditorFactory factoryNew = factories.getFactory(p);
+        if(factoryNew != null) {
+            PresentModel activeModel = null;
+            if(p instanceof OptionalProperty<?>) {
+                OptionalProperty<?> op = (OptionalProperty<?>)p;
+                if(op.isOptional()) {
+                    activeModel = new PresentModel(op);
+                }
             }
-        }
+            
+            PresentModel ef = (activeModel != null)
+                    ? activeModel : new PresentModel(null);
 
-        if(factory != null) {
-            BooleanModel activeModel = null;
+            Widget content = factoryNew.create(p, ef);
 
-            if(optional) {
-                activeModel = new SimpleBooleanModel();
+            if(activeModel != null && ef.focusWidgetCB != null) {
+                focusWidgets.put(p.getName(), ef.focusWidgetCB);
             }
-
-            PropertyAccessor pa = new PropertyAccessor(p, activeModel);
-            Widget content = factory.create(pa);
-
-            propertyAccessors.put(p.getName(), pa);
             
             CollapsiblePanel panel = new CollapsiblePanel(
                     CollapsiblePanel.Direction.VERTICAL,
                     p.getName(), content, activeModel);
             
             getVerticalGroup().addWidget(panel);
-            getHorizontalGroup().addWidget(panel);            
+            getHorizontalGroup().addWidget(panel);
         } else {
             System.out.println("No factory for property " + p.getName() +
                     " type " + p.getClass() + "<" + p.getType() + ">");
+        }
+    }
+    
+    static class PresentModel implements BooleanModel, ExternalFetaures {
+        private final OptionalProperty<?> property;
+        private Runnable actionOnSetPresent;
+        private ArrayList<Widget> widgetsToDisable;
+        private Boolean wasPresent;
+        Runnable focusWidgetCB;
+
+        public PresentModel(OptionalProperty<?> property) {
+            this.property = property;
+        }
+        public boolean getValue() {
+            boolean isPresent = property.isPresent();
+            if(wasPresent == null || isPresent != wasPresent.booleanValue()) {
+                wasPresent = isPresent;
+                // don't need to register a callback - the checkbox will call getValue()
+                setWidgets();
+            }
+            return isPresent;
+        }
+        public void setValue(boolean value) {
+            boolean call = (actionOnSetPresent != null) && value && !getValue();
+            property.setPresent(value);
+            if(call) {
+                actionOnSetPresent.run();
+            }
+        }
+        public void addCallback(Runnable cb) {
+            property.addValueChangedCallback(cb);
+        }
+        public void removeCallback(Runnable cb) {
+            property.removeValueChangedCallback(cb);
+        }
+        public void setPresentAction(Runnable cb) {
+            actionOnSetPresent = cb;
+        }
+        public void disableOnNotPresent(Widget... widgets) {
+            if(widgetsToDisable == null) {
+                widgetsToDisable = new ArrayList<Widget>();
+            }
+            widgetsToDisable.addAll(Arrays.asList(widgets));
+        }
+        public void setFocusWidgetCB(Runnable cb) {
+            this.focusWidgetCB = cb;
+        }
+        private void setWidgets() {
+            if(widgetsToDisable != null) {
+                for(int i=0,n=widgetsToDisable.size() ; i<n ; i++) {
+                    widgetsToDisable.get(i).setEnabled(wasPresent);
+                }
+            }
         }
     }
 }

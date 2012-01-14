@@ -34,17 +34,15 @@ import de.matthiasmann.twl.DialogLayout.Gap;
 import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.model.ListModel;
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twl.utils.XMLParser;
+import de.matthiasmann.twlthemeeditor.dom.Attribute;
+import de.matthiasmann.twlthemeeditor.dom.AttributeList;
+import de.matthiasmann.twlthemeeditor.dom.Document;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URL;
-import java.util.Collection;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.input.SAXBuilder;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
 
 /**
  *
@@ -185,25 +183,24 @@ public final class Utils {
         }
     }
 
-    public static void addToXPP(DomXPPParser xpp, String tagName, ThemeTreeNode node, Collection<Attribute> attributes) {
+    public static void addToXPP(DomXPPParser xpp, String tagName, ThemeTreeNode node, AttributeList attributes) {
+        addToXPP(xpp, tagName, node, attributes.toArray());
+    }
+    
+    public static void addToXPP(DomXPPParser xpp, String tagName, ThemeTreeNode node, Attribute ... attributes) {
         xpp.addStartTag(node, tagName, attributes);
         addToXPP(xpp, node);
         xpp.addEndTag(tagName);
     }
 
-    public static SAXBuilder createSAXBuilder() {
-        SAXBuilder saxb = new SAXBuilder(false);
-        saxb.setEntityResolver(new EntityResolver() {
-            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                return new InputSource(new StringReader(""));
-            }
-        });
-        return saxb;
-    }
-    
     public static Document loadDocument(URL url) throws IOException {
         try {
-            return createSAXBuilder().build(url);
+            InputStream is = url.openStream();
+            try {
+                return loadDocument(is);
+            } finally {
+                is.close();
+            }
         } catch(IOException ex) {
             throw ex;
         } catch(Exception ex) {
@@ -213,7 +210,10 @@ public final class Utils {
 
     public static Document loadDocument(InputStream is) throws IOException {
         try {
-            return createSAXBuilder().build(is);
+            XmlPullParser xpp = XMLParser.createParser();
+            xpp.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
+            xpp.setInput(is, "UTF-8");
+            return Document.load(xpp);
         } catch(IOException ex) {
             throw ex;
         } catch(Exception ex) {
@@ -223,7 +223,10 @@ public final class Utils {
 
     public static Document loadDocument(String str) throws IOException {
         try {
-            return createSAXBuilder().build(new StringReader(str));
+            XmlPullParser xpp = XMLParser.createParser();
+            xpp.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
+            xpp.setInput(new StringReader(str));
+            return Document.load(xpp);
         } catch(IOException ex) {
             throw ex;
         } catch(Exception ex) {

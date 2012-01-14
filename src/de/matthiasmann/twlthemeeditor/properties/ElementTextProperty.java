@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -29,21 +29,24 @@
  */
 package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twl.model.AbstractProperty;
-import org.jdom.Element;
+import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twlthemeeditor.dom.Element;
+import de.matthiasmann.twlthemeeditor.dom.ElementText;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ElementTextProperty extends AbstractProperty<String> {
+public class ElementTextProperty implements Property<String> {
 
-    private final Element element;
+    private final ElementText elementText;
     private final String name;
+    private final PropertyChangeHandler pch;
 
     public ElementTextProperty(Element element, String name) {
-        this.element = element;
+        this.elementText = element.getElementText();
         this.name = name;
+        this.pch = new PropertyChangeHandler("text");
     }
 
     public Class<String> getType() {
@@ -63,14 +66,23 @@ public class ElementTextProperty extends AbstractProperty<String> {
     }
 
     public String getPropertyValue() {
-        return element.getText();
+        return elementText.getText();
     }
 
     public void setPropertyValue(String value) throws IllegalArgumentException {
-        String oldText = element.getText();
-        if(!oldText.equals(value)) {
-            element.setText(value);
-            fireValueChangedCallback();
+        elementText.setText(value);
+    }
+
+    public void addValueChangedCallback(Runnable cb) {
+        if(pch.addCallback(cb)) {
+            elementText.addPropertyChangeListener(pch);
         }
     }
+
+    public void removeValueChangedCallback(Runnable cb) {
+        if(pch.removeCallback(cb)) {
+            elementText.removePropertyChangeListener(pch);
+        }
+    }
+    
 }

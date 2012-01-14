@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -33,40 +33,30 @@ import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.ColorSelector;
 import de.matthiasmann.twl.PopupWindow;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.ColorModel;
 import de.matthiasmann.twl.model.ColorSpaceHSL;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.gui.ColorButton;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
-import de.matthiasmann.twlthemeeditor.properties.ColorProperty;
 
 /**
  *
  * @author Matthias Mann
  */
-public class ColorEditorFactory implements PropertyEditorFactory<Color, Property<Color>> {
+public class ColorEditorFactory implements PropertyEditorFactory<Color> {
 
-    public Widget create(final PropertyAccessor<Color, Property<Color>> pa) {
+    public Widget create(final Property<Color> property, ExternalFetaures ef) {
+        final ColorModel cm = (property instanceof ColorModel)
+                ? (ColorModel)property : new CM(property);
         final ColorButton button = new ColorButton();
-        Property<Color> property = pa.getProperty();
-        String colorName = (property instanceof ColorProperty) ?
-                ((ColorProperty)property).getColorName() : null;
-        button.setColor(pa.getValue(Color.WHITE), colorName);
+        button.setColorModel(cm);
         final Runnable cb = new Runnable() {
             public void run() {
                 final ColorSelector cs = new ColorSelector(new ColorSpaceHSL());
                 cs.setUseLabels(false);
                 cs.setShowPreview(true);
                 cs.setShowHexEditField(true);
-                cs.setColor(pa.getValue(Color.WHITE));
-                cs.addCallback(new Runnable() {
-                    public void run() {
-                        Color color = cs.getColor();
-                        pa.setValue(color);
-                        pa.setActive(true);
-                        button.setColor(color, null);
-                    }
-                });
+                cs.setModel(cm);
                 PopupWindow popup = new PopupWindow(button);
                 popup.setTheme("colorEditorPopup");
                 popup.add(cs);
@@ -79,20 +69,41 @@ public class ColorEditorFactory implements PropertyEditorFactory<Color, Property
             }
         };
         button.addCallback(cb);
-        if(!pa.hasValue()) {
-            pa.addActiveCallback(new Runnable() {
-                public void run() {
-                    if(pa.isActive() && !button.hasOpenPopups() && !pa.hasValue()) {
-                        cb.run();
-                    }
+        ef.setPresentAction(new Runnable() {
+            public void run() {
+                if(!button.hasOpenPopups()) {
+                    cb.run();
                 }
-            });
-        }
-        
+            }
+        });
         return button;
     }
     
     static int computePos(int pos, int required, int avail) {
         return Math.min(pos, avail - required);
+    }
+        
+    static class CM implements ColorModel {
+        final Property<Color> property;
+
+        CM(Property<Color> property) {
+            this.property = property;
+        }
+
+        public Color getValue() {
+            return property.getPropertyValue();
+        }
+
+        public void setValue(Color value) {
+            property.setPropertyValue(value);
+        }
+
+        public void addCallback(Runnable cb) {
+            property.addValueChangedCallback(cb);
+        }
+
+        public void removeCallback(Runnable cb) {
+            property.removeValueChangedCallback(cb);
+        }
     }
 }

@@ -29,45 +29,19 @@
  */
 package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twl.model.AbstractProperty;
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
-import de.matthiasmann.twlthemeeditor.dom.Element;
+import de.matthiasmann.twl.model.Property;
 
 /**
  *
+ * @param <T> the data type
  * @author Matthias Mann
  */
-public class GradientStopProperty extends AbstractProperty<GradientStopModel> {
-
-    private final String name;
-    private final GradientStopModel model;
-
-    public GradientStopProperty(Element element, String name, ThemeTreeNode node) {
-        this.name = name;
-        this.model = new GradientStopModel(element, node);
-    }
-
-    public boolean canBeNull() {
-        return false;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Class<GradientStopModel> getType() {
-        return GradientStopModel.class;
-    }
-
-    public boolean isReadOnly() {
-        return true;
-    }
-
-    public GradientStopModel getPropertyValue() {
-        return model;
-    }
-
-    public void setPropertyValue(GradientStopModel value) {
-        throw new UnsupportedOperationException("read only");
-    }
+public interface OptionalProperty<T> extends Property<T> {
+    
+    public boolean isOptional();
+    
+    public boolean isPresent();
+    
+    public void setPresent(boolean present);
+    
 }

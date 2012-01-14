@@ -31,10 +31,10 @@ package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateChildOperation;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import org.jdom.Element;
 
 /**
  *

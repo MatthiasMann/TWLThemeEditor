@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -32,24 +32,45 @@ package de.matthiasmann.twlthemeeditor.gui.editors;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
+import de.matthiasmann.twl.model.StringModel;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 
 /**
  *
  * @author Matthias Mann
  */
-public class StringEditorFactory implements PropertyEditorFactory<String, Property<String>> {
+public class StringEditorFactory implements PropertyEditorFactory<String> {
 
-    public Widget create(final PropertyAccessor<String, Property<String>> pa) {
+    public Widget create(Property<String> property, ExternalFetaures externalFetaures) {
         final EditField ef = new EditField();
-        ef.setText(pa.getValue(""));
-        ef.addCallback(new EditField.Callback() {
-            public void callback(int key) {
-                pa.setValue(ef.getText());
-            }
-        });
-
+        ef.setModel(wrap(property));
+        if(externalFetaures != null) {
+            externalFetaures.disableOnNotPresent(ef);
+        }
         return ef;
+    }
+    
+    static StringModel wrap(Property<String> property) {
+        return (property instanceof StringModel)
+                ? (StringModel)property : new SM(property);
+    }
+    
+    static class SM implements StringModel {
+        private final Property<String> property;
+        SM(Property<String> property) {
+            this.property = property;
+        }
+        public String getValue() {
+            return property.getPropertyValue();
+        }
+        public void setValue(String value) {
+            property.setPropertyValue(value);
+        }
+        public void addCallback(Runnable cb) {
+            property.addValueChangedCallback(cb);
+        }
+        public void removeCallback(Runnable cb) {
+            property.removeValueChangedCallback(cb);
+        }
     }
 }

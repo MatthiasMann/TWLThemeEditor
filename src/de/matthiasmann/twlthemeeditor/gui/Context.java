@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -40,6 +40,7 @@ import de.matthiasmann.twl.model.SimpleAutoCompletionResult;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.renderer.AnimationState.StateKey;
+import de.matthiasmann.twlthemeeditor.datamodel.Condition;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
 import de.matthiasmann.twlthemeeditor.datamodel.Image;
 import de.matthiasmann.twlthemeeditor.datamodel.Kind;
@@ -49,7 +50,6 @@ import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeModel;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.gui.editors.AnimStateEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.WidgetThemeEditorFactory;
-import de.matthiasmann.twlthemeeditor.properties.ConditionProperty;
 import de.matthiasmann.twlthemeeditor.properties.NodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.WidgetThemeProperty;
 import java.util.ArrayList;
@@ -80,11 +80,11 @@ public class Context extends PropertyFactories {
         this.model = model;
         this.debugHook = new PreviewDebugHook();
         
-        factories1.put(ConditionProperty.class, new ConditionEditorFactory(this));
-        factories1.put(NodeReferenceProperty.class, new NodeReferenceEditorFactory(this));
-        factories1.put(WidgetThemeProperty.class, new WidgetThemeEditorFactory(this));
-
-        factories2.put(AnimationState.class, new AnimStateEditorFactory(this));
+        factoriesP.put(NodeReferenceProperty.class, new NodeReferenceEditorFactory(this));
+        factoriesP.put(WidgetThemeProperty.class, new WidgetThemeEditorFactory(this));
+        
+        factoriesT.put(Condition.class, new ConditionEditorFactory(this));
+        factoriesT.put(AnimationState.class, new AnimStateEditorFactory(this));
     }
 
     public void logMessage(MessageLog.Entry entry) {

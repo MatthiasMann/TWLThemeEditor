@@ -29,13 +29,10 @@
  */
 package de.matthiasmann.twlthemeeditor.gui;
 
-import de.matthiasmann.twl.CallbackWithReason;
 import de.matthiasmann.twl.Color;
-import de.matthiasmann.twl.Dimension;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Menu;
 import de.matthiasmann.twl.MenuAction;
-import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.SplitPane;
 import de.matthiasmann.twl.Timer;
@@ -43,10 +40,12 @@ import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.EnumModel;
 import de.matthiasmann.twl.model.FloatModel;
+import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.OptionEnumModel;
 import de.matthiasmann.twl.model.PersistentEnumModel;
 import de.matthiasmann.twl.model.PersistentMRUListModel;
 import de.matthiasmann.twl.model.Property;
+import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twl.renderer.AnimationState;
 import de.matthiasmann.twl.renderer.Gradient;
 import de.matthiasmann.twl.renderer.Gradient.Type;
@@ -66,6 +65,7 @@ import de.matthiasmann.twlthemeeditor.properties.GradientStopProperty;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
+import de.matthiasmann.twlthemeeditor.properties.SplitProperty.SplitIntegerModel;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -102,14 +102,14 @@ public final class EditorArea extends Widget {
     private final PersistentMRUListModel<String> recentClasspathsModel;
     private final Menu classpathsMenu;
 
-    private final CallbackWithReason<ThemeTreeModel.CallbackReason> modelChangedCB;
-
     private final EnumModel<Layout> layoutModel;
 
+    private DelayedAction modelChangedCB;
     private DelayedAction updatePropertyEditors;
     private Timer checkWidgetTreeTimer;
     private Context ctx;
     private URL textureURL;
+    private Long currentSelectedID;
     private PropertyPanel propertyPanel;
     private RectProperty rectProperty;
     private ColorProperty colorProperty;
@@ -173,17 +173,6 @@ public final class EditorArea extends Widget {
             }
         });
 
-        modelChangedCB = new CallbackWithReason<ThemeTreeModel.CallbackReason>() {
-            public void callback(ThemeTreeModel.CallbackReason reason) {
-                reloadTheme();
-                /* DISABLED not needed?
-                if(reason == ThemeTreeModel.CallbackReason.STRUCTURE_CHANGED && updatePropertyEditors != null) {
-                    updatePropertyEditors.run();
-                }
-                 */
-            }
-        };
-
         widgetTree.addSelectionChangeListener(new Runnable() {
             public void run() {
                 updateTestWidgetProperties();
@@ -206,62 +195,6 @@ public final class EditorArea extends Widget {
             }
         });
 
-        textureViewerPane.setListener(new TextureViewerPane.Listener() {
-            public void dragEdgeTop(int y) {
-                if(rectProperty != null) {
-                    Dimension limit = rectProperty.getLimit();
-                    Rect rect = rectProperty.getPropertyValue();
-                    rect.set(
-                        rect.getX(),
-                        limit(y, 0, Math.min(limit.getY(), rect.getBottom())-1),
-                        rect.getRight(),
-                        rect.getBottom());
-                    rectProperty.setPropertyValue(rect);
-                }
-            }
-            public void dragEdgeBottom(int y) {
-                if(rectProperty != null) {
-                    Dimension limit = rectProperty.getLimit();
-                    Rect rect = rectProperty.getPropertyValue();
-                    rect.set(
-                        rect.getX(),
-                        rect.getY(),
-                        rect.getRight(),
-                        limit(y, Math.max(0, rect.getY())+1, limit.getY()));
-                    rectProperty.setPropertyValue(rect);
-                }
-            }
-            public void dragEdgeLeft(int x) {
-                if(rectProperty != null) {
-                    Dimension limit = rectProperty.getLimit();
-                    Rect rect = rectProperty.getPropertyValue();
-                    rect.set(
-                        limit(x, 0, Math.min(limit.getX(), rect.getRight())-1),
-                        rect.getY(),
-                        rect.getRight(),
-                        rect.getBottom());
-                    rectProperty.setPropertyValue(rect);
-                }
-            }
-            public void dragEdgeRight(int x) {
-                if(rectProperty != null) {
-                    Dimension limit = rectProperty.getLimit();
-                    Rect rect = rectProperty.getPropertyValue();
-                    rect.set(
-                        rect.getX(),
-                        rect.getY(),
-                        limit(x, Math.max(0, rect.getX())+1, limit.getX()),
-                        rect.getBottom());
-                    rectProperty.setPropertyValue(rect);
-                }
-            }
-            public void dragSplitX(int idx, int x) {
-                dragSplit(idx, x, splitXProperty, true);
-            }
-            public void dragSplitY(int idx, int y) {
-                dragSplit(idx, y, splitYProperty, false);
-            }
-        });
         textureViewerPane.setTextureLoadedListener(new TextureViewer.TextureLoadedListener() {
             public void textureLoaded(URL url, Texture texture) {
                 EditorArea.this.textureLoaded(url, texture);
@@ -274,11 +207,14 @@ public final class EditorArea extends Widget {
         changeTestWidget();
     }
 
-    public void setModel(ThemeTreeModel model) {
-        if(ctx != null) {
+    private void removeModelChangedCB() {
+        if(ctx != null && modelChangedCB != null) {
             ctx.getThemeTreeModel().removeCallbacks(modelChangedCB);
         }
-
+    }
+    
+    public void setModel(ThemeTreeModel model) {
+        removeModelChangedCB();
         if(model == null) {
             ctx = null;
             previewWidget.setURL(null, null);
@@ -286,7 +222,9 @@ public final class EditorArea extends Widget {
             ctx = new Context(messageLog, model);
             ctx.setThemeTreePane(themeTreePane);
 
-            model.addCallback(modelChangedCB);
+            if(modelChangedCB != null) {
+                model.addCallback(modelChangedCB);
+            }
 
             try {
                 previewWidget.setURL(ctx, model.getRootThemeFile().getVirtualURL());
@@ -327,6 +265,22 @@ public final class EditorArea extends Widget {
     public void reloadTheme() {
         ctx.getThemeTreeModel().setErrorLocation(null);
         previewWidget.reloadTheme();
+    }
+    
+    public void undoGotoLastSelected() {
+        if(ctx != null) {
+            ThemeTreeModel model = ctx.getThemeTreeModel();
+            Object state = model.getUndo().getUserState();
+            if(state instanceof Long) {
+                Long prevSelected = (Long)state;
+                if(currentSelectedID == null || currentSelectedID.longValue() != prevSelected.longValue()) {
+                    ThemeTreeNode node = model.findNode(prevSelected);
+                    if(node != null) {
+                        themeTreePane.selectNode(node);
+                    }
+                }
+            }
+        }
     }
     
     void recreateLayout() {
@@ -402,7 +356,7 @@ public final class EditorArea extends Widget {
         gradientStopProperty = null;
         gradientTypeProperty = null;
         
-        Object obj = themeTreePane.getSelected();
+        TreeTableNode obj = themeTreePane.getSelected();
         if(obj != null) {
             Images images = getImages(obj);
             try {
@@ -445,6 +399,14 @@ public final class EditorArea extends Widget {
             propertyPanel = null;
         }
 
+        currentSelectedID = null;
+        if(ctx != null) {
+            if(obj instanceof ThemeTreeNode) {
+                currentSelectedID = ((ThemeTreeNode)obj).getDOMElement().getID();
+            }
+            ctx.getThemeTreeModel().getUndo().setUserState(currentSelectedID);
+        }
+        
         propertiesScrollPane.setContent(propertyPanel);
         updateTextureViewerPane();
         textureViewerPane.scrollToRect();
@@ -452,10 +414,7 @@ public final class EditorArea extends Widget {
 
     void focusNameField() {
         if(propertyPanel != null) {
-            PropertyAccessor<?, ?> pa = propertyPanel.getPropertyAccessor("Name");
-            if(pa != null) {
-                pa.focusWidget();
-            }
+            propertyPanel.focusWidget("Name");
         }
     }
 
@@ -467,7 +426,7 @@ public final class EditorArea extends Widget {
 
     void updateTextureViewerPane() {
         if(rectProperty != null) {
-            textureViewerPane.setImage(textureURL, rectProperty.getPropertyValue());
+            textureViewerPane.setImage(textureURL, rectProperty);
         } else {
             de.matthiasmann.twl.renderer.Image renderImage = null;
             Object obj = themeTreePane.getSelected();
@@ -511,7 +470,7 @@ public final class EditorArea extends Widget {
                     textureViewerPane.setSplitPositions(null, getSplitPos(model));
                     break;
                 default:
-                    textureViewerPane.setSplitPositions(null, null);
+                    textureViewerPane.setSplitPositions((FloatModel[])null, null);
                     break;
             }
         } else {
@@ -531,24 +490,20 @@ public final class EditorArea extends Widget {
         }
     }
 
-    private static int[] getSplitPos(SplitProperty splitProperty) {
-        if(splitProperty != null) {
-            Split split = splitProperty.getPropertyValue();
-            if(split != null) {
-                int size = splitProperty.getLimit();
-                return new int[] {
-                    split.getPoint1().convertToPX(size),
-                    split.getPoint2().convertToPX(size)
-                };
-            }
+    private static IntegerModel[] getSplitPos(SplitProperty splitProperty) {
+        if(splitProperty != null && splitProperty.isPresent()) {
+            return new IntegerModel[] {
+                new SplitIntegerModel(splitProperty, 0, true),
+                new SplitIntegerModel(splitProperty, 1, true),
+            };
         }
         return null;
     }
     
-    private static int[] getSplitPos(GradientStopModel model) {
-        int[] result = new int[model.getNumEntries() - 1];
+    private static FloatModel[] getSplitPos(GradientStopModel model) {
+        FloatModel[] result = new FloatModel[model.getNumEntries() - 1];
         for(int i=0 ; i<result.length ; i++) {
-            result[i] = Math.round(model.getEntry(i).getPosModel().getValue());
+            result[i] = model.getEntry(i).getPosModel();
         }
         return result;
     }
@@ -744,6 +699,15 @@ public final class EditorArea extends Widget {
         });
         themeTreePane.addCallback(updatePropertyEditors);
         
+        modelChangedCB = new DelayedAction(gui, new Runnable() {
+            public void run() {
+                reloadTheme();
+            }
+        });
+        if(ctx != null) {
+            ctx.getThemeTreeModel().addCallback(modelChangedCB);
+        }
+        
         checkWidgetTreeTimer = gui.createTimer();
         checkWidgetTreeTimer.setContinuous(true);
         checkWidgetTreeTimer.setDelay(250);
@@ -759,6 +723,7 @@ public final class EditorArea extends Widget {
     protected void beforeRemoveFromGUI(GUI gui) {
         super.beforeRemoveFromGUI(gui);
 
+        removeModelChangedCB();
         checkWidgetTreeTimer.stop();
         checkWidgetTreeTimer = null;
         themeTreePane.removeCallback(updatePropertyEditors);

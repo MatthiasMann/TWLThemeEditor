@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -36,8 +36,8 @@ import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleBooleanModel;
 import de.matthiasmann.twlthemeeditor.fontgen.Effect;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory.ExternalFetaures;
 import de.matthiasmann.twlthemeeditor.gui.PropertyFactories;
 import java.util.Properties;
 
@@ -58,15 +58,24 @@ public class EffectPropertyPanel extends DialogLayout {
         this.effect = effect;
         this.properties = effect.getProperties();
         
+        ExternalFetaures ef = new ExternalFetaures() {
+            public void setPresentAction(Runnable cb) {
+            }
+            public void disableOnNotPresent(Widget... widgets) {
+            }
+            public void setFocusWidgetCB(Runnable runnable) {
+            }
+        };
+        
         Group hLabels = createParallelGroup();
         Group hControls = createParallelGroup();
         Group vRows = createSequentialGroup();
 
         for(Property<?> p : properties) {
-            PropertyEditorFactory<?, ?> factory = factories.getFactory(p);
+            PropertyEditorFactory factory = factories.getFactory(p);
             if(factory != null) {
                 @SuppressWarnings("unchecked")
-                Widget control = factory.create(new PropertyAccessor(p, null));
+                Widget control = factory.create(p, ef);
 
                 Label label = new Label(p.getName());
                 label.setLabelFor(control);

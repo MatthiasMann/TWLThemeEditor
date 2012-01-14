@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -31,9 +31,8 @@ package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import java.io.IOException;
-import org.jdom.Content;
-import org.jdom.Element;
 
 /**
  *
@@ -53,7 +52,7 @@ public class MoveNodeOperations extends ElementOperation {
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled(boolean forPopupMenu) {
         TreeTableNode parentNode = node.getParent();
         int pos = parentNode.getChildIndex(node);
         return (direction > 0 && pos < parentNode.getNumChildren()-1) ||
@@ -68,30 +67,19 @@ public class MoveNodeOperations extends ElementOperation {
         if(direction < 0) {
             int insertPos = getPrevSiblingPosition(elementTextPos - 1) + 1;
             if(insertPos >= 0 && insertPos < elementTextPos) {
-                moveContent(elementTextPos, insertPos, elementPos - elementTextPos + 1);
+                for(int i=elementTextPos ; i<=elementPos ; i++) {
+                    parent.moveContent(i, ++insertPos);
+                }
             }
         } else {
             int insertPos = getNextSiblingPosition(elementPos);
-            if(insertPos > elementPos && insertPos < element.getParent().getContentSize()) {
-                moveContent(elementTextPos, insertPos, elementPos - elementTextPos + 1);
+            if(insertPos > elementPos && insertPos < parent.getContentSize()) {
+                for(int i=elementTextPos ; i<=elementPos ; i++) {
+                    parent.moveContent(elementTextPos, insertPos+1);
+                }
             }
         }
 
         return node;
-    }
-
-    protected void moveContent(int from, int to, int count) throws IOException {
-        if(from < to) {
-            for(; count > 0; count--) {
-                Content c = parent.removeContent(from);
-                parent.addContent(to, c);
-            }
-        } else if(from > to) {
-            for(; count > 0; count--) {
-                Content c = parent.removeContent(from++);
-                parent.addContent(to++, c);
-            }
-        }
-        updateParent();
     }
 }

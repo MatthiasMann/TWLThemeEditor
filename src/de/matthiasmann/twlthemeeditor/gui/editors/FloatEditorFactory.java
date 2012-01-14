@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -33,22 +33,19 @@ import de.matthiasmann.twl.ValueAdjusterFloat;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.FloatModel;
 import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 
 /**
  *
  * @author Matthias Mann
  */
-public class FloatEditorFactory implements PropertyEditorFactory<Float, Property<Float>> {
+public class FloatEditorFactory implements PropertyEditorFactory<Float> {
 
-    public Widget create(final PropertyAccessor<Float, Property<Float>> pa) {
-        Property<Float> property = pa.getProperty();
+    public Widget create(Property<Float> property, ExternalFetaures ef) {
         ValueAdjusterFloat va = new ValueAdjusterFloat((property instanceof FloatModel)
                 ? (FloatModel)property
                 : new PropertyFloatModel(property));
-        pa.setWidgetsToEnable(va);
-
+        ef.disableOnNotPresent(va);
         return va;
     }
 

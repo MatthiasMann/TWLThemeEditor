@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -85,8 +85,10 @@ public final class MainUI extends DialogLayout {
     private final EditorArea editorArea;
     private final StatusBar statusBar;
     private final MenuAction btnSaveProject;
+    private final MenuAction btnUndo;
     private final Menu recentProjectsMenu;
     private final MRUListModel<String> recentProjectsModel;
+    private final Runnable undoChangedCB;
 
     private PopupWindow closeConfirmDialog;
     private boolean closeApplication;
@@ -129,6 +131,13 @@ public final class MainUI extends DialogLayout {
             }
         });
 
+        Menu menuEdit = new Menu("Edit");
+        menuEdit.add(btnUndo = new MenuAction("Undo", new Runnable() {
+            public void run() {
+                undo();
+            }
+        }));
+        
         Menu menuView = new Menu("View");
         menuView.add(new MenuCheckbox("Layout 1", editorArea.getLayoutBooleanModel(EditorArea.Layout.SPLIT_HV)).setTheme("radiobtn"));
         menuView.add(new MenuCheckbox("Layout 2", editorArea.getLayoutBooleanModel(EditorArea.Layout.SPLIT_HHV)).setTheme("radiobtn"));
@@ -137,6 +146,7 @@ public final class MainUI extends DialogLayout {
         mainMenu.setTheme("mainmenu");
         mainMenu.add(menuFile);
         mainMenu.add(menuView);
+        mainMenu.add(menuEdit);
 
         editorArea.addMenus(mainMenu);
 
@@ -183,7 +193,14 @@ public final class MainUI extends DialogLayout {
 
         recentProjectsModel = new PersistentMRUListModel<String>(5, String.class, prefs, KEY_RECENT_PROJECTS);
         
+        undoChangedCB = new Runnable() {
+            public void run() {
+                updateUndoButton();
+            }
+        };
+        
         btnSaveProject.setEnabled(false);
+        btnUndo.setEnabled(false);
         
         setHorizontalGroup(createParallelGroup()
                 .addWidget(menuBar)
@@ -199,6 +216,7 @@ public final class MainUI extends DialogLayout {
         popuplateRecentProjectsMenu();
 
         addActionMapping("reloadTestWidget", "reloadTestWidget");
+        addActionMapping("undo", "undo");
     }
 
     @Override
@@ -270,9 +288,21 @@ public final class MainUI extends DialogLayout {
             editorArea.setModel(model);
             btnSaveProject.setEnabled(false);
             editorArea.setDemoMode(true);
+            model.getUndo().addCallback(undoChangedCB);
+            updateUndoButton();
             messageLog.add(new MessageLog.Entry(CAT_PROJECT, "Demo mode started", null, null));
         } catch(IOException ex) {
             messageLog.add(new MessageLog.Entry(CAT_PROJECT_ERROR, "Could not start demo mode", null, ex));
+        }
+    }
+    
+    void updateUndoButton() {
+        btnUndo.setEnabled(model != null && model.getUndo().hasUndo());
+    }
+    
+    public void undo() {
+        if(model != null && model.getUndo().undo()) {
+            editorArea.undoGotoLastSelected();
         }
     }
 
@@ -281,6 +311,9 @@ public final class MainUI extends DialogLayout {
     }
     
     public void closeProject() {
+        if(model != null) {
+            model.getUndo().removeCallback(undoChangedCB);
+        }
         model = null;
         projectDir = null;
         editorArea.setModel(null);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -31,75 +31,53 @@ package de.matthiasmann.twlthemeeditor.gui.editors;
 
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twl.model.SimpleBooleanModel;
-import de.matthiasmann.twl.model.SimpleIntegerModel;
 import de.matthiasmann.twlthemeeditor.datamodel.IntegerFormula;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
-import de.matthiasmann.twlthemeeditor.gui.PropertyAccessor;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 
 /**
  *
  * @author Matthias Mann
  */
-public class IntegerFormulaEditorFactory implements PropertyEditorFactory<IntegerFormula, Property<IntegerFormula>> {
+public class IntegerFormulaEditorFactory implements PropertyEditorFactory<IntegerFormula> {
 
-    public Widget create(PropertyAccessor<IntegerFormula, Property<IntegerFormula>> pa) {
-        return new IntegerEditor(pa);
+    public Widget create(Property<IntegerFormula> property, ExternalFetaures ef) {
+        return new IntegerEditor(property, ef);
     }
 
-    static final class IntegerEditor extends DialogLayout implements Runnable, EditField.Callback {
-        private final PropertyAccessor<IntegerFormula, Property<IntegerFormula>> pa;
-        private final SimpleBooleanModel useFormula;
+    static final class IntegerEditor extends DialogLayout implements EditField.Callback {
+        private final Property<IntegerFormula> property;
+        private final BooleanModel useFormula;
         private final EditField efFormula;
-        private final SimpleIntegerModel model;
         private final ValueAdjusterInt adjuster;
-
-        boolean inSetProperty;
+        private final Runnable propertyCB;
         
         @SuppressWarnings("LeakingThisInConstructor")
-        public IntegerEditor(PropertyAccessor<IntegerFormula, Property<IntegerFormula>> pa) {
-            this.pa = pa;
-
-            Property<IntegerFormula> property = pa.getProperty();
-
-            int minValue = Integer.MIN_VALUE;
-            int maxValue = Integer.MAX_VALUE;
-
-            if(property instanceof IntegerModel) {
-                IntegerModel im = (IntegerModel)property;
-                minValue = im.getMinValue();
-                maxValue = im.getMaxValue();
-            }
-
-            pa.setWidgetsToEnable(this);
-
-            IntegerFormula value = pa.getValue(new IntegerFormula(
-                    (minValue < 0 && maxValue >= 0) ? 0 : minValue));
-
-            model = new SimpleIntegerModel(
-                    minValue, maxValue, value.getValue());
-            model.addCallback(this);
-            
-            adjuster = new ValueAdjusterInt(model);
-
-            useFormula = new SimpleBooleanModel(value.hasFormula());
-            useFormula.addCallback(new Runnable() {
+        public IntegerEditor(Property<IntegerFormula> property, ExternalFetaures ef) {
+            this.property = property;
+            this.propertyCB = new Runnable() {
                 public void run() {
                     setEnabled();
-                    setProperty();
+                    propertyChanged();
                 }
-            });
+            };
 
+            ef.disableOnNotPresent(this);
+
+            adjuster = new ValueAdjusterInt(new IM());
+            useFormula = new UFM();
+            
             ToggleButton btnUseFormula = new ToggleButton(useFormula);
             btnUseFormula.setTheme("btnUseFormula");
+            
             efFormula = new EditField();
-            efFormula.setText(value.toString());
             efFormula.addCallback(this);
 
             setHorizontalGroup(createParallelGroup()
@@ -112,48 +90,89 @@ public class IntegerFormulaEditorFactory implements PropertyEditorFactory<Intege
             setEnabled();
         }
 
-        public void run() {
-            setProperty();
+        @Override
+        protected void afterAddToGUI(GUI gui) {
+            super.afterAddToGUI(gui);
+            property.addValueChangedCallback(propertyCB);
+            propertyChanged();
+        }
+
+        @Override
+        protected void beforeRemoveFromGUI(GUI gui) {
+            property.removeValueChangedCallback(propertyCB);
+            super.beforeRemoveFromGUI(gui);
         }
 
         public void callback(int key) {
-            if(!inSetProperty) {
-                setProperty();
+            IntegerFormula value = property.getPropertyValue();
+            if(value.hasFormula()) {
+                String formula = efFormula.getText();
+                if(!formula.equals(value.getFormula())) {
+                    int intValue = adjuster.getValue();
+                    try {
+                        intValue = Utils.parseInt(formula);
+                    } catch (NumberFormatException ex) {
+                    }
+                    property.setPropertyValue(new IntegerFormula(intValue, formula));
+                }
             }
         }
 
-        void setProperty() {
-            try {
-                inSetProperty = true;
-                IntegerFormula value;
-
-                if(useFormula.getValue()) {
-                    String formula = efFormula.getText();
-                    try {
-                        int intValue = Utils.parseInt(formula);
-                        model.setValue(intValue);
-                    } catch (NumberFormatException ex) {
-                    }
-                    value = new IntegerFormula(model.getValue(), formula);
-                } else {
-                    value = new IntegerFormula(model.getValue());
-
-                    try {
-                        // if the current formula is a parseable border then update it
-                        Utils.parseInt(efFormula.getText());
-                        efFormula.setText(value.toString());
-                    } catch (NumberFormatException ex) {
-                    }
-                }
-                pa.setValue(value);
-            } finally {
-                inSetProperty = false;
-            }
+        void propertyChanged() {
+            IntegerFormula value = property.getPropertyValue();
+            efFormula.setText(value.toString());
         }
 
         void setEnabled() {
             efFormula.setEnabled(useFormula.getValue());
             adjuster.setEnabled(!useFormula.getValue());
+        }
+        
+        class IM implements IntegerModel {
+            public int getMinValue() {
+                return (property instanceof IntegerModel)
+                        ? ((IntegerModel)property).getMinValue()
+                        : Integer.MIN_VALUE;
+            }
+            public int getMaxValue() {
+                return (property instanceof IntegerModel)
+                        ? ((IntegerModel)property).getMaxValue()
+                        : Integer.MAX_VALUE;
+            }
+            public int getValue() {
+                IntegerFormula value = property.getPropertyValue();
+                return (value != null) ? value.getValue() : 0;
+            }
+            public void setValue(int value) {
+                if(!useFormula.getValue()) {
+                    property.setPropertyValue(new IntegerFormula(value));
+                }
+            }
+            public void addCallback(Runnable cb) {
+                property.addValueChangedCallback(cb);
+            }
+            public void removeCallback(Runnable cb) {
+                property.removeValueChangedCallback(cb);
+            }
+        }
+        class UFM implements BooleanModel {
+            public boolean getValue() {
+                IntegerFormula value = property.getPropertyValue();
+                return (value != null) ? value.hasFormula() : false;
+            }
+            public void setValue(boolean value) {
+                if(value) {
+                    property.setPropertyValue(new IntegerFormula(adjuster.getValue(), efFormula.getText()));
+                } else {
+                    property.setPropertyValue(new IntegerFormula(adjuster.getValue()));
+                }
+            }
+            public void addCallback(Runnable cb) {
+                property.addValueChangedCallback(cb);
+            }
+            public void removeCallback(Runnable cb) {
+                property.removeValueChangedCallback(cb);
+            }
         }
     }
 }

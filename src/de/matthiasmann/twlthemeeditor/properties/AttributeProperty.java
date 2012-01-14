@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -29,27 +29,30 @@
  */
 package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twl.model.AbstractProperty;
+import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.StringModel;
+import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
-import org.jdom.Element;
+import de.matthiasmann.twlthemeeditor.dom.Attribute;
+import de.matthiasmann.twlthemeeditor.dom.AttributeList.AttributeListListener;
+import de.matthiasmann.twlthemeeditor.dom.Element;
+import de.matthiasmann.twlthemeeditor.dom.Namespace;
 
 /**
  *
  * @author Matthias Mann
  */
-public class AttributeProperty extends AbstractProperty<String> implements StringModel{
+public class AttributeProperty implements Property<String>, StringModel {
 
     private final Element element;
     private final String attribute;
     private final String name;
     private final boolean canBeNull;
+    private final AttributeListListener all;
+    private Runnable[] callbacks = null;
 
     public AttributeProperty(Element element, String attribute) {
-        this.element = element;
-        this.attribute = attribute;
-        this.name = Utils.capitalize(attribute);
-        this.canBeNull = false;
+        this(element, attribute, Utils.capitalize(attribute), false);
     }
 
     public AttributeProperty(Element element, String attribute, String name, boolean canBeNull) {
@@ -57,6 +60,7 @@ public class AttributeProperty extends AbstractProperty<String> implements Strin
         this.attribute = attribute;
         this.name = name;
         this.canBeNull = canBeNull;
+        this.all = new ALL();
     }
 
     public String getName() {
@@ -90,7 +94,6 @@ public class AttributeProperty extends AbstractProperty<String> implements Strin
             } else {
                 element.setAttribute(attribute, value);
             }
-            fireValueChangedCallback();
         }
     }
 
@@ -102,11 +105,44 @@ public class AttributeProperty extends AbstractProperty<String> implements Strin
         setValue(value);
     }
 
-    public void addCallback(Runnable callback) {
-        addValueChangedCallback(callback);
+    public void addCallback(Runnable cb) {
+        boolean wasEmpty = (callbacks == null);
+        callbacks = CallbackSupport.addCallbackToList(callbacks, cb, Runnable.class);
+        if(wasEmpty) {
+            element.getAttributes().addListener(all);
+        }
     }
 
-    public void removeCallback(Runnable callback) {
-        removeValueChangedCallback(callback);
+    public void removeCallback(Runnable cb) {
+        callbacks = CallbackSupport.removeCallbackFromList(callbacks, cb);
+        if(callbacks == null) {
+            element.getAttributes().removeListener(all);
+        }
+    }
+    
+    public void addValueChangedCallback(Runnable cb) {
+        addCallback(cb);
+    }
+
+    public void removeValueChangedCallback(Runnable cb) {
+        removeCallback(cb);
+    }
+    
+    void check(Attribute attribute) {
+        if(attribute.equals(this.attribute, Namespace.NO_NAMESPACE)) {
+            CallbackSupport.fireCallbacks(callbacks);
+        }
+    }
+    
+    class ALL implements AttributeListListener {
+        public void attributeAdded(Element element, Attribute attribute, int index) {
+            check(attribute);
+        }
+        public void attributeChanged(Element element, Attribute attribute, String oldValue, String newValue) {
+            check(attribute);
+        }
+        public void attributeRemoved(Element element, Attribute attribute, int index) {
+            check(attribute);
+        }
     }
 }

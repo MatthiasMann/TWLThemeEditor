@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -32,11 +32,11 @@ package de.matthiasmann.twlthemeeditor.datamodel.operations;
 import de.matthiasmann.twl.model.TreeTableNode;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
+import de.matthiasmann.twlthemeeditor.dom.Content;
+import de.matthiasmann.twlthemeeditor.dom.Element;
+import de.matthiasmann.twlthemeeditor.dom.Text;
 import java.io.IOException;
 import java.util.Arrays;
-import org.jdom.Content;
-import org.jdom.Element;
-import org.jdom.Text;
 
 /**
  *
@@ -90,13 +90,11 @@ public abstract class CreateChildOperation extends ThemeTreeOperation {
         } else {
             element.addContent(pos, new Text(createIndentation(indentation - INDENTATION_SIZE)));
         }
-        element.addContent(pos++, new Text(createIndentation(indentation)));
-        element.addContent(pos, child);
         if(indentChildren) {
             addIndentation(child, indentation);
         }
-        parent.addChildren();
-        ElementOperation.setModified(element);
+        element.addContent(pos++, new Text(createIndentation(indentation)));
+        element.addContent(pos, child);
         return findChildInParent(parent, child);
     }
     
@@ -123,8 +121,8 @@ public abstract class CreateChildOperation extends ThemeTreeOperation {
                 hasElements = true;
             } else if(content instanceof Text) {
                 Text text = (Text)content;
-                if("\n".equals(text.getText())) {
-                    text.setText(createIndentation(indentation));
+                if("\n".equals(text.getValue())) {
+                    text.setValue(createIndentation(indentation));
                 }
             }
         }

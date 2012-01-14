@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -30,8 +30,8 @@
 package de.matthiasmann.twlthemeeditor.datamodel;
 
 import de.matthiasmann.twl.model.TreeTableNode;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import java.io.IOException;
-import org.jdom.Element;
 
 /**
  *

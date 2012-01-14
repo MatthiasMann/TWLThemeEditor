@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -31,8 +31,6 @@ package de.matthiasmann.twlthemeeditor.properties;
 
 import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.Property;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -43,39 +41,23 @@ public class IntegerProperty extends DerivedProperty<Integer> implements Integer
     private final int minValue;
     private final int maxValue;
 
-    private int prevValue;
-
     public IntegerProperty(Property<String> base, int minValue, int maxValue) {
-        super(base, Integer.class);
+        super(base, Integer.class, (minValue < 0 && maxValue >= 0) ? 0 : minValue);
         this.minValue = minValue;
         this.maxValue = maxValue;
-        this.prevValue = (minValue < 0 && maxValue >= 0) ? 0 : minValue;
     }
 
-    public Integer getPropertyValue() {
-        String value = base.getPropertyValue();
-        if(value == null && canBeNull()) {
-            return null;
+    @Override
+    protected Integer parse(String value) throws IllegalArgumentException {
+        if(value.startsWith("0x")) {
+            return Integer.valueOf(value.substring(2), 16);
         }
-        try {
-            if(value.startsWith("0x")) {
-                return Integer.valueOf(value.substring(2), 16);
-            }
-            return Integer.valueOf(value, 10);
-        } catch (Throwable ex) {
-            Logger.getLogger(IntegerProperty.class.getName()).log(Level.SEVERE,
-                    "Can't parse value of propterty '" + getName() + "': " + value, ex);
-            return prevValue;
-        }
+        return Integer.valueOf(value, 10);
     }
 
-    public void setPropertyValue(Integer value) throws IllegalArgumentException {
-        if(canBeNull() && value == null) {
-            base.setPropertyValue(null);
-        } else {
-            prevValue = value;
-            base.setPropertyValue(value.toString());
-        }
+    @Override
+    protected String toString(Integer value) throws IllegalArgumentException {
+        return value.toString();
     }
 
     public int getMaxValue() {
@@ -91,8 +73,6 @@ public class IntegerProperty extends DerivedProperty<Integer> implements Integer
     }
 
     public int getValue() {
-        Integer value = getPropertyValue();
-        return (value != null) ? value : prevValue;
+        return getPropertyValue();
     }
-
 }

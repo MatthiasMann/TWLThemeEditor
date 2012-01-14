@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -44,16 +44,13 @@ public class BorderProperty extends DerivedProperty<Border> {
     private final boolean allowFormula;
 
     public BorderProperty(Property<String> base, int minValue, boolean allowFormula) {
-        super(base, Border.class);
+        super(base, Border.class, Border.ZERO);
         this.minValue = minValue;
         this.allowFormula = allowFormula;
     }
 
-    public Border getPropertyValue() {
-        String value = base.getPropertyValue();
-        if(value == null && canBeNull()) {
-            return null;
-        }
+    @Override
+    protected Border parse(String value) throws IllegalArgumentException {
         try {
             return Utils.parseBorder(value);
         } catch (NumberFormatException ex) {
@@ -65,8 +62,9 @@ public class BorderProperty extends DerivedProperty<Border> {
         }
     }
 
-    public void setPropertyValue(Border value) throws IllegalArgumentException {
-        base.setPropertyValue(Utils.toString(value, canBeNull()));
+    @Override
+    protected String toString(Border value) throws IllegalArgumentException {
+        return Utils.toString(value, isOptional());
     }
 
     public int getMinValue() {
@@ -76,5 +74,4 @@ public class BorderProperty extends DerivedProperty<Border> {
     public boolean isAllowFormula() {
         return allowFormula;
     }
-    
 }

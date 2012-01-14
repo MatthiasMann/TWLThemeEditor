@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -29,16 +29,16 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel;
 
+import de.matthiasmann.twlthemeeditor.dom.Attribute;
+import de.matthiasmann.twlthemeeditor.dom.AttributeList;
+import de.matthiasmann.twlthemeeditor.dom.Content;
+import de.matthiasmann.twlthemeeditor.dom.Element;
+import de.matthiasmann.twlthemeeditor.dom.Text;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
-import org.jdom.Attribute;
-import org.jdom.CDATA;
-import org.jdom.Element;
-import org.jdom.Text;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -63,14 +63,12 @@ public class DomXPPParser implements XmlPullParser {
 
     @SuppressWarnings("unchecked")
     public void addElement(Object location, Element e) {
-        addStartTag(location, e.getName(), toArray(e.getAttributes()));
-        for(Object child : e.getContent()) {
+        addStartTag(location, e.getName(), e.getAttributes());
+        for(Content child : e) {
             if(child instanceof Element) {
                 addElement(location, (Element)child);
             } else if(child instanceof Text) {
-                addText(((Text)child).getText());
-            } else if(child instanceof CDATA) {
-                addText(((CDATA)child).getText());
+                addText(((Text)child).getValue());
             } else {
                 //System.out.println("Ignoring: " + child.getClass());
             }
@@ -78,8 +76,8 @@ public class DomXPPParser implements XmlPullParser {
         addEndTag(e.getName());
     }
 
-    public void addStartTag(Object location, String name, Collection<Attribute> attributes) {
-        addStartTag(location, name, toArray(attributes));
+    public void addStartTag(Object location, String name, AttributeList attributes) {
+        addStartTag(location, name, attributes.toArray());
     }
     
     public void addStartTag(Object location, String name, Attribute ... attributes) {
@@ -231,8 +229,7 @@ public class DomXPPParser implements XmlPullParser {
         if(tag != null) {
             getPositionDescription(tag.parent, sb);
             sb.append(" #").append(tag.position).append('<').append(tag.name);
-            for(int i=0 ; i<tag.attributes.length ; i++) {
-                Attribute attrib = tag.attributes[i];
+            for(Attribute attrib : tag.attributes) {
                 sb.append(' ').append(attrib.getName())
                         .append("=\"").append(attrib.getValue()).append('"');
             }
@@ -368,10 +365,6 @@ public class DomXPPParser implements XmlPullParser {
 
     public void setProperty(String name, Object value) throws XmlPullParserException {
         throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    static Attribute[] toArray(Collection<Attribute> attributes) {
-        return attributes.toArray(new Attribute[attributes.size()]);
     }
 
     static class StartTag {

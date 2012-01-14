@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -38,39 +38,36 @@ import de.matthiasmann.twl.model.Property;
  */
 public class BooleanProperty extends DerivedProperty<Boolean> implements BooleanModel {
 
-    private final boolean defaultValue;
-
     public BooleanProperty(Property<String> base, boolean defaultValue) {
-        super(base, Boolean.class);
-        this.defaultValue = defaultValue;
+        super(base, Boolean.class, defaultValue);
     }
 
     @Override
-    public boolean canBeNull() {
+    public boolean isOptional() {
         return false;
     }
 
-    public boolean getValue() {
-        String propertyValue = base.getPropertyValue();
-        if(propertyValue == null) {
-            return defaultValue;
+    @Override
+    protected Boolean parse(String value) throws IllegalArgumentException {
+        return Boolean.parseBoolean(value);
+    }
+
+    @Override
+    protected String toString(Boolean value) throws IllegalArgumentException {
+        if(value == defaultValue) {
+            return null;
         }
-        return Boolean.parseBoolean(propertyValue);
+        if(value) {
+            return "true";
+        }
+        return "false";
+    }
+
+    public boolean getValue() {
+        return getPropertyValue();
     }
     
     public void setValue(boolean value) throws IllegalArgumentException {
-        if(base.canBeNull() && defaultValue == value) {
-            base.setPropertyValue(null);
-        } else {
-            base.setPropertyValue(value ? "true" : "false");
-        }
-    }
-
-    public Boolean getPropertyValue() {
-        return getValue();
-    }
-
-    public void setPropertyValue(Boolean value) {
-        setValue(value.booleanValue());
+        setPropertyValue(value);
     }
 }

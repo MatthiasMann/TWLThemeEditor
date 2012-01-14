@@ -1396,6 +1396,8 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
         </map></param>
         <param name="inputMap"><inputMapDef merge="true">
             <action name="reloadTestWidget">F5</action>
+            <action name="undo">ctrl Z</action>
+            <action name="undo">cmd Z</action>
         </inputMapDef></param>
     </theme>
 

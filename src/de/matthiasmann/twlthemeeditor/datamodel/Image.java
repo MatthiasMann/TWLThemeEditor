@@ -43,6 +43,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.images.Select;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Area;
 import de.matthiasmann.twlthemeeditor.datamodel.images.Gradient;
 import de.matthiasmann.twlthemeeditor.datamodel.operations.CloneNodeOperation;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.BooleanProperty;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
@@ -53,7 +54,6 @@ import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.RectProperty;
 import java.io.IOException;
 import java.util.List;
-import org.jdom.Element;
 
 /**
  *

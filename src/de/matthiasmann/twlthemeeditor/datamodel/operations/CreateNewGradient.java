@@ -30,8 +30,8 @@
 package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 import java.io.IOException;
-import org.jdom.Element;
 
 /**
  *
@@ -48,9 +48,7 @@ public class CreateNewGradient extends CreateNewSimple {
         Element stop = new Element("stop");
         stop.setAttribute("pos", "0");
         stop.setAttribute("color", "#000");
-        e.addContent(createIndentation(getBaseIndentation() + INDENTATION_SIZE));
         e.addContent(stop);
-        addIndentation(element, pos);
         return super.addChild(e, pos);
     }
     

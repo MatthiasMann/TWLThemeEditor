@@ -36,9 +36,9 @@ import de.matthiasmann.twl.DraggableButton;
 import de.matthiasmann.twl.DraggableButton.DragListener;
 import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.GUI;
-import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ThemeInfo;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.FloatModel;
 import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twl.renderer.CacheContext;
 import de.matthiasmann.twl.renderer.Image;
@@ -49,6 +49,7 @@ import de.matthiasmann.twl.renderer.Renderer;
 import de.matthiasmann.twl.renderer.Texture;
 import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twleffects.lwjgl.LWJGLOffscreenSurface;
+import de.matthiasmann.twlthemeeditor.datamodel.ExtRect;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import java.io.IOException;
 import java.net.URL;
@@ -69,12 +70,6 @@ public class TextureViewer extends Widget {
     public interface MouseOverListener {
         public void mousePosition(int x, int y);
         public void mouseExited();
-    }
-
-    public interface PositionBarDragListener {
-        public void dragStarted(int posBarHorz, int posBarVert);
-        public void dragged(int deltaX, int deltaY);
-        public void dragStopped();
     }
 
     public interface TextureLoadedListener {
@@ -103,16 +98,15 @@ public class TextureViewer extends Widget {
     private final AnimationState animationState;
     
     private URL url;
-    private Rect rect;
+    private ExtRect rect;
     private Color tintColor = Color.WHITE;
     private float zoomX;
     private float zoomY;
-    private int[] positionBarsHorz;
-    private int[] positionBarsVert;
+    private FloatModel[] positionBarsHorz;
+    private FloatModel[] positionBarsVert;
     private Runnable[] exceptionCallbacks;
     private MouseOverListener mouseOverListener;
     private DraggableButton.DragListener imageDragListener;
-    private PositionBarDragListener positionBarDragListener;
     private TextureLoadedListener textureLoadedListener;
 
     private long lastModified;
@@ -136,6 +130,8 @@ public class TextureViewer extends Widget {
     private int dragPosBarVert;
     private int dragStartX;
     private int dragStartY;
+    private float dragStartValueHorz;
+    private float dragStartValueVert;
 
     public TextureViewer() {
         cursors = new EnumMap<Cursors, MouseCursor>(Cursors.class);
@@ -151,7 +147,7 @@ public class TextureViewer extends Widget {
         return url;
     }
 
-    public void setImage(URL url, Rect rect) {
+    public void setImage(URL url, ExtRect rect) {
         if(!Utils.equals(this.url, url) || checkModified()) {
             this.url = url;
             reloadTexture = true;
@@ -165,7 +161,7 @@ public class TextureViewer extends Widget {
     public void setImage(Image image) {
         this.specialImage = image;
         this.image = image;
-        this.rect = (image != null) ? new Rect(0, 0, image.getWidth(), image.getHeight()) : null;
+        this.rect = (image != null) ? new ExtRect(0, 0, image.getWidth(), image.getHeight()) : null;
         this.url = null;
         this.reloadTexture = false;
         this.changeImage = false;
@@ -209,20 +205,13 @@ public class TextureViewer extends Widget {
         }
     }
 
-    public Rect getTextureRect() {
-        if(texture == null) {
-            return new Rect();
-        }
-        return new Rect(0, 0, texture.getWidth(), texture.getHeight());
-    }
-
     public void setZoom(float zoomX, float zoomY) {
         this.zoomX = zoomX;
         this.zoomY = zoomY;
         invalidateLayout();
     }
 
-    public void setPositionBars(int[] positionBarsHorz, int[] positionBarsVert) {
+    public void setPositionBars(FloatModel[] positionBarsHorz, FloatModel[] positionBarsVert) {
         this.positionBarsHorz = positionBarsHorz;
         this.positionBarsVert = positionBarsVert;
     }
@@ -245,10 +234,6 @@ public class TextureViewer extends Widget {
 
     public void setImageDragListener(DragListener imageDragListener) {
         this.imageDragListener = imageDragListener;
-    }
-
-    public void setPositionBarDragListener(PositionBarDragListener positionBarDragListener) {
-        this.positionBarDragListener = positionBarDragListener;
     }
 
     public void setTextureLoadedListener(TextureLoadedListener textureLoadedListener) {
@@ -309,16 +294,24 @@ public class TextureViewer extends Widget {
         
         if(changeImage) {
             if(texture != null) {
-                if(rect == null) {
-                    rect = getTextureRect();
-                } else {
-                    rect = new Rect(rect);
-                    rect.intersect(getTextureRect());
+                int x = 0;
+                int y = 0;
+                int w = texture.getWidth();
+                int h = texture.getHeight();
+                if(rect != null && !rect.wholeArea) {
+                    x = Math.max(0, Math.min(w, rect.x));
+                    y = Math.max(0, Math.min(h, rect.y));
+                    w = Math.max(0, Math.min(w-x, rect.width));
+                    h = Math.max(0, Math.min(h-y, rect.height));
+                    if(rect.flipX) {
+                        w = -w;
+                    }
+                    if(rect.flipY) {
+                        h = -h;
+                    }
                 }
                 try {
-                    image = texture.getImage(rect.getX(), rect.getY(),
-                            rect.getWidth(), rect.getHeight(), tintColor,
-                            false, Texture.Rotation.NONE);
+                    image = texture.getImage(x, y, w, h, tintColor, false, Texture.Rotation.NONE);
                 } catch (IllegalArgumentException ex) {
                     image = null;
                 }
@@ -350,15 +343,15 @@ public class TextureViewer extends Widget {
         }
 
         if(positionBarsVert != null && imagePositionBarVert != null) {
-            for(int x : positionBarsVert) {
+            for(FloatModel x : positionBarsVert) {
                 imagePositionBarVert.draw(getAnimationState(),
-                        getInnerX() + (int)(x*zoomX), getInnerY(), 1, getInnerHeight());
+                        getInnerX() + Math.round(x.getValue()*zoomX), getInnerY(), 1, getInnerHeight());
             }
         }
         if(positionBarsHorz != null && imagePositionBarHorz != null) {
-            for(int y : positionBarsHorz) {
+            for(FloatModel y : positionBarsHorz) {
                 imagePositionBarHorz.draw(getAnimationState(),
-                        getInnerX(), getInnerY() + (int)(y*zoomY), getInnerWidth(), 1);
+                        getInnerX(), getInnerY() + Math.round(y.getValue()*zoomY), getInnerWidth(), 1);
             }
         }
     }
@@ -448,8 +441,8 @@ public class TextureViewer extends Widget {
 
             if(isInside) {
                 if(rect != null) {
-                    x += rect.getX();
-                    y += rect.getY();
+                    x += rect.x;
+                    y += rect.y;
                 }
                 mouseOverListener.mousePosition(x, y);
                 mouseInside = true;
@@ -464,18 +457,22 @@ public class TextureViewer extends Widget {
                 if(dragMode == DragMode.IMAGE && imageDragListener != null) {
                     imageDragListener.dragged(evt.getMouseX()-dragStartX, evt.getMouseY()-dragStartY);
                 }
-                if(dragMode == DragMode.BARS && positionBarDragListener != null) {
-                    positionBarDragListener.dragged(
-                            (int)((evt.getMouseX()-dragStartX) / zoomX),
-                            (int)((evt.getMouseY()-dragStartY) / zoomY));
+                if(dragMode == DragMode.BARS) {
+                    if(dragPosBarHorz >= 0) {
+                        FloatModel m = positionBarsHorz[dragPosBarHorz];
+                        m.setValue(Math.max(m.getMinValue(), Math.min(m.getMaxValue(), 
+                                dragStartValueHorz + (evt.getMouseY()-dragStartY)/zoomY)));
+                    }
+                    if(dragPosBarVert >= 0) {
+                        FloatModel m = positionBarsVert[dragPosBarVert];
+                        m.setValue(Math.max(m.getMinValue(), Math.min(m.getMaxValue(), 
+                                dragStartValueVert + (evt.getMouseX()-dragStartX)/zoomX)));
+                    }
                 }
             }
             if(evt.isMouseDragEnd()) {
                 if(dragMode == DragMode.IMAGE && imageDragListener != null) {
                     imageDragListener.dragStopped();
-                }
-                if(dragMode == DragMode.BARS && positionBarDragListener != null) {
-                    positionBarDragListener.dragStopped();
                 }
                 dragMode = DragMode.NONE;
             }
@@ -532,8 +529,11 @@ public class TextureViewer extends Widget {
 
         if(dragPosBarHorz >= 0 || dragPosBarVert >= 0) {
             dragMode = DragMode.BARS;
-            if(positionBarDragListener != null) {
-                positionBarDragListener.dragStarted(dragPosBarHorz, dragPosBarVert);
+            if(dragPosBarHorz >= 0) {
+                dragStartValueHorz = positionBarsHorz[dragPosBarHorz].getValue();
+            }
+            if(dragPosBarVert >= 0) {
+                dragStartValueVert = positionBarsVert[dragPosBarVert].getValue();
             }
         } else {
             dragMode = DragMode.IMAGE;
@@ -558,13 +558,13 @@ public class TextureViewer extends Widget {
         }
     }
 
-    private int findNearestPosBar(int[] posBars, int pos, float zoom) {
+    private int findNearestPosBar(FloatModel[] posBars, int pos, float zoom) {
         int bestIdx = -1;
         int bestDist = 10;
 
         if(posBars != null) {
             for(int idx=0 ; idx<posBars.length ; idx++) {
-                int dist = Math.abs((int)(posBars[idx] * zoom) - pos);
+                int dist = Math.abs(Math.round(posBars[idx].getValue() * zoom) - pos);
                 if(dist < bestDist) {
                     bestDist = dist;
                     bestIdx  = idx;

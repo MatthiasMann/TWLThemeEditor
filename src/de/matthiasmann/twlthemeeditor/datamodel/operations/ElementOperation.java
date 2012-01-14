@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -29,11 +29,9 @@
  */
 package de.matthiasmann.twlthemeeditor.datamodel.operations;
 
-import de.matthiasmann.twlthemeeditor.datamodel.ThemeFile;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeNode;
 import de.matthiasmann.twlthemeeditor.datamodel.ThemeTreeOperation;
-import java.io.IOException;
-import org.jdom.Element;
+import de.matthiasmann.twlthemeeditor.dom.Element;
 
 /**
  *
@@ -78,17 +76,5 @@ abstract class ElementOperation extends ThemeTreeOperation {
             pos++;
         } while(pos < count && !(parent.getContent(pos) instanceof Element));
         return pos;
-    }
-
-    protected void updateParent() throws IOException {
-        getNodeParent().addChildren();
-        setModified(parent);
-    }
-
-    protected static void setModified(Element parent) {
-        ThemeFile themeFile = ThemeFile.getThemeFile(parent);
-        if(themeFile != null) {
-            themeFile.setModified(true);
-        }
     }
 }

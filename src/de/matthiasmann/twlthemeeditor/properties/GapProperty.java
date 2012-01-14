@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -41,18 +41,18 @@ import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 public class GapProperty extends DerivedProperty<Gap> {
 
     public GapProperty(Property<String> base) {
-        super(base, Gap.class);
+        super(base, Gap.class, null);
     }
 
-    public Gap getPropertyValue() {
-        return Utils.parseGap(base.getPropertyValue());
+    @Override
+    protected Gap parse(String value) throws IllegalArgumentException {
+        return Utils.parseGap(value);
     }
 
-    public void setPropertyValue(Gap value) throws IllegalArgumentException {
-        base.setPropertyValue((value != null) ? toString(value) : null);
-    }
-
-    private static String toString(Gap gap) {
+    protected String toString(Gap gap) {
+        if(gap == null) {
+            return null;
+        }
         if(gap.min == gap.max && gap.min == gap.preferred) {
             return Integer.toString(gap.min);
         }
@@ -64,5 +64,4 @@ public class GapProperty extends DerivedProperty<Gap> {
         }
         return gap.min + "," + gap.preferred + "," + gap.max;
     }
-
 }

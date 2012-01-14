@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -45,7 +45,7 @@ public class DerivedNodeReferenceProperty extends DerivedProperty<NodeReference>
     private final boolean supportsWildcard;
 
     public DerivedNodeReferenceProperty(Property<String> base, ThemeTreeNode limit, Kind kind, boolean supportsWildcard) {
-        super(base, NodeReference.class);
+        super(base, NodeReference.class, null);
         this.limit = limit;
         this.kind = kind;
         this.supportsWildcard = supportsWildcard;
@@ -55,15 +55,20 @@ public class DerivedNodeReferenceProperty extends DerivedProperty<NodeReference>
         this(base, limit, kind, false);
     }
 
-    public NodeReference getPropertyValue() {
-        String value = base.getPropertyValue();
-        return (value != null) ? new NodeReference(value, kind) : null;
+    @Override
+    protected NodeReference parse(String value) throws IllegalArgumentException {
+        return new NodeReference(value, kind);
     }
 
-    public void setPropertyValue(NodeReference value) throws IllegalArgumentException {
-        if(value == null || value.getKind() == kind) {
-            base.setPropertyValue((value != null) ? value.getName() : null);
+    @Override
+    protected String toString(NodeReference value) throws IllegalArgumentException {
+        if(value == null) {
+            return null;
         }
+        if(value.getKind() != kind) {
+            throw new IllegalArgumentException("Incompatible kind");
+        }
+        return value.getName();
     }
 
     public ThemeTreeNode getLimit() {
