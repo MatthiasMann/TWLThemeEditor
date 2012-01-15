@@ -193,13 +193,10 @@ public final class Element extends Content implements Parent {
 
     public void moveContent(int fromIndex, int toIndex) {
         Content child = content.get(fromIndex);
-        if(toIndex < 0 || toIndex > content.size) {
+        if(toIndex < 0 || toIndex >= content.size) {
             throw new IndexOutOfBoundsException();
         }
         
-        if(toIndex > fromIndex) {
-            toIndex--;
-        }
         if(toIndex == fromIndex) {
             return;
         }

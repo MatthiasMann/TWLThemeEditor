@@ -68,14 +68,14 @@ public class MoveNodeOperations extends ElementOperation {
             int insertPos = getPrevSiblingPosition(elementTextPos - 1) + 1;
             if(insertPos >= 0 && insertPos < elementTextPos) {
                 for(int i=elementTextPos ; i<=elementPos ; i++) {
-                    parent.moveContent(i, ++insertPos);
+                    parent.moveContent(i, insertPos++);
                 }
             }
         } else {
             int insertPos = getNextSiblingPosition(elementPos);
             if(insertPos > elementPos && insertPos < parent.getContentSize()) {
                 for(int i=elementTextPos ; i<=elementPos ; i++) {
-                    parent.moveContent(elementTextPos, insertPos+1);
+                    parent.moveContent(elementTextPos, insertPos);
                 }
             }
         }

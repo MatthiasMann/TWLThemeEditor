@@ -146,8 +146,8 @@ public final class Undo extends HasCallback {
     }
     
     static void undo(Entry[] step) {
-        for(Entry e : step) {
-            e.undo();
+        for(int i=step.length ; i-->0 ;) {
+            step[i].undo();
         }
     }
     
@@ -545,8 +545,8 @@ public final class Undo extends HasCallback {
             int contentSize = element.getContentSize();
             if(contentSize > 0) {
                 this.children = new Entry[contentSize];
-                for(int i=0 ; i<contentSize ; i++) {
-                    children[i] = makeContentRemoved(doc, element, element.content.data[i], i);
+                for(int i=0,j=contentSize-1 ; i<contentSize ; i++) {
+                    children[j--] = makeContentRemoved(doc, element, element.content.data[i], i);
                 }
             } else {
                 this.children = null;
