@@ -33,6 +33,7 @@ import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.Event;
+import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
@@ -84,8 +85,19 @@ public class NameEditorFactory implements PropertyEditorFactory<String> {
             
             setHorizontalGroup(createSequentialGroup(editfield, applyBtn));
             setVerticalGroup(createParallelGroup(editfield, applyBtn));
-            
+        }
+
+        @Override
+        protected void afterAddToGUI(GUI gui) {
+            super.afterAddToGUI(gui);
+            property.addValueChangedCallback(propertyCB);
             propertyChanged();
+        }
+
+        @Override
+        protected void beforeRemoveFromGUI(GUI gui) {
+            property.removeValueChangedCallback(propertyCB);
+            super.beforeRemoveFromGUI(gui);
         }
         
         void propertyChanged() {
