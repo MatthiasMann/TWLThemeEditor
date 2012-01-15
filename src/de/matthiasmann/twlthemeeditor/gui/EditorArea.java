@@ -109,7 +109,6 @@ public final class EditorArea extends Widget {
     private Timer checkWidgetTreeTimer;
     private Context ctx;
     private URL textureURL;
-    private Long currentSelectedID;
     private PropertyPanel propertyPanel;
     private RectProperty rectProperty;
     private ColorProperty colorProperty;
@@ -268,19 +267,7 @@ public final class EditorArea extends Widget {
     }
     
     public void undoGotoLastSelected() {
-        if(ctx != null) {
-            ThemeTreeModel model = ctx.getThemeTreeModel();
-            Object state = model.getUndo().getUserState();
-            if(state instanceof Long) {
-                Long prevSelected = (Long)state;
-                if(currentSelectedID == null || currentSelectedID.longValue() != prevSelected.longValue()) {
-                    ThemeTreeNode node = model.findNode(prevSelected);
-                    if(node != null) {
-                        themeTreePane.selectNode(node);
-                    }
-                }
-            }
-        }
+        themeTreePane.undoGotoLastSelected();
     }
     
     void recreateLayout() {
@@ -397,14 +384,6 @@ public final class EditorArea extends Widget {
             }
         } else {
             propertyPanel = null;
-        }
-
-        currentSelectedID = null;
-        if(ctx != null) {
-            if(obj instanceof ThemeTreeNode) {
-                currentSelectedID = ((ThemeTreeNode)obj).getDOMElement().getID();
-            }
-            ctx.getThemeTreeModel().getUndo().setUserState(currentSelectedID);
         }
         
         propertiesScrollPane.setContent(propertyPanel);

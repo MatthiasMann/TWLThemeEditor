@@ -78,6 +78,7 @@ public class ThemeTreePane extends DialogLayout {
     private final MyFilter filter;
     private final BoxLayout buttons;
 
+    private ThemeTreeModel model;
     private FilteredModel filteredModel;
     private TreeTableNode selected;
     private Runnable[] callbacks;
@@ -183,18 +184,23 @@ public class ThemeTreePane extends DialogLayout {
             public void dragStopped(Event evt) {
                 int newIndex = getNewNodeIndex();
                 if(newIndex >= 0) {
-                    int oldIndex = dragParent.getChildIndex(selected);
-                    if(newIndex < oldIndex) {
-                        while(moveUp.isEnabled(false) && newIndex < oldIndex) {
-                            executeOperation(moveUp, null);
-                            --oldIndex;
+                    Undo.startComplexOperation();
+                    try {
+                        int oldIndex = dragParent.getChildIndex(selected);
+                        if(newIndex < oldIndex) {
+                            while(moveUp.isEnabled(false) && newIndex < oldIndex) {
+                                executeOperation(moveUp, null);
+                                --oldIndex;
+                            }
+                        } else {
+                            --newIndex;
+                            while(moveDown.isEnabled(false) && newIndex > oldIndex) {
+                                executeOperation(moveDown, null);
+                                ++oldIndex;
+                            }
                         }
-                    } else {
-                        --newIndex;
-                        while(moveDown.isEnabled(false) && newIndex > oldIndex) {
-                            executeOperation(moveDown, null);
-                            ++oldIndex;
-                        }
+                    } finally {
+                        Undo.endComplexOperation();
                     }
                 }
                 dragCanceled();
@@ -280,6 +286,25 @@ public class ThemeTreePane extends DialogLayout {
             selected = node;
             CallbackSupport.fireCallbacks(callbacks);
             updateOperationButtons();
+            if(model != null) {
+                Long state = null;
+                if(node instanceof ThemeTreeNode) {
+                    state = ((ThemeTreeNode)node).getDOMElement().getID();
+                }
+                model.getUndo().setUserState(state);
+            }
+        }
+    }
+    
+    void undoGotoLastSelected() {
+        if(model != null) {
+            Object state = model.getUndo().getUserState();
+            if(state instanceof Long) {
+                ThemeTreeNode node = model.findNode((Long)state);
+                if(node != null) {
+                    setSelected(node);
+                }
+            }
         }
     }
 
@@ -329,6 +354,7 @@ public class ThemeTreePane extends DialogLayout {
     }
 
     public void setModel(ThemeTreeModel model) {
+        this.model = model;
         treeTable.setModel(model);
         if(model == null) {
             filteredModel = null;
