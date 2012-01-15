@@ -31,19 +31,20 @@ package de.matthiasmann.twlthemeeditor.gui.editors;
 
 import de.matthiasmann.twl.Border;
 import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.DialogLayout.Group;
 import de.matthiasmann.twl.EditField;
-import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.ToggleButton;
 import de.matthiasmann.twl.ValueAdjusterInt;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.BooleanModel;
+import de.matthiasmann.twl.model.IntegerModel;
 import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twl.model.SimpleBooleanModel;
-import de.matthiasmann.twl.model.SimpleIntegerModel;
+import de.matthiasmann.twl.model.StringModel;
+import de.matthiasmann.twl.utils.WithRunnableCallback;
 import de.matthiasmann.twlthemeeditor.datamodel.BorderFormula;
 import de.matthiasmann.twlthemeeditor.datamodel.Utils;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.BorderProperty;
-import de.matthiasmann.twlthemeeditor.properties.OptionalProperty;
 
 /**
  *
@@ -51,181 +52,177 @@ import de.matthiasmann.twlthemeeditor.properties.OptionalProperty;
  */
 public class BorderEditorFactory implements PropertyEditorFactory<Border> {
 
+    static final int MAX_BORDER_SIZE = 1000;
+
     public Widget create(Property<Border> property, ExternalFetaures ef) {
-        return new BorderEditor(property);
+        int minValue = 0;
+        boolean allowFormula = false;
+
+        if(property instanceof BorderProperty) {
+            BorderProperty bp = (BorderProperty)property;
+            minValue = bp.getMinValue();
+            allowFormula = bp.isAllowFormula();
+        }
+
+        final ValueAdjusterInt[] adjusters = new ValueAdjusterInt[] {
+            new ValueAdjusterInt(new IM(property, minValue) {
+                public int getValue() {
+                    return getBorder().getTop();
+                }
+                public void setValue(int value) {
+                    Border border = getBorder();
+                    property.setPropertyValue(new Border(value, border.getLeft(), border.getBottom(), border.getRight()));
+                }
+            }),
+            new ValueAdjusterInt(new IM(property, minValue) {
+                public int getValue() {
+                    return getBorder().getLeft();
+                }
+                public void setValue(int value) {
+                    Border border = getBorder();
+                    property.setPropertyValue(new Border(border.getTop(), value, border.getBottom(), border.getRight()));
+                }
+            }),
+            new ValueAdjusterInt(new IM(property, minValue) {
+                public int getValue() {
+                    return getBorder().getBottom();
+                }
+                public void setValue(int value) {
+                    Border border = getBorder();
+                    property.setPropertyValue(new Border(border.getTop(), border.getLeft(), value, border.getRight()));
+                }
+            }),
+            new ValueAdjusterInt(new IM(property, minValue) {
+                public int getValue() {
+                    return getBorder().getRight();
+                }
+                public void setValue(int value) {
+                    Border border = getBorder();
+                    property.setPropertyValue(new Border(border.getTop(), border.getLeft(), border.getBottom(), value));
+                }
+            })
+        };
+
+        adjusters[0].setDisplayPrefix("T: ");
+        adjusters[1].setDisplayPrefix("L: ");
+        adjusters[2].setDisplayPrefix("B: ");
+        adjusters[3].setDisplayPrefix("R: ");
+
+        DialogLayout l = new DialogLayout();
+        l.setTheme("bordereditor");
+        Group horz = l.createParallelGroup();
+        Group vert = l.createSequentialGroup();
+
+        if(allowFormula) {
+            EditField efFormula = new EditField();
+            efFormula.setModel(new FormulaModel(property));
+
+            ToggleButton btnUseFormula = new ToggleButton(new UseFormulaModel(property, adjusters, efFormula));
+            btnUseFormula.setTheme("btnUseFormula");
+
+            horz.addGroup(l.createSequentialGroup().addWidget(btnUseFormula).addWidget(efFormula));
+            vert.addGroup(l.createParallelGroup().addWidget(btnUseFormula).addWidget(efFormula));
+        }
+
+        horz.addWidgets(adjusters);
+        vert.addWidgetsWithGap("adjuster", adjusters);
+
+        l.setHorizontalGroup(horz);
+        l.setVerticalGroup(vert);
+        return l;
     }
-
-    static final class BorderEditor extends DialogLayout implements Runnable, EditField.Callback {
-        private final Property<Border> property;
-        private final SimpleBooleanModel useFormula;
-        private final SimpleIntegerModel modelTop;
-        private final SimpleIntegerModel modelLeft;
-        private final SimpleIntegerModel modelBottom;
-        private final SimpleIntegerModel modelRight;
-        private final ToggleButton btnUseFormula;
-        private final EditField efFormula;
-        private final ValueAdjusterInt adjusters[];
-        private final Runnable propertyCB;
-
-        boolean inSetProperty;
-
-        private static final int MAX_BORDER_SIZE = 1000;
-
-        @SuppressWarnings("LeakingThisInConstructor")
-        public BorderEditor(Property<Border> property) {
+    
+    static Border parse(String formula) {
+        try {
+            return Utils.parseBorder(formula);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+    
+    static abstract class M implements WithRunnableCallback {
+        final Property<Border> property;
+        M(Property<Border> property) {
             this.property = property;
-            
-            int minValue = 0;
-            boolean allowFormula = false;
+        }
+        final Border getBorder() {
+            Border value = property.getPropertyValue();
+            return (value == null) ? Border.ZERO : value;
+        }
+        public void addCallback(Runnable cb) {
+            property.addValueChangedCallback(cb);
+        }
+        public void removeCallback(Runnable cb) {
+            property.removeValueChangedCallback(cb);
+        }
+    }
+    
+    static abstract class IM extends M implements IntegerModel {
+        final int minValue;
+        IM(Property<Border> property, int minValue) {
+            super(property);
+            this.minValue = minValue;
+        }
+        public int getMinValue() {
+            return minValue;
+        }
+        public int getMaxValue() {
+            return MAX_BORDER_SIZE;
+        }
+    }
+    
+    static final class UseFormulaModel extends M implements BooleanModel {
+        final ValueAdjusterInt[] adjuster;
+        final EditField ef;
 
-            if(property instanceof BorderProperty) {
-                BorderProperty bp = (BorderProperty)property;
-                minValue = bp.getMinValue();
-                allowFormula = bp.isAllowFormula();
-            }
-            
+        UseFormulaModel(Property<Border> property, ValueAdjusterInt[] adjuster, EditField ef) {
+            super(property);
+            this.adjuster = adjuster;
+            this.ef = ef;
+        }
+        public boolean getValue() {
+            Border value = property.getPropertyValue();
+            boolean result = (value instanceof BorderFormula);
+            setEnabled(result);
+            return result;
+        }
+        public void setValue(boolean value) {
             Border border = property.getPropertyValue();
-            useFormula = new SimpleBooleanModel(border instanceof BorderFormula);
-            
-            modelTop = new SimpleIntegerModel(minValue, MAX_BORDER_SIZE, border.getBorderTop());
-            modelLeft = new SimpleIntegerModel(minValue, MAX_BORDER_SIZE, border.getBorderLeft());
-            modelBottom = new SimpleIntegerModel(minValue, MAX_BORDER_SIZE, border.getBorderBottom());
-            modelRight = new SimpleIntegerModel(minValue, MAX_BORDER_SIZE, border.getBorderRight());
-
-            adjusters = new ValueAdjusterInt[] {
-                new ValueAdjusterInt(modelTop),
-                new ValueAdjusterInt(modelLeft),
-                new ValueAdjusterInt(modelBottom),
-                new ValueAdjusterInt(modelRight)
-            };
-
-            adjusters[0].setDisplayPrefix("T: ");
-            adjusters[1].setDisplayPrefix("L: ");
-            adjusters[2].setDisplayPrefix("B: ");
-            adjusters[3].setDisplayPrefix("R: ");
-
-            modelTop.addCallback(this);
-            modelLeft.addCallback(this);
-            modelBottom.addCallback(this);
-            modelRight.addCallback(this);
-
-            useFormula.addCallback(new Runnable() {
-                public void run() {
-                    setEnabled();
-                    setProperty(false);
+            if(!value && (border instanceof BorderFormula)) {
+                Border simple = parse(((BorderFormula)border).getFormula());
+                if(simple != null) {
+                    property.setPropertyValue(simple);
                 }
-            });
-
-            Group horz = createParallelGroup();
-            Group vert = createSequentialGroup();
-
-            if(allowFormula) {
-                btnUseFormula = new ToggleButton(useFormula);
-                btnUseFormula.setTheme("btnUseFormula");
-                efFormula = new EditField();
-                efFormula.setText(Utils.toString(border, false));
-                efFormula.addCallback(this);
-
-                horz.addGroup(createSequentialGroup().addWidget(btnUseFormula).addWidget(efFormula));
-                vert.addGroup(createParallelGroup().addWidget(btnUseFormula).addWidget(efFormula));
+            } else if(value) {
+                property.setPropertyValue(new BorderFormula(border, Utils.toString(border, false)));
+            }
+        }
+        void setEnabled(boolean useFormula) {
+            for(ValueAdjusterInt va : adjuster) {
+                va.setEnabled(!useFormula);
+            }
+            ef.setEnabled(useFormula);
+        }
+    }
+    
+    static final class FormulaModel extends M implements StringModel {
+        FormulaModel(Property<Border> property) {
+            super(property);
+        }
+        public String getValue() {
+            Border value = property.getPropertyValue();
+            if(value instanceof BorderFormula) {
+                return ((BorderFormula)value).getFormula();
+            }
+            return Utils.toString(value, false);
+        }
+        public void setValue(String value) {
+            Border simple = parse(value);
+            if(simple != null) {
+                property.setPropertyValue(new BorderFormula(simple, value));
             } else {
-                btnUseFormula = null;
-                efFormula = null;
+                property.setPropertyValue(new BorderFormula(value));
             }
-
-            horz.addWidgets(adjusters);
-            vert.addWidgetsWithGap("adjuster", adjusters);
-
-            setHorizontalGroup(horz);
-            setVerticalGroup(vert);
-
-            setEnabled();
-            propertyCB = new Runnable() {
-                public void run() {
-                    setEnabled();
-                    setProperty(true);
-                }
-            };
-        }
-
-        public void run() {
-            setEnabled();
-            setProperty(false);
-        }
-
-        public void callback(int key) {
-            if(!inSetProperty) {
-                setProperty(false);
-            }
-        }
-
-        void setProperty(boolean fromProperty) {
-            try {
-                inSetProperty = true;
-                Border border;
-                if(useFormula.getValue()) {
-                    String formula = efFormula.getText();
-                    border = new BorderFormula(formula);
-                    try {
-                        Border values = Utils.parseBorder(formula);
-                        if(values != null) {
-                            modelTop.setValue(values.getBorderTop());
-                            modelLeft.setValue(values.getBorderLeft());
-                            modelBottom.setValue(values.getBorderBottom());
-                            modelRight.setValue(values.getBorderRight());
-                        }
-                    } catch (NumberFormatException ex) {
-                    }
-                } else {
-                    border = new Border(
-                        modelTop.getValue(),
-                        modelLeft.getValue(),
-                        modelBottom.getValue(),
-                        modelRight.getValue());
-
-                    if(efFormula != null) {
-                        try {
-                            // if the current formula is a parseable border then update it
-                            if(Utils.parseBorder(efFormula.getText()) != null) {
-                                efFormula.setText(Utils.toString(border, false));
-                            }
-                        } catch (NumberFormatException ex) {
-                        }
-                    }
-                }
-                if(!fromProperty) {
-                    property.setPropertyValue(border);
-                }
-            } finally {
-                inSetProperty = false;
-            }
-        }
-
-        void setEnabled() {
-            boolean isPresent = true;
-            if(property instanceof OptionalProperty<?>) {
-                isPresent = ((OptionalProperty<?>)property).isPresent();
-            }
-            if(efFormula != null) {
-                btnUseFormula.setEnabled(isPresent);
-                efFormula.setEnabled(isPresent && useFormula.getValue());
-            }
-            for(ValueAdjusterInt va : adjusters) {
-                va.setEnabled(isPresent && !useFormula.getValue());
-            }
-        }
-
-        @Override
-        protected void afterAddToGUI(GUI gui) {
-            super.afterAddToGUI(gui);
-            property.addValueChangedCallback(propertyCB);
-            setProperty(true);
-        }
-
-        @Override
-        protected void beforeRemoveFromGUI(GUI gui) {
-            property.removeValueChangedCallback(propertyCB);
-            super.beforeRemoveFromGUI(gui);
         }
     }
 }

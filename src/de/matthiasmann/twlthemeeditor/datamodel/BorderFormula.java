@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -42,6 +42,15 @@ public class BorderFormula extends Border {
     public BorderFormula(String formula) {
         super(0);
         this.formula = formula;
+    }
+
+    public BorderFormula(int top, int left, int bottom, int right, String formula) {
+        super(top, left, bottom, right);
+        this.formula = formula;
+    }
+
+    public BorderFormula(Border border, String formula) {
+        this(border.getTop(), border.getLeft(), border.getBottom(), border.getRight(), formula);
     }
 
     public String getFormula() {
