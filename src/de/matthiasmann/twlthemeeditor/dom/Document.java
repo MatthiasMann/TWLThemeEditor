@@ -300,14 +300,17 @@ public final class Document extends HasCallback implements Parent {
                     if(prefix != null) {
                         namespace = document.getNamespace(prefix, xpp.getNamespace());
                     }
+                    int attrNum = xpp.getAttributeCount();
                     Element e = new Element(xpp.getName(), namespace);
-                    for(int i=0,n=xpp.getAttributeCount() ; i<n ; i++) {
+                    e.attributes.data = new Attribute[attrNum];
+                    for(int i=0 ; i<attrNum ; i++) {
                         prefix = xpp.getAttributePrefix(i);
                         namespace = Namespace.NO_NAMESPACE;
                         if(prefix != null) {
                             namespace = document.getNamespace(prefix, xpp.getNamespace());
                         }
-                        e.setAttribute(xpp.getAttributeName(i), namespace, xpp.getAttributeValue(i));
+                        e.attributes.data[i] = new Attribute(
+                                xpp.getAttributeName(i), namespace, xpp.getAttributeValue(i));
                     }
                     tos.addContent(e);
                     open.add(tos);

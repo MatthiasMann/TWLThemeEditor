@@ -530,7 +530,7 @@ public final class Undo extends HasCallback {
                 this.attrNamespaces = new Namespace[attributeSize];
                 
                 for(int i=0 ; i<attributeSize ; i++) {
-                    Attribute a = element.attributes.attributes[i];
+                    Attribute a = element.attributes.data[i];
                     attrIDs[i] = a.id;
                     attrNameValues[i*2+0] = a.name;
                     attrNameValues[i*2+1] = a.value;
@@ -559,9 +559,9 @@ public final class Undo extends HasCallback {
             Element element = new Element(elementID, name, ns);
             if(attrIDs != null) {
                 int n = attrIDs.length;
-                element.attributes.attributes = new Attribute[n];
+                element.attributes.data = new Attribute[n];
                 for(int i=0 ; i<n ; i++) {
-                    element.attributes.attributes[i] = new Attribute(
+                    element.attributes.data[i] = new Attribute(
                             attrIDs[i], attrNameValues[i*2], attrNamespaces[i], attrNameValues[i*2+1]);
                 }
             }

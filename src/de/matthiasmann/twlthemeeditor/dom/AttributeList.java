@@ -53,22 +53,22 @@ public final class AttributeList implements Iterable<Attribute> {
     
     final Element element;
     
-    Attribute[] attributes;
+    Attribute[] data;
     AttributeListListener[] listeners;
 
     AttributeList(Element element) {
         this.element = element;
-        this.attributes = EMPTY_ATTRIBUTE_ARRAY;
+        this.data = EMPTY_ATTRIBUTE_ARRAY;
     }
 
     public AttributeList(Element element, AttributeList src) {
-        int size = src.attributes.length;
+        int size = src.data.length;
         
         this.element = element;
-        this.attributes = new Attribute[size];
+        this.data = new Attribute[size];
         
         for(int i=0 ; i<size ; i++) {
-            attributes[i] = src.attributes[i].clone();
+            data[i] = src.data[i].clone();
         }
     }
     
@@ -81,26 +81,26 @@ public final class AttributeList implements Iterable<Attribute> {
     }
 
     public int size() {
-        return attributes.length;
+        return data.length;
     }
     
     public boolean isEmpty() {
-        return attributes.length == 0;
+        return data.length == 0;
     }
     
     public Attribute[] toArray() {
-        if(attributes.length == 0) {
+        if(data.length == 0) {
             return EMPTY_ATTRIBUTE_ARRAY;
         }
-        return attributes.clone();
+        return data.clone();
     }
     
     public Attribute get(int idx) {
-        return attributes[idx];
+        return data[idx];
     }
     
     public Attribute get(String name, Namespace namespace) {
-        for(Attribute attribute : attributes) {
+        for(Attribute attribute : data) {
             if(attribute.equals(name, namespace)) {
                 return attribute;
             }
@@ -109,7 +109,7 @@ public final class AttributeList implements Iterable<Attribute> {
     }
 
     public Attribute set(String name, Namespace namespace, String value) {
-        for(Attribute attribute : attributes) {
+        for(Attribute attribute : data) {
             if(attribute.equals(name, namespace)) {
                 attribute.setValue(value);
                 return attribute;
@@ -121,7 +121,7 @@ public final class AttributeList implements Iterable<Attribute> {
     }
     
     public Attribute findAttribute(long id) {
-        for(Attribute attribute : attributes) {
+        for(Attribute attribute : data) {
             if(attribute.id == id) {
                 return attribute;
             }
@@ -140,15 +140,15 @@ public final class AttributeList implements Iterable<Attribute> {
             throw new IndexOutOfBoundsException();
         }
         
-        final int oldLength = attributes.length;
-        Attribute[] newAttributes = new Attribute[oldLength + 1];
-        System.arraycopy(attributes, 0, newAttributes, 0, idx);
-        System.arraycopy(attributes, idx, newAttributes, idx+1, oldLength-idx);
+        final int oldLength = data.length;
+        Attribute[] newData = new Attribute[oldLength + 1];
+        System.arraycopy(data, 0, newData, 0, idx);
+        System.arraycopy(data, idx, newData, idx+1, oldLength-idx);
         for(int i=idx,n=oldLength ; i<n ; i++) {
-            newAttributes[i+1].index++;
+            newData[i+1].index++;
         }
-        newAttributes[idx] = attribute;
-        attributes = newAttributes;
+        newData[idx] = attribute;
+        data = newData;
         attribute.element = element;
         attribute.index = idx;
         attribute.firePropertyChange("parent", null, this);
@@ -175,23 +175,23 @@ public final class AttributeList implements Iterable<Attribute> {
     }
     
     public void remove(int idx) {
-        if(attributes == null) {
+        if(data == null) {
             throw new IndexOutOfBoundsException();
         }
         
-        Attribute attribute = attributes[idx];
-        final int oldLength = attributes.length;
+        Attribute attribute = data[idx];
+        final int oldLength = data.length;
         if(oldLength == 1) {
-            attributes = EMPTY_ATTRIBUTE_ARRAY;
+            data = EMPTY_ATTRIBUTE_ARRAY;
         } else {
             final int newLength = oldLength - 1;
-            Attribute[] newAttributes = new Attribute[newLength];
-            System.arraycopy(attributes, 0, newAttributes, 0, idx);
-            System.arraycopy(attributes, idx+1, newAttributes, idx, newLength-idx);
+            Attribute[] newData = new Attribute[newLength];
+            System.arraycopy(data, 0, newData, 0, idx);
+            System.arraycopy(data, idx+1, newData, idx, newLength-idx);
             for(int i=idx ; i<newLength ; i++) {
-                newAttributes[i].index--;
+                newData[i].index--;
             }
-            attributes = newAttributes;
+            data = newData;
         }
         
         attribute.element = null;
@@ -212,11 +212,11 @@ public final class AttributeList implements Iterable<Attribute> {
     }
     
     public void toString(StringBuilder sb) {
-        for(int i=0,n=attributes.length ; i<n ; i++) {
+        for(int i=0,n=data.length ; i<n ; i++) {
             if(i > 0) {
                 sb.append(' ');
             }
-            attributes[i].toString(sb);
+            data[i].toString(sb);
         }
     }
     
@@ -230,7 +230,7 @@ public final class AttributeList implements Iterable<Attribute> {
     }
 
     public Iterator<Attribute> iterator() {
-        return new I(attributes);
+        return new I(data);
     }
     
     class I implements Iterator<Attribute> {
