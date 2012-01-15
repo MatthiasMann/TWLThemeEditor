@@ -128,7 +128,7 @@ public abstract class DerivedProperty<T> implements OptionalProperty<T>, HasTool
             maybeRefresh();
             return isPresent;
         }
-        return false;
+        return true;
     }
 
     public void setPresent(boolean present) {
