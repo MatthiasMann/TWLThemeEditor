@@ -78,10 +78,10 @@ public final class PropertyPanel extends DialogLayout {
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected<T> void addProperty(Property<T> p) {
-        PropertyEditorFactory factoryNew = factories.getFactory(p);
-        if(factoryNew != null) {
+        @SuppressWarnings("unchecked")
+        PropertyEditorFactory<T> factory = (PropertyEditorFactory<T>)factories.getFactory(p);
+        if(factory != null) {
             PresentModel activeModel = null;
             if(p instanceof OptionalProperty<?>) {
                 OptionalProperty<?> op = (OptionalProperty<?>)p;
@@ -90,10 +90,18 @@ public final class PropertyPanel extends DialogLayout {
                 }
             }
             
+            if(activeModel == null && (factory instanceof SpecialPropertyEditorFactory<?>)) {
+                @SuppressWarnings("unchecked")
+                SpecialPropertyEditorFactory<T> specialFactory = (SpecialPropertyEditorFactory<T>)factory;
+                if(specialFactory.createSpecial(getHorizontalGroup(), getVerticalGroup(), p)) {
+                    return;
+                }
+            }
+            
             PresentModel ef = (activeModel != null)
                     ? activeModel : new PresentModel(null);
 
-            Widget content = factoryNew.create(p, ef);
+            Widget content = factory.create(p, ef);
 
             if(activeModel != null && ef.focusWidgetCB != null) {
                 focusWidgets.put(p.getName(), ef.focusWidgetCB);
