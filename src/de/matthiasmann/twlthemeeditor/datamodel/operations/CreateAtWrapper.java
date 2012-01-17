@@ -72,6 +72,16 @@ public class CreateAtWrapper extends ThemeTreeOperation {
     }
 
     @Override
+    public boolean shouldFocusNameFieldAfterExecute() {
+        return operation.shouldFocusNameFieldAfterExecute();
+    }
+
+    @Override
+    public void updateEnabledStateForPopup() {
+        operation.updateEnabledStateForPopup();
+    }
+
+    @Override
     public ThemeTreeNode execute(Object[] parameter) throws IOException {
         Element nodeElement = node.getDOMElement();
         Element parentElement = nodeElement.getParentElement();

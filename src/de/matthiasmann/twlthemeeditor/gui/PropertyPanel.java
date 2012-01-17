@@ -103,7 +103,7 @@ public final class PropertyPanel extends DialogLayout {
 
             Widget content = factory.create(p, ef);
 
-            if(activeModel != null && ef.focusWidgetCB != null) {
+            if(ef.focusWidgetCB != null) {
                 focusWidgets.put(p.getName(), ef.focusWidgetCB);
             }
             
@@ -161,7 +161,7 @@ public final class PropertyPanel extends DialogLayout {
             widgetsToDisable.addAll(Arrays.asList(widgets));
         }
         public void setFocusWidgetCB(Runnable cb) {
-            this.focusWidgetCB = cb;
+            focusWidgetCB = cb;
         }
         private void setWidgets() {
             if(widgetsToDisable != null) {
