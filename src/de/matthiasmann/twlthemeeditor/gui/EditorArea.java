@@ -433,6 +433,8 @@ public final class EditorArea extends Widget {
                     }
                 }
                 textureViewerPane.setImage(renderImage);
+            } else if(textureURL != null) {
+                textureViewerPane.setImage(textureURL, null);
             } else {
                 textureViewerPane.setImage(null);
             }

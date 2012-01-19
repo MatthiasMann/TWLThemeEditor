@@ -159,6 +159,7 @@ public class TextureViewer extends Widget {
     }
 
     public void setImage(Image image) {
+        destroy();
         this.specialImage = image;
         this.image = image;
         this.rect = (image != null) ? new ExtRect(0, 0, image.getWidth(), image.getHeight()) : null;
