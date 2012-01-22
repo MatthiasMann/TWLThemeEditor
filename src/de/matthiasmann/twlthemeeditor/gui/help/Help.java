@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -36,6 +36,7 @@ import de.matthiasmann.twl.Rect;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.TextArea;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.renderer.FontMapper;
 import de.matthiasmann.twl.textarea.HTMLTextAreaModel;
 import de.matthiasmann.twl.textarea.StyleSheet;
 import de.matthiasmann.twl.textarea.TextAreaModel;
@@ -49,7 +50,7 @@ import org.lwjgl.Sys;
 
 /**
  *
- * @author matthias
+ * @author Matthias Mann
  */
 public class Help extends PopupWindow {
     
@@ -61,6 +62,9 @@ public class Help extends PopupWindow {
     private final ScrollPane scrollPane;
     private final Button btnClose;
     
+    private boolean registerFonts;
+    private StyleSheet styleSheet;
+    private URL styleSheetURL;
     private URL currentURL;
 
     public Help(Widget owner, MessageLog messageLog) {
@@ -81,10 +85,12 @@ public class Help extends PopupWindow {
             }
         });
         
-        StyleSheet styleSheet = new StyleSheet();
+        styleSheetURL = Help.class.getResource("help.css");
+        styleSheet = new StyleSheet();
         try {
-            styleSheet.parse(Help.class.getResource("help.css"));
+            styleSheet.parse(styleSheetURL);
             textArea.setStyleClassResolver(styleSheet);
+            registerFonts = true;
         } catch(IOException ex) {
             messageLog.add(new MessageLog.Entry(CAT_HELP, "Can't load help style sheet", null, ex));
             textArea.setDefaultStyleSheet();
@@ -117,6 +123,14 @@ public class Help extends PopupWindow {
         openPopupCentered(
                 getOwner().getInnerWidth()*7/8,
                 getOwner().getInnerHeight()*7/8);
+        
+        if(registerFonts && getGUI() != null) {
+            registerFonts = false;
+            FontMapper fontMapper = getGUI().getRenderer().getFontMapper();
+            if(fontMapper != null) {
+                styleSheet.registerFonts(fontMapper, styleSheetURL);
+            }
+        }
     }
     
     void handleLinkClicked(String href) {
