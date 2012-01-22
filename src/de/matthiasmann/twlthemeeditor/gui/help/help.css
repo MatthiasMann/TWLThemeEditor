@@ -3,6 +3,7 @@ body {
     padding: 10px;
     background-color: black;
     -twl-background-color: transparent;
+    font-family: ubuntu;
 }
 
 #logo {
@@ -11,8 +12,12 @@ body {
 }
 
 a {
-    font-family: link;
+ /* font-family: link; */
     color: lightblue;
+}
+a:hover {
+    color: blue;
+    text-decoration: underline;
 }
 
 p {
@@ -22,11 +27,15 @@ p {
 h1 {
     background-color: #eee;
     padding: 5px;
-    font: 20px "DejaVuSans", sans-serif;
-    -twl-font: big;
+    font: bold 30px "DejaVu Sans", ubuntu, sans-serif;
     color: black;
     margin-top: 1em;
     margin-bottom: 0.5em;
+/*    -twl-hover: inherit; */
+}
+h1:hover {
+    background-color: blue;
+    color: yellow;
 }
 
 h1#top {
