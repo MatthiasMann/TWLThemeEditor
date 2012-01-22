@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -97,7 +97,7 @@ public class ThemeParamInfo implements Serializable {
                 break;
             case Type.BOOLEAN:
                 isBoolean = true;
-                type = "boolean";
+                type = "bool";
                 break;
             case Type.OBJECT:
                 String internalName = returnType.getInternalName();
