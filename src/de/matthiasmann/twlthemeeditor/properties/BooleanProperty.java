@@ -54,7 +54,7 @@ public class BooleanProperty extends DerivedProperty<Boolean> implements Boolean
 
     @Override
     protected String toString(Boolean value) throws IllegalArgumentException {
-        if(value == defaultValue) {
+        if(value == defaultValue && base.canBeNull()) {
             return null;
         }
         if(value) {
