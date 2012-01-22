@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -154,7 +154,7 @@ public final class FontData {
 
                 upem = readUPEM(headSection);
                 postScriptName = readNAME(nameSection);
-                readCMAP(cmapSection, glyphToUnicode);
+                readCMAP(cmapSection);
 
                 if(kernSection != null) {
                     readKERN(kernSection);
@@ -209,24 +209,40 @@ public final class FontData {
         return Math.round((units * size) / upem);
     }
 
-    private void readCMAP(byte[] cmapSection, IntMap<int[]> glyphToUnicode) throws IOException {
+    private void addGlyphCodePoint(int glyphIdx, int unicode) {
+        int[] codepoints = glyphToUnicode.get(glyphIdx);
+        if(codepoints == null) {
+            codepoints = new int[] { unicode };
+        } else {
+            int len = codepoints.length;
+            codepoints = Arrays.copyOf(codepoints, len+1);
+            codepoints[len] = unicode;
+        }
+        glyphToUnicode.put(glyphIdx, codepoints);
+        defined.set(unicode);
+    }
+    
+    private void readCMAP(byte[] cmapSection) throws IOException {
         int numCMap = readUShort(cmapSection, 2);
-        int cmapUniOffset = 0;
 
         for(int i=0 ; i<numCMap ; i++) {
             int cmapPID = readUShort(cmapSection, i*8 + 4);
             int cmapEID = readUShort(cmapSection, i*8 + 6);
 
-            if (cmapPID == 3 && cmapEID == 1) {
-                cmapUniOffset = readInt(cmapSection, i*8 + 8);
-                break;
+            if(cmapPID == 3 && cmapEID == 1) {
+                readCMAP_USC2(cmapSection, readInt(cmapSection, i*8 + 8));
+                return;
+            }
+            if(cmapPID == 3 && cmapEID == 10) {
+                readCMAP_USC4(cmapSection, readInt(cmapSection, i*8 + 8));
+                return;
             }
         }
-
-        if(cmapUniOffset == 0) {
-            throw new IOException("No unicode mapping table found");
-        }
-
+        
+        throw new IOException("No unicode mapping table found");
+    }
+    
+    private void readCMAP_USC2(byte[] cmapSection, int cmapUniOffset) throws IOException {
         int cmapFormat = readUShort(cmapSection, cmapUniOffset);
         if (cmapFormat != 4) {
             throw new IOException("Unsupported unicode table format: " + cmapFormat);
@@ -261,17 +277,27 @@ public final class FontData {
                 }
 
                 if (glyphIdx != 0) {
-                    int[] codepoints = glyphToUnicode.get(glyphIdx);
-                    if(codepoints == null) {
-                        codepoints = new int[] { unicode };
-                    } else {
-                        int len = codepoints.length;
-                        codepoints = Arrays.copyOf(codepoints, len+1);
-                        codepoints[len] = unicode;
-                    }
-                    glyphToUnicode.put(glyphIdx, codepoints);
-                    defined.set(unicode);
+                    addGlyphCodePoint(glyphIdx, unicode);
                 }
+            }
+        }
+    }
+    
+    private void readCMAP_USC4(byte[] cmapSection, int cmapUniOffset) throws IOException {
+        int cmapFormat = readUShort(cmapSection, cmapUniOffset);
+        if (cmapFormat != 12) {
+            throw new IOException("Unsupported unicode table format: " + cmapFormat);
+        }
+
+        int nGroups = readInt(cmapSection, cmapUniOffset + 12);
+
+        for (int group=0 ; group<nGroups ; group++) {
+            int startCharCode = readUShort(cmapSection, cmapUniOffset + 16 + group*12);
+            int endCharCode   = readUShort(cmapSection, cmapUniOffset + 16 + group*12 + 4);
+            int startGlyphID  = readShort (cmapSection, cmapUniOffset + 16 + group*12 + 8);
+
+            for(int i=startCharCode ; i<=endCharCode ; i++) {
+                addGlyphCodePoint(startGlyphID+(i-startCharCode), i);
             }
         }
     }
