@@ -58,7 +58,8 @@ public class Cursor extends Image {
             }
         });
         addProperty(new DerivedNodeReferenceProperty(
-                new AttributeProperty(element, "imageRef"), getLimit(), Kind.IMAGE));
+                new AttributeProperty(element, "imageRef", "Image reference (SW cursor)", true),
+                getLimit(), Kind.IMAGE));
     }
 
     @Override
