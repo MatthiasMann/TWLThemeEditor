@@ -368,7 +368,7 @@ public class TextureViewer extends Widget {
             return false;
         }
         
-        surface = renderer.startOffscreenRendering(surface, 0, 0, width, height);
+        surface = renderer.startOffscreenRendering(this, surface, 0, 0, width, height);
         if(surface == null) {
             return false;
         }
