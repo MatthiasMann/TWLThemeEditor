@@ -69,6 +69,8 @@ public final class AttributeList implements Iterable<Attribute> {
         
         for(int i=0 ; i<size ; i++) {
             data[i] = src.data[i].clone();
+            data[i].element = element;
+            data[i].index = i;
         }
     }
     
