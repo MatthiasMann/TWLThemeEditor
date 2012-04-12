@@ -35,6 +35,7 @@ import de.matthiasmann.twl.theme.ThemeManager;
 import de.matthiasmann.twl.utils.StateSelect;
 import de.matthiasmann.twleffects.lwjgl.LWJGLEffectsRenderer;
 import de.matthiasmann.twlthemeeditor.datamodel.DecoratedText;
+import de.matthiasmann.twlthemeeditor.fontgen.gui.FontGenDialog;
 import de.matthiasmann.twlthemeeditor.gui.MainUI;
 import de.matthiasmann.twlthemeeditor.gui.MessageLog;
 import de.matthiasmann.twlthemeeditor.gui.MessageLog.Category;
@@ -119,7 +120,7 @@ public class Main extends Frame {
         });
 
         main.setVisible(true);
-        main.run();
+        main.run(args);
         main.dispose();
         
         System.exit(0);
@@ -163,7 +164,7 @@ public class Main extends Frame {
         });
     }
 
-    public void run() {
+    public void run(String[] args) {
         try {
             boolean usesSWGL = false;
 
@@ -199,6 +200,18 @@ public class Main extends Frame {
             ThemeManager theme = ThemeManager.createThemeManager(
                     Main.class.getResource("gui.xml"), renderer);
             gui.applyTheme(theme);
+            
+            boolean openFontTool = false;
+            for(String arg : args) {
+                if("--font-tool".equals(arg)) {
+                    openFontTool = true;
+                }
+            }
+            
+            if(openFontTool) {
+                FontGenDialog fgd = new FontGenDialog(root);
+                fgd.openPopup();
+            }
             
             if(usesSWGL) {
                 Category cat = new MessageLog.Category("OpenGL", MessageLog.CombineMode.NONE, DecoratedText.WARNING);
