@@ -58,9 +58,14 @@ final class ContentList implements Iterable<Content> {
         this.parent = parent;
         this.size = src.size;
         
-        if(src.size > 0) {
-            this.data = new Content[Math.max(8, src.size)];
-            System.arraycopy(src.data, 0, data, 0, size);
+        if(size > 0) {
+            this.data = new Content[Math.max(8, size)];
+            for(int i=0 ; i<size ; i++) {
+                Content child = src.data[i].clone();
+                this.data[i] = child;
+                child.parent = parent;
+                child.index = i;
+            }
         } else {
             this.data = EMPTY;
         }
