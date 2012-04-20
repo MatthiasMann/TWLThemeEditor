@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -59,8 +59,8 @@ public class WidgetTree extends DialogLayout {
 
     private GUI testGUI;
 
-    public WidgetTree(WidgetTreeModel treeModel, PreviewWidget previewWidget) {
-        this.treeModel = treeModel;
+    public WidgetTree(PreviewWidget previewWidget) {
+        this.treeModel = new WidgetTreeModel();
         this.previewWidget = previewWidget;
 
         selectionModel = new TableSingleSelectionModel();
@@ -98,7 +98,7 @@ public class WidgetTree extends DialogLayout {
                     flashWidget(selectedWidget, false);
                     if(evt.isMouseDragEnd()) {
                         setMouseCursor(cursorNormal);
-                        selectWidget(selectedWidget);
+                        selectWidget(selectedWidget, true);
                         selectedWidget = null;
                     } else {
                         setMouseCursor(cursorDragging);
@@ -173,14 +173,22 @@ public class WidgetTree extends DialogLayout {
         return null;
     }
 
-    void selectWidget(Widget widget) {
+    public void refreshTree() {
+        Widget w = getSelectedWidget();
+        treeModel.refreshTree();
+        selectWidget(w, false);
+    }
+
+    void selectWidget(Widget widget, boolean flash) {
         WidgetTreeModel.Node node = treeModel.getNodeForWidget(widget);
         if(node != null) {
             int row = treeTable.getRowFromNodeExpand(node);
             selectionModel.setSelection(row, row);
             treeTable.scrollToRow(row);
         }
-        flashWidget(widget, true);
+        if(flash) {
+            flashWidget(widget, true);
+        }
     }
 
     Widget selectWidgetFromMouse(int x, int y) {

@@ -94,7 +94,6 @@ public final class EditorArea extends Widget {
     private final PreviewWidget previewWidget;
     private final TextureViewerPane textureViewerPane;
     private final ScrollPane propertiesScrollPane;
-    private final WidgetTreeModel widgetTreeModel;
     private final WidgetTree widgetTree;
     private final WidgetPropertyEditor widgetPropertyEditor;
 
@@ -133,8 +132,7 @@ public final class EditorArea extends Widget {
         propertiesScrollPane = new ScrollPane();
         propertiesScrollPane.setTheme("/propertyEditor");
         propertiesScrollPane.setFixed(ScrollPane.Fixed.HORIZONTAL);
-        widgetTreeModel = new WidgetTreeModel();
-        widgetTree = new WidgetTree(widgetTreeModel, previewWidget);
+        widgetTree = new WidgetTree(previewWidget);
         widgetTree.setTheme("/widgetTree");
         widgetPropertyEditor = new WidgetPropertyEditor();
         widgetPropertyEditor.setTheme("/propertyEditor");
@@ -399,7 +397,7 @@ public final class EditorArea extends Widget {
 
     void checkWidgetTree() {
         if(ctx != null && ctx.checkLayoutValidated()) {
-            widgetTreeModel.refreshTree();
+            widgetTree.refreshTree();
         }
     }
 
