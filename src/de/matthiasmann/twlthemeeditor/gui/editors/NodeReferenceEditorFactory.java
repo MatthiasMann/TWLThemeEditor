@@ -78,6 +78,7 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
         private final Button applyBtn;
         private final EditField ef;
         private final ComboBox<String> cb;
+        private ListModel<String> refableNodes;
 
         boolean lastKeyWasEscape;
         boolean inUpdateComboBox;
@@ -167,8 +168,10 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
             inUpdateComboBox = true;
             try {
                 NodeReference ref = property.getPropertyValue();
-                ListModel<String> refableNodes = getRefableNodes();
-                cb.setModel(refableNodes);
+                if(refableNodes == null || !cb.hasOpenPopups()) {
+                    refableNodes = getRefableNodes();
+                    cb.setModel(refableNodes);
+                }
                 int selected = -1;
                 if(ref != null) {
                     selected = Utils.find(refableNodes, ref.getName());
