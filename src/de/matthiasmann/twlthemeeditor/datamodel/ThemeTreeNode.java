@@ -59,6 +59,7 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
     protected final ThemeFile themeFile;
     protected final Element element;
     protected final ArrayList<Property<?>> properties;
+    protected final ContentListener contentListener;
 
     protected boolean error;
 
@@ -69,7 +70,7 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
         this.properties = new ArrayList<Property<?>>();
         setLeaf(true);
         
-        element.addContentListener(new ContentListener() {
+        contentListener = new ContentListener() {
             public void contentAdded(Parent parent, Content child, int index) {
                 addChildren();
             }
@@ -87,7 +88,8 @@ public abstract class ThemeTreeNode extends AbstractTreeTableNode {
                             "Could not update children", ex);
                 }
             }
-        });
+        };
+        element.addContentListener(contentListener);
     }
 
     public final ThemeTreeModel getThemeTreeModel() {

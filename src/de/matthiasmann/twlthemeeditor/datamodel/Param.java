@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -117,6 +117,10 @@ public class Param extends ThemeTreeNode implements HasProperties {
                 initInputMapDef();
             } else {
                 initValueProperty();
+            }
+            
+            if(isMap()) {
+                valueElement.addContentListener(contentListener);
             }
         }
     }
