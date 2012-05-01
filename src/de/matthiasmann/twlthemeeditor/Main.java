@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -90,6 +90,7 @@ public class Main extends Frame {
         int height = Math.max(300, Math.min(desktopHeight, prefs.getInt(KEY_MAINWINDOW_HEIGHT, desktopHeight*4/5)));
 
         final Main main = new Main();
+        main.setFocusTraversalKeysEnabled(false);
         main.setSize(width, height);
 
         String strX = prefs.get(KEY_MAINWINDOW_X, null);
@@ -135,6 +136,7 @@ public class Main extends Frame {
         super("TWL Theme editor");
 
         canvas = new Canvas();
+        canvas.setFocusTraversalKeysEnabled(false);
         canvas.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
