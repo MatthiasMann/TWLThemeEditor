@@ -348,6 +348,8 @@ public final class MainUI extends DialogLayout {
             } else {
                 messageLog.add(new MessageLog.Entry(CAT_PROJECT, "Project loaded", file.toString(), null));
             }
+            model.getUndo().addCallback(undoChangedCB);
+            updateUndoButton();
         } catch(FileNotFoundException ex) {
             removeFromRecentProjectsList(file);
             messageLog.add(new MessageLog.Entry(CAT_PROJECT_ERROR, "Could not load project", file.toString(), ex));
