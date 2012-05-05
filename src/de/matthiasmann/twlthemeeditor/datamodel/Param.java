@@ -119,7 +119,7 @@ public class Param extends ThemeTreeNode implements HasProperties {
                 initValueProperty();
             }
             
-            if(isMap()) {
+            if(isMap() || isFontDef()) {
                 valueElement.addContentListener(contentListener);
             }
         }
