@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -34,11 +34,16 @@ package de.matthiasmann.twlthemeeditor.datamodel;
  * @author Matthias Mann
  */
 public enum Kind {
-    NONE,
-    IMAGE,
-    CURSOR,
-    THEME,
-    FONT,
-    INPUTMAP,
-    CONSTANTDEF
+    NONE(false),
+    IMAGE(true),
+    CURSOR(true),
+    THEME(false),
+    FONT(false),
+    INPUTMAP(false),
+    CONSTANTDEF(false);
+    
+    public final boolean supportsWildcard;
+    private Kind(boolean supportsWildcard) {
+        this.supportsWildcard = supportsWildcard;
+    }
 }

@@ -351,7 +351,7 @@ public class Param extends ThemeTreeNode implements HasProperties {
             return new DerivedNodeReferenceProperty(new ElementTextProperty(e, "Font reference"), limit, Kind.FONT);
         }
         if("cursor".equals(tagName)) {
-            return new DerivedNodeReferenceProperty(new ElementTextProperty(e, "Cursor reference"), limit, Kind.CURSOR);
+            return new DerivedNodeReferenceProperty(new ElementTextProperty(e, "Cursor reference"), limit, Kind.CURSOR, true);
         }
         if("enum".equals(tagName)) {
             String type = e.getAttributeValue("type");

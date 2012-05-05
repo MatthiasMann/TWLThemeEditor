@@ -61,7 +61,7 @@ public class NodeReference {
     }
 
     public boolean isWildcard() {
-        return kind == Kind.IMAGE && name.endsWith(".*");
+        return kind.supportsWildcard && name.endsWith(".*");
     }
 
     public String getBaseName() {
