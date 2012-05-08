@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -30,6 +30,7 @@
 package de.matthiasmann.twlthemeeditor.gui.testwidgets;
 
 import de.matthiasmann.twl.ResizableFrame;
+import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 
 /**
  *
@@ -37,6 +38,11 @@ import de.matthiasmann.twl.ResizableFrame;
  */
 public class TestFrameWithWidgets extends ResizableFrame {
 
+    public static final StateKey STATE_CLOSE_PRESSED = StateKey.get("closeButtonWasPressed");
+    
+    private final Runnable closeCallback;
+    private boolean registerCloseCallback;
+    
     public TestFrameWithWidgets() {
         PreviewWidgets previewWidgets = new PreviewWidgets();
         previewWidgets.setTheme("/previewwidgets");
@@ -44,6 +50,30 @@ public class TestFrameWithWidgets extends ResizableFrame {
         add(previewWidgets);
         setTitle("Test");
         setTheme("resizableframe-resizeHandle");
+        
+        closeCallback = new Runnable() {
+            public void run() {
+                closePressed();
+            }
+        };
     }
 
+    public boolean isRegisterCloseCallback() {
+        return registerCloseCallback;
+    }
+
+    public void setRegisterCloseCallback(boolean registerCloseCallback) {
+        if(this.registerCloseCallback != registerCloseCallback) {
+            this.registerCloseCallback = registerCloseCallback;
+            if(registerCloseCallback) {
+                addCloseCallback(closeCallback);
+            } else {
+                removeCloseCallback(closeCallback);
+            }
+        }
+    }
+
+    void closePressed() {
+        getAnimationState().setAnimationState(STATE_CLOSE_PRESSED, true);
+    }
 }
