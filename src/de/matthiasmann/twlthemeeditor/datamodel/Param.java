@@ -52,6 +52,7 @@ import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.DerivedNodeReferenceProperty;
 import de.matthiasmann.twlthemeeditor.properties.EnumProperty;
+import de.matthiasmann.twlthemeeditor.properties.FloatProperty;
 import de.matthiasmann.twlthemeeditor.properties.IntegerFormulaProperty;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -311,6 +312,8 @@ public class Param extends ThemeTreeNode implements HasProperties {
         operations.add(new CreateNewParam(element, "image", node, "none"));
         operations.add(new CreateNewParam(element, "border", node, "0"));
         operations.add(new CreateNewParam(element, "int", node, "0"));
+        operations.add(new CreateNewParam(element, "float", node, "0.0"));
+        operations.add(new CreateNewParam(element, "color", node, "WHITE"));
         operations.add(new CreateNewParam(element, "bool", node, "false"));
         operations.add(new CreateNewParam(element, "gap", node, ""));
         operations.add(new CreateNewParam(element, "dimension", node, "0,0"));
@@ -334,6 +337,9 @@ public class Param extends ThemeTreeNode implements HasProperties {
         }
         if("int".equals(tagName)) {
             return new IntegerFormulaProperty(new ElementTextProperty(e, "Integer value"), Short.MIN_VALUE, Short.MAX_VALUE);
+        }
+        if("float".equals(tagName)) {
+            return new FloatProperty(new ElementTextProperty(e, "Float value"), Integer.MIN_VALUE, Integer.MAX_VALUE, 0.0f);
         }
         if("bool".equals(tagName)) {
             return new BooleanProperty(new ElementTextProperty(e, "Boolean value"), false);
