@@ -135,6 +135,7 @@ public final class ExtRect {
     
     public interface ExtRectProperty {
         public Dimension getLimit();
+        public Dimension getOffset();
         public boolean supportsWholeArea();
         public boolean supportsFlipping();
         public AbstractAction[] getActions();
@@ -160,6 +161,21 @@ public final class ExtRect {
                 }
             }
             return NO_LIMIT;
+        }
+        public final Dimension getOffset() {
+            if(property instanceof ExtRectProperty) {
+                Dimension off = ((ExtRectProperty)property).getOffset();
+                if(off != null) {
+                    return off;
+                }
+            }
+            return Dimension.ZERO;
+        }
+        public final int getMaxX() {
+            return getOffset().getX() + getLimit().getX();
+        }
+        public final int getMaxY() {
+            return getOffset().getY() + getLimit().getY();
         }
         public void addCallback(Runnable cb) {
             property.addValueChangedCallback(cb);

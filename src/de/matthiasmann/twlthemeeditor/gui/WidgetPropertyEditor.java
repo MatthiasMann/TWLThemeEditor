@@ -167,7 +167,7 @@ public class WidgetPropertyEditor extends ScrollPane {
     }
 
     static abstract class BoundIntegerProperty extends BoundProperty<Integer> implements IntegerModel {
-        public BoundIntegerProperty(Object bean, String name) {
+        BoundIntegerProperty(Object bean, String name) {
             super(bean, name, Integer.class);
         }
         public void addCallback(Runnable callback) {
@@ -194,18 +194,26 @@ public class WidgetPropertyEditor extends ScrollPane {
         final BoundIntegerProperty propY;
         final BoundIntegerProperty propW;
         final BoundIntegerProperty propH;
-        public WidgetRectProperty(final Widget widget) {
+        WidgetRectProperty(final Widget widget) {
             propX = new BoundIntegerProperty(widget, "x") {
+                @Override
+                public int getMinValue() {
+                    return widget.getParent().getInnerX();
+                }
                 public int getMaxValue() {
-                    return widget.getParent().getInnerWidth()-1;
+                    return widget.getParent().getInnerRight();
                 }
                 public void setValue(int value) {
                     widget.setPosition(value, widget.getY());
                 }
             };
             propY = new BoundIntegerProperty(widget, "y") {
+                @Override
+                public int getMinValue() {
+                    return widget.getParent().getInnerY();
+                }
                 public int getMaxValue() {
-                    return widget.getParent().getInnerHeight()-1;
+                    return widget.getParent().getInnerBottom();
                 }
                 public void setValue(int value) {
                     widget.setPosition(widget.getX(), value);
@@ -264,6 +272,10 @@ public class WidgetPropertyEditor extends ScrollPane {
             Widget parent = widget.getParent();
             return new Dimension(parent.getInnerWidth(), parent.getInnerHeight());
         }
+        public Dimension getOffset() {
+            Widget parent = widget.getParent();
+            return new Dimension(parent.getInnerX(), parent.getInnerY());
+        }
         public AbstractAction[] getActions() {
             if(widget.getParent() instanceof TestWidgetContainer) {
                 return new AbstractAction[] {
@@ -302,11 +314,11 @@ public class WidgetPropertyEditor extends ScrollPane {
     static class PolledBoundProperty<T> extends BoundProperty<T> {
         private T lastValue;
 
-        public PolledBoundProperty(Object bean, String name, Class<T> type) {
+        PolledBoundProperty(Object bean, String name, Class<T> type) {
             super(bean, name, type);
         }
 
-        public PolledBoundProperty(Object bean, String displayName, String propertyName, Class<T> type) {
+        PolledBoundProperty(Object bean, String displayName, String propertyName, Class<T> type) {
             super(bean, displayName, propertyName, type);
         }
 

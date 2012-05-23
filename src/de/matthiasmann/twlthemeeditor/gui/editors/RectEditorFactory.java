@@ -51,27 +51,35 @@ public class RectEditorFactory implements PropertyEditorFactory<ExtRect> {
 
     public Widget create(Property<ExtRect> property, ExternalFetaures ef) {
         ValueAdjusterInt adjusterX = new ValueAdjusterInt(new IM(property) {
+            @Override
+            public int getMinValue() {
+                return getOffset().getX();
+            }
             public int getMaxValue() {
-                return getLimit().getX();
+                return getMaxX();
             }
             public int getValue() {
                 return getRect().x;
             }
             public void setValue(int value) {
                 ExtRect rect = getRect();
-                setRect(value, rect.y, Math.min(getLimit().getX() - value, rect.width), rect.height, false, rect.flipX, rect.flipY);
+                setRect(value, rect.y, Math.min(getMaxX() - value, rect.width), rect.height, false, rect.flipX, rect.flipY);
             }
         });
         ValueAdjusterInt adjusterY = new ValueAdjusterInt(new IM(property) {
+            @Override
+            public int getMinValue() {
+                return getOffset().getY();
+            }
             public int getMaxValue() {
-                return getLimit().getY();
+                return getMaxY();
             }
             public int getValue() {
                 return getRect().y;
             }
             public void setValue(int value) {
                 ExtRect rect = getRect();
-                setRect(rect.x, value, rect.width, Math.min(getLimit().getY() - value, rect.height), false, rect.flipX, rect.flipY);
+                setRect(rect.x, value, rect.width, Math.min(getMaxY() - value, rect.height), false, rect.flipX, rect.flipY);
             }
         });
         ValueAdjusterInt adjusterW = new ValueAdjusterInt(new IM(property) {
@@ -83,7 +91,7 @@ public class RectEditorFactory implements PropertyEditorFactory<ExtRect> {
             }
             public void setValue(int value) {
                 ExtRect rect = getRect();
-                setRect(Math.min(getLimit().getX() - value, rect.x), rect.y, value, rect.height, false, rect.flipX, rect.flipY);
+                setRect(Math.min(getMaxX() - value, rect.x), rect.y, value, rect.height, false, rect.flipX, rect.flipY);
             }
         });
         ValueAdjusterInt adjusterH = new ValueAdjusterInt(new IM(property) {
@@ -95,7 +103,7 @@ public class RectEditorFactory implements PropertyEditorFactory<ExtRect> {
             }
             public void setValue(int value) {
                 ExtRect rect = getRect();
-                setRect(rect.x, Math.min(getLimit().getY() - value, rect.y), rect.width, value, false, rect.flipX, rect.flipY);
+                setRect(rect.x, Math.min(getMaxY() - value, rect.y), rect.width, value, false, rect.flipX, rect.flipY);
             }
         });
 

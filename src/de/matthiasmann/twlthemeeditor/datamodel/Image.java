@@ -301,5 +301,9 @@ public abstract class Image extends ThemeTreeNode implements HasProperties {
         public Dimension getLimit() {
             return textures.getTextureDimensions();
         }
+
+        public Dimension getOffset() {
+            return Dimension.ZERO;
+        }
     }
 }
