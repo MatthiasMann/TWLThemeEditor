@@ -176,7 +176,9 @@ public class WidgetTree extends DialogLayout {
     public void refreshTree() {
         Widget w = getSelectedWidget();
         treeModel.refreshTree();
-        selectWidget(w, false);
+        if(w != getSelectedWidget()) {
+            selectWidget(w, false);
+        }
     }
 
     void selectWidget(Widget widget, boolean flash) {
