@@ -33,6 +33,7 @@ import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.StringModel;
+import de.matthiasmann.twl.utils.TextUtil;
 import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
 
 /**
@@ -61,7 +62,7 @@ public class StringEditorFactory implements PropertyEditorFactory<String> {
             this.property = property;
         }
         public String getValue() {
-            return property.getPropertyValue();
+            return TextUtil.notNull(property.getPropertyValue());
         }
         public void setValue(String value) {
             property.setPropertyValue(value);
