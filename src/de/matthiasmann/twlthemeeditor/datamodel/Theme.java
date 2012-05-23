@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2011, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -219,8 +219,9 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         final L paramCB;
         protected Param param;
         protected Property<T> valueProperty;
+        protected boolean callbackAdded;
 
-        public ParamProperty(String paramName, Class<T> type) {
+        ParamProperty(String paramName, Class<T> type) {
             this.paramName = paramName;
             this.type = type;
             this.paramCB = new L();
@@ -380,21 +381,26 @@ public class Theme extends ThemeTreeNode implements HasProperties {
                 this.param = newParam;
                 if(newParam != null) {
                     this.valueProperty = (Property<T>)newParam.getValueProperty();
+                    if(valueProperty != null) {
+                        addCB();
+                        fireValueChangedCallback();
+                    }
                 } else {
                     this.valueProperty = null;
                 }
-                addCB();
             }
         }
         
         void removeCB() {
             if(valueProperty != null) {
                 valueProperty.removeValueChangedCallback(paramCB);
+                callbackAdded = false;
             }
         }
         
         void addCB() {
-            if(valueProperty != null) {
+            if(valueProperty != null && !callbackAdded && hasValueChangedCallbacks()) {
+                callbackAdded = true;
                 valueProperty.addValueChangedCallback(paramCB);
             }
         }
@@ -414,7 +420,7 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         final int minValue;
         final int maxValue;
 
-        public IntegerParamProperty(String paramName, int minValue, int maxValue) {
+        IntegerParamProperty(String paramName, int minValue, int maxValue) {
             super(paramName, IntegerFormula.class);
             this.minValue = minValue;
             this.maxValue = maxValue;
@@ -444,7 +450,7 @@ public class Theme extends ThemeTreeNode implements HasProperties {
         private final Kind kind;
         private final boolean supportsWildcard;
 
-        public NodeRefParamProperty(String paramName, Kind kind, boolean supportsWildcard) {
+        NodeRefParamProperty(String paramName, Kind kind, boolean supportsWildcard) {
             super(paramName, NodeReference.class);
             this.kind = kind;
             this.supportsWildcard = supportsWildcard;
