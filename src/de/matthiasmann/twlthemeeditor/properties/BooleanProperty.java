@@ -49,6 +49,9 @@ public class BooleanProperty extends DerivedProperty<Boolean> implements Boolean
 
     @Override
     protected Boolean parse(String value) throws IllegalArgumentException {
+        if(value == null && base.canBeNull()) {
+            return defaultValue;
+        }
         return Boolean.parseBoolean(value);
     }
 
