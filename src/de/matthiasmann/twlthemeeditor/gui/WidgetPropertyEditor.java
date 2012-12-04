@@ -41,6 +41,7 @@ import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.utils.ClassUtils;
 import de.matthiasmann.twlthemeeditor.datamodel.ExtRect;
 import de.matthiasmann.twlthemeeditor.datamodel.ExtRect.AbstractAction;
+import de.matthiasmann.twlthemeeditor.datamodel.WidgetLayoutInfo;
 import de.matthiasmann.twlthemeeditor.properties.BoundProperty;
 import de.matthiasmann.twlthemeeditor.properties.WidgetThemeProperty;
 import java.beans.BeanInfo;
@@ -59,6 +60,7 @@ public class WidgetPropertyEditor extends ScrollPane {
     private Context ctx;
     private Timer timer;
     private ArrayList<Property<?>> properties;
+    private WidgetLayoutInfoProperty widgetLayoutInfoProperty;
 
     public WidgetPropertyEditor() {
         setFixed(ScrollPane.Fixed.HORIZONTAL);
@@ -73,13 +75,13 @@ public class WidgetPropertyEditor extends ScrollPane {
         if(testWidget == null || ctx == null) {
             setContent(null);
             properties = null;
+            widgetLayoutInfoProperty = null;
             return;
         }
         
         properties = new ArrayList<Property<?>>();
         properties.add(new WidgetRectProperty(testWidget));
-        properties.add(new PolledBoundProperty<Integer>(testWidget, "Preferred Width", "preferredWidth", Integer.class));
-        properties.add(new PolledBoundProperty<Integer>(testWidget, "Preferred Height", "preferredHeight", Integer.class));
+        properties.add(widgetLayoutInfoProperty = new WidgetLayoutInfoProperty(testWidget));
         properties.add(new WidgetThemeProperty(testWidget, ctx));
         properties.add(new AbstractProperty<AnimationState>() {
             public boolean canBeNull() {
@@ -111,6 +113,15 @@ public class WidgetPropertyEditor extends ScrollPane {
                 return "Enabled";
             }
         });
+        properties.add(new BoundProperty<Boolean>(testWidget, "isVisible",
+                BoundProperty.getReadMethod(testWidget, "visible", Boolean.class),
+                BoundProperty.getWriteMethod(testWidget, "visible", boolean.class),
+                Boolean.class) {
+            @Override
+            public String getName() {
+                return "Visible";
+            }
+        });
         addBeanProperties(testWidget, properties);
 
         PropertyPanel panel = new PropertyPanel(ctx, properties);
@@ -124,7 +135,7 @@ public class WidgetPropertyEditor extends ScrollPane {
             for(PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
                 if(pd.getReadMethod() != null && pd.getWriteMethod() != null) {
                     if(pd.getReadMethod().getDeclaringClass() != Widget.class) {
-                        properties.add(new BoundProperty(testWidget, pd,
+                        properties.add(BoundProperty.create(testWidget, pd,
                                 ClassUtils.mapPrimitiveToWrapper(pd.getPropertyType())));
                     }
                 }
@@ -156,13 +167,8 @@ public class WidgetPropertyEditor extends ScrollPane {
     }
 
     void pollProperties() {
-        if(properties != null) {
-            for(int i=0,n=properties.size() ; i<n ; i++) {
-                Property<?> p = properties.get(i);
-                if(p instanceof PolledBoundProperty<?>) {
-                    ((PolledBoundProperty<?>)p).poll();
-                }
-            }
+        if(widgetLayoutInfoProperty != null) {
+            widgetLayoutInfoProperty.poll();
         }
     }
 
@@ -311,42 +317,53 @@ public class WidgetPropertyEditor extends ScrollPane {
         }
     }
 
-    static class PolledBoundProperty<T> extends BoundProperty<T> {
-        private T lastValue;
+    static class WidgetLayoutInfoProperty extends AbstractProperty<WidgetLayoutInfo> {
+        private final Widget widget;
+        private WidgetLayoutInfo lastInfo;
 
-        PolledBoundProperty(Object bean, String name, Class<T> type) {
-            super(bean, name, type);
+        public WidgetLayoutInfoProperty(Widget widget) {
+            this.widget = widget;
+            this.lastInfo = new WidgetLayoutInfo(
+                    widget.getMinWidth(), widget.getMinHeight(),
+                    widget.getPreferredWidth(), widget.getPreferredHeight(),
+                    widget.getMaxWidth(), widget.getMaxHeight());
         }
-
-        PolledBoundProperty(Object bean, String displayName, String propertyName, Class<T> type) {
-            super(bean, displayName, propertyName, type);
+        
+        public String getName() {
+            return "Widget Layout Info";
         }
-
-        @Override
-        public T getPropertyValue() {
-            updateValue();
-            return lastValue;
+        public boolean isReadOnly() {
+            return true;
         }
-
-        @Override
-        protected void propertyChanged() {
-            updateValue();
-            super.propertyChanged();
+        public boolean canBeNull() {
+            return false;
         }
-
+        public WidgetLayoutInfo getPropertyValue() {
+            return lastInfo;
+        }
+        public void setPropertyValue(WidgetLayoutInfo value) throws IllegalArgumentException {
+            throw new UnsupportedOperationException("Not supported");
+        }
+        public Class<WidgetLayoutInfo> getType() {
+            return WidgetLayoutInfo.class;
+        }
         public void poll() {
-            T value = super.getPropertyValue();
-            if(value != lastValue) {
-                boolean changed = value == null || (value != null && !value.equals(lastValue));
-                lastValue = value;
-                if(changed) {
-                    fireValueChangedCallback();
-                }
+            int maxWidth   = widget.getMaxWidth();
+            int maxHeight  = widget.getMaxHeight();
+            int prefWidth  = widget.getPreferredWidth();
+            int prefHeight = widget.getPreferredHeight();
+            int minWidth   = widget.getMinWidth();
+            int minHeight  = widget.getMinHeight();
+            
+            if(minWidth != lastInfo.getMinWidth() ||
+                    minHeight != lastInfo.getMinHeight() ||
+                    prefWidth != lastInfo.getPrefWidth() ||
+                    prefHeight != lastInfo.getPrefHeight() ||
+                    maxWidth != lastInfo.getMaxWidth() ||
+                    maxHeight != lastInfo.getMaxHeight()) {
+                lastInfo = new WidgetLayoutInfo(minWidth, minHeight, prefWidth, prefHeight, maxWidth, maxHeight);
+                fireValueChangedCallback();
             }
-        }
-
-        private void updateValue() {
-            lastValue = super.getPropertyValue();
         }
     }
 }
