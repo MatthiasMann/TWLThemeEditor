@@ -1100,6 +1100,16 @@ Leave empty to create an &lt;images&gt; node without an image.</string></param>
             </theme>
         </theme>
 
+        <theme name="widgetlayoutinfoeditor" ref="dialoglayout">
+            <param name="maxWidth"><int>32767</int></param>
+            <theme name="name" ref="label">
+                <param name="maxWidth"><int>32767</int></param>
+            </theme>
+            <theme name="value" ref="label">
+                <param name="textAlignment"><enum type="alignment">right</enum></param>
+            </theme>
+        </theme>
+
         <theme name="keyStrokeEditor" ref="button"/>
         <theme name="colorbutton" ref="button">
             <param name="white"><image>colorbutton.white</image></param>

@@ -41,6 +41,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.ExtRect;
 import de.matthiasmann.twlthemeeditor.datamodel.HotSpot;
 import de.matthiasmann.twlthemeeditor.datamodel.IntegerFormula;
 import de.matthiasmann.twlthemeeditor.datamodel.Weights;
+import de.matthiasmann.twlthemeeditor.datamodel.WidgetLayoutInfo;
 import de.matthiasmann.twlthemeeditor.gui.editors.BooleanEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.BorderEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.ColorEditorFactory;
@@ -58,6 +59,7 @@ import de.matthiasmann.twlthemeeditor.gui.editors.RectEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.SplitEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.StringEditorFactory;
 import de.matthiasmann.twlthemeeditor.gui.editors.WeightsEditorFactory;
+import de.matthiasmann.twlthemeeditor.gui.editors.WidgetLayoutInfoEditorFactory;
 import de.matthiasmann.twlthemeeditor.properties.GradientStopModel;
 import de.matthiasmann.twlthemeeditor.properties.NameProperty;
 import de.matthiasmann.twlthemeeditor.properties.SplitProperty;
@@ -92,6 +94,7 @@ public class PropertyFactories {
         factoriesT.put(HotSpot.class, new HotSpotEditorFactory());
         factoriesT.put(ExtRect.class, new RectEditorFactory());
         factoriesT.put(Weights.class, new WeightsEditorFactory());
+        factoriesT.put(WidgetLayoutInfo.class, new WidgetLayoutInfoEditorFactory());
     }
 
     public PropertyEditorFactory<?> getFactory(Property<?> property) {
