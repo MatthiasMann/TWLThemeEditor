@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2010, Matthias Mann
+ * Copyright (c) 2008-2012, Matthias Mann
  *
  * All rights reserved.
  *
@@ -40,7 +40,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * A property which accesses Java Bean Properties
+ * 
+ * @param <T> The type of the property value
  * @author Matthias Mann
  */
 public class BoundProperty<T> extends AbstractProperty<T> {
@@ -169,5 +171,9 @@ public class BoundProperty<T> extends AbstractProperty<T> {
         } catch(SecurityException unused) {
             return null;
         }
+    }
+    
+    public static<T> BoundProperty<T> create(Object bean, PropertyDescriptor pd, Class<T> type)  {
+        return new BoundProperty<T>(bean, pd, type);
     }
 }
