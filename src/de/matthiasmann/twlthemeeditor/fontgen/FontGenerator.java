@@ -211,7 +211,7 @@ public class FontGenerator {
             int[] usedY = new int[width];
             usedTextureHeight = 0;
 
-            FontInfo fontInfo = new FontInfo(maxHeight, descent);
+            FontInfo fontInfo = new FontInfo(maxHeight, descent, ascent);
             for(Effect.FT2Renderer effect : effects) {
                 effect.prePageRender(image, fontInfo);
             }
@@ -253,7 +253,7 @@ public class FontGenerator {
                         font.copyGlyphToByteArray(tmp, w*2+2, w);
                         
                         for(Effect.FT2Renderer renderer : effects) {
-                            renderer.render(image, fontInfo, xp, yp, w, h, tmp);
+                            renderer.render(image, fontInfo, xp, yp, w, h, tmp, glyph.info);
                         }
                     } else {
                         font.copyGlpyhToBufferedImage(image, xp, yp, Color.WHITE);
@@ -386,7 +386,7 @@ public class FontGenerator {
             rectList.add(rect);
         }
 
-        FontInfo fontInfo = new FontInfo(maxHeight, descent);
+        FontInfo fontInfo = new FontInfo(maxHeight, descent, ascent);
         
         // sorting of arrays is more efficient then sorting of collections
         final int numGlyphs = rectList.size();

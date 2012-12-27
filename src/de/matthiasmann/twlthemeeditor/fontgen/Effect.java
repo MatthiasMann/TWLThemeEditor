@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.fontgen;
 
+import de.matthiasmann.javafreetype.FreeTypeGlyphInfo;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator.GeneratorMethod;
@@ -56,7 +57,7 @@ public abstract class Effect {
     
     public abstract static class FT2Renderer extends Renderer {
         public void prePageRender(BufferedImage img, FontInfo fontInfo) {}
-        public abstract void render(BufferedImage img, FontInfo fontInfo, int xp, int yp, int w, int h, byte[] glyph);
+        public abstract void render(BufferedImage img, FontInfo fontInfo, int xp, int yp, int w, int h, byte[] glyph, FreeTypeGlyphInfo glyphInfo);
         public void postPageRender(BufferedImage img, FontInfo fontInfo) {}
     }
     

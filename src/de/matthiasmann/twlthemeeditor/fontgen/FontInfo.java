@@ -29,6 +29,8 @@
  */
 package de.matthiasmann.twlthemeeditor.fontgen;
 
+import java.util.HashMap;
+
 /**
  *
  * @author Matthias Mann
@@ -37,10 +39,14 @@ public class FontInfo {
 
     public final int maxGlyphHeight;
     public final int maxGlyphDecent;
+    public final int maxGlyphAscent;
+    public final HashMap<Object, Object> effectData;
 
-    public FontInfo(int maxGlyphHeight, int maxGlyphDecent) {
+    public FontInfo(int maxGlyphHeight, int maxGlyphDecent, int maxGlyphAscent) {
         this.maxGlyphHeight = maxGlyphHeight;
         this.maxGlyphDecent = maxGlyphDecent;
+        this.maxGlyphAscent = maxGlyphAscent;
+        this.effectData = new HashMap<Object, Object>();
     }
     
 }

@@ -29,6 +29,7 @@
  */
 package de.matthiasmann.twlthemeeditor.fontgen.effects;
 
+import de.matthiasmann.javafreetype.FreeTypeGlyphInfo;
 import de.matthiasmann.twl.Color;
 import de.matthiasmann.twl.model.Property;
 import de.matthiasmann.twl.model.SimpleProperty;
@@ -74,6 +75,8 @@ public class FT2OutlineEffect extends Effect {
                 outlineColor.getPropertyValue());
     }
     
+    static Object KEY_OUTLINE_ACTIVE = new Object();
+    
     static class RendererImpl extends FT2Renderer {
         final Color glyphColor;
         final Color outlineColor;
@@ -114,16 +117,25 @@ public class FT2OutlineEffect extends Effect {
                 int b = oB + dB * i / 255;
                 colors[i] = (r << 16) | (g << 8) | b;
             }
+            
+            fontInfo.effectData.put(KEY_OUTLINE_ACTIVE, Boolean.TRUE);
         }
 
         @Override
-        public void render(BufferedImage image, FontInfo fontInfo, int xp, int yp, int width, int height, byte[] glyph) {
+        public void render(BufferedImage image, FontInfo fontInfo, int xp, int yp, int width, int height, byte[] glyph, FreeTypeGlyphInfo glyphInfo) {
             if(xp + width - 2 > image.getWidth()) {
                 return;
             }
             if(yp + height - 2 > image.getHeight()) {
                 return;
             }
+            
+            int[] gradientData = (int[])fontInfo.effectData.get(FT2GradientEffect.KEY_GRADIENT_DATA);
+            if(gradientData != null) {
+                renderWithGradient(image, fontInfo, xp, yp, width, height, glyph, glyphInfo, gradientData);
+                return;
+            }
+            
             int dataOff = offset + yp * stride + xp - 2;
 
             int off = width + 1;
@@ -134,6 +146,38 @@ public class FT2OutlineEffect extends Effect {
                       max3H(glyph, off      ),
                       max3H(glyph, off+width));
                     data[dataOff+x] = colors[glyph[off] & 255] | (outline << 24);
+                }
+                dataOff += stride;
+                off += 2;
+            }
+        }
+        
+        private void renderWithGradient(BufferedImage image, FontInfo fontInfo, int xp, int yp, int width, int height, byte[] glyph, FreeTypeGlyphInfo glyphInfo, int[] gradientData) {
+            int dataOff = offset + yp * stride + xp - 2;
+
+            int oR = outlineColor.getRed();
+            int oG = outlineColor.getGreen();
+            int oB = outlineColor.getBlue();
+            
+            int row = 1 + fontInfo.maxGlyphAscent - glyphInfo.getOffsetY();
+            int off = width + 1;
+            for(int y=2 ; y<height ; y++,row++) {
+                int gCol = gradientData[row];
+                int dR = ((gCol >> 16) & 255) - oR;
+                int dG = ((gCol >>  8) & 255) - oG;
+                int dB = ((gCol      ) & 255) - oB;
+                
+                for(int x=2 ; x<width ; x++,off++) {
+                    int outline = max(
+                      max3H(glyph, off-width),
+                      max3H(glyph, off      ),
+                      max3H(glyph, off+width));
+                    
+                    int alpha = glyph[off] & 255;
+                    int r = oR + dR * alpha / 255;
+                    int g = oG + dG * alpha / 255;
+                    int b = oB + dB * alpha / 255;
+                    data[dataOff+x] = (r << 16) | (g << 8) | b | (outline << 24);
                 }
                 dataOff += stride;
                 off += 2;

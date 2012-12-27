@@ -59,6 +59,7 @@ import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator;
 import de.matthiasmann.twlthemeeditor.fontgen.FontGenerator.GeneratorMethod;
 import de.matthiasmann.twlthemeeditor.fontgen.Padding;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.BlurShadowEffect;
+import de.matthiasmann.twlthemeeditor.fontgen.effects.FT2GradientEffect;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.FT2OutlineEffect;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.GradientEffect;
 import de.matthiasmann.twlthemeeditor.fontgen.effects.OutlineEffect;
@@ -282,6 +283,7 @@ public final class FontGenDialog {
         effectsPanel.addEffect("Gradient", new GradientEffect());
         effectsPanel.addEffect("Outline", new OutlineEffect());
         effectsPanel.addEffect("Outline", new FT2OutlineEffect());
+        effectsPanel.addEffect("Gradient", new FT2GradientEffect());
         effectsPanel.addCallback(new Runnable() {
             public void run() {
                 updateEffects();
