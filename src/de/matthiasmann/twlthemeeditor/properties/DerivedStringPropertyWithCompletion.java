@@ -27,56 +27,50 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.matthiasmann.twlthemeeditor.gui.editors;
+package de.matthiasmann.twlthemeeditor.properties;
 
-import de.matthiasmann.twl.EditField;
-import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.AutoCompletionDataSource;
+import de.matthiasmann.twl.model.AutoCompletionResult;
 import de.matthiasmann.twl.model.Property;
-import de.matthiasmann.twl.model.StringModel;
+import de.matthiasmann.twl.model.SimpleAutoCompletionResult;
 import de.matthiasmann.twl.utils.TextUtil;
-import de.matthiasmann.twlthemeeditor.gui.PropertyEditorFactory;
+import java.util.ArrayList;
 
 /**
  *
  * @author Matthias Mann
  */
-public class StringEditorFactory implements PropertyEditorFactory<String> {
+public class DerivedStringPropertyWithCompletion extends DerivedProperty<String> implements AutoCompletionDataSource {
 
-    public Widget create(Property<String> property, ExternalFetaures externalFetaures) {
-        final EditField ef = new EditField();
-        ef.setModel(wrap(property));
-        if(externalFetaures != null) {
-            externalFetaures.disableOnNotPresent(ef);
-        }
-        if(property instanceof AutoCompletionDataSource) {
-            ef.setAutoCompletionOnSetText(false);
-            ef.setAutoCompletion((AutoCompletionDataSource)property);
-        }
-        return ef;
+    private final String[] autoCompletionSuggestions;
+    
+    public DerivedStringPropertyWithCompletion(Property<String> base, String defaultValue, String ... autoCompletionSuggestions) {
+        super(base, String.class, defaultValue);
+        this.autoCompletionSuggestions = autoCompletionSuggestions;
     }
     
-    static StringModel wrap(Property<String> property) {
-        return (property instanceof StringModel)
-                ? (StringModel)property : new SM(property);
+    @Override
+    protected String parse(String value) throws IllegalArgumentException {
+        return TextUtil.notNull(value);
     }
     
-    static class SM implements StringModel {
-        private final Property<String> property;
-        SM(Property<String> property) {
-            this.property = property;
+    @Override
+    protected String toString(String value) throws IllegalArgumentException {
+        if(value.length() == 0) {
+            return null;
         }
-        public String getValue() {
-            return TextUtil.notNull(property.getPropertyValue());
-        }
-        public void setValue(String value) {
-            property.setPropertyValue(value);
-        }
-        public void addCallback(Runnable cb) {
-            property.addValueChangedCallback(cb);
-        }
-        public void removeCallback(Runnable cb) {
-            property.removeValueChangedCallback(cb);
-        }
+        return value;
     }
+
+    public AutoCompletionResult collectSuggestions(String text, int cursorPos, AutoCompletionResult prev) {
+        String part = text.substring(0, cursorPos);
+        ArrayList<String> results = new ArrayList<String>();
+        for(String suggestion : autoCompletionSuggestions) {
+            if(suggestion.startsWith(part)) {
+                results.add(suggestion);
+            }
+        }
+        return new SimpleAutoCompletionResult(text, cursorPos, results);
+    }
+    
 }

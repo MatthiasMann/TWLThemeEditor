@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2012, Matthias Mann
+ * Copyright (c) 2008-2013, Matthias Mann
  *
  * All rights reserved.
  *
@@ -42,6 +42,7 @@ import de.matthiasmann.twlthemeeditor.datamodel.operations.CreateNewGradient;
 import de.matthiasmann.twlthemeeditor.dom.Element;
 import de.matthiasmann.twlthemeeditor.properties.AttributeProperty;
 import de.matthiasmann.twlthemeeditor.properties.DerivedProperty;
+import de.matthiasmann.twlthemeeditor.properties.DerivedStringPropertyWithCompletion;
 import de.matthiasmann.twlthemeeditor.properties.HasProperties;
 import java.io.IOException;
 import java.io.InputStream;
@@ -106,6 +107,8 @@ public class Images extends ThemeTreeNode implements HasProperties {
             }
         };
         addProperty(commentProperty);
+        
+        addProperty(new DerivedStringPropertyWithCompletion(new AttributeProperty(element, "filter", "filter", true), "", "linear", "nearest"));
     }
 
     public URL getTextureURL() throws MalformedURLException {
