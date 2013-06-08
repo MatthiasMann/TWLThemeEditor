@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2012, Matthias Mann
+ * Copyright (c) 2008-2013, Matthias Mann
  *
  * All rights reserved.
  *
@@ -160,6 +160,7 @@ public final class AttributeList implements Iterable<Attribute> {
                 all.attributeAdded(element, attribute, idx);
             }
         }
+        Document.documentChanged(element);
     }
     
     public void add(Attribute attribute) {
@@ -204,6 +205,7 @@ public final class AttributeList implements Iterable<Attribute> {
                 all.attributeRemoved(element, attribute, idx);
             }
         }
+        Document.documentChanged(element);
     }
     
     @Override
