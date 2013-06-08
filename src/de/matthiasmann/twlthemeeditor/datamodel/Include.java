@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2012, Matthias Mann
+ * Copyright (c) 2008-2013, Matthias Mann
  *
  * All rights reserved.
  *
@@ -45,8 +45,10 @@ public final class Include extends ThemeTreeNode {
 
     public Include(TreeTableNode parent, Element element, final ThemeFile themeFile) throws IOException {
         super(themeFile, parent, element);
+        element.removeContentListener(contentListener);
 
         this.includedThemeFile = themeFile.createThemeFile(getFileName());
+        this.includedThemeFile.getRootElement().addContentListener(contentListener);
     }
     
     @Override
@@ -61,6 +63,11 @@ public final class Include extends ThemeTreeNode {
 
     public Kind getKind() {
         return Kind.NONE;
+    }
+
+    @Override
+    public boolean childrenNeedName() {
+        return true;
     }
 
     @Override
