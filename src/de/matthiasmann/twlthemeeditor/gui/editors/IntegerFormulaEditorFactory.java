@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2012, Matthias Mann
+ * Copyright (c) 2008-2013, Matthias Mann
  *
  * All rights reserved.
  *
@@ -120,7 +120,10 @@ public class IntegerFormulaEditorFactory implements PropertyEditorFactory<Intege
 
         void propertyChanged() {
             IntegerFormula value = property.getPropertyValue();
-            efFormula.setText(value.toString());
+            String text = value.toString();
+            if(!efFormula.getText().equals(text)) {
+                efFormula.setText(text);
+            }
         }
 
         void setEnabled() {
