@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2012, Matthias Mann
+ * Copyright (c) 2008-2013, Matthias Mann
  *
  * All rights reserved.
  *
@@ -113,7 +113,13 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
                     }
                 });
                 
-                ef = new EditField();
+                ef = new EditField() {
+                    @Override
+                    protected void keyboardFocusLost() {
+                        super.keyboardFocusLost();
+                        focusLost();
+                    }
+                };
                 ef.setAutoCompletionOnSetText(false);
                 ef.addCallback(this);
                 ef.setAutoCompletion(new ACDS());
@@ -224,6 +230,12 @@ public class NodeReferenceEditorFactory implements PropertyEditorFactory<NodeRef
                 applyBtn.setEnabled(false);
             } catch(IllegalArgumentException ex) {
                 ef.setErrorMessage(ex.getMessage());
+            }
+        }
+        
+        void focusLost() {
+            if(applyBtn.isEnabled()) {
+                apply();
             }
         }
         
