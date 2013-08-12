@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2012, Matthias Mann
+ * Copyright (c) 2008-2013, Matthias Mann
  *
  * All rights reserved.
  *
@@ -179,8 +179,8 @@ public class TextureViewer extends Widget {
                 if(inset != null) {
                     maxNegInset[0] = Math.max(maxNegInset[0], Math.max(0, -inset.getTop()));
                     maxNegInset[1] = Math.max(maxNegInset[1], Math.max(0, -inset.getLeft()));
-                    maxNegInset[2] = Math.max(maxNegInset[2], Math.max(0, -inset.getRight()));
-                    maxNegInset[3] = Math.max(maxNegInset[3], Math.max(0, -inset.getBottom()));
+                    maxNegInset[2] = Math.max(maxNegInset[2], Math.max(0, -inset.getBottom()));
+                    maxNegInset[3] = Math.max(maxNegInset[3], Math.max(0, -inset.getRight()));
                 }
             }
             
